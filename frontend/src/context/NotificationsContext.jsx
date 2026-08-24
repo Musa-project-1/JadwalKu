@@ -1,0 +1,106 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useApp } from '../hooks/useApp'
+import { useFirestore } from '../hooks/useFirestore'
+import { NotificationsContext } from '../hooks/useNotifications'
+import {
+  buildChangeNotifications,
+  buildClassReminders,
+  buildExamReminders,
+  buildTaskDeadlineReminders,
+  mergeNotifications,
+} from '../lib/notificationEngine'
+import { getTodayName } from '../lib/scheduleUtils'
+import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
+
+const MAX_ITEMS = 100
+const ENGINE_INTERVAL_MS = 60_000
+
+/** Preferensi pengingat global (kelas/ujian/tugas), default semua aktif. */
+function getReminderPrefs() {
+  return { kelas: true, ujian: true, tugas: true, ...getItem(STORAGE_KEYS.reminderPrefs, {}) }
+}
+
+/**
+ * Penyedia notifikasi aplikasi:
+ * - Menyimpan daftar notifikasi di localStorage (device-local, sesuai PLAN.md)
+ * - Secara berkala memeriksa sumber data (jadwal hari ini, tugas, ujian,
+ *   riwayat perubahan) dan menambahkan notifikasi baru tanpa duplikat.
+ */
+export function NotificationsProvider({ children }) {
+  const { program, semester } = useApp()
+  const [items, setItems] = useState(() => getItem(STORAGE_KEYS.notifications, []))
+
+  const persist = useCallback((next) => {
+    setItems(next)
+    setItem(STORAGE_KEYS.notifications, next)
+  }, [])
+
+  // Sumber data untuk mesin notifikasi.
+  const { data: jadwal } = useFirestore('jadwal', [
+    ['prodi', '==', program ?? ''],
+    ['semester', '==', Number(semester) || 0],
+    ['status', '==', 'published'],
+  ])
+  const { data: mataKuliah } = useFirestore('mataKuliah')
+  const { data: ujian } = useFirestore('ujian', [['status', '==', 'published']])
+  const { data: riwayat } = useFirestore('riwayat')
+
+  const runEngine = useCallback(() => {
+    const now = new Date()
+    const todayEntries = jadwal.filter((e) => e.hari === getTodayName(now))
+    const courseMap = new Map(mataKuliah.map((c) => [c.kodeMK, c]))
+    const tasks = getItem(STORAGE_KEYS.tasks, [])
+
+    const prefs = getReminderPrefs()
+    const incoming = [
+      ...(prefs.kelas ? buildClassReminders(todayEntries, courseMap, now) : []),
+      ...(prefs.tugas ? buildTaskDeadlineReminders(tasks, now) : []),
+      ...(prefs.ujian ? buildExamReminders(ujian, now) : []),
+      ...buildChangeNotifications(riwayat, now),
+    ]
+    if (incoming.length === 0) return
+
+    setItems((prev) => {
+      const merged = mergeNotifications(prev, incoming).slice(0, MAX_ITEMS)
+      if (merged.length === prev.length) return prev
+      setItem(STORAGE_KEYS.notifications, merged)
+      return merged
+    })
+  }, [jadwal, mataKuliah, ujian, riwayat])
+
+  useEffect(() => {
+    // Effect ini sengaja menyinkronkan state dengan "sistem eksternal"
+    // (waktu berjalan + data Firestore): mesin notifikasi harus dijalankan
+    // saat mount dan tiap interval, lalu hasilnya masuk ke state.
+    // oxlint-disable-next-line react/set-state-in-effect -- sinkronisasi berkala dengan waktu & data eksternal memang butuh setState dalam effect.
+    runEngine()
+    const id = setInterval(runEngine, ENGINE_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [runEngine])
+
+  const markRead = useCallback(
+    (id) => persist(items.map((item) => (item.id === id ? { ...item, read: true } : item))),
+    [items, persist],
+  )
+
+  const markAllRead = useCallback(
+    () => persist(items.map((item) => ({ ...item, read: true }))),
+    [items, persist],
+  )
+
+  const removeItem = useCallback(
+    (id) => persist(items.filter((item) => item.id !== id)),
+    [items, persist],
+  )
+
+  const clearAll = useCallback(() => persist([]), [persist])
+
+  const unreadCount = useMemo(() => items.filter((item) => !item.read).length, [items])
+
+  const value = useMemo(
+    () => ({ items, unreadCount, markRead, markAllRead, removeItem, clearAll }),
+    [items, unreadCount, markRead, markAllRead, removeItem, clearAll],
+  )
+
+  return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>
+}

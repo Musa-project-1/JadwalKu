@@ -1,0 +1,344 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Token warna M3 — "JadwalKu Expressive" (Stitch v2, 25 Aug 2026).
+ * Light = cool slate-white + tonal containers. Dark = deep blue-slate
+ * #0e131d dengan aksen mint/indigo/peach (Structured Luminescence).
+ * Format: channel RGB tanpa prefiks → rgb(var(--c-x) / alpha).
+ */
+@layer base {
+  :root {
+    --c-surface: 247 249 251;
+    --c-surface-dim: 216 218 220;
+    --c-surface-bright: 247 249 251;
+    --c-surface-container-lowest: 255 255 255;
+    --c-surface-container-low: 242 244 246;
+    --c-surface-container: 236 238 240;
+    --c-surface-container-high: 230 232 234;
+    --c-surface-container-highest: 224 227 229;
+    --c-on-surface: 25 28 30;
+    --c-on-surface-variant: 62 73 71;
+    --c-inverse-surface: 45 49 51;
+    --c-inverse-on-surface: 239 241 243;
+    --c-outline: 110 121 119;
+    --c-outline-variant: 190 201 198;
+    --c-surface-tint: 6 106 97;
+    --c-primary: 0 78 71;
+    --c-on-primary: 255 255 255;
+    --c-primary-container: 0 104 95;
+    --c-on-primary-container: 147 228 216;
+    --c-inverse-primary: 133 213 201;
+    --c-secondary: 0 106 98;
+    --c-on-secondary: 255 255 255;
+    --c-secondary-container: 134 242 228;
+    --c-on-secondary-container: 0 111 102;
+    --c-tertiary: 44 43 188;
+    --c-on-tertiary: 255 255 255;
+    --c-tertiary-container: 71 72 212;
+    --c-on-tertiary-container: 210 209 255;
+    --c-error: 186 26 26;
+    --c-on-error: 255 255 255;
+    --c-error-container: 255 218 214;
+    --c-on-error-container: 147 0 10;
+    --c-primary-fixed: 161 241 229;
+    --c-primary-fixed-dim: 133 213 201;
+    --c-on-primary-fixed: 0 32 29;
+    --c-on-primary-fixed-variant: 0 80 73;
+    --c-secondary-fixed: 137 245 231;
+    --c-secondary-fixed-dim: 107 216 203;
+    --c-on-secondary-fixed: 0 32 29;
+    --c-on-secondary-fixed-variant: 0 80 73;
+    --c-tertiary-fixed: 225 224 255;
+    --c-tertiary-fixed-dim: 192 193 255;
+    --c-on-tertiary-fixed: 7 0 108;
+    --c-on-tertiary-fixed-variant: 47 46 190;
+    --c-background: 247 249 251;
+    --c-on-background: 25 28 30;
+    --c-surface-variant: 224 227 229;
+    --c-success: 4 120 87;
+    --c-success-container: 167 243 208;
+    --c-warning: 180 83 9;
+    --c-warning-container: 254 230 190;
+    --c-info: 30 58 138;
+    --c-info-container: 219 234 254;
+    /* Aurora */
+    --c-aurora-teal: 107 216 203;
+    --c-aurora-indigo: 93 95 239;
+    --c-aurora-peach: 255 178 139;
+  }
+
+  .dark {
+    --c-surface: 14 19 29;
+    --c-surface-dim: 14 19 29;
+    --c-surface-bright: 52 57 68;
+    --c-surface-container-lowest: 9 14 24;
+    --c-surface-container-low: 23 28 38;
+    --c-surface-container: 27 32 42;
+    --c-surface-container-high: 37 42 53;
+    --c-surface-container-highest: 48 53 64;
+    --c-on-surface: 222 226 241;
+    --c-on-surface-variant: 188 201 198;
+    --c-inverse-surface: 222 226 241;
+    --c-inverse-on-surface: 43 48 59;
+    --c-outline: 135 147 145;
+    --c-outline-variant: 61 73 71;
+    --c-surface-tint: 107 216 203;
+    --c-primary: 136 245 231;
+    --c-on-primary: 0 55 50;
+    --c-primary-container: 107 216 203;
+    --c-on-primary-container: 0 93 85;
+    --c-inverse-primary: 0 106 98;
+    --c-secondary: 193 193 255;
+    --c-on-secondary: 18 0 169;
+    --c-secondary-container: 49 46 197;
+    --c-on-secondary-container: 176 177 255;
+    --c-tertiary: 255 219 203;
+    --c-on-tertiary: 82 35 7;
+    --c-tertiary-container: 255 182 145;
+    --c-on-tertiary-container: 124 68 37;
+    --c-error: 255 180 171;
+    --c-on-error: 105 0 5;
+    --c-error-container: 147 0 10;
+    --c-on-error-container: 255 218 214;
+    --c-primary-fixed: 137 245 231;
+    --c-primary-fixed-dim: 107 216 203;
+    --c-on-primary-fixed: 0 32 29;
+    --c-on-primary-fixed-variant: 0 80 73;
+    --c-secondary-fixed: 225 224 255;
+    --c-secondary-fixed-dim: 193 193 255;
+    --c-on-secondary-fixed: 7 0 108;
+    --c-on-secondary-fixed-variant: 46 43 194;
+    --c-tertiary-fixed: 255 219 203;
+    --c-tertiary-fixed-dim: 255 182 145;
+    --c-on-tertiary-fixed: 52 17 0;
+    --c-on-tertiary-fixed-variant: 109 57 27;
+    --c-background: 14 19 29;
+    --c-on-background: 222 226 241;
+    --c-surface-variant: 48 53 64;
+    --c-success: 110 231 183;
+    --c-success-container: 6 78 59;
+    --c-warning: 252 211 77;
+    --c-warning-container: 120 53 15;
+    --c-info: 147 197 253;
+    --c-info-container: 30 58 138;
+    /* Aurora */
+    --c-aurora-teal: 107 216 203;
+    --c-aurora-indigo: 93 95 239;
+    --c-aurora-peach: 255 178 139;
+  }
+
+  html {
+    font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-background text-on-background antialiased;
+  }
+
+  /* Aurora washes — teal kanan-atas, indigo kiri-bawah, peach kiri-atas (dark) */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(640px circle at 88% 8%, rgb(var(--c-primary) / 0.09), transparent 62%),
+      radial-gradient(720px circle at 8% 88%, rgb(var(--c-secondary) / 0.08), transparent 62%),
+      radial-gradient(520px circle at 55% 45%, rgb(var(--c-tertiary) / 0.05), transparent 62%),
+      linear-gradient(
+        160deg,
+        rgb(var(--c-primary) / 0.04) 0%,
+        rgb(var(--c-secondary) / 0.035) 50%,
+        rgb(var(--c-tertiary) / 0.04) 100%
+      );
+  }
+
+  .dark body::before {
+    background:
+      radial-gradient(720px circle at 90% 4%, rgb(var(--c-aurora-teal) / 0.16), transparent 62%),
+      radial-gradient(780px circle at 4% 94%, rgb(var(--c-aurora-indigo) / 0.14), transparent 62%),
+      radial-gradient(560px circle at 8% 4%, rgb(var(--c-aurora-peach) / 0.09), transparent 58%),
+      linear-gradient(
+        160deg,
+        rgb(var(--c-aurora-teal) / 0.06) 0%,
+        rgb(var(--c-aurora-indigo) / 0.05) 50%,
+        rgb(var(--c-aurora-peach) / 0.04) 100%
+      );
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+
+  html.font-sm {
+    font-size: 14px;
+  }
+
+  html.font-md {
+    font-size: 16px;
+  }
+
+  html.font-lg {
+    font-size: 18px;
+  }
+
+  html.font-xl {
+    font-size: 20px;
+  }
+
+  html.high-contrast {
+    filter: contrast(1.12);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--c-primary));
+    outline-offset: 4px;
+  }
+}
+
+/*
+ * Motion tokens — M3 Expressive (UIUX_MODERNIZATION.md Phase A).
+ */
+:root {
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0.2, 1.2);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-emphasized: 350ms;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.15;
+  transform: scale(0);
+  animation: ripple 600ms var(--ease-standard) forwards;
+  pointer-events: none;
+}
+
+/* Kolom hari libur pada grid mingguan (garis diagonal) */
+.holiday-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 8px,
+    rgb(var(--c-surface-container-high) / 0.55) 8px,
+    rgb(var(--c-surface-container-high) / 0.55) 16px
+  );
+}
+
+/* Scrollbar tersembunyi untuk strip horizontal (tab hari, chip filter) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tint kartu gelap — slate + 8% warna kategori (JadwalKu Expressive Dark) */
+.dark .tint-mint {
+  background-image: linear-gradient(
+    rgb(var(--c-aurora-teal) / 0.08),
+    rgb(var(--c-aurora-teal) / 0.08)
+  );
+}
+.dark .tint-indigo {
+  background-image: linear-gradient(
+    rgb(var(--c-aurora-indigo) / 0.08),
+    rgb(var(--c-aurora-indigo) / 0.08)
+  );
+}
+.dark .tint-peach {
+  background-image: linear-gradient(
+    rgb(var(--c-aurora-peach) / 0.08),
+    rgb(var(--c-aurora-peach) / 0.08)
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

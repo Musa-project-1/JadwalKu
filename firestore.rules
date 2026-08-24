@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == "admin@jadwalkampus.app";
+    }
+
+    match /jadwal/{doc} {
+      allow read: if isAdmin() || resource.data.status == "published";
+      allow write: if isAdmin();
+    }
+
+    match /mataKuliah/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /ujian/{doc} {
+      allow read: if isAdmin() || resource.data.status == "published";
+      allow write: if isAdmin();
+    }
+
+    match /prodi/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /libur/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /riwayat/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /errorLog/{doc} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+  }
+}
