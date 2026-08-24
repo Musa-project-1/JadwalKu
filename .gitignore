@@ -80,3 +80,7 @@ references/
 .agents/
 .vscode/
 skills-lock.json
+*.md
+
+# Local Netlify folder
+.netlify

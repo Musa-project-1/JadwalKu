@@ -85,11 +85,12 @@ export default function UploadImport() {
     let savedEntries = 0
     let savedCourses = 0
     let failed = 0
+    let firstError = ''
 
     for (const course of parsed.courses) {
       const result = await setDocument('mataKuliah', course.kodeMK.toUpperCase(), course, actor)
       if (result.ok) savedCourses += 1
-      else failed += 1
+      else { failed += 1; if (!firstError) firstError = result.error ?? 'unknown' }
     }
 
     for (const entry of parsed.scheduleEntries) {
@@ -104,13 +105,13 @@ export default function UploadImport() {
         actor,
       )
       if (result.ok) savedEntries += 1
-      else failed += 1
+      else { failed += 1; if (!firstError) firstError = result.error ?? 'unknown' }
     }
 
     for (const exam of parsed.exams) {
       const result = await addDocument('ujian', { ...exam, status: 'draft' }, actor)
       if (result.ok) savedEntries += 1
-      else failed += 1
+      else { failed += 1; if (!firstError) firstError = result.error ?? 'unknown' }
     }
 
     await appendHistory({
@@ -139,7 +140,7 @@ export default function UploadImport() {
       message:
         failed === 0
           ? `${savedCourses} mata kuliah & ${savedEntries} entri jadwal/ujian disimpan sebagai draft${publish ? ' + dipublikasikan' : ''}.`
-          : `${failed} dokumen gagal disimpan.`,
+          : `${failed} dokumen gagal disimpan. Penyebab: ${firstError}`,
     })
     setBusy(false)
     setParsed(null)

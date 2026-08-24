@@ -1,4 +1,4 @@
-import { addDoc, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { db, firebaseReady } from './firebaseClient'
 import { logError } from './errorLogger'
 
