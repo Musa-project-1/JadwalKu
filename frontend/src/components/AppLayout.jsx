@@ -40,11 +40,19 @@ export function AppLayout() {
   const [notifOpen, setNotifOpen] = useState(false)
   const nextTheme = theme === 'dark' ? 'light' : 'dark'
 
-  const todayString = new Date().toLocaleDateString('id-ID', {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const todayString = now.toLocaleDateString('id-ID', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
   })
+
+  const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
   const toggleSearch = () => {
     setSearchOpen((prev) => !prev)
@@ -101,10 +109,13 @@ export function AppLayout() {
                 <Icon name="tune" size={14} className="text-on-surface-variant group-hover:text-primary transition-colors ml-0.5" />
               </Link>
 
-              {/* Today's Date Chip */}
-              <span className="rounded-full bg-surface-container/40 px-3 py-1 text-[11px] font-semibold text-on-surface-variant border border-outline-variant/15">
-                {todayString}
-              </span>
+              {/* Today's Date & Live Clock Chip */}
+              <div className="flex items-center gap-1.5 rounded-full bg-surface-container/50 px-3 py-1 text-[11px] font-semibold text-on-surface-variant border border-outline-variant/15 shadow-sm">
+                <Icon name="schedule" size={13} className="text-primary" />
+                <span>{todayString}</span>
+                <span className="text-outline-variant/50">·</span>
+                <span className="text-on-surface font-semibold">{timeString} WIB</span>
+              </div>
             </div>
 
             {/* Top Right: Quick Actions (Panel Admin, Search, Theme Toggle, Notif Bell) */}

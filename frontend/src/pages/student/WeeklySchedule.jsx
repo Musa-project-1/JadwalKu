@@ -17,6 +17,7 @@ import {
   TONE_BORDER_CLASSES,
   TONE_TEXT_CLASSES,
   TONE_SUBTEXT_CLASSES,
+  TONE_CLASSES,
   getClassType,
 } from '../../lib/classTypes'
 import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
@@ -33,12 +34,25 @@ export default function WeeklySchedule() {
   const [shareOpen, setShareOpen] = useState(false)
   const location = useLocation()
 
+  const { data: settingsDocs } = useFirestore('settings', [])
+
+  const calDoc = useMemo(
+    () => settingsDocs.find((d) => d.id === 'academicCalendar'),
+    [settingsDocs],
+  )
+
   // TA aktif = TA di mana semester yang dipilih berada (kalender kampus:
   // ganjil akhir Sep → awal Feb, genap akhir Mar → awal Jul). Saat libur,
-  // semester ganjil sudah mengarah ke TA berikutnya. Pilihan TIDAK
-  // dipersistenkan — default selalu dihitung ulang (anti state basi).
-  const currentTA = expectedTahunAjaranForSemester(semester)
+  // semester ganjil sudah mengarah ke TA berikutnya.
+  const currentTA = useMemo(
+    () => expectedTahunAjaranForSemester(semester, new Date(), calDoc),
+    [semester, calDoc],
+  )
   const [selectedTA, setSelectedTA] = useState(currentTA)
+
+  useEffect(() => {
+    setSelectedTA(currentTA)
+  }, [currentTA])
 
   const viewingArchive = selectedTA !== currentTA
 
@@ -53,7 +67,6 @@ export default function WeeklySchedule() {
     ['semester', '==', Number(semester) || 0],
     ['status', '==', 'archived'],
   ])
-  const { data: settingsDocs } = useFirestore('settings', [])
 
   // Semua TA yang diketahui: settings + data published + data arsip.
   const allTAs = useMemo(() => {
@@ -526,6 +539,7 @@ function CourseDetailPanel({ entry, course, onClose }) {
     getItem(`${STORAGE_KEYS.courseReminders}:${kode}`, true),
   )
   const relatedTasks = tasks.filter((t) => t.kodeMK === kode)
+  const classType = getClassType(entry.tipeKelas || entry.ruang)
 
   function handleNoteChange(value) {
     setNote(value)
@@ -564,7 +578,24 @@ function CourseDetailPanel({ entry, course, onClose }) {
         <div className="space-y-lg p-lg">
           <InfoRow icon="person" label="Dosen Pengampu" value={course?.dosen ?? '-'} />
           <InfoRow icon="book" label="SKS" value={course?.sks ? `${course.sks} SKS` : '-'} />
-          <InfoRow icon="meeting_room" label="Ruangan" value={entry.ruang} />
+          <InfoRow
+            icon="meeting_room"
+            label="Ruangan"
+            value={
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">{entry.ruang}</span>
+                {classType.label && (
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                      TONE_CLASSES[classType.tone] ?? 'bg-surface-container text-on-surface-variant'
+                    }`}
+                  >
+                    {classType.label}
+                  </span>
+                )}
+              </div>
+            }
+          />
           <InfoRow icon="call" label="Kontak Dosen" value={course?.kontakDosen ?? '-'} />
 
           {/* Toggle pengingat per mata kuliah */}
@@ -651,9 +682,9 @@ function InfoRow({ icon, label, value }) {
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-container dark:bg-surface-container-high">
         <Icon name={icon} size={18} className="text-secondary" />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-label-caps text-on-surface-variant">{label}</p>
-        <p className="truncate text-body-sm text-on-surface">{value}</p>
+        <div className="text-body-sm text-on-surface font-medium">{value}</div>
       </div>
     </div>
   )

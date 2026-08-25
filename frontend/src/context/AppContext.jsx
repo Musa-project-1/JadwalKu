@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { firebaseReady } from '../lib/firebaseClient'
 import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
 import { AppContext } from '../hooks/useApp'
@@ -13,6 +13,18 @@ function applyDocumentPreferences({ theme, fontSize, highContrast }) {
   root.classList.toggle('high-contrast', Boolean(highContrast))
 }
 
+function updatePreferencesWithTransition(prefs) {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (!document.startViewTransition || prefersReducedMotion) {
+    applyDocumentPreferences(prefs)
+    return
+  }
+
+  document.startViewTransition(() => {
+    applyDocumentPreferences(prefs)
+  })
+}
+
 export function AppProvider({ children }) {
   const [theme, setThemeState] = useState(() => getItem(STORAGE_KEYS.theme, 'system'))
   const [fontSize, setFontSizeState] = useState(() => getItem(STORAGE_KEYS.fontSize, 'md'))
@@ -25,14 +37,21 @@ export function AppProvider({ children }) {
     getItem(STORAGE_KEYS.adminSession, null),
   )
 
+  const isFirstRender = useRef(true)
+
   useEffect(() => {
-    applyDocumentPreferences({ theme, fontSize, highContrast })
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      applyDocumentPreferences({ theme, fontSize, highContrast })
+    } else {
+      updatePreferencesWithTransition({ theme, fontSize, highContrast })
+    }
   }, [theme, fontSize, highContrast])
 
   useEffect(() => {
     if (theme !== 'system') return undefined
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => applyDocumentPreferences({ theme, fontSize, highContrast })
+    const onChange = () => updatePreferencesWithTransition({ theme, fontSize, highContrast })
     media.addEventListener('change', onChange)
     return () => media.removeEventListener('change', onChange)
   }, [theme, fontSize, highContrast])

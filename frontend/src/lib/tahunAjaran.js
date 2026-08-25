@@ -12,28 +12,37 @@
  * sedangkan TA 2026/2027 (ganjil) dimulai akhir Sep 2026.
  */
 
-// Batas term (bulan 0-index: Jan = 0 ... Sep = 8). Ubah di sini bila
-// kalender kampus berubah.
+// Batas term default (bulan 0-index: Jan = 0 ... Sep = 8).
 export const ACADEMIC_CALENDAR = {
-  ganjilStart: { month: 8, day: 25 }, // akhir Sep
-  ganjilEnd: { month: 1, day: 5 }, // awal Feb (tahun berikutnya)
-  genapStart: { month: 2, day: 25 }, // akhir Mar (tahun berikutnya)
-  genapEnd: { month: 6, day: 5 }, // awal Jul (tahun berikutnya)
+  ganjilStart: { month: 8, day: 25 }, // 25 Sep
+  ganjilEnd: { month: 1, day: 5 }, // 5 Feb (tahun berikutnya)
+  genapStart: { month: 2, day: 25 }, // 25 Mar (tahun berikutnya)
+  genapEnd: { month: 6, day: 5 }, // 5 Jul (tahun berikutnya)
 }
 
 function toDate(year, { month, day }) {
   return new Date(year, month, day)
 }
 
+export function parseCalendarBounds(config) {
+  if (!config) return ACADEMIC_CALENDAR
+  return {
+    ganjilStart: config.ganjilStart ?? ACADEMIC_CALENDAR.ganjilStart,
+    ganjilEnd: config.ganjilEnd ?? ACADEMIC_CALENDAR.ganjilEnd,
+    genapStart: config.genapStart ?? ACADEMIC_CALENDAR.genapStart,
+    genapEnd: config.genapEnd ?? ACADEMIC_CALENDAR.genapEnd,
+  }
+}
+
 /**
  * Tahun ajaran berjalan: TA Y/(Y+1) dimulai saat ganjil mulai (akhir Sep Y)
  * dan berakhir sebelum ganjil berikutnya (akhir Sep Y+1).
  */
-export function deriveTahunAjaran(date = new Date()) {
+export function deriveTahunAjaran(date = new Date(), customCalendar = null) {
+  const cal = parseCalendarBounds(customCalendar)
   const y = date.getFullYear()
-  const { ganjilStart } = ACADEMIC_CALENDAR
-  // "akhir Sep tahun Y" → TA Y/(Y+1). Sebelumnya → TA (Y-1)/Y.
-  if (date >= toDate(y, ganjilStart)) {
+  // "awal ganjil tahun Y" → TA Y/(Y+1). Sebelumnya → TA (Y-1)/Y.
+  if (date >= toDate(y, cal.ganjilStart)) {
     return `${y}/${y + 1}`
   }
   return `${y - 1}/${y}`
@@ -42,14 +51,14 @@ export function deriveTahunAjaran(date = new Date()) {
 /**
  * Term aktif pada sebuah tanggal: 'ganjil' | 'genap' | 'libur'.
  */
-export function deriveTerm(date = new Date()) {
-  const startYear = Number(deriveTahunAjaran(date).split('/')[0])
-  const { ganjilStart, ganjilEnd, genapStart, genapEnd } = ACADEMIC_CALENDAR
+export function deriveTerm(date = new Date(), customCalendar = null) {
+  const cal = parseCalendarBounds(customCalendar)
+  const startYear = Number(deriveTahunAjaran(date, cal).split('/')[0])
 
-  const ganjilFrom = toDate(startYear, ganjilStart)
-  const ganjilTo = toDate(startYear + 1, ganjilEnd)
-  const genapFrom = toDate(startYear + 1, genapStart)
-  const genapTo = toDate(startYear + 1, genapEnd)
+  const ganjilFrom = toDate(startYear, cal.ganjilStart)
+  const ganjilTo = toDate(startYear + 1, cal.ganjilEnd)
+  const genapFrom = toDate(startYear + 1, cal.genapStart)
+  const genapTo = toDate(startYear + 1, cal.genapEnd)
 
   if (date >= ganjilFrom && date <= ganjilTo) return 'ganjil'
   if (date >= genapFrom && date <= genapTo) return 'genap'
@@ -84,14 +93,15 @@ export function prevTahunAjaran(ta) {
  *  2. Libur setelah ganjil, sebelum genap (awal Feb → akhir Mar): masih
  *     dalam satu TA — kedua belahan milik TA berjalan.
  */
-export function expectedTahunAjaranForSemester(semester, date = new Date()) {
-  const currentTA = deriveTahunAjaran(date)
-  const currentTerm = deriveTerm(date)
+export function expectedTahunAjaranForSemester(semester, date = new Date(), customCalendar = null) {
+  const cal = parseCalendarBounds(customCalendar)
+  const currentTA = deriveTahunAjaran(date, cal)
+  const currentTerm = deriveTerm(date, cal)
 
   if (currentTerm !== 'libur') return currentTA
 
   const startYear = Number(currentTA.split('/')[0])
-  const isBetweenYears = date >= toDate(startYear + 1, ACADEMIC_CALENDAR.genapEnd)
+  const isBetweenYears = date >= toDate(startYear + 1, cal.genapEnd)
   if (isBetweenYears) {
     return termForSemester(semester) === 'ganjil'
       ? nextTahunAjaran(currentTA)

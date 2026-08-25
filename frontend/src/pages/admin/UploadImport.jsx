@@ -159,7 +159,12 @@ export default function UploadImport() {
       const result = await setDocument(
         'ujian',
         ujianDocId(exam),
-        { ...exam, semester: Number(exam.semester), status: 'draft' },
+        {
+          ...exam,
+          semester: Number(exam.semester),
+          tahunAjaran: parsed.tahunAjaran ?? deriveTahunAjaran(),
+          status: 'draft',
+        },
         actor,
       )
       if (result.ok) { savedEntries += 1; ujianIds.push(result.id) }

@@ -7,6 +7,7 @@ import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { addDocument, setDocument } from '../../lib/adminData'
 import { appendHistory, publishDocuments } from '../../lib/publishHelpers'
+import { deriveTahunAjaran } from '../../lib/tahunAjaran'
 import {
   DAYS,
   CLASS_TYPE_CODES,
@@ -96,7 +97,15 @@ export default function ManualEntry() {
     let failCount = 0
     for (const session of sessions) {
       const { _id, ...data } = session
-      const result = await addDocument('jadwal', { ...data, status: 'draft' }, actor)
+      const result = await addDocument(
+        'jadwal',
+        {
+          ...data,
+          tahunAjaran: session.tahunAjaran || deriveTahunAjaran(),
+          status: 'draft',
+        },
+        actor,
+      )
       if (result.ok) okCount += 1
       else failCount += 1
     }
@@ -127,7 +136,15 @@ export default function ManualEntry() {
     const ids = []
     for (const session of sessions) {
       const { _id, ...data } = session
-      const result = await addDocument('jadwal', { ...data, status: 'draft' }, actor)
+      const result = await addDocument(
+        'jadwal',
+        {
+          ...data,
+          tahunAjaran: session.tahunAjaran || deriveTahunAjaran(),
+          status: 'draft',
+        },
+        actor,
+      )
       if (result.ok) ids.push(result.id)
     }
     if (ids.length === 0) {

@@ -35,6 +35,12 @@ export default function Home() {
     ['status', '==', 'published'],
   ])
   const { data: mataKuliah } = useFirestore('mataKuliah')
+  const { data: settingsDocs } = useFirestore('settings')
+
+  const calDoc = useMemo(
+    () => settingsDocs.find((d) => d.id === 'academicCalendar'),
+    [settingsDocs],
+  )
 
   // Fallback: kalau Firebase belum dikonfigurasi (dev tanpa .env),
   // pakai sample data supaya UI tetap bisa dites.
@@ -61,7 +67,7 @@ export default function Home() {
   const next = useMemo(() => findNextClass(todayEntries), [todayEntries])
   // TA ditampilkan = TA di mana semester berjalan berada (via logika
   // tahunAjaran), bukan dari data yang mungkin basi / beragam.
-  const dataTA = expectedTahunAjaranForSemester(semester)
+  const dataTA = expectedTahunAjaranForSemester(semester, new Date(), calDoc)
   const [nowMinutes, setNowMinutes] = useState(() => currentMinuteOfDay())
 
   // Tick tiap 30 detik untuk countdown "kelas berikutnya".
@@ -203,25 +209,25 @@ export default function Home() {
           />
         </section>
 
-        {/* Mini stat chips row — 3 distinct role color tints (Light & Dark M3) */}
+        {/* Mini stat chips row — 3 distinct role color tints with WCAG AAA contrast */}
         <section className="grid grid-cols-3 gap-sm">
-          {/* SKS: Primary Teal */}
-          <div className="flex flex-col items-center justify-center rounded-2xl bg-primary/10 dark:bg-primary/15 border border-primary/20 dark:border-primary/25 p-sm text-center shadow-sm">
-            <Icon name="menu_book" className="text-primary mb-1" size={20} />
-            <span className="text-title-md font-bold text-primary">{stats.totalSks}</span>
-            <span className="text-[11px] font-semibold text-primary/80 uppercase tracking-wide">SKS</span>
+          {/* SKS: Emerald / Teal */}
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 dark:border-emerald-500/30 p-sm text-center shadow-sm">
+            <Icon name="menu_book" className="text-emerald-700 dark:text-emerald-300 mb-1" size={20} />
+            <span className="text-title-md font-bold text-emerald-950 dark:text-emerald-100">{stats.totalSks}</span>
+            <span className="text-[11px] font-bold text-emerald-900/80 dark:text-emerald-300 uppercase tracking-wide">SKS</span>
           </div>
-          {/* Kelas: Secondary Indigo */}
-          <div className="flex flex-col items-center justify-center rounded-2xl bg-secondary-container/40 dark:bg-secondary-container/25 border border-secondary-container/30 dark:border-secondary/25 p-sm text-center shadow-sm">
-            <Icon name="calendar_month" className="text-secondary mb-1" size={20} />
-            <span className="text-title-md font-bold text-on-secondary-container dark:text-secondary">{stats.totalKelas}</span>
-            <span className="text-[11px] font-semibold text-on-secondary-container/80 dark:text-secondary/80 uppercase tracking-wide">Kelas</span>
+          {/* Kelas: Blue / Indigo */}
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/20 dark:border-blue-500/30 p-sm text-center shadow-sm">
+            <Icon name="calendar_month" className="text-blue-700 dark:text-blue-300 mb-1" size={20} />
+            <span className="text-title-md font-bold text-blue-950 dark:text-blue-100">{stats.totalKelas}</span>
+            <span className="text-[11px] font-bold text-blue-900/80 dark:text-blue-300 uppercase tracking-wide">Kelas</span>
           </div>
-          {/* Tugas: Tertiary Peach/Amber */}
-          <div className="flex flex-col items-center justify-center rounded-2xl bg-tertiary-container/40 dark:bg-tertiary-container/25 border border-tertiary-container/30 dark:border-tertiary/25 p-sm text-center shadow-sm">
-            <Icon name="assignment_late" className="text-tertiary mb-1" size={20} />
-            <span className="text-title-md font-bold text-on-tertiary-container dark:text-tertiary">{stats.tugasOpen}</span>
-            <span className="text-[11px] font-semibold text-on-tertiary-container/80 dark:text-tertiary/80 uppercase tracking-wide">Tugas</span>
+          {/* Tugas: Purple / Violet */}
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-purple-500/10 dark:bg-purple-500/15 border border-purple-500/20 dark:border-purple-500/30 p-sm text-center shadow-sm">
+            <Icon name="assignment_late" className="text-purple-700 dark:text-purple-300 mb-1" size={20} />
+            <span className="text-title-md font-bold text-purple-950 dark:text-purple-100">{stats.tugasOpen}</span>
+            <span className="text-[11px] font-bold text-purple-900/80 dark:text-purple-300 uppercase tracking-wide">Tugas</span>
           </div>
         </section>
 

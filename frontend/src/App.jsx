@@ -17,12 +17,10 @@ import { RequireAdmin } from './components/admin/RequireAdmin'
 import { AdminLayout } from './components/admin/AdminLayout'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
-import UploadImport from './pages/admin/UploadImport'
-import ManualEntry from './pages/admin/ManualEntry'
+import ManageSchedule from './pages/admin/ManageSchedule'
 import ManageCourses from './pages/admin/ManageCourses'
 import ManageExams from './pages/admin/ManageExams'
-import ManageProdi from './pages/admin/ManageProdi'
-import ManageHolidays from './pages/admin/ManageHolidays'
+import ManageAcademicSettings from './pages/admin/ManageAcademicSettings'
 
 function RequireOnboarding({ children }) {
   const done = getItem(STORAGE_KEYS.onboardingDone, false)
@@ -64,12 +62,14 @@ export default function App() {
         <Route element={<RequireAdmin />}>
           <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/upload" element={<UploadImport />} />
-            <Route path="/admin/manual" element={<ManualEntry />} />
+            <Route path="/admin/jadwal" element={<ManageSchedule />} />
+            <Route path="/admin/upload" element={<Navigate to="/admin/jadwal" replace />} />
+            <Route path="/admin/manual" element={<Navigate to="/admin/jadwal" replace />} />
             <Route path="/admin/mata-kuliah" element={<ManageCourses />} />
             <Route path="/admin/ujian" element={<ManageExams />} />
-            <Route path="/admin/prodi" element={<ManageProdi />} />
-            <Route path="/admin/libur" element={<ManageHolidays />} />
+            <Route path="/admin/pengaturan-akademik" element={<ManageAcademicSettings />} />
+            <Route path="/admin/prodi" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
+            <Route path="/admin/libur" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
           </Route>
         </Route>
 

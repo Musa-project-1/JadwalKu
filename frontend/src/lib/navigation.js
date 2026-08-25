@@ -20,10 +20,9 @@ export const SIDEBAR_EXTRA = [
 
 export const ADMIN_NAV = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { to: '/admin/upload', label: 'Upload Jadwal', icon: 'upload_file' },
-  { to: '/admin/manual', label: 'Input Manual', icon: 'edit_note' },
+  { to: '/admin/jadwal', label: 'Kelola Jadwal', icon: 'edit_calendar' },
   { to: '/admin/mata-kuliah', label: 'MK & Dosen', icon: 'folder_shared' },
   { to: '/admin/ujian', label: 'Jadwal Ujian', icon: 'event_note' },
-  { to: '/admin/prodi', label: 'Daftar Prodi', icon: 'list_alt' },
-  { to: '/admin/libur', label: 'Hari Libur', icon: 'calendar_today' },
+  { to: '/admin/pengaturan-akademik', label: 'Master Akademik', icon: 'settings_suggest' },
 ]
+

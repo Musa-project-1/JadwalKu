@@ -19,11 +19,10 @@ import {
 import { db } from '../../lib/firebaseClient'
 
 const QUICK_ACTIONS = [
-  { to: '/admin/upload', icon: 'upload_file', label: 'Upload Jadwal Baru', tone: 'bg-primary/10 text-primary' },
+  { to: '/admin/jadwal', icon: 'edit_calendar', label: 'Kelola & Upload Jadwal', tone: 'bg-primary/10 text-primary' },
   { to: '/admin/mata-kuliah', icon: 'group', label: 'Kelola MK & Dosen', tone: 'bg-secondary/10 text-secondary' },
   { to: '/admin/ujian', icon: 'event_note', label: 'Kelola Jadwal Ujian', tone: 'bg-tertiary/10 text-tertiary' },
-  { to: '/admin/prodi', icon: 'list_alt', label: 'Kelola Daftar Prodi', tone: 'bg-info-container text-info' },
-  { to: '/admin/libur', icon: 'event_busy', label: 'Kelola Hari Libur', tone: 'bg-warning-container text-warning' },
+  { to: '/admin/pengaturan-akademik', icon: 'settings_suggest', label: 'Master & Pengaturan Akademik', tone: 'bg-info-container text-info' },
 ]
 
 function formatDateID(iso) {
