@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useApp } from '../../hooks/useApp'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useTasks } from '../../hooks/useTasks'
@@ -7,6 +7,7 @@ import { Icon } from '../../components/Icon'
 import { ClassCard } from '../../components/ClassCard'
 import { EmptyState } from '../../components/EmptyState'
 import { Skeleton } from '../../components/Skeleton'
+import { ShareModal } from '../../components/ShareModal'
 import { sampleSchedule, sampleCourses } from '../../data/sampleSchedule'
 import { firebaseReady } from '../../lib/firebaseClient'
 import { DAYS } from '../../lib/uploadValidator'
@@ -25,11 +26,11 @@ const WEEK_DAYS = DAYS // Senin–Sabtu
 const PX_PER_HOUR = 88
 
 export default function WeeklySchedule() {
-  const navigate = useNavigate()
   const { program, semester } = useApp()
   const todayName = getTodayName()
   const [selectedDay, setSelectedDay] = useState(todayName)
   const [detailEntry, setDetailEntry] = useState(null)
+  const [shareOpen, setShareOpen] = useState(false)
   const location = useLocation()
 
   // TA aktif = TA di mana semester yang dipilih berada (kalender kampus:
@@ -249,8 +250,9 @@ export default function WeeklySchedule() {
           </select>
           <button
             type="button"
-            onClick={() => navigate('/bagikan')}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high dark:bg-surface-container-high"
+            onClick={() => setShareOpen(true)}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary dark:bg-surface-container-high cursor-pointer"
+            title="Bagikan Jadwal"
             aria-label="Bagikan jadwal"
           >
             <Icon name="ios_share" size={20} />
@@ -519,6 +521,9 @@ export default function WeeklySchedule() {
       {detailEntry && (
         <CourseDetailPanel entry={detailEntry} course={courseMap.get(detailEntry.kodeMK)} onClose={() => setDetailEntry(null)} />
       )}
+
+      {/* Share schedule modal dialog */}
+      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
   )
 }
