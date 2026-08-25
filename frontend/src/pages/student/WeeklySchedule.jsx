@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../hooks/useApp'
 import { useFirestore } from '../../hooks/useFirestore'
@@ -15,13 +15,14 @@ import {
   TONE_BG_CLASSES,
   TONE_BORDER_CLASSES,
   TONE_TEXT_CLASSES,
+  TONE_SUBTEXT_CLASSES,
   getClassType,
 } from '../../lib/classTypes'
 import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 
 const WEEK_DAYS = DAYS // Senin–Sabtu
-const PX_PER_HOUR = 64
+const PX_PER_HOUR = 88
 
 export default function WeeklySchedule() {
   const navigate = useNavigate()
@@ -197,6 +198,23 @@ export default function WeeklySchedule() {
   }, [rangeStart, rangeEnd])
 
   const gridHeight = ((rangeEnd - rangeStart) / 60) * PX_PER_HOUR
+  const gridScrollRef = useRef(null)
+
+  // Auto-scroll ke posisi "SEKARANG" (sepertiga atas viewport) saat halaman dimuat
+  useEffect(() => {
+    if (loading || !gridScrollRef.current) return
+    const clampedMinute = Math.max(rangeStart, Math.min(nowMinute, rangeEnd))
+    const targetY = ((clampedMinute - rangeStart) / 60) * PX_PER_HOUR
+    const timer = setTimeout(() => {
+      if (gridScrollRef.current) {
+        const viewportHeight = gridScrollRef.current.clientHeight || 500
+        const scrollTop = Math.max(0, targetY - viewportHeight / 3)
+        gridScrollRef.current.scrollTo({ top: scrollTop, behavior: 'smooth' })
+      }
+    }, 150)
+    return () => clearTimeout(timer)
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- Auto-scroll hanya dipicu sekali saat mount / ganti TA, bukan tiap tick menit.
+  }, [loading, selectedTA, rangeStart, rangeEnd])
 
   function openDetail(entry) {
     setDetailEntry(entry)
@@ -263,8 +281,9 @@ export default function WeeklySchedule() {
       <div className="desktop:hidden">
         {loading ? (
           <div className="space-y-sm">
-            <Skeleton className="h-24 rounded-schedule" />
-            <Skeleton className="h-24 rounded-schedule" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
           </div>
         ) : dayEntries.length === 0 ? (
           <EmptyState
@@ -297,14 +316,17 @@ export default function WeeklySchedule() {
               : `Belum ada jadwal terpublikasi untuk ${program} · Semester ${semester}. Admin dapat mengunggahnya lewat Panel Admin.`}
           </div>
         )}
-        <div className="overflow-x-auto no-scrollbar rounded-xl border border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low">
-          <div className="min-w-[620px]">
-            {/* Header hari */}
+        <div
+          ref={gridScrollRef}
+          className="overflow-auto max-h-[calc(100vh-210px)] min-h-[580px] rounded-2xl border border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low shadow-sm"
+        >
+          <div className="min-w-[720px]">
+            {/* Header hari — Sticky on top with solid background and higher z-index */}
             <div
-              className="grid"
-              style={{ gridTemplateColumns: `56px repeat(${WEEK_DAYS.length}, 1fr)` }}
+              className="grid sticky top-0 z-30 bg-surface-container-lowest dark:bg-surface-container-low shadow-sm border-b border-outline-variant/40"
+              style={{ gridTemplateColumns: `64px repeat(${WEEK_DAYS.length}, 1fr)` }}
             >
-              <div className="border-b border-outline-variant/40 p-2 text-center text-label-caps text-on-surface-variant">
+              <div className="p-3 text-center text-label-caps font-bold text-on-surface-variant flex items-center justify-center">
                 GMT+7
               </div>
               {weekDates.map(({ day, dateNum, monthShort, iso }) => {
@@ -313,12 +335,16 @@ export default function WeeklySchedule() {
                 return (
                   <div
                     key={day}
-                    className={`border-b border-outline-variant/40 p-2 text-center flex flex-col items-center justify-center ${
-                      isHoliday ? 'opacity-60' : ''
+                    className={`p-3 text-center flex flex-col items-center justify-center border-l border-outline-variant/30 transition-colors ${
+                      isHoliday
+                        ? 'opacity-60'
+                        : isTodayCol
+                        ? 'bg-surface-container-low dark:bg-surface-container-high/60 rounded-t-2xl'
+                        : ''
                     }`}
                   >
                     {isTodayCol ? (
-                      <span className="rounded-full bg-primary text-on-primary px-3 py-1 text-label-caps font-bold shadow-sm inline-block">
+                      <span className="rounded-full bg-primary text-on-primary px-3.5 py-1 text-label-caps font-bold shadow-sm inline-block">
                         {day}
                       </span>
                     ) : (
@@ -339,21 +365,26 @@ export default function WeeklySchedule() {
             <div
               className="relative grid"
               style={{
-                gridTemplateColumns: `56px repeat(${WEEK_DAYS.length}, 1fr)`,
+                gridTemplateColumns: `64px repeat(${WEEK_DAYS.length}, 1fr)`,
                 height: gridHeight,
               }}
             >
               {/* Kolom label jam */}
               <div className="relative border-r border-outline-variant/40">
-                {hourMarks.map((m) => (
-                  <span
-                    key={m}
-                    className="absolute right-1.5 -translate-y-1/2 text-label-caps text-on-surface-variant font-semibold"
-                    style={{ top: ((m - rangeStart) / 60) * PX_PER_HOUR }}
-                  >
-                    {String(Math.floor(m / 60)).padStart(2, '0')}:00
-                  </span>
-                ))}
+                {hourMarks.map((m) => {
+                  const isFirst = m === rangeStart
+                  return (
+                    <span
+                      key={m}
+                      className={`absolute right-1.5 text-label-caps text-on-surface-variant font-semibold select-none ${
+                        isFirst ? 'top-1.5' : '-translate-y-1/2'
+                      }`}
+                      style={isFirst ? undefined : { top: ((m - rangeStart) / 60) * PX_PER_HOUR }}
+                    >
+                      {String(Math.floor(m / 60)).padStart(2, '0')}:00
+                    </span>
+                  )
+                })}
               </div>
 
               {weekDates.map(({ day, iso }) => {
@@ -363,8 +394,12 @@ export default function WeeklySchedule() {
                 return (
                   <div
                     key={day}
-                    className={`relative border-l border-outline-variant/40 ${
-                      isHoliday ? 'holiday-stripes' : isTodayCol ? 'bg-primary/5' : ''
+                    className={`relative border-l border-outline-variant/40 transition-colors ${
+                      isHoliday
+                        ? 'holiday-stripes'
+                        : isTodayCol
+                        ? 'bg-surface-container-low/70 dark:bg-surface-container-high/30'
+                        : ''
                     }`}
                   >
                     {isHoliday && (
@@ -409,7 +444,7 @@ export default function WeeklySchedule() {
                             title={`${course?.namaMK ?? entry.kodeMK} · ${entry.jamMulai}-${entry.jamSelesai} · ${entry.ruang}`}
                           >
                             <p
-                              className={`line-clamp-2 text-body-sm font-semibold leading-tight ${
+                              className={`line-clamp-2 text-body-sm font-bold leading-tight ${
                                 TONE_TEXT_CLASSES[classType.tone]
                               }`}
                               title={course?.namaMK ?? entry.kodeMK}
@@ -417,12 +452,12 @@ export default function WeeklySchedule() {
                               {course?.namaMK ?? entry.kodeMK}
                             </p>
                             {height > 46 && (
-                              <p className="text-label-caps text-on-surface-variant font-medium mt-0.5">
+                              <p className={`text-label-caps font-semibold mt-0.5 ${TONE_SUBTEXT_CLASSES[classType.tone]}`}>
                                 {entry.jamMulai} - {entry.jamSelesai}
                               </p>
                             )}
                             {height > 66 && (
-                              <p className="truncate text-body-sm text-on-surface-variant font-semibold mt-0.5">
+                              <p className={`truncate text-body-sm font-semibold mt-0.5 ${TONE_SUBTEXT_CLASSES[classType.tone]}`}>
                                 {entry.ruang}
                               </p>
                             )}
@@ -437,15 +472,32 @@ export default function WeeklySchedule() {
                         )
                       })}
 
-                    {/* Garis waktu sekarang */}
-                    {isTodayCol && nowMinute >= rangeStart && nowMinute <= rangeEnd && (
-                      <div
-                        className="absolute inset-x-0 z-30 flex items-center"
-                        style={{ top: ((nowMinute - rangeStart) / 60) * PX_PER_HOUR }}
-                      >
-                        <span className="h-2 w-2 shrink-0 rounded-full bg-error" />
-                        <span className="h-0.5 flex-1 bg-error" />
-                      </div>
+                    {/* Garis waktu sekarang — Clamped to edges & one-time entrance animation */}
+                    {isTodayCol && (
+                      (() => {
+                        const clampedMinute = Math.max(rangeStart, Math.min(nowMinute, rangeEnd))
+                        const isClampedTop = nowMinute < rangeStart
+                        const isClampedBottom = nowMinute > rangeEnd
+                        const topPos = isClampedTop
+                          ? 6
+                          : isClampedBottom
+                          ? gridHeight - 6
+                          : ((clampedMinute - rangeStart) / 60) * PX_PER_HOUR
+
+                        return (
+                          <div
+                            className="absolute inset-x-0 z-15 flex items-center pointer-events-none animate-[fade-in_400ms_var(--ease-emphasized)_both]"
+                            style={{ top: topPos }}
+                            aria-label="Waktu sekarang"
+                          >
+                            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-error ring-4 ring-error/25 -ml-1 shadow-sm" />
+                            <span className="h-0.5 flex-1 bg-error shadow-sm" />
+                            <span className="bg-error text-on-error text-[10px] font-bold px-2 py-0.5 rounded-full mr-1.5 shrink-0 shadow-md">
+                              SEKARANG {String(Math.floor(nowMinute / 60)).padStart(2, '0')}:{String(nowMinute % 60).padStart(2, '0')}
+                            </span>
+                          </div>
+                        )
+                      })()
                     )}
                   </div>
                 )

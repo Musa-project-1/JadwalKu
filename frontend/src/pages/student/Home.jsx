@@ -135,6 +135,9 @@ export default function Home() {
                 course={nextCourse}
                 countdownText={countdownText}
                 urgent={countdownUrgent}
+                onDetail={() =>
+                  navigate('/jadwal', { state: { openKodeMK: next.kodeMK } })
+                }
               />
             </section>
           )
@@ -185,9 +188,10 @@ export default function Home() {
         </section>
       </div>
 
-      <aside className="desktop:col-span-1 space-y-md">
-        <section className="flex flex-col rounded-3xl bg-[#FFE4D6] border-l-4 border-[#D97706] p-md dark:bg-warning-container/20 dark:border-[#D97706]/40 tablet:p-lg">
-          <h3 className="mb-md flex items-center gap-sm text-title-md text-[#92400E] dark:text-warning font-semibold">
+      <aside className="desktop:col-span-1 rounded-3xl bg-surface-container-low/70 p-md tablet:p-lg border border-outline-variant/15 space-y-md shadow-sm">
+        {/* Catatan Hari Ini — warm accent card */}
+        <section className="flex flex-col rounded-2xl bg-[#FFE4D6] border-l-4 border-[#D97706] p-md shadow-level-1 dark:bg-warning-container/20 dark:border-[#D97706]/40">
+          <h3 className="mb-sm flex items-center gap-sm text-title-md text-[#92400E] dark:text-warning font-semibold">
             <Icon name="edit_note" className="text-[#D97706]" />
             Catatan Hari Ini
           </h3>
@@ -195,27 +199,75 @@ export default function Home() {
             value={dailyNote}
             onChange={(e) => handleNoteChange(e.target.value)}
             placeholder="Tulis catatan cepat untuk hari ini..."
-            className="min-h-[160px] flex-1 resize-none bg-transparent p-0 text-body-lg text-[#92400E] dark:text-warning placeholder:text-[#92400E]/60 dark:placeholder:text-warning/60 focus:outline-none"
+            className="min-h-[100px] flex-1 resize-none bg-transparent p-0 text-body-lg text-[#92400E] dark:text-warning placeholder:text-[#92400E]/60 dark:placeholder:text-warning/60 focus:outline-none"
           />
         </section>
 
-        {/* Mini stat chips row */}
+        {/* Mini stat chips row — 3 distinct role color tints (Light & Dark M3) */}
         <section className="grid grid-cols-3 gap-sm">
-          <div className="flex flex-col items-center justify-center rounded-2xl bg-secondary-container/30 border border-secondary-container/10 p-sm text-center">
-            <Icon name="menu_book" className="text-secondary mb-1" size={20} />
-            <span className="text-title-md font-bold text-on-secondary-container">{stats.totalSks}</span>
-            <span className="text-[11px] text-on-secondary-container opacity-85 uppercase tracking-wide">SKS</span>
+          {/* SKS: Primary Teal */}
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-primary/10 dark:bg-primary/15 border border-primary/20 dark:border-primary/25 p-sm text-center shadow-sm">
+            <Icon name="menu_book" className="text-primary mb-1" size={20} />
+            <span className="text-title-md font-bold text-primary">{stats.totalSks}</span>
+            <span className="text-[11px] font-semibold text-primary/80 uppercase tracking-wide">SKS</span>
           </div>
-          <div className="flex flex-col items-center justify-center rounded-2xl bg-info-container/30 border border-info-container/10 p-sm text-center">
-            <Icon name="calendar_month" className="text-info mb-1" size={20} />
-            <span className="text-title-md font-bold text-on-info-container">{stats.totalKelas}</span>
-            <span className="text-[11px] text-on-info-container opacity-85 uppercase tracking-wide">Kelas</span>
+          {/* Kelas: Secondary Indigo */}
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-secondary-container/40 dark:bg-secondary-container/25 border border-secondary-container/30 dark:border-secondary/25 p-sm text-center shadow-sm">
+            <Icon name="calendar_month" className="text-secondary mb-1" size={20} />
+            <span className="text-title-md font-bold text-on-secondary-container dark:text-secondary">{stats.totalKelas}</span>
+            <span className="text-[11px] font-semibold text-on-secondary-container/80 dark:text-secondary/80 uppercase tracking-wide">Kelas</span>
           </div>
-          <div className="flex flex-col items-center justify-center rounded-2xl bg-success-container/30 border border-success-container/10 p-sm text-center">
-            <Icon name="assignment_late" className="text-success mb-1" size={20} />
-            <span className="text-title-md font-bold text-on-success-container">{stats.tugasOpen}</span>
-            <span className="text-[11px] text-on-success-container opacity-85 uppercase tracking-wide">Tugas</span>
+          {/* Tugas: Tertiary Peach/Amber */}
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-tertiary-container/40 dark:bg-tertiary-container/25 border border-tertiary-container/30 dark:border-tertiary/25 p-sm text-center shadow-sm">
+            <Icon name="assignment_late" className="text-tertiary mb-1" size={20} />
+            <span className="text-title-md font-bold text-on-tertiary-container dark:text-tertiary">{stats.tugasOpen}</span>
+            <span className="text-[11px] font-semibold text-on-tertiary-container/80 dark:text-tertiary/80 uppercase tracking-wide">Tugas</span>
           </div>
+        </section>
+
+        {/* Upcoming Tasks Section — elevated pure white card */}
+        <section className="rounded-2xl bg-surface-container-lowest p-md shadow-level-1 border border-outline-variant/15 dark:bg-surface-container-low">
+          <div className="flex items-center justify-between mb-sm">
+            <h3 className="flex items-center gap-2 text-title-md font-bold text-on-surface">
+              <Icon name="checklist" size={20} className="text-primary" />
+              Tugas Terdekat
+            </h3>
+            <button
+              type="button"
+              onClick={() => navigate('/tugas')}
+              className="text-body-sm font-semibold text-primary hover:underline"
+            >
+              Lihat Semua
+            </button>
+          </div>
+          {tasks.filter((t) => !t.selesai).length === 0 ? (
+            <p className="text-body-sm text-on-surface-variant/80 py-2">
+              Tidak ada tugas tertunda saat ini. 🎉
+            </p>
+          ) : (
+            <ul className="space-y-sm">
+              {tasks
+                .filter((t) => !t.selesai)
+                .slice(0, 3)
+                .map((t) => (
+                  <li
+                    key={t.id}
+                    onClick={() => navigate('/tugas')}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-surface-container/60 hover:bg-surface-container-high cursor-pointer transition-colors"
+                  >
+                    <div className="min-w-0 flex-1 pr-2">
+                      <p className="truncate text-body-sm font-semibold text-on-surface">{t.judul}</p>
+                      <p className="text-[11px] text-on-surface-variant">
+                        {t.kodeMK ? `${t.kodeMK} • ` : ''}{t.deadline}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      {t.prioritas}
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          )}
         </section>
       </aside>
     </div>

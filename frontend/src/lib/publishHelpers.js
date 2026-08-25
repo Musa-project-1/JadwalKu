@@ -218,3 +218,79 @@ function serializeHistoryValue(value) {
   if (typeof value === 'object') return JSON.stringify(value)
   return value
 }
+
+/**
+ * Sinkronisasi otomatis koleksi `prodi` dari data `jadwal` dan `mataKuliah` yang sudah ada di Firestore.
+ * Memulihkan data prodi jika dokumen jadwal/MK sudah ada di database.
+ *
+ * @param {string} actor email pengguna
+ * @returns {Promise<{ ok: boolean, count: number, error?: string }>}
+ */
+export async function syncProdiFromExistingData(actor = '') {
+  if (!db) return { ok: false, count: 0, error: 'Database belum terkonfigurasi' }
+
+  try {
+    const { setDoc } = await import('firebase/firestore')
+    const prodiMap = new Map()
+
+    // 1. Baca dari jadwal
+    const jadwalSnap = await getDocs(collection(db, 'jadwal'))
+    jadwalSnap.docs.forEach((d) => {
+      const data = d.data()
+      const name = String(data.prodi ?? '').trim()
+      if (!name || name.toLowerCase().startsWith('prodi ')) return
+      if (!prodiMap.has(name)) prodiMap.set(name, { nama: name, semesters: new Set() })
+      const sem = Number(data.semester)
+      if (sem && !Number.isNaN(sem)) prodiMap.get(name).semesters.add(sem)
+    })
+
+    // 2. Baca dari mataKuliah
+    const mkSnap = await getDocs(collection(db, 'mataKuliah'))
+    mkSnap.docs.forEach((d) => {
+      const data = d.data()
+      const name = String(data.prodi ?? '').trim()
+      if (!name || name.toLowerCase().startsWith('prodi ')) return
+      if (!prodiMap.has(name)) prodiMap.set(name, { nama: name, semesters: new Set() })
+      const sem = Number(data.semester)
+      if (sem && !Number.isNaN(sem)) prodiMap.get(name).semesters.add(sem)
+    })
+
+    // 3. Simpan ke koleksi prodi
+    let count = 0
+    for (const p of prodiMap.values()) {
+      const sems = Array.from(p.semesters).sort((a, b) => a - b)
+      const docId = p.nama.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || p.nama
+      await setDoc(
+        doc(db, 'prodi', docId),
+        {
+          nama: p.nama,
+          semesterMin: 1,
+          semesterMax: sems.length > 0 ? Math.max(sems[sems.length - 1], 8) : 8,
+          updatedAt: serverTimestamp(),
+          ...(actor ? { updatedBy: actor } : {}),
+        },
+        { merge: true },
+      )
+      count += 1
+    }
+
+    if (count > 0) {
+      await appendHistory({
+        entitas: 'prodi',
+        field: 'sinkronisasi',
+        nilaiLama: null,
+        nilaiBaru: `${count} prodi disinkronkan dari data jadwal & MK`,
+        aktor: actor,
+        detail: `Auto-sync: ${Array.from(prodiMap.keys()).join(', ')}`,
+      })
+    }
+
+    return { ok: true, count }
+  } catch (err) {
+    logError({
+      type: 'sync-prodi',
+      detail: err?.message ?? String(err),
+    })
+    return { ok: false, count: 0, error: err?.message ?? String(err) }
+  }
+}

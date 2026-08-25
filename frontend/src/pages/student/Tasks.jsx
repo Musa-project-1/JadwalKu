@@ -203,8 +203,8 @@ function TaskCard({ task, onToggle, onDelete }) {
   const daysLeft = daysUntil(task.deadline)
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-surface-variant/40 bg-surface p-4 shadow-level-1 transition-all duration-200 hover:border-primary-fixed-dim hover:bg-surface-container-lowest hover:shadow-level-2 dark:bg-surface-container-high">
-      <div className={`absolute bottom-0 left-0 top-0 w-1 ${PRIORITY_STRIPE[task.prioritas] ?? 'bg-secondary'}`} />
+    <div className="group relative overflow-hidden rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-level-1 transition-all duration-200 hover:border-primary/40 hover:shadow-level-2 dark:bg-surface-container-low">
+      <div className={`absolute bottom-0 left-0 top-0 w-1.5 ${PRIORITY_STRIPE[task.prioritas] ?? 'bg-secondary'}`} />
       <div className="flex items-start gap-md">
         <button
           type="button"
@@ -283,15 +283,15 @@ function AddTaskForm({ onSubmit, onCancel }) {
   }
 
   return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/40" onClick={onCancel} role="presentation" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onCancel} role="presentation" />
       <form
         onSubmit={handleSubmit}
-        className="fixed inset-x-0 bottom-0 z-50 max-h-[90vh] overflow-y-auto rounded-t-2xl bg-surface-container-lowest p-lg shadow-level-2 tablet:inset-y-0 tablet:left-auto tablet:right-0 tablet:max-h-none tablet:w-96 tablet:rounded-l-2xl dark:bg-surface-container-low"
+        className="relative z-10 w-full max-w-lg overflow-y-auto max-h-[90vh] rounded-2xl bg-surface-container-lowest p-lg shadow-level-3 dark:bg-surface-container-low animate-fade-up"
       >
         <div className="mb-lg flex items-center justify-between">
-          <h3 className="text-title-md text-on-surface">Tambah Tugas</h3>
-          <button type="button" onClick={onCancel} className="text-on-surface-variant hover:text-primary">
+          <h3 className="text-title-md text-on-surface font-bold">Tambah Tugas</h3>
+          <button type="button" onClick={onCancel} className="text-on-surface-variant hover:text-primary transition-colors">
             <Icon name="close" size={24} />
           </button>
         </div>
@@ -368,7 +368,7 @@ function AddTaskForm({ onSubmit, onCancel }) {
           </Button>
         </div>
       </form>
-    </>
+    </div>
   )
 }
 

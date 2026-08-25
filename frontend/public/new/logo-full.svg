@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80">
+  <!-- Mark, scaled to 64px -->
+  <g transform="translate(8, 8) scale(0.125)">
+    <g fill="none" stroke-width="28" stroke-linecap="round">
+      <path d="M 256 46 A 210 210 0 0 1 466 256" stroke="#0F6E56"/>
+      <path d="M 466 256 A 210 210 0 0 1 256 466" stroke="#378ADD"/>
+      <path d="M 256 466 A 210 210 0 0 1 46 256" stroke="#7F77DD"/>
+      <path d="M 46 256 A 210 210 0 0 1 256 46" stroke="#BA7517"/>
+    </g>
+    <g fill="none" stroke="#00685F" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="256" cy="266" r="96"/>
+      <path d="M256 210 L256 266 L292 292"/>
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="84" y="42" font-family="'Plus Jakarta Sans', Inter, sans-serif" font-weight="700" font-size="28" letter-spacing="-0.02em">
+    <tspan fill="#171D1C">Jadwal</tspan><tspan fill="#00685F">Ku</tspan>
+  </text>
+  <!-- Tagline -->
+  <text x="85" y="58" font-family="'Plus Jakarta Sans', Inter, sans-serif" font-weight="500" font-size="10" letter-spacing="0.08em" fill="#566563">
+    SCHEDULE SMARTER
+  </text>
+</svg>

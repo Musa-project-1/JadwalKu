@@ -117,6 +117,22 @@ export default function UploadImport() {
     const jadwalIds = []
     const ujianIds = []
 
+    let savedProdi = 0
+    for (const p of (parsed.programs || [])) {
+      const prodiDocId = p.nama.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || p.nama
+      const result = await setDocument(
+        'prodi',
+        prodiDocId,
+        {
+          nama: p.nama,
+          semesterMin: p.semesterMin ?? 1,
+          semesterMax: p.semesterMax ?? 8,
+        },
+        actor,
+      )
+      if (result.ok) savedProdi += 1
+    }
+
     for (const course of parsed.courses) {
       const result = await setDocument('mataKuliah', course.kodeMK.toUpperCase(), course, actor)
       if (result.ok) savedCourses += 1
@@ -156,7 +172,7 @@ export default function UploadImport() {
       nilaiLama: null,
       nilaiBaru: `${savedEntries} entri dari ${fileName}`,
       aktor: actor,
-      detail: `Import file: ${savedCourses} MK baru/diperbarui, ${savedEntries} jadwal+ujian draft`,
+      detail: `Import file: ${savedProdi} prodi, ${savedCourses} MK baru/diperbarui, ${savedEntries} jadwal+ujian draft`,
     })
     await saveSettings({ lastFileName: fileName, lastUploadedAt: new Date().toISOString() })
 
@@ -180,7 +196,7 @@ export default function UploadImport() {
       ok: failed === 0,
       message:
         failed === 0
-          ? `${savedCourses} mata kuliah & ${savedEntries} entri jadwal/ujian disimpan sebagai draft${publish ? ' + dipublikasikan' : ''}.`
+          ? `${savedProdi} prodi, ${savedCourses} mata kuliah & ${savedEntries} entri jadwal/ujian disimpan sebagai draft${publish ? ' + dipublikasikan' : ''}.`
           : `${failed} dokumen gagal disimpan. Penyebab: ${firstError}`,
     })
     setBusy(false)

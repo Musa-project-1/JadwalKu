@@ -9,7 +9,7 @@ import { EmptyState } from '../../components/EmptyState'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { addDocument, deleteDocument, updateDocument } from '../../lib/adminData'
-import { appendHistory } from '../../lib/publishHelpers'
+import { appendHistory, syncProdiFromExistingData } from '../../lib/publishHelpers'
 
 const SEMESTER_OPTIONS = Array.from({ length: 14 }, (_, i) => i + 1)
 
@@ -27,11 +27,29 @@ export default function ManageProdi() {
   const [editDraft, setEditDraft] = useState({ nama: '', semesterMin: 1, semesterMax: 8 })
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
   const sorted = useMemo(
     () => [...programs].sort((a, b) => a.nama.localeCompare(b.nama, 'id')),
     [programs],
   )
+
+  async function handleSync() {
+    setSyncing(true)
+    setBanner(null)
+    const result = await syncProdiFromExistingData(actor)
+    setSyncing(false)
+    if (result.ok) {
+      setBanner({
+        ok: true,
+        message: result.count > 0
+          ? `${result.count} program studi berhasil disinkronkan dari data Jadwal & Mata Kuliah.`
+          : 'Semua program studi sudah sinkron atau belum ada data jadwal/MK.',
+      })
+    } else {
+      setBanner({ ok: false, message: `Gagal sinkronisasi: ${result.error}` })
+    }
+  }
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -124,16 +142,27 @@ export default function ManageProdi() {
 
   return (
     <div className="space-y-lg">
-      <header>
-        <div className="flex items-center gap-md">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-container/50 dark:bg-primary-container/25 text-primary">
-            <Icon name="list_alt" size={26} />
-          </span>
-          <h2 className="text-headline-lg font-bold text-on-surface">Kelola Daftar Prodi</h2>
+      <header className="flex flex-col gap-sm tablet:flex-row tablet:items-center tablet:justify-between">
+        <div>
+          <div className="flex items-center gap-md">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-container/50 dark:bg-primary-container/25 text-primary">
+              <Icon name="list_alt" size={26} />
+            </span>
+            <h2 className="text-headline-lg font-bold text-on-surface">Kelola Daftar Prodi</h2>
+          </div>
+          <p className="text-body-lg text-on-surface-variant">
+            Daftar program studi beserta rentang semesternya.
+          </p>
         </div>
-        <p className="text-body-lg text-on-surface-variant">
-          Daftar program studi beserta rentang semesternya.
-        </p>
+        <Button
+          variant="secondary"
+          onClick={handleSync}
+          disabled={syncing}
+          className="shrink-0 gap-1.5 self-start tablet:self-auto"
+        >
+          <Icon name="sync" size={18} className={syncing ? 'animate-spin' : ''} />
+          Sinkronkan dari Jadwal & MK
+        </Button>
       </header>
 
       {banner && (

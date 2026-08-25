@@ -43,13 +43,14 @@ export default function AdminLogin() {
     <div className="flex min-h-screen items-center justify-center bg-transparent px-md">
       <div className="w-full max-w-md">
         <div className="mb-xl text-center">
-          <span className="mx-auto mb-base flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary">
-            <Icon name="admin_panel_settings" size={28} />
-          </span>
-          <h1 className="text-headline-lg font-bold text-primary">
-            JadwalKu
+          <img src="/logo.svg" alt="Logo JadwalKu" className="mx-auto mb-md h-16 w-16" />
+          <h1 className="text-display font-bold font-sans tracking-[-0.02em]">
+            <span className="text-on-surface">Jadwal</span>
+            <span className="text-primary">Ku</span>
           </h1>
-          <p className="text-body-lg text-on-surface-variant">Masuk sebagai Admin</p>
+          <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-on-surface-variant/80 mt-1">
+            SCHEDULE SMARTER · ADMIN CONSOLE
+          </p>
         </div>
 
         {!firebaseReady && (

@@ -9,7 +9,7 @@ import { EmptyState } from '../../components/EmptyState'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { archiveSemester } from '../../lib/semesterArchive'
-import { saveSettings, deriveTahunAjaran } from '../../lib/publishHelpers'
+import { saveSettings, deriveTahunAjaran, syncProdiFromExistingData } from '../../lib/publishHelpers'
 import {
   collection,
   doc,
@@ -53,6 +53,7 @@ export default function AdminDashboard() {
   const [newSemester, setNewSemester] = useState('')
   const [banner, setBanner] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [syncingProdi, setSyncingProdi] = useState(false)
 
   const recentHistory = useMemo(
     () =>
@@ -63,6 +64,23 @@ export default function AdminDashboard() {
         .slice(0, 6),
     [history],
   )
+
+  async function handleSyncProdi() {
+    setSyncingProdi(true)
+    setBanner(null)
+    const result = await syncProdiFromExistingData(actor)
+    setSyncingProdi(false)
+    if (result.ok) {
+      setBanner({
+        ok: true,
+        message: result.count > 0
+          ? `${result.count} program studi berhasil disinkronkan ke database.`
+          : 'Semua program studi sudah sinkron.',
+      })
+    } else {
+      setBanner({ ok: false, message: `Gagal sinkronisasi prodi: ${result.error}` })
+    }
+  }
 
   async function handleArchive() {
     const target = Number(newSemester)
@@ -149,71 +167,84 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Grid utama */}
-      <div className="grid gap-lg desktop:grid-cols-12">
-        {/* Kolom kiri — statistik + riwayat */}
-        <section className="space-y-lg desktop:col-span-8">
-          <div className="grid gap-md tablet:grid-cols-3">
-            {/* Stat prodi — tonal mint */}
-            <div className="relative overflow-hidden rounded-3xl bg-secondary-container/30 border-l-[4px] border-l-emerald-500 border border-secondary-container/10 p-lg transition-shadow hover:shadow-level-2 dark:bg-secondary-container/15 dark:border-secondary-container/5">
-              <div
-                aria-hidden="true"
-                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/15"
-              >
-                <Icon name="domain" size={26} className="text-secondary" />
-              </div>
-              <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Total Prodi</p>
-              {loadingProdi ? (
-                <Skeleton className="h-9 w-16" />
-              ) : (
-                <h3 className="text-display text-on-secondary-container font-bold">{programs.length}</h3>
-              )}
-              <p className="mt-sm flex items-center gap-xs text-body-sm font-medium text-secondary">
-                <Icon name="check_circle" size={16} /> Aktif
-              </p>
-            </div>
-
-            {/* Stat MK — tonal blue */}
-            <div className="relative overflow-hidden rounded-3xl bg-info-container/30 border-l-[4px] border-l-blue-500 border border-info-container/10 p-lg transition-shadow hover:shadow-level-2 dark:bg-info-container/15 dark:border-info-container/5">
-              <div
-                aria-hidden="true"
-                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-info/15"
-              >
-                <Icon name="menu_book" size={26} className="text-info" />
-              </div>
-              <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Total Mata Kuliah</p>
-              {loadingCourses ? (
-                <Skeleton className="h-9 w-16" />
-              ) : (
-                <h3 className="text-display text-on-info-container font-bold">{courses.length}</h3>
-              )}
-              <p className="mt-sm flex items-center gap-xs text-body-sm font-medium text-info">
-                <Icon name="book" size={16} /> Terdaftar
-              </p>
-            </div>
-
-            {/* Stat semester aktif — tonal peach */}
-            <div className="relative overflow-hidden rounded-3xl bg-warning-container/30 border-l-[4px] border-l-amber-500 border border-warning-container/10 p-lg transition-shadow hover:shadow-level-2 dark:bg-warning-container/15 dark:border-warning-container/5">
-              <div
-                aria-hidden="true"
-                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-warning/15"
-              >
-                <Icon name="sync_alt" size={26} className="text-warning" />
-              </div>
-              <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Aksi Musiman</p>
-              <h3 className="mb-xs text-title-md text-on-surface font-semibold">Transisi Semester</h3>
-              <Button variant="secondary" onClick={() => setArchiveOpen(true)} disabled={busy} className="mt-sm w-full justify-center">
-                <Icon name="sync_alt" size={20} />
-                Mulai Semester Baru
-              </Button>
-              <Button variant="ghost" onClick={handleExportBackup} disabled={busy} className="mt-xs w-full justify-center">
-                <Icon name="download" size={20} />
-                Export Backup JSON
-              </Button>
-            </div>
+      {/* Baris 1: 3 Statistik Utama — Full Width di atas */}
+      <section className="grid gap-md tablet:grid-cols-3">
+        {/* Stat prodi — tonal mint */}
+        <div className="relative overflow-hidden rounded-3xl bg-surface-container-lowest border-l-[4px] border-l-emerald-500 border border-outline-variant/15 p-lg shadow-level-1 transition-shadow hover:shadow-level-2 dark:bg-surface-container-low">
+          <div
+            aria-hidden="true"
+            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/15"
+          >
+            <Icon name="domain" size={26} className="text-secondary" />
           </div>
+          <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Total Prodi</p>
+          {loadingProdi ? (
+            <Skeleton className="h-9 w-16" />
+          ) : (
+            <h3 className="text-display text-on-surface font-bold">{programs.length}</h3>
+          )}
+          <div className="mt-sm flex flex-wrap items-center justify-between gap-xs">
+            <p className="flex items-center gap-xs text-body-sm font-medium text-secondary">
+              <Icon name="check_circle" size={16} /> Aktif
+            </p>
+            {!loadingProdi && !loadingCourses && programs.length === 0 && courses.length > 0 && (
+              <button
+                type="button"
+                onClick={handleSyncProdi}
+                disabled={syncingProdi}
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+              >
+                <Icon name="sync" size={14} className={syncingProdi ? 'animate-spin' : ''} />
+                Sinkronkan dari {courses.length} MK
+              </button>
+            )}
+          </div>
+        </div>
 
-          {/* Riwayat */}
+        {/* Stat MK — tonal blue */}
+        <div className="relative overflow-hidden rounded-3xl bg-surface-container-lowest border-l-[4px] border-l-blue-500 border border-outline-variant/15 p-lg shadow-level-1 transition-shadow hover:shadow-level-2 dark:bg-surface-container-low">
+          <div
+            aria-hidden="true"
+            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-info/15"
+          >
+            <Icon name="menu_book" size={26} className="text-info" />
+          </div>
+          <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Total Mata Kuliah</p>
+          {loadingCourses ? (
+            <Skeleton className="h-9 w-16" />
+          ) : (
+            <h3 className="text-display text-on-surface font-bold">{courses.length}</h3>
+          )}
+          <p className="mt-sm flex items-center gap-xs text-body-sm font-medium text-info">
+            <Icon name="book" size={16} /> Terdaftar
+          </p>
+        </div>
+
+        {/* Stat semester aktif — tonal peach */}
+        <div className="relative overflow-hidden rounded-3xl bg-surface-container-lowest border-l-[4px] border-l-amber-500 border border-outline-variant/15 p-lg shadow-level-1 transition-shadow hover:shadow-level-2 dark:bg-surface-container-low">
+          <div
+            aria-hidden="true"
+            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-warning/15"
+          >
+            <Icon name="sync_alt" size={26} className="text-warning" />
+          </div>
+          <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Aksi Musiman</p>
+          <h3 className="mb-xs text-title-md text-on-surface font-semibold">Transisi Semester</h3>
+          <Button variant="secondary" onClick={() => setArchiveOpen(true)} disabled={busy} className="mt-sm w-full justify-center">
+            <Icon name="sync_alt" size={20} />
+            Mulai Semester Baru
+          </Button>
+          <Button variant="ghost" onClick={handleExportBackup} disabled={busy} className="mt-xs w-full justify-center">
+            <Icon name="download" size={20} />
+            Export Backup JSON
+          </Button>
+        </div>
+      </section>
+
+      {/* Baris 2: Riwayat Perubahan (8 col) + Quick Actions & Info (4 col) */}
+      <div className="grid gap-lg desktop:grid-cols-12 items-start">
+        {/* Kolom kiri — riwayat */}
+        <section className="desktop:col-span-8">
           <div className="rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low border border-outline-variant/10">
             <div className="mb-lg flex items-center justify-between border-b border-surface-variant pb-sm">
               <h3 className="text-title-md text-on-surface font-bold">Riwayat Perubahan</h3>
@@ -264,16 +295,16 @@ export default function AdminDashboard() {
           </div>
         </section>
 
-        {/* Kolom kanan — quick actions */}
-        <section className="desktop:col-span-4">
-          <div className="h-full rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low border border-outline-variant/10">
-            <h3 className="mb-lg text-title-md text-on-surface font-bold">Quick Actions</h3>
-            <nav className="grid grid-cols-1 gap-sm tablet:grid-cols-2 desktop:grid-cols-1">
+        {/* Kolom kanan — quick actions + status ringkas */}
+        <section className="space-y-md desktop:col-span-4">
+          <div className="rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low border border-outline-variant/10">
+            <h3 className="mb-md text-title-md text-on-surface font-bold">Quick Actions</h3>
+            <nav className="grid grid-cols-1 gap-sm">
               {QUICK_ACTIONS.map((action) => (
                 <div key={action.to} className="border border-outline-variant/10 rounded-2xl bg-surface-container-lowest p-0.5 shadow-sm group hover:scale-[1.002] transition-all">
                   <Link
                     to={action.to}
-                    className="flex w-full items-center gap-sm px-3 py-2 bg-surface-container rounded-[14px] text-body-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-semibold"
+                    className="flex w-full items-center gap-sm px-3 py-2.5 bg-surface-container rounded-[14px] text-body-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-semibold"
                   >
                     <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${action.tone}`}>
                       <Icon name={action.icon} size={18} />
@@ -285,6 +316,16 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </nav>
+          </div>
+
+          <div className="rounded-3xl bg-surface-container-lowest/70 p-md dark:bg-surface-container-low/70 border border-outline-variant/10">
+            <div className="flex items-center gap-2 text-label-caps text-on-surface-variant font-medium mb-1">
+              <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
+              Sistem JadwalKampus Aktif
+            </div>
+            <p className="text-[12px] text-on-surface-variant/80">
+              Perubahan pada prodi, MK, atau jadwal langsung tersinkronisasi ke seluruh mahasiswa secara realtime.
+            </p>
           </div>
         </section>
       </div>

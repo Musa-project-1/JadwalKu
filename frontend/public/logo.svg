@@ -1,8 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#00685F"/>
-  <rect x="14" y="19" width="36" height="31" rx="7" fill="none" stroke="#FFFFFF" stroke-width="4"/>
-  <line x1="14" y1="29" x2="50" y2="29" stroke="#FFFFFF" stroke-width="4"/>
-  <line x1="24" y1="14" x2="24" y2="23" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
-  <line x1="40" y1="14" x2="40" y2="23" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="32" cy="41" r="4.5" fill="#89F5E7"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <circle cx="256" cy="256" r="240" fill="#F5FAF8"/>
+
+  <!-- Ring: 4 arc segments, class-type status colors -->
+  <g fill="none" stroke-width="28" stroke-linecap="round">
+    <!-- top-right quarter: K1 green -->
+    <path d="M 256 46 A 210 210 0 0 1 466 256" stroke="#0F6E56"/>
+    <!-- bottom-right quarter: K2 blue -->
+    <path d="M 466 256 A 210 210 0 0 1 256 466" stroke="#378ADD"/>
+    <!-- bottom-left quarter: hybrid purple -->
+    <path d="M 256 466 A 210 210 0 0 1 46 256" stroke="#7F77DD"/>
+    <!-- top-left quarter: combined amber -->
+    <path d="M 46 256 A 210 210 0 0 1 256 46" stroke="#BA7517"/>
+  </g>
+
+  <!-- Center: clock-check icon, teal, 2px-equivalent stroke -->
+  <g fill="none" stroke="#00685F" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="256" cy="266" r="96"/>
+    <path d="M256 210 L256 266 L292 292"/>
+  </g>
 </svg>

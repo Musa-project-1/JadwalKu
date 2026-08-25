@@ -90,7 +90,40 @@ export function parseWorkbook(data) {
 
   if (examSheet) exams = parseExams(sheetToRows(examSheet))
 
-  return { scheduleEntries, courses, exams, tahunAjaran, warnings }
+  const programs = extractPrograms(scheduleEntries, courses, exams)
+
+  return { scheduleEntries, courses, exams, programs, tahunAjaran, warnings }
+}
+
+function extractPrograms(scheduleEntries = [], courses = [], exams = []) {
+  const prodiMap = new Map()
+  const register = (prodiRaw, semRaw) => {
+    if (!prodiRaw) return
+    const name = String(prodiRaw).split('\n')[0].trim()
+    if (!name) return
+    if (!prodiMap.has(name)) {
+      prodiMap.set(name, { nama: name, semesters: new Set() })
+    }
+    const sem = Number(semRaw)
+    if (sem && !Number.isNaN(sem)) {
+      prodiMap.get(name).semesters.add(sem)
+    }
+  }
+
+  scheduleEntries.forEach((e) => register(e.prodi, e.semester))
+  exams.forEach((e) => register(e.prodi, e.semester))
+  courses.forEach((c) => register(c.prodi, c.semester))
+
+  return Array.from(prodiMap.values())
+    .map((p) => {
+      const sems = Array.from(p.semesters).sort((a, b) => a - b)
+      return {
+        nama: p.nama,
+        semesterMin: 1,
+        semesterMax: sems.length > 0 ? Math.max(sems[sems.length - 1], 8) : 8,
+      }
+    })
+    .sort((a, b) => a.nama.localeCompare(b.nama, 'id'))
 }
 
 // ---------- Format resmi kampus FTB (matriks + legenda + tabel MK) ----------

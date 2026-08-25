@@ -57,8 +57,8 @@ export function ClassTimelineItem({
 
         {/* Kartu Jadwal Utama */}
         <div
-          className={`relative ml-4 rounded-2xl bg-surface-container-lowest p-4 shadow-level-1 border border-outline-variant/15 transition-all duration-200 hover:scale-[1.005] hover:shadow-level-2 ${borderClass} ${
-            isPast ? 'opacity-60 hover:opacity-100' : ''
+          className={`relative ml-4 rounded-2xl bg-surface-container-lowest p-4 shadow-level-1 border border-outline-variant/15 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-level-2 ${borderClass} ${
+            isPast ? 'opacity-60 grayscale-[30%]' : ''
           }`}
         >
           <div className="flex justify-between items-start mb-2">

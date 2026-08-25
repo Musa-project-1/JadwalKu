@@ -14,12 +14,21 @@ export const CLASS_TYPES = {
   GBK2: { label: 'Kelas Gabungan', tone: 'combined' },
 }
 
-/** Teks berwarna per tone (light = shade gelap, dark = shade terang). */
+/** Teks judul berwarna per tone (WCAG AAA: light = deep shade, dark = luminous tint). */
 export const TONE_TEXT_CLASSES = {
+  offline: 'text-emerald-950 dark:text-emerald-200',
+  online: 'text-blue-950 dark:text-blue-200',
+  hybrid: 'text-violet-950 dark:text-violet-200',
+  combined: 'text-amber-950 dark:text-amber-100',
+  neutral: 'text-on-surface',
+}
+
+/** Teks sekunder/detail per tone (jam, ruang, info). */
+export const TONE_SUBTEXT_CLASSES = {
   offline: 'text-emerald-800 dark:text-emerald-300',
   online: 'text-blue-800 dark:text-blue-300',
   hybrid: 'text-violet-800 dark:text-violet-300',
-  combined: 'text-amber-800 dark:text-amber-300',
+  combined: 'text-amber-900 dark:text-amber-200',
   neutral: 'text-on-surface-variant',
 }
 

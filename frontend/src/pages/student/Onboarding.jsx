@@ -127,11 +127,13 @@ function SemesterStep() {
   const { setProgram, setSemester: setSemesterContext } = useApp()
   const prodi = location.state?.prodi ?? getItem(STORAGE_KEYS.program)
   const [semester, setSemester] = useState(() => getItem(STORAGE_KEYS.semester, null))
+  const { data: dbPrograms } = useFirestore('prodi')
 
-  const program = useMemo(
-    () => samplePrograms.find((p) => p.nama === prodi),
-    [prodi],
-  )
+  const program = useMemo(() => {
+    const pool = dbPrograms.length > 0 ? dbPrograms : samplePrograms
+    return pool.find((p) => p.nama === prodi)
+  }, [dbPrograms, prodi])
+
   const semesters = useMemo(() => {
     const min = program?.semesterMin ?? 1
     const max = program?.semesterMax ?? 8

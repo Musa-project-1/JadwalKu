@@ -42,7 +42,13 @@ export default function About() {
 
       <section className="rounded-3xl bg-surface-container-lowest p-lg text-center border border-outline-variant/15 shadow-level-1 dark:bg-surface-container-low">
         <img src="/logo.svg" alt="Logo JadwalKu" className="mx-auto mb-md h-20 w-20" />
-        <h3 className="text-title-md text-on-surface font-semibold">Jadwal Kampus</h3>
+        <h3 className="text-title-md font-bold font-sans tracking-[-0.02em]">
+          <span className="text-on-surface">Jadwal</span>
+          <span className="text-primary">Ku</span>
+        </h3>
+        <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-on-surface-variant/80 mt-1">
+          SCHEDULE SMARTER
+        </p>
         <p className="mt-xs text-body-sm text-on-surface-variant">
           Jadwal kuliah & ujian Universitas Madani Yogyakarta
         </p>

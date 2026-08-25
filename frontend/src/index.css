@@ -85,19 +85,19 @@
     --c-outline: 135 147 145;
     --c-outline-variant: 61 73 71;
     --c-surface-tint: 107 216 203;
-    --c-primary: 136 245 231;
-    --c-on-primary: 0 55 50;
-    --c-primary-container: 107 216 203;
-    --c-on-primary-container: 0 93 85;
-    --c-inverse-primary: 0 106 98;
-    --c-secondary: 193 193 255;
-    --c-on-secondary: 18 0 169;
-    --c-secondary-container: 49 46 197;
-    --c-on-secondary-container: 176 177 255;
-    --c-tertiary: 255 219 203;
-    --c-on-tertiary: 82 35 7;
-    --c-tertiary-container: 255 182 145;
-    --c-on-tertiary-container: 124 68 37;
+    --c-primary: 107 216 203;
+    --c-on-primary: 0 56 47;
+    --c-primary-container: 0 80 73;
+    --c-on-primary-container: 137 245 231;
+    --c-inverse-primary: 0 104 95;
+    --c-secondary: 183 200 225;
+    --c-on-secondary: 31 47 63;
+    --c-secondary-container: 56 72 93;
+    --c-on-secondary-container: 211 228 254;
+    --c-tertiary: 255 181 154;
+    --c-on-tertiary: 92 25 0;
+    --c-tertiary-container: 119 50 21;
+    --c-on-tertiary-container: 255 219 206;
     --c-error: 255 180 171;
     --c-on-error: 105 0 5;
     --c-error-container: 147 0 10;
@@ -352,25 +352,50 @@ p, li {
   text-wrap: pretty;
 }
 
-/* Custom modern scrollbars */
-body, .overflow-y-auto, .overflow-x-auto {
-  --scrollbar-thumb: rgb(var(--c-outline) / 0.4);
+/* Custom modern scrollbars — applies to HTML root, body, and all scrollable containers */
+html,
+body,
+#root,
+*,
+.overflow-y-auto,
+.overflow-x-auto {
+  --scrollbar-thumb: rgb(var(--c-outline) / 0.35);
   --scrollbar-track: transparent;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   scrollbar-width: thin;
 }
 
-body::-webkit-scrollbar, .overflow-y-auto::-webkit-scrollbar, .overflow-x-auto::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar,
+*::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
 }
 
-body::-webkit-scrollbar-thumb, .overflow-y-auto::-webkit-scrollbar-thumb, .overflow-x-auto::-webkit-scrollbar-thumb {
-  background-color: rgb(var(--c-outline) / 0.4);
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+#root::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--c-outline) / 0.35);
   border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
-body::-webkit-scrollbar-track, .overflow-y-auto::-webkit-scrollbar-track, .overflow-x-auto::-webkit-scrollbar-track {
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--c-outline) / 0.6);
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
   background-color: transparent;
 }
 
