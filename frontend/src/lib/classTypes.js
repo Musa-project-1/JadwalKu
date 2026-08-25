@@ -59,6 +59,15 @@ export const TONE_ICONS = {
   neutral: 'help_outline',
 }
 
+/** Bilah warna 4px di tepi kiri kartu per tone (timeline & grid mingguan). */
+export const TONE_BORDER_CLASSES = {
+  offline: 'border-l-[4px] border-emerald-500',
+  online: 'border-l-[4px] border-blue-500',
+  hybrid: 'border-l-[4px] border-violet-500',
+  combined: 'border-l-[4px] border-amber-500',
+  neutral: 'border-l-[4px] border-outline-variant',
+}
+
 export function getClassType(code) {
   return CLASS_TYPES[code] ?? { label: code || 'Tidak diketahui', tone: 'neutral' }
 }

@@ -34,14 +34,14 @@ const LAYOUT = {
 
 /**
  * @param {Array<{hari:string, jamMulai:string, jamSelesai:string, kodeMK:string, ruang?:string, tipeKelas?:string}>} entries
- * @param {{prodi?: string|null, semester?: string|number|null}} meta
+ * @param {{prodi?: string|null, semester?: string|number|null, tahunAjaran?: string|null}} meta
  * @returns {HTMLCanvasElement}
  */
 export function renderScheduleImage(entries, meta) {
   const { width, padding } = LAYOUT
   const groups = groupByDay(entries)
 
-  let y = 0
+  let y
   const heights = groups.map((g) => groupHeight(g))
   const bodyHeight =
     heights.reduce((a, b) => a + b, 0) +
@@ -108,7 +108,8 @@ function drawHeader(ctx, meta) {
 
   ctx.font = '400 14px Inter, system-ui, sans-serif'
   ctx.fillStyle = 'rgba(255,255,255,0.85)'
-  const label = `${meta.prodi ?? 'Semua Prodi'} · Semester ${meta.semester ?? '-'}`
+  const ta = meta.tahunAjaran ? ` · TA ${meta.tahunAjaran}` : ''
+  const label = `${meta.prodi ?? 'Semua Prodi'} · Semester ${meta.semester ?? '-'}${ta}`
   ctx.fillText(label, LAYOUT.padding, 66)
 }
 
@@ -150,7 +151,7 @@ function drawGroup(ctx, group, top) {
     ctx.fillStyle = C.onSurfaceVariant
     ctx.font = '400 13px Inter, system-ui, sans-serif'
     ctx.fillText(
-      `${item.jamMulai ?? '-'} – ${item.jamSelesai ?? '-'}`,
+      `${item.jamMulai ?? '-'} - ${item.jamSelesai ?? '-'}`,
       textX,
       y + 42,
     )

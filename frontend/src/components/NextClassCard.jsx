@@ -7,55 +7,62 @@ import { Icon } from './Icon'
 export function NextClassCard({ entry, course, countdownText, urgent = false }) {
   if (!entry) return null
 
+  // `countdownText` sudah berupa teks ramah dari formatCountdown()
+  // (mis. "30 menit lagi" atau "1 jam 15 menit lagi") — jangan diolah ulang.
+  const cleanCountdown = countdownText || null
+
   return (
-    <div className="relative overflow-hidden rounded-schedule bg-primary p-lg text-on-primary shadow-level-1 transition-shadow hover:shadow-level-2">
-      <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white opacity-10 blur-2xl" />
-      <div className="relative z-10 flex flex-col justify-between gap-md tablet:flex-row tablet:items-center">
-        <div className="min-w-0">
-          <div className="mb-sm flex items-center gap-sm">
-            <span className="rounded bg-on-primary-fixed-variant px-2 py-1 text-label-caps text-on-primary">
-              {entry.kodeMK}
-            </span>
-            <span className="flex items-center gap-xs text-body-sm">
-              <Icon name="location_on" size={16} />
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-container p-6 text-on-primary shadow-level-2 transition-transform duration-300 hover:scale-[1.01] hover:shadow-level-3">
+      {/* Decorative circle */}
+      <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-white/10 blur-xl" />
+      
+      <div className="relative z-10 flex justify-between items-start mb-4">
+        <div>
+          <span className="text-label-caps text-on-primary/80 uppercase tracking-wider mb-1 block">Kelas Berikutnya</span>
+          <h3 className="text-[22px] font-bold leading-tight mb-3 text-white">
+            {course?.namaMK ?? entry.kodeMK}
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {course?.dosen && (
+              <span className="bg-white/20 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 backdrop-blur-sm">
+                <Icon name="person" size={14} />
+                {course.dosen}
+              </span>
+            )}
+            <span className="bg-white/20 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 backdrop-blur-sm">
+              <Icon name="location_on" size={14} />
               {entry.ruang}
             </span>
           </div>
-          <h4 className="mb-xs truncate text-headline-lg-mobile font-bold tablet:text-headline-lg">
-            {course?.namaMK ?? entry.kodeMK}
-          </h4>
-          {course?.dosen && (
-            <p className="flex items-center gap-xs text-body-sm opacity-90">
-              <Icon name="person" size={16} />
-              {course.dosen}
-            </p>
-          )}
         </div>
-        <div className="flex shrink-0 items-center justify-center gap-sm rounded-xl border border-white/10 bg-on-primary-fixed-variant/20 p-md backdrop-blur-sm">
-          <div className="flex flex-col items-center">
-            <span className="text-body-sm uppercase tracking-wider opacity-80">Waktu</span>
-            <span className="text-title-md font-bold">{entry.jamMulai}</span>
-            <span className="text-body-sm opacity-80">- {entry.jamSelesai}</span>
+        
+        {cleanCountdown && (
+          <div className={`px-3 py-1.5 rounded-2xl flex flex-col items-center shadow-sm shrink-0 ${
+            urgent ? 'animate-[soft-pulse_1.6s_ease-in-out_infinite] bg-error' : 'bg-primary-container'
+          }`}>
+            <span className="text-[9px] font-bold uppercase tracking-wide text-white">Mulai Dalam</span>
+            <span className="font-bold text-sm text-white">{cleanCountdown}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between bg-black/20 rounded-2xl p-3 backdrop-blur-md relative z-10 border border-white/10 mt-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-white/20 p-2 rounded-xl text-white">
+            <Icon name="schedule" size={20} />
+          </div>
+          <div>
+            <span className="block text-sm font-semibold text-white">{entry.jamMulai} - {entry.jamSelesai} WIB</span>
+            <span className="block text-xs text-on-primary/70">{course?.sks ?? 2} SKS · {entry.kodeMK}</span>
           </div>
         </div>
-      </div>
-      {countdownText && (
-        <p
-          className={`relative z-10 mt-md inline-flex items-center gap-xs rounded-full px-3 py-1 text-body-sm font-medium ${
-            urgent
-              ? 'animate-[soft-pulse_1.6s_ease-in-out_infinite] bg-error text-on-error'
-              : 'bg-white/15'
-          }`}
+        <button
+          type="button"
+          className="bg-on-primary text-primary px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-transform active:scale-95 duration-150"
         >
-          <Icon name="timer" size={16} />
-          <span
-            key={countdownText}
-            className="inline-block animate-[fade-up_180ms_var(--ease-standard)]"
-          >
-            {countdownText}
-          </span>
-        </p>
-      )}
+          Detail
+        </button>
+      </div>
     </div>
   )
 }

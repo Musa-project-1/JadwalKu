@@ -1,9 +1,8 @@
 import { Icon } from './Icon'
 import {
   getClassType,
-  TONE_TEXT_CLASSES,
+  TONE_BORDER_CLASSES,
   TONE_DOT_CLASSES,
-  TONE_BG_CLASSES,
   TONE_ICONS,
 } from '../lib/classTypes'
 
@@ -23,63 +22,84 @@ export function ClassTimelineItem({
   nowLabel = '',
 }) {
   const classType = getClassType(entry.tipeKelas)
-  const text = TONE_TEXT_CLASSES[classType.tone]
   const dot = TONE_DOT_CLASSES[classType.tone]
+  const borderClass = TONE_BORDER_CLASSES[classType.tone] ?? TONE_BORDER_CLASSES.neutral
+
+  const dotIcon = isPast ? 'check' : (TONE_ICONS[classType.tone] ?? 'school')
+  const dotBg = isPast
+    ? 'bg-surface-variant text-on-surface-variant'
+    : 'bg-primary-container text-on-primary-container'
 
   return (
     <>
       {showNowBefore && (
-        <div className="relative my-1 flex items-center gap-2" aria-hidden="true">
-          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-error ring-4 ring-error/20" />
-          <span className="h-0.5 flex-1 bg-error/60" />
+        <div className="relative my-3 flex items-center gap-2 -ml-6 z-20" aria-hidden="true">
+          <span className="h-2 w-2 shrink-0 rounded-full bg-error ring-4 ring-error/20" />
+          <span className="h-0.5 flex-grow bg-error/50" />
           {nowLabel && (
-            <span className="text-label-caps font-medium text-error">{nowLabel}</span>
+            <span className="bg-error text-on-error text-[10px] font-bold px-2 py-0.5 rounded-full ml-2">
+              SEKARANG {nowLabel}
+            </span>
           )}
         </div>
       )}
+      
       <div
-        className={`relative ml-5 rounded-xl bg-surface-container-lowest p-md pl-12 shadow-level-1 transition-all duration-200 hover:shadow-level-2 dark:bg-surface-container-low ${
-          isPast ? 'opacity-60 hover:opacity-100' : ''
-        } animate-[fade-up_250ms_var(--ease-standard)_both]`}
+        className="relative mb-6 animate-[fade-up_250ms_var(--ease-standard)_both]"
         style={{ animationDelay: `${Math.min(index, 5) * 40}ms` }}
       >
-        {/* Lingkaran ikon menempel di tepi kiri kartu */}
+        {/* Timeline Dot (Kecil, di luar kartu, memotong garis vertikal) */}
         <div
-          className={`absolute -left-5 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full ring-4 ring-background ${TONE_BG_CLASSES[classType.tone]}`}
+          className={`absolute -left-3 top-4 flex h-6 w-6 items-center justify-center rounded-full border-2 border-surface shadow-sm z-10 ${dotBg}`}
         >
-          <Icon
-            name={TONE_ICONS[classType.tone] ?? TONE_ICONS.neutral}
-            size={20}
-            className={text}
-          />
+          <Icon name={dotIcon} size={14} />
         </div>
-        <div className="mb-xs flex items-start justify-between gap-sm">
-          <span className="text-title-md font-medium text-on-surface">
-            {course?.namaMK ?? entry.kodeMK}
-          </span>
-          <button
-            type="button"
-            onClick={onNoteClick}
-            className="p-1 text-on-surface-variant transition-colors hover:text-primary"
-            title="Catatan mata kuliah"
-            aria-label={`Catatan untuk ${course?.namaMK ?? entry.kodeMK}`}
-          >
-            <Icon name="note_add" size={20} />
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-x-md gap-y-xs text-body-sm text-on-surface-variant">
-          <span className={`flex items-center gap-xs font-medium ${text}`}>
-            <span className={`h-2 w-2 rounded-full ${dot}`} />
-            {classType.label}
-          </span>
-          <span className="flex items-center gap-xs">
-            <Icon name="schedule" size={16} />
-            {entry.jamMulai} - {entry.jamSelesai}
-          </span>
-          <span className="flex items-center gap-xs">
-            <Icon name="location_on" size={16} />
-            {entry.ruang}
-          </span>
+
+        {/* Kartu Jadwal Utama */}
+        <div
+          className={`relative ml-4 rounded-2xl bg-surface-container-lowest p-4 shadow-level-1 border border-outline-variant/15 transition-all duration-200 hover:scale-[1.005] hover:shadow-level-2 ${borderClass} ${
+            isPast ? 'opacity-60 hover:opacity-100' : ''
+          }`}
+        >
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <h5 className={`font-semibold text-body-lg text-on-surface ${isPast ? 'line-through' : ''}`}>
+                {course?.namaMK ?? entry.kodeMK}
+              </h5>
+              <div className="flex items-center gap-2 mt-1 text-xs text-on-surface-variant font-medium">
+                <span className={`h-2 w-2 rounded-full ${dot}`} />
+                <span>{classType.label} • {entry.jamMulai} - {entry.jamSelesai}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-xs shrink-0">
+              <span className="bg-primary-container/20 text-primary px-2.5 py-1 rounded-lg text-xs font-bold">
+                {entry.jamMulai}
+              </span>
+              <button
+                type="button"
+                onClick={onNoteClick}
+                className="p-1 text-on-surface-variant transition-colors hover:text-primary rounded-full hover:bg-surface-container"
+                title="Catatan mata kuliah"
+                aria-label={`Catatan untuk ${course?.namaMK ?? entry.kodeMK}`}
+              >
+                <Icon name="note_add" size={18} />
+              </button>
+            </div>
+          </div>
+
+          {/* Sub-Chip Lokasi atau Link Meeting */}
+          {classType.tone === 'online' ? (
+            <div className="flex items-center gap-1.5 mt-3 text-xs text-blue-600 bg-blue-50 dark:bg-blue-950/30 dark:text-blue-300 px-3 py-2 rounded-xl font-semibold">
+              <Icon name="videocam" size={16} />
+              <span>Tautan Zoom Meeting (Online)</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 mt-3 text-xs text-on-surface-variant bg-surface-container px-3 py-2 rounded-xl font-semibold dark:bg-surface-container-high">
+              <Icon name="location_on" size={16} />
+              <span>{entry.ruang || 'Belum ditentukan'}</span>
+            </div>
+          )}
         </div>
       </div>
     </>

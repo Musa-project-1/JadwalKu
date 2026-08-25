@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
 
 /**
@@ -8,6 +8,15 @@ import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
  */
 export function useTasks() {
   const [tasks, setTasks] = useState(() => getItem(STORAGE_KEYS.tasks, []))
+
+  // Ref agar mutator bisa membaca daftar terbaru tanpa menjadikan `tasks`
+  // dependensi callback (yang akan membentuk ulang callback tiap render).
+  // Menghindari stale-closure: dua mutasi beruntun (mis. double-click)
+  // tidak lagi kehilangan update karena keduanya membaca value terbaru.
+  const tasksRef = useRef(tasks)
+  useEffect(() => {
+    tasksRef.current = tasks
+  }, [tasks])
 
   const persist = useCallback((next) => {
     setTasks(next)
@@ -22,31 +31,31 @@ export function useTasks() {
         prioritas: 'sedang',
         ...task,
       }
-      persist([...tasks, newTask])
+      persist([...tasksRef.current, newTask])
       return newTask
     },
-    [tasks, persist],
+    [persist],
   )
 
   const updateTask = useCallback(
     (id, changes) => {
-      persist(tasks.map((t) => (t.id === id ? { ...t, ...changes } : t)))
+      persist(tasksRef.current.map((t) => (t.id === id ? { ...t, ...changes } : t)))
     },
-    [tasks, persist],
+    [persist],
   )
 
   const toggleDone = useCallback(
     (id) => {
-      persist(tasks.map((t) => (t.id === id ? { ...t, selesai: !t.selesai } : t)))
+      persist(tasksRef.current.map((t) => (t.id === id ? { ...t, selesai: !t.selesai } : t)))
     },
-    [tasks, persist],
+    [persist],
   )
 
   const removeTask = useCallback(
     (id) => {
-      persist(tasks.filter((t) => t.id !== id))
+      persist(tasksRef.current.filter((t) => t.id !== id))
     },
-    [tasks, persist],
+    [persist],
   )
 
   return { tasks, addTask, updateTask, toggleDone, removeTask }

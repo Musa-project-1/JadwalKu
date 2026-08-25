@@ -13,10 +13,11 @@ import { DAYS } from '../../lib/uploadValidator'
 import { getTodayName, sortByTime } from '../../lib/scheduleUtils'
 import {
   TONE_BG_CLASSES,
+  TONE_BORDER_CLASSES,
   TONE_TEXT_CLASSES,
   getClassType,
 } from '../../lib/classTypes'
-import { deriveTahunAjaran } from '../../lib/publishHelpers'
+import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 
 const WEEK_DAYS = DAYS // Senin–Sabtu
@@ -30,9 +31,11 @@ export default function WeeklySchedule() {
   const [detailEntry, setDetailEntry] = useState(null)
   const location = useLocation()
 
-  // TA aktif = dari tanggal hari ini; TA lain = arsip tahun-tahun sebelumnya.
-  // Pilihan TIDAK dipersistenkan — default selalu TA berjalan (anti state basi).
-  const currentTA = deriveTahunAjaran()
+  // TA aktif = TA di mana semester yang dipilih berada (kalender kampus:
+  // ganjil akhir Sep → awal Feb, genap akhir Mar → awal Jul). Saat libur,
+  // semester ganjil sudah mengarah ke TA berikutnya. Pilihan TIDAK
+  // dipersistenkan — default selalu dihitung ulang (anti state basi).
+  const currentTA = expectedTahunAjaranForSemester(semester)
   const [selectedTA, setSelectedTA] = useState(currentTA)
 
   const viewingArchive = selectedTA !== currentTA
@@ -310,21 +313,21 @@ export default function WeeklySchedule() {
                 return (
                   <div
                     key={day}
-                    className={`border-b border-outline-variant/40 p-2 text-center ${
+                    className={`border-b border-outline-variant/40 p-2 text-center flex flex-col items-center justify-center ${
                       isHoliday ? 'opacity-60' : ''
                     }`}
                   >
                     {isTodayCol ? (
-                      <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-label-caps font-medium text-primary">
+                      <span className="rounded-full bg-primary text-on-primary px-3 py-1 text-label-caps font-bold shadow-sm inline-block">
                         {day}
                       </span>
                     ) : (
-                      <span className="text-title-md font-medium text-on-surface">{day}</span>
+                      <span className="text-title-md font-semibold text-on-surface">{day}</span>
                     )}
-                    <div className="text-body-sm text-on-surface-variant">
+                    <div className="text-body-sm text-on-surface-variant font-medium mt-0.5">
                       {dateNum} {monthShort}
                       {isHoliday && (
-                        <span className="ml-1 font-medium text-error">· LIBUR</span>
+                        <span className="ml-1 font-bold text-error">· LIBUR</span>
                       )}
                     </div>
                   </div>
@@ -345,7 +348,7 @@ export default function WeeklySchedule() {
                 {hourMarks.map((m) => (
                   <span
                     key={m}
-                    className="absolute right-1.5 -translate-y-1/2 text-label-caps text-on-surface-variant"
+                    className="absolute right-1.5 -translate-y-1/2 text-label-caps text-on-surface-variant font-semibold"
                     style={{ top: ((m - rangeStart) / 60) * PX_PER_HOUR }}
                   >
                     {String(Math.floor(m / 60)).padStart(2, '0')}:00
@@ -364,6 +367,13 @@ export default function WeeklySchedule() {
                       isHoliday ? 'holiday-stripes' : isTodayCol ? 'bg-primary/5' : ''
                     }`}
                   >
+                    {isHoliday && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
+                        <span className="text-label-caps uppercase tracking-widest text-on-surface-variant/45 -rotate-90 font-bold">
+                          LIBUR
+                        </span>
+                      </div>
+                    )}
                     {/* Garis jam horizontal */}
                     {hourMarks.map((m) => (
                       <span
@@ -385,31 +395,34 @@ export default function WeeklySchedule() {
                         )
                         const course = courseMap.get(entry.kodeMK)
                         const conflicted = conflictedIds.has(entry.id)
+                        const classType = getClassType(entry.tipeKelas)
+                        const borderClass = TONE_BORDER_CLASSES[classType.tone] ?? TONE_BORDER_CLASSES.neutral
                         return (
                           <button
                             key={entry.id}
                             type="button"
                             onClick={() => openDetail(entry)}
                             style={{ top: top + 2, height }}
-                            className={`absolute inset-x-1 z-10 overflow-hidden rounded-lg p-1.5 text-left transition-all duration-200 hover:z-20 hover:shadow-level-2 active:scale-[0.98] ${
-                              TONE_BG_CLASSES[getClassType(entry.tipeKelas).tone]
-                            } ${conflicted ? 'ring-2 ring-error/60' : ''}`}
+                            className={`absolute inset-x-1 z-10 overflow-hidden rounded-xl p-2 text-left transition-all duration-200 hover:z-20 hover:shadow-level-2 active:scale-[0.98] border border-outline-variant/10 ${
+                              TONE_BG_CLASSES[classType.tone]
+                            } ${borderClass} ${conflicted ? 'ring-2 ring-error/60' : ''}`}
                             title={`${course?.namaMK ?? entry.kodeMK} · ${entry.jamMulai}-${entry.jamSelesai} · ${entry.ruang}`}
                           >
                             <p
-                              className={`truncate text-body-sm font-medium ${
-                                TONE_TEXT_CLASSES[getClassType(entry.tipeKelas).tone]
+                              className={`line-clamp-2 text-body-sm font-semibold leading-tight ${
+                                TONE_TEXT_CLASSES[classType.tone]
                               }`}
+                              title={course?.namaMK ?? entry.kodeMK}
                             >
                               {course?.namaMK ?? entry.kodeMK}
                             </p>
                             {height > 46 && (
-                              <p className="text-label-caps text-on-surface-variant">
+                              <p className="text-label-caps text-on-surface-variant font-medium mt-0.5">
                                 {entry.jamMulai} - {entry.jamSelesai}
                               </p>
                             )}
                             {height > 66 && (
-                              <p className="truncate text-body-sm text-on-surface-variant">
+                              <p className="truncate text-body-sm text-on-surface-variant font-semibold mt-0.5">
                                 {entry.ruang}
                               </p>
                             )}
@@ -489,7 +502,7 @@ function CourseDetailPanel({ entry, course, onClose }) {
         role="presentation"
       />
       <div className="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-2xl bg-surface-container-lowest shadow-level-2 animate-[sheet-up_300ms_var(--ease-emphasized)_both] tablet:inset-y-0 tablet:left-auto tablet:right-0 tablet:max-h-none tablet:w-96 tablet:animate-[panel-in_250ms_var(--ease-standard)_both] tablet:rounded-l-2xl tablet:rounded-tr-none dark:bg-surface-container-low">
-        <div className="sticky top-0 z-10 bg-primary p-lg text-on-primary">
+        <div className="sticky top-0 z-10 bg-gradient-to-br from-primary to-primary-container p-lg text-on-primary shadow-level-1">
           <div className="mb-sm flex items-start justify-between">
             <span className="rounded bg-white/20 px-2 py-1 text-label-caps">{entry.kodeMK}</span>
             <button type="button" onClick={onClose} className="text-white/80 hover:text-white">
