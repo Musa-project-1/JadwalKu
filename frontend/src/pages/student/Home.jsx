@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../hooks/useApp'
 import { useFirestore } from '../../hooks/useFirestore'
+import { useTasks } from '../../hooks/useTasks'
 import { Icon } from '../../components/Icon'
 import { NextClassCard } from '../../components/NextClassCard'
 import { ClassTimelineItem } from '../../components/ClassTimelineItem'
@@ -19,12 +20,13 @@ import {
   sortByTime,
 } from '../../lib/scheduleUtils'
 
-import { deriveTahunAjaran } from '../../lib/publishHelpers'
+import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 
 export default function Home() {
   const navigate = useNavigate()
   const { program, semester } = useApp()
+  const { tasks } = useTasks()
   const todayName = getTodayName()
 
   const { data: jadwal, loading } = useFirestore('jadwal', [
@@ -57,21 +59,9 @@ export default function Home() {
   )
 
   const next = useMemo(() => findNextClass(todayEntries), [todayEntries])
-  // TA yang ditampilkan = TA milik data (bukan tanggal hari ini).
-  // Ambil TA paling sering muncul; bila beragam, pilih yang terbaru —
-  // jangan asal ambil entri pertama.
-  const dataTA = useMemo(() => {
-    const counts = new Map()
-    scheduleSource.forEach((e) => {
-      const t = String(e.tahunAjaran ?? '').trim()
-      if (t) counts.set(t, (counts.get(t) ?? 0) + 1)
-    })
-    if (counts.size === 0) return deriveTahunAjaran()
-    return [...counts.entries()].sort((a, b) => {
-      if (b[1] !== a[1]) return b[1] - a[1]
-      return String(b[0]).localeCompare(String(a[0]))
-    })[0][0]
-  }, [scheduleSource])
+  // TA ditampilkan = TA di mana semester berjalan berada (via logika
+  // tahunAjaran), bukan dari data yang mungkin basi / beragam.
+  const dataTA = expectedTahunAjaranForSemester(semester)
   const [nowMinutes, setNowMinutes] = useState(() => currentMinuteOfDay())
 
   // Tick tiap 30 detik untuk countdown "kelas berikutnya".
@@ -90,6 +80,16 @@ export default function Home() {
     setDailyNote(value)
     saveDailyNote(value)
   }
+
+  const stats = useMemo(() => {
+    const sksSet = new Set(scheduleSource.map((e) => e.kodeMK))
+    const openTasks = tasks.filter((t) => !t.selesai).length
+    return {
+      totalSks: sksSet.size * 3,
+      totalKelas: scheduleSource.length,
+      tugasOpen: openTasks,
+    }
+  }, [scheduleSource, tasks])
 
   return (
     <div className="grid grid-cols-1 gap-lg desktop:grid-cols-3">
@@ -142,7 +142,7 @@ export default function Home() {
 
         <section>
           <h3 className="mb-md text-label-caps uppercase text-on-surface">
-            Jadwal Hari Ini — {todayName}
+            Jadwal Hari Ini - {todayName}
           </h3>
           {loading ? (
             <div className="space-y-sm">
@@ -157,7 +157,9 @@ export default function Home() {
               description="Nikmati harimu, atau cek jadwal mingguan untuk kelas berikutnya."
             />
           ) : (
-            <div className="space-y-sm">
+            <div className="relative pl-6">
+              {/* Vertical timeline line */}
+              <div className="absolute left-[11px] top-6 bottom-6 w-0.5 bg-outline-variant/30" />
               {todayEntries.map((entry, i) => {
                 const startM = minutesUntil(entry.jamMulai)
                 const prevEnded =
@@ -183,18 +185,37 @@ export default function Home() {
         </section>
       </div>
 
-      <aside className="desktop:col-span-1">
-        <section className="flex h-full min-h-[240px] flex-col rounded-3xl border border-tertiary/10 bg-tertiary-fixed/25 p-md dark:border-tertiary/10 dark:bg-tertiary-fixed/10 tablet:p-lg">
-          <h3 className="mb-md flex items-center gap-sm text-title-md text-on-surface">
-            <Icon name="edit_note" className="text-tertiary" />
+      <aside className="desktop:col-span-1 space-y-md">
+        <section className="flex flex-col rounded-3xl bg-[#FFE4D6] border-l-4 border-[#D97706] p-md dark:bg-warning-container/20 dark:border-[#D97706]/40 tablet:p-lg">
+          <h3 className="mb-md flex items-center gap-sm text-title-md text-[#92400E] dark:text-warning font-semibold">
+            <Icon name="edit_note" className="text-[#D97706]" />
             Catatan Hari Ini
           </h3>
           <textarea
             value={dailyNote}
             onChange={(e) => handleNoteChange(e.target.value)}
             placeholder="Tulis catatan cepat untuk hari ini..."
-            className="min-h-[160px] flex-1 resize-none bg-transparent p-0 text-body-lg text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none"
+            className="min-h-[160px] flex-1 resize-none bg-transparent p-0 text-body-lg text-[#92400E] dark:text-warning placeholder:text-[#92400E]/60 dark:placeholder:text-warning/60 focus:outline-none"
           />
+        </section>
+
+        {/* Mini stat chips row */}
+        <section className="grid grid-cols-3 gap-sm">
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-secondary-container/30 border border-secondary-container/10 p-sm text-center">
+            <Icon name="menu_book" className="text-secondary mb-1" size={20} />
+            <span className="text-title-md font-bold text-on-secondary-container">{stats.totalSks}</span>
+            <span className="text-[11px] text-on-secondary-container opacity-85 uppercase tracking-wide">SKS</span>
+          </div>
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-info-container/30 border border-info-container/10 p-sm text-center">
+            <Icon name="calendar_month" className="text-info mb-1" size={20} />
+            <span className="text-title-md font-bold text-on-info-container">{stats.totalKelas}</span>
+            <span className="text-[11px] text-on-info-container opacity-85 uppercase tracking-wide">Kelas</span>
+          </div>
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-success-container/30 border border-success-container/10 p-sm text-center">
+            <Icon name="assignment_late" className="text-success mb-1" size={20} />
+            <span className="text-title-md font-bold text-on-success-container">{stats.tugasOpen}</span>
+            <span className="text-[11px] text-on-success-container opacity-85 uppercase tracking-wide">Tugas</span>
+          </div>
         </section>
       </aside>
     </div>

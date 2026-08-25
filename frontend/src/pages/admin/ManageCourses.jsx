@@ -278,7 +278,7 @@ export default function ManageCourses() {
                       <td className="px-md py-sm font-mono text-xs font-semibold text-primary">{course.kodeMK}</td>
                       <td className="px-md py-sm text-body-sm text-on-surface">{course.namaMK}</td>
                       <td className="px-md py-sm text-body-sm text-on-surface-variant">{course.dosen}</td>
-                      <td className="px-md py-sm text-body-sm text-on-surface-variant">{course.kontakDosen || '—'}</td>
+                      <td className="px-md py-sm text-body-sm text-on-surface-variant">{course.kontakDosen || '-'}</td>
                       <td className="px-md py-sm text-body-sm text-on-surface">{course.sks}</td>
                       <td className="px-md py-sm text-body-sm text-on-surface-variant">{course.durasi} mnt</td>
                       <td className="px-md py-sm">
@@ -335,7 +335,7 @@ export default function ManageCourses() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Hapus mata kuliah?"
-        description={`${deleteTarget?.kodeMK} — ${deleteTarget?.namaMK} akan dihapus. Jadwal yang memakai kode ini akan gagal validasi saat upload.`}
+        description={`${deleteTarget?.kodeMK} - ${deleteTarget?.namaMK} akan dihapus. Jadwal yang memakai kode ini akan gagal validasi saat upload.`}
         confirmLabel="Hapus"
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}

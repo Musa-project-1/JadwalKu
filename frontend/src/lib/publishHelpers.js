@@ -13,14 +13,11 @@ import {
 } from 'firebase/firestore'
 import { db } from './firebaseClient'
 import { logError } from './errorLogger'
+import { deriveTahunAjaran } from './tahunAjaran'
 
-/**
- * Tahun ajaran berjalan: Agustus–Desember → Y/Y+1, Januari–Juli → Y-1/Y.
- */
-export function deriveTahunAjaran(date = new Date()) {
-  const y = date.getFullYear()
-  return date.getMonth() >= 7 ? `${y}/${y + 1}` : `${y - 1}/${y}`
-}
+// Re-export: tahunAjaran.js adalah sumber kebenaran TA (kalender kampus
+// digeser: ganjil akhir Sep → awal Feb, genap akhir Mar → awal Jul).
+export { deriveTahunAjaran }
 
 /**
  * ATURAN SEMESTER: jadwal semester yang sama (mis. Semester 4) di tahun

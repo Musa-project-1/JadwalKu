@@ -30,7 +30,7 @@ export function AppLayout() {
       <Sidebar />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* Top app bar mobile — logo + lonceng notifikasi */}
-        <header className="flex items-center gap-sm px-md py-base tablet:hidden">
+        <header className="sticky top-0 z-30 flex items-center gap-sm bg-background/80 px-md py-base backdrop-blur-md border-b border-outline-variant/10 tablet:hidden">
           <img src="/logo.svg" alt="Logo JadwalKu" className="h-9 w-9" />
           <h1 className="text-headline-lg-mobile font-bold text-primary">
             JadwalKu

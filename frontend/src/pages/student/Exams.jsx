@@ -11,11 +11,6 @@ const MODE_ICONS = {
   'Take home': 'home_work',
 }
 
-const STRIPE_COLORS = {
-  UTS: 'bg-primary',
-  UAS: 'bg-tertiary',
-}
-
 export default function Exams() {
   const { program, semester } = useApp()
   const [jenis, setJenis] = useState('UTS')
@@ -43,16 +38,16 @@ export default function Exams() {
           </p>
         </div>
         {/* Segmented control */}
-        <div className="flex rounded-lg border border-surface-variant bg-surface-container p-1 shadow-sm dark:bg-surface-container-high">
+        <div className="flex rounded-full bg-surface-container p-1 dark:bg-surface-container-high">
           {['UTS', 'UAS'].map((j) => (
             <button
               key={j}
               type="button"
               onClick={() => setJenis(j)}
-              className={`rounded-md px-6 py-2 text-title-md transition-all ${
+              className={`rounded-full px-6 py-1.5 text-body-sm font-medium transition-all duration-200 active:scale-95 ${
                 jenis === j
-                  ? 'bg-surface-container-lowest text-primary shadow-sm dark:bg-surface-container-highest'
-                  : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-primary text-on-primary shadow-level-1'
+                  : 'text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface'
               }`}
             >
               {j}
@@ -75,8 +70,9 @@ export default function Exams() {
       ) : (
         <div className="grid grid-cols-1 gap-lg desktop:grid-cols-2">
           {grouped.map(([dateLabel, exams]) => (
-            <section key={dateLabel} className="space-y-sm">
-              <h3 className="sticky top-0 z-10 border-b border-surface-variant bg-background/90 py-2 text-label-caps uppercase text-on-surface-variant backdrop-blur dark:bg-background/90">
+            <section key={dateLabel} className="space-y-sm relative">
+              <h3 className="sticky top-0 z-20 py-3 bg-surface/80 dark:bg-surface-container-low/80 text-label-caps text-on-surface-variant font-bold border-b border-outline-variant/30 flex items-center gap-2 backdrop-blur-md">
+                <span className="h-2 w-2 rounded-full bg-primary" />
                 {formatExamDate(dateLabel)}
               </h3>
               {exams.map((exam) => (
@@ -95,39 +91,49 @@ function ExamCard({ exam }) {
   const countdown =
     days > 0 ? `${days} hari lagi` : days === 0 ? 'Hari ini' : 'Sudah lewat'
 
+  const borderClass =
+    exam.jenis === 'UTS' ? 'border-l-4 border-info' : 'border-l-4 border-warning'
+
+  const badgeStyle =
+    exam.jenis === 'UTS'
+      ? 'bg-info-container/20 text-info dark:bg-info-container/10'
+      : 'bg-warning-container/20 text-warning dark:bg-warning-container/10'
+
   return (
-    <div className="relative flex gap-md overflow-hidden rounded-3xl bg-tertiary-container/15 p-md transition-shadow hover:shadow-level-2 dark:bg-tertiary-container/10">
-      <div className={`absolute bottom-0 left-0 top-0 w-1 ${STRIPE_COLORS[exam.jenis] ?? 'bg-primary'}`} />
-      <div className="min-w-0 flex-1 pl-xs">
-        <div className="mb-2 flex flex-wrap items-start justify-between gap-xs">
-          <span className="rounded-full bg-tertiary-container/40 px-2 py-1 text-label-caps text-tertiary">
-            {exam.kodeMK}
-          </span>
-          <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-label-caps text-primary">
-            <Icon name="timer" size={14} />
-            {countdown}
-          </span>
-          <span className="ml-auto flex items-center gap-1 rounded-md bg-surface-container px-2 py-1 text-label-caps text-on-surface-variant dark:bg-surface-container-high">
-            <Icon name={MODE_ICONS[exam.mode] ?? 'help_outline'} size={14} />
-            {exam.mode ?? '-'}
+    <div
+      className={`group relative overflow-hidden rounded-3xl bg-surface-container-lowest p-5 shadow-level-1 border border-outline-variant/15 transition-all duration-200 hover:scale-[1.005] hover:shadow-level-2 ${borderClass}`}
+    >
+      <div className="flex justify-between items-start mb-3">
+        <div>
+          <h4 className="text-[18px] font-bold text-on-surface leading-tight group-hover:text-primary transition-colors">
+            {exam.namaMK ?? exam.kodeMK}
+          </h4>
+          <span className="text-body-sm text-on-surface-variant/80 font-medium mt-0.5 block">
+            {exam.kodeMK} · Ujian {exam.jenis}
           </span>
         </div>
-        <h3 className="mb-1 text-title-md text-on-surface">
-          {exam.namaMK ?? exam.kodeMK}
-        </h3>
-        <p className="mb-4 text-body-sm text-on-surface-variant">
-          {exam.kodeMK} · Ujian {exam.jenis}
-        </p>
-        <div className="flex flex-wrap gap-lg text-body-sm text-on-surface-variant">
-          <span className="flex items-center gap-1">
-            <Icon name="schedule" size={16} />
-            {exam.jam}
+
+        <span className={`px-2.5 py-1 rounded-lg flex items-center gap-1 text-[11px] font-bold tracking-wide shadow-sm shrink-0 ${badgeStyle}`}>
+          <Icon name="timer" size={13} />
+          {countdown}
+        </span>
+      </div>
+
+      <div className="flex items-center justify-between bg-surface-container-highest/20 dark:bg-surface-container-high/30 rounded-2xl p-3 border border-outline-variant/10 mt-4">
+        <div className="flex items-center gap-4 text-xs font-semibold text-on-surface-variant">
+          <span className="flex items-center gap-1.5">
+            <Icon name="schedule" size={16} className="text-primary" />
+            {exam.jam} WIB
           </span>
-          <span className="flex items-center gap-1">
-            <Icon name={exam.mode === 'Online' ? 'link' : 'location_on'} size={16} />
+          <span className="flex items-center gap-1.5">
+            <Icon name={exam.mode === 'Online' ? 'videocam' : 'location_on'} size={16} className="text-primary" />
             {exam.ruang ?? '-'}
           </span>
         </div>
+        <span className="bg-surface-container-lowest text-on-surface px-2.5 py-1 rounded-lg text-[10px] font-bold border border-outline-variant/20 flex items-center gap-1">
+          <Icon name={MODE_ICONS[exam.mode] ?? 'help_outline'} size={12} />
+          {exam.mode ?? '-'}
+        </span>
       </div>
     </div>
   )

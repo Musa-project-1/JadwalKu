@@ -78,7 +78,7 @@ export default function ManualEntry() {
     const result = await setDocument('mataKuliah', kodeMK, { ...courseForm, kodeMK }, actor)
     if (result.ok) {
       await appendHistory({ entitas: 'mataKuliah', field: 'tambah', nilaiLama: null, nilaiBaru: courseForm, aktor: actor })
-      setBanner({ ok: true, message: `Mata kuliah ${kodeMK} tersimpan — bisa dipakai di sesi.` })
+      setBanner({ ok: true, message: `Mata kuliah ${kodeMK} tersimpan - bisa dipakai di sesi.` })
       setCourseForm(EMPTY_COURSE)
       setCourseOpen(false)
     } else {
@@ -239,10 +239,10 @@ export default function ManualEntry() {
             onChange={(e) => update('kodeMK', e.target.value)}
             className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface dark:bg-surface-container-low"
           >
-            <option value="">— Pilih MK —</option>
+            <option value="">- Pilih MK -</option>
             {courses.map((c) => (
               <option key={c.id} value={c.kodeMK}>
-                {c.kodeMK} — {c.namaMK}
+                {c.kodeMK} - {c.namaMK}
               </option>
             ))}
           </select>
@@ -284,7 +284,7 @@ export default function ManualEntry() {
             {sessions.map((session) => (
               <li key={session._id} className="flex items-center justify-between gap-sm py-sm">
                 <span className="min-w-0 truncate text-body-sm text-on-surface">
-                  <strong>{session.kodeMK}</strong> • {session.hari}, {session.jamMulai}–{session.jamSelesai} • {session.prodi} Sem {session.semester} • {session.ruang} ({session.tipeKelas})
+                  <strong>{session.kodeMK}</strong> • {session.hari}, {session.jamMulai}-{session.jamSelesai} • {session.prodi} Sem {session.semester} • {session.ruang} ({session.tipeKelas})
                 </span>
                 <button
                   type="button"

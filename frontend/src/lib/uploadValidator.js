@@ -24,7 +24,7 @@ export function validateScheduleEntry(entry) {
 
   const semester = Number(entry.semester)
   if (!Number.isInteger(semester) || semester < 1 || semester > 14) {
-    errors.push('Semester harus angka bulat 1–14')
+    errors.push('Semester harus angka bulat 1-14')
   }
 
   if (!DAYS.includes(entry.hari)) {
@@ -88,7 +88,7 @@ export function findConflicts(entries) {
         conflicts.push({
           a: i,
           b: j,
-          message: `Bentrok: ${a.kodeMK} (${a.jamMulai}–${a.jamSelesai}) dan ${b.kodeMK} (${b.jamMulai}–${b.jamSelesai}), ${a.hari}`,
+          message: `Bentrok: ${a.kodeMK} (${a.jamMulai}-${a.jamSelesai}) dan ${b.kodeMK} (${b.jamMulai}-${b.jamSelesai}), ${a.hari}`,
         })
       }
     }
@@ -138,12 +138,12 @@ export function validateCourseEntry(course) {
 
   const sks = Number(course.sks)
   if (!Number.isInteger(sks) || sks < 1 || sks > 6) {
-    errors.push('SKS harus angka bulat 1–6')
+    errors.push('SKS harus angka bulat 1-6')
   }
 
   const durasi = Number(course.durasi)
   if (!Number.isInteger(durasi) || durasi < 30 || durasi > 300) {
-    errors.push('Durasi harus angka menit 30–300')
+    errors.push('Durasi harus angka menit 30-300')
   }
 
   return errors

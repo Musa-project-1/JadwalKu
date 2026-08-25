@@ -3,20 +3,37 @@ import { ADMIN_NAV } from '../../lib/navigation'
 import { Icon } from '../Icon'
 import { OfflineBanner } from '../OfflineBanner'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
+import { useApp } from '../../hooks/useApp'
 
-function AdminNavItem({ item, onNavigate }) {
+// Shared label class helper — only opacity + max-width transition, NO scale
+function labelCls(isCollapsed, spacing = 'ml-md') {
+  return `overflow-hidden whitespace-nowrap transition-[opacity,max-width,margin] duration-300 ease-in-out ${
+    isCollapsed
+      ? `max-w-0 opacity-0 ml-0 pointer-events-none group-hover:max-w-[200px] group-hover:opacity-100 group-hover:${spacing} group-hover:pointer-events-auto`
+      : `max-w-[200px] opacity-100 ${spacing}`
+  }`
+}
+
+function AdminNavItem({ item, onNavigate, isCollapsed }) {
   return (
-    <NavLink to={item.to} onClick={onNavigate}>
+    <NavLink to={item.to} onClick={onNavigate} end={item.to === '/admin/dashboard'}>
       {({ isActive }) => (
         <span
-          className={`flex items-center gap-md rounded-full px-md py-sm text-body-lg transition-colors duration-200 ${
+          title={isCollapsed ? item.label : undefined}
+          className={`flex w-full items-center rounded-full py-sm text-body-lg transition-[padding,background-color] duration-300 ease-in-out ${
+            isCollapsed ? 'px-3 group-hover:px-md' : 'px-md'
+          } ${
             isActive
               ? 'bg-primary/10 font-medium text-primary'
               : 'text-on-surface-variant hover:bg-surface-container-high'
           }`}
         >
-          <Icon name={item.icon} size={22} filled={isActive} />
-          {item.label}
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+            <Icon name={item.icon} size={22} filled={isActive} />
+          </span>
+          <span className={labelCls(isCollapsed)}>
+            {item.label}
+          </span>
         </span>
       )}
     </NavLink>
@@ -24,66 +41,121 @@ function AdminNavItem({ item, onNavigate }) {
 }
 
 /** Baris akun admin di dasar sidebar: email + tombol keluar. */
-function AdminAccount() {
+function AdminAccount({ isCollapsed }) {
   const { user, signOutAdmin } = useAdminAuth()
+  const { theme, setTheme } = useApp()
+  const nextTheme = theme === 'dark' ? 'light' : 'dark'
   if (!user) return null
 
   return (
-    <div className="border-t border-surface-variant px-md py-base">
-      <div className="mb-xs flex items-center gap-sm">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container">
-          <Icon name="account_circle" />
-        </span>
-        <div className="min-w-0">
-          <p className="truncate text-body-sm font-semibold text-on-surface">
-            {user.email}
-          </p>
-          <p className="text-body-sm text-on-surface-variant">
-            {user.demo ? 'Mode Demo (tanpa backend)' : 'Administrator'}
-          </p>
+    <div className="px-2 transition-[padding] duration-300 ease-in-out group-hover:px-md">
+      <div className="border-t border-outline-variant/40 pt-1">
+        {/* Account info row + logout merged */}
+        <div className="flex items-center rounded-full py-sm px-3 transition-[padding] duration-300 ease-in-out group-hover:px-md">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container">
+            <Icon name="account_circle" size={16} />
+          </span>
+          <div className={labelCls(isCollapsed, 'ml-md')}>
+            <p className="truncate text-[12px] font-semibold text-on-surface leading-tight">
+              {user.email}
+            </p>
+            <p className="text-[10px] text-on-surface-variant leading-none mt-0.5">
+              {user.demo ? 'Mode Demo' : 'Administrator'}
+            </p>
+          </div>
+          {/* Logout icon — only visible when expanded */}
+          <button
+            type="button"
+            onClick={signOutAdmin}
+            title="Keluar"
+            className={`ml-auto shrink-0 flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant/60 hover:bg-error/10 hover:text-error transition-[opacity,background-color,color] duration-200 ${
+              isCollapsed ? 'opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto' : 'opacity-100'
+            }`}
+          >
+            <Icon name="logout" size={16} />
+          </button>
         </div>
+        <NavLink
+          to="/pengaturan"
+          title="Pengaturan"
+          className={({ isActive }) =>
+            `flex w-full items-center rounded-full py-sm px-3 transition-[padding,background-color] duration-300 ease-in-out group-hover:px-md ${
+              isActive
+                ? 'bg-primary/10 font-medium text-primary'
+                : 'text-on-surface-variant hover:bg-surface-container-high'
+            }`
+          }
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+            <Icon name="settings" size={22} />
+          </span>
+          <span className={labelCls(isCollapsed)}>Pengaturan</span>
+        </NavLink>
+        <NavLink
+          to="/"
+          end
+          viewTransition
+          className={({ isActive }) =>
+            `flex w-full items-center rounded-full py-sm px-3 transition-[padding,background-color] duration-300 ease-in-out group-hover:px-md ${
+              isActive
+                ? 'bg-primary/10 font-medium text-primary'
+                : 'text-on-surface-variant hover:bg-surface-container-high'
+            }`
+          }
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+            <Icon name="arrow_back" size={22} />
+          </span>
+          <span className={labelCls(isCollapsed)}>Mode Mahasiswa</span>
+        </NavLink>
+        <button
+          type="button"
+          onClick={() => setTheme(nextTheme)}
+          className="flex w-full items-center rounded-full py-sm px-3 text-on-surface-variant transition-[padding,background-color] duration-300 ease-in-out hover:bg-surface-container-high group-hover:px-md"
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+            <Icon name={nextTheme === 'dark' ? 'dark_mode' : 'light_mode'} size={22} />
+          </span>
+          <span className={labelCls(isCollapsed)}>
+            Mode {nextTheme === 'dark' ? 'gelap' : 'terang'}
+          </span>
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={signOutAdmin}
-        className="flex w-full items-center gap-sm rounded-lg px-md py-sm text-body-sm text-on-surface-variant transition-colors hover:bg-error/10 hover:text-error"
-      >
-        <Icon name="logout" size={18} />
-        Keluar
-      </button>
-      <Link
-        to="/"
-        className="flex w-full items-center gap-sm rounded-lg px-md py-sm text-body-sm text-on-surface-variant transition-colors hover:bg-surface-container"
-      >
-        <Icon name="arrow_back" size={18} />
-        Mode Mahasiswa
-      </Link>
     </div>
   )
 }
 
+
 export function AdminLayout() {
   return (
     <div className="flex min-h-screen bg-transparent text-on-background">
-      {/* Sidebar — tablet ke atas */}
-      <nav className="fixed left-0 top-0 hidden h-screen w-sidebar-width shrink-0 flex-col border-r border-surface-variant bg-surface py-lg tablet:flex dark:bg-surface-container-low">
-        <div className="mb-xl px-lg">
-          <h1 className="text-headline-lg-mobile font-bold text-primary">
-            JadwalKu
-          </h1>
-          <p className="text-body-sm text-on-surface-variant">Admin Console</p>
+      {/* Sidebar — permanent 80px spacer, overlays to 280px on hover */}
+      <div className="relative hidden h-screen w-20 shrink-0 tablet:block">
+        <div className="group absolute left-0 top-0 h-screen w-20 transition-[width] duration-300 ease-in-out z-40 hover:w-[280px] hover:shadow-xl">
+          <nav style={{ viewTransitionName: 'sidebar' }} className="w-full h-full flex flex-col overflow-x-hidden overflow-y-auto border-r border-outline-variant/50 bg-surface py-lg dark:bg-surface">
+            {/* Logo */}
+            <div className="mb-xl flex items-center px-3 transition-[padding] duration-300 ease-in-out group-hover:px-lg">
+              <img src="/logo.svg" alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
+              <div className={labelCls(true, 'ml-sm')}>
+                <h1 className="text-headline-lg-mobile font-bold text-primary desktop:text-headline-lg truncate">
+                  JadwalKu
+                </h1>
+                <p className="text-[11px] text-on-surface-variant truncate">Admin Console</p>
+              </div>
+            </div>
+            <ul className="flex-1 space-y-1 px-2">
+              {ADMIN_NAV.map((item) => (
+                <li key={item.to}>
+                  <AdminNavItem item={item} isCollapsed={true} />
+                </li>
+              ))}
+            </ul>
+            <AdminAccount isCollapsed={true} />
+          </nav>
         </div>
-        <ul className="flex-1 space-y-2 px-md">
-          {ADMIN_NAV.map((item) => (
-            <li key={item.to}>
-              <AdminNavItem item={item} />
-            </li>
-          ))}
-        </ul>
-        <AdminAccount />
-      </nav>
+      </div>
 
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col tablet:ml-sidebar-width">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* Top app bar — mobile */}
         <header className="sticky top-0 z-40 flex h-16 items-center gap-sm bg-surface px-md shadow-sm tablet:hidden dark:bg-surface-container-low">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">

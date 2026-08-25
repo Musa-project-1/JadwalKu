@@ -62,41 +62,43 @@ export default function AdminLogin() {
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-md rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low"
-        >
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="admin@jadwalkampus.app"
-            autoComplete="username"
-            required
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            autoComplete="current-password"
-            required
-          />
+        <div className="border border-outline-variant/10 rounded-[28px] bg-surface-container-lowest p-0.5 shadow-lg dark:bg-surface-container-low/40">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-md rounded-[26px] bg-surface-container-lowest p-6 dark:bg-surface-container-low"
+          >
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@jadwalkampus.app"
+              autoComplete="username"
+              required
+            />
+            <Input
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              required
+            />
 
-          {error && (
-            <p className="flex items-center gap-xs rounded-lg bg-error-container px-md py-sm text-body-sm text-on-error-container">
-              <Icon name="error" size={18} className="shrink-0" />
-              {error}
-            </p>
-          )}
+            {error && (
+              <p className="flex items-center gap-xs rounded-lg bg-error-container px-md py-sm text-body-sm text-on-error-container">
+                <Icon name="error" size={18} className="shrink-0" />
+                {error}
+              </p>
+            )}
 
-          <Button type="submit" disabled={submitting} className="w-full justify-center">
-            {submitting ? 'Memproses…' : 'Masuk'}
-            {!submitting && <Icon name="arrow_forward" size={20} />}
-          </Button>
-        </form>
+            <Button type="submit" disabled={submitting} className="w-full justify-center hover:scale-105 active:scale-95 transition-transform duration-150">
+              {submitting ? 'Memproses…' : 'Masuk'}
+              {!submitting && <Icon name="arrow_forward" size={20} />}
+            </Button>
+          </form>
+        </div>
 
         <p className="mt-lg text-center text-body-sm text-on-surface-variant">
           <Link to="/" className="font-semibold text-primary hover:underline">

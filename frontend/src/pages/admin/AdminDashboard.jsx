@@ -27,7 +27,7 @@ const QUICK_ACTIONS = [
 ]
 
 function formatDateID(iso) {
-  if (!iso) return '—'
+  if (!iso) return '-'
   try {
     return new Intl.DateTimeFormat('id-ID', {
       day: 'numeric',
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
   async function handleArchive() {
     const target = Number(newSemester)
     if (!Number.isInteger(target) || target < 1 || target > 14) {
-      setBanner({ ok: false, message: 'Nomor semester baru harus angka bulat 1–14.' })
+      setBanner({ ok: false, message: 'Nomor semester baru harus angka bulat 1-14.' })
       return
     }
     setBusy(true)
@@ -154,55 +154,54 @@ export default function AdminDashboard() {
         {/* Kolom kiri — statistik + riwayat */}
         <section className="space-y-lg desktop:col-span-8">
           <div className="grid gap-md tablet:grid-cols-3">
-            {/* Stat prodi — tonal primary */}
-            <div className="relative overflow-hidden rounded-3xl bg-primary-container/30 p-lg transition-shadow hover:shadow-level-2 dark:bg-surface-container-high
-              dark:text-on-surface">
+            {/* Stat prodi — tonal mint */}
+            <div className="relative overflow-hidden rounded-3xl bg-secondary-container/30 border-l-[4px] border-l-emerald-500 border border-secondary-container/10 p-lg transition-shadow hover:shadow-level-2 dark:bg-secondary-container/15 dark:border-secondary-container/5">
               <div
                 aria-hidden="true"
-                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10"
+                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/15"
               >
-                <Icon name="domain" size={26} className="text-primary" />
+                <Icon name="domain" size={26} className="text-secondary" />
               </div>
-              <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant">Total Prodi</p>
+              <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Total Prodi</p>
               {loadingProdi ? (
                 <Skeleton className="h-9 w-16" />
               ) : (
-                <h3 className="text-display text-primary">{programs.length}</h3>
+                <h3 className="text-display text-on-secondary-container font-bold">{programs.length}</h3>
               )}
-              <p className="mt-sm flex items-center gap-xs text-body-sm font-medium text-primary">
+              <p className="mt-sm flex items-center gap-xs text-body-sm font-medium text-secondary">
                 <Icon name="check_circle" size={16} /> Aktif
               </p>
             </div>
 
-            {/* Stat MK — tonal secondary */}
-            <div className="relative overflow-hidden rounded-3xl bg-secondary-container/30 p-lg transition-shadow hover:shadow-level-2 dark:bg-surface-container-high">
+            {/* Stat MK — tonal blue */}
+            <div className="relative overflow-hidden rounded-3xl bg-info-container/30 border-l-[4px] border-l-blue-500 border border-info-container/10 p-lg transition-shadow hover:shadow-level-2 dark:bg-info-container/15 dark:border-info-container/5">
               <div
                 aria-hidden="true"
-                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/10"
+                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-info/15"
               >
-                <Icon name="menu_book" size={26} className="text-secondary" />
+                <Icon name="menu_book" size={26} className="text-info" />
               </div>
-              <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant">Total Mata Kuliah</p>
+              <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Total Mata Kuliah</p>
               {loadingCourses ? (
                 <Skeleton className="h-9 w-16" />
               ) : (
-                <h3 className="text-display text-secondary">{courses.length}</h3>
+                <h3 className="text-display text-on-info-container font-bold">{courses.length}</h3>
               )}
-              <p className="mt-sm flex items-center gap-xs text-body-sm font-medium text-secondary">
+              <p className="mt-sm flex items-center gap-xs text-body-sm font-medium text-info">
                 <Icon name="book" size={16} /> Terdaftar
               </p>
             </div>
 
-            {/* Stat semester aktif — tonal tertiary */}
-            <div className="relative overflow-hidden rounded-3xl bg-tertiary-container/30 p-lg transition-shadow hover:shadow-level-2 dark:bg-surface-container-high">
+            {/* Stat semester aktif — tonal peach */}
+            <div className="relative overflow-hidden rounded-3xl bg-warning-container/30 border-l-[4px] border-l-amber-500 border border-warning-container/10 p-lg transition-shadow hover:shadow-level-2 dark:bg-warning-container/15 dark:border-warning-container/5">
               <div
                 aria-hidden="true"
-                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-tertiary/10"
+                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl bg-warning/15"
               >
-                <Icon name="sync_alt" size={26} className="text-tertiary" />
+                <Icon name="sync_alt" size={26} className="text-warning" />
               </div>
-              <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant">Aksi Musiman</p>
-              <h3 className="mb-xs text-title-md text-on-surface">Transisi Semester</h3>
+              <p className="mb-sm text-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Aksi Musiman</p>
+              <h3 className="mb-xs text-title-md text-on-surface font-semibold">Transisi Semester</h3>
               <Button variant="secondary" onClick={() => setArchiveOpen(true)} disabled={busy} className="mt-sm w-full justify-center">
                 <Icon name="sync_alt" size={20} />
                 Mulai Semester Baru
@@ -215,9 +214,9 @@ export default function AdminDashboard() {
           </div>
 
           {/* Riwayat */}
-          <div className="rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low">
+          <div className="rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low border border-outline-variant/10">
             <div className="mb-lg flex items-center justify-between border-b border-surface-variant pb-sm">
-              <h3 className="text-title-md text-on-surface">Riwayat Perubahan</h3>
+              <h3 className="text-title-md text-on-surface font-bold">Riwayat Perubahan</h3>
             </div>
             {loadingHistory ? (
               <div className="space-y-sm">
@@ -231,54 +230,59 @@ export default function AdminDashboard() {
                 description="Riwayat perubahan akan muncul setelah admin melakukan upload, edit, atau publish."
               />
             ) : (
-              <ol className="ml-sm space-y-md border-l-2 border-surface-container-high pl-lg">
-                {recentHistory.map((entry) => (
-                  <li key={entry.id} className="relative">
-                    <span
-                      aria-hidden="true"
-                      className={`absolute -left-[25px] top-3 h-4 w-4 rounded-full border-2 bg-surface-container-lowest ${
-                        entry.field === 'hapus' ? 'border-error' : 'border-primary'
-                      }`}
-                    />
-                    <div className="rounded-lg border border-transparent bg-surface-container p-sm transition-colors hover:border-outline-variant dark:bg-black/20">
-                      <p className="break-words text-body-sm text-on-surface">
-                        <span className="font-semibold">{entry.entitas}</span>
-                        {' • '}
-                        {entry.detail ?? `${entry.field}: ${entry.nilaiLama ?? '∅'} → ${entry.nilaiBaru ?? '∅'}`}
-                      </p>
-                      <p className="mt-xs text-body-sm text-on-surface-variant">
-                        {entry.timestamp?.toDate
-                          ? formatDateID(entry.timestamp.toDate().toISOString())
-                          : formatDateID(entry.timestamp)}
-                        {' • Oleh '}
-                        {entry.aktor || 'Sistem'}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              <div className="relative pl-6">
+                {/* Vertical timeline line */}
+                <div className="absolute left-[11px] top-4 bottom-4 w-0.5 bg-outline-variant/30" />
+                <ol className="space-y-md">
+                  {recentHistory.map((entry) => (
+                    <li key={entry.id} className="relative">
+                      <span
+                        aria-hidden="true"
+                        className={`absolute -left-[27px] top-3 h-4 w-4 rounded-full border-2 bg-surface ${
+                          entry.field === 'hapus' ? 'border-error' : 'border-primary'
+                        }`}
+                      />
+                      <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-low p-4 transition-all duration-200 hover:scale-[1.005] hover:shadow-level-2 dark:bg-black/20">
+                        <p className="break-words text-body-sm text-on-surface font-semibold">
+                          <span>{entry.entitas}</span>
+                          {' • '}
+                          {entry.detail ?? `${entry.field}: ${entry.nilaiLama ?? '∅'} → ${entry.nilaiBaru ?? '∅'}`}
+                        </p>
+                        <p className="mt-xs text-body-sm text-on-surface-variant font-medium">
+                          {entry.timestamp?.toDate
+                            ? formatDateID(entry.timestamp.toDate().toISOString())
+                            : formatDateID(entry.timestamp)}
+                          {' • Oleh '}
+                          {entry.aktor || 'Sistem'}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             )}
           </div>
         </section>
 
         {/* Kolom kanan — quick actions */}
         <section className="desktop:col-span-4">
-          <div className="h-full rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low">
-            <h3 className="mb-lg text-title-md text-on-surface">Quick Actions</h3>
+          <div className="h-full rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low border border-outline-variant/10">
+            <h3 className="mb-lg text-title-md text-on-surface font-bold">Quick Actions</h3>
             <nav className="grid grid-cols-1 gap-sm tablet:grid-cols-2 desktop:grid-cols-1">
               {QUICK_ACTIONS.map((action) => (
-                <Link
-                  key={action.to}
-                  to={action.to}
-                  className="group flex items-center gap-md rounded-lg border border-transparent p-sm transition-colors hover:border-outline-variant hover:bg-surface-container dark:hover:bg-black/20"
-                >
-                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${action.tone}`}>
-                    <Icon name={action.icon} size={22} />
-                  </span>
-                  <span className="min-w-0 truncate text-title-md text-on-surface group-hover:text-primary">
-                    {action.label}
-                  </span>
-                </Link>
+                <div key={action.to} className="border border-outline-variant/10 rounded-2xl bg-surface-container-lowest p-0.5 shadow-sm group hover:scale-[1.002] transition-all">
+                  <Link
+                    to={action.to}
+                    className="flex w-full items-center gap-sm px-3 py-2 bg-surface-container rounded-[14px] text-body-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-semibold"
+                  >
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${action.tone}`}>
+                      <Icon name={action.icon} size={18} />
+                    </span>
+                    <span>
+                      {action.label}
+                    </span>
+                  </Link>
+                </div>
               ))}
             </nav>
           </div>

@@ -7,6 +7,7 @@ import { sampleSchedule } from '../../data/sampleSchedule'
 import { firebaseReady } from '../../lib/firebaseClient'
 import { downloadIcs } from '../../lib/icsExport'
 import { renderScheduleImage, shareOrDownloadScheduleImage } from '../../lib/scheduleImage'
+import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 
 const OPTIONS = [
   {
@@ -27,6 +28,9 @@ export default function ExportShare() {
   const [scope, setScope] = useState('semester')
   const [shared, setShared] = useState(false)
   const [imageStatus, setImageStatus] = useState(null) // { ok: boolean, text: string }
+
+  // TA sesuai kalender kampus — dipakai di teks ringkasan & label ekspor.
+  const ta = expectedTahunAjaranForSemester(semester)
 
   // Query TANPA filter semester — supaya opsi cakupan "Semua kelas"
   // benar-benar memuat semua semester prodi ini (filter semester dilakukan
@@ -55,7 +59,7 @@ export default function ExportShare() {
         : []
 
   async function handleShare() {
-    const text = `Jadwal ${program} Semester ${semester} — ${source.length} kelas per minggu (dibagikan dari Jadwal Kampus)`
+    const text = `Jadwal ${program} Semester ${semester} · TA ${ta} - ${source.length} kelas per minggu (dibagikan dari Jadwal Kampus)`
     try {
       if (navigator.share) {
         await navigator.share({ title: 'Jadwal Kampus', text })
@@ -71,7 +75,7 @@ export default function ExportShare() {
 
   async function handleShareImage() {
     try {
-      const canvas = renderScheduleImage(source, { prodi: program, semester })
+      const canvas = renderScheduleImage(source, { prodi: program, semester, tahunAjaran: ta })
       const result = await shareOrDownloadScheduleImage(
         canvas,
         `jadwal-${(program ?? 'kampus').toLowerCase().replace(/\s+/g, '-')}-sem-${semester}.png`,
@@ -136,7 +140,7 @@ export default function ExportShare() {
           title="Google Calendar"
           description="Sinkron otomatis ke kalender HP (.ics)"
           status={null}
-          onAction={() => downloadIcs(source, { prodi: program, semester })}
+          onAction={() => downloadIcs(source, { prodi: program, semester, tahunAjaran: ta })}
         />
         <OptionCard
           icon="share"
@@ -171,7 +175,7 @@ function OptionCard({ icon, iconBg, title, description, status, statusOk = true,
     <button
       type="button"
       onClick={onAction}
-      className="flex w-full items-center gap-md rounded-2xl bg-surface-container-lowest p-md text-left shadow-level-1 transition-all hover:shadow-level-2 active:scale-[0.99] dark:bg-surface-container-low"
+      className="flex w-full items-center gap-md rounded-2xl bg-surface-container-lowest p-md border border-outline-variant/15 text-left transition-colors hover:bg-surface-container-low dark:bg-surface-container-low"
     >
       <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${iconBg}`}>
         <Icon name={icon} size={24} />

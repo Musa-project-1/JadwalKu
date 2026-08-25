@@ -68,7 +68,7 @@ export default function ManageExams() {
     const errors = []
     if (!values.prodi.trim()) errors.push('Program studi wajib diisi')
     if (!Number.isInteger(Number(values.semester)) || values.semester < 1 || values.semester > 14) {
-      errors.push('Semester harus angka bulat 1–14')
+      errors.push('Semester harus angka bulat 1-14')
     }
     if (!values.kodeMK.trim()) errors.push('Kode MK wajib diisi')
     if (!values.tanggal) errors.push('Tanggal wajib dipilih')
@@ -338,7 +338,9 @@ export default function ManageExams() {
                 {items.map((exam) => (
                   <li
                     key={exam.id}
-                    className="flex flex-wrap items-center gap-sm rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low"
+                    className={`flex flex-wrap items-center gap-md rounded-2xl bg-surface-container-lowest p-4 border border-outline-variant/10 shadow-sm transition-all duration-200 hover:scale-[1.002] dark:bg-surface-container-low ${
+                      exam.jenis === 'UTS' ? 'border-l-[4px] border-l-info' : 'border-l-[4px] border-l-warning'
+                    }`}
                   >
                     <Badge tone={exam.jenis === 'UTS' ? 'neutral' : 'tertiary'}>{exam.jenis}</Badge>
                     <div className="min-w-0 flex-1">

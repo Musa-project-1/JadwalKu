@@ -247,7 +247,7 @@ export default function ManageProdi() {
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-on-surface">{program.nama}</p>
                     <p className="text-body-sm text-on-surface-variant">
-                      Semester {program.semesterMin}–{program.semesterMax}
+                      Semester {program.semesterMin}-{program.semesterMax}
                     </p>
                   </div>
                   <button

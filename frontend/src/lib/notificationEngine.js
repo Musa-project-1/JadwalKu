@@ -92,7 +92,7 @@ export function buildExamReminders(exams = [], now = new Date()) {
       type: 'ujian',
       icon: 'edit',
       accent: 'error',
-      title: `${exam.jenis ?? 'Ujian'} — ${exam.kodeMK ?? ''}`.trim(),
+      title: `${exam.jenis ?? 'Ujian'} - ${exam.kodeMK ?? ''}`.trim(),
       description: `Ujian dijadwalkan pada ${exam.tanggal} pukul ${exam.jam ?? '-'} di ${exam.ruang ?? '-'}.`,
       timeLabel: formatClock(now),
       createdAt: now.getTime(),

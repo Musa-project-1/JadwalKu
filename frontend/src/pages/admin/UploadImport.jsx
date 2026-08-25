@@ -234,34 +234,36 @@ export default function UploadImport() {
           e.target.value = ''
         }}
       />
-      <button
-        type="button"
-        onClick={() => fileInputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault()
-          setDragOver(true)
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => {
-          e.preventDefault()
-          setDragOver(false)
-          handleFile(e.dataTransfer.files?.[0])
-        }}
-        className={`relative flex min-h-[220px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed bg-surface-container-lowest px-md py-xl transition-colors dark:bg-surface-container-high ${
-          dragOver ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary'
-        }`}
-      >
-        <Icon name="cloud_upload" size={48} className={dragOver ? 'text-primary' : 'text-outline'} />
-        <p className="mt-sm text-center text-title-md text-on-surface">
-          Tarik & lepas file di sini, atau klik untuk browse
-        </p>
-        <p className="mt-xs max-w-md text-center text-body-sm text-on-surface-variant">
-          Gunakan format resmi spreadsheet kampus. Ukuran maksimal file 10MB.
-        </p>
-      </button>
+      <div className="border border-outline-variant/10 rounded-3xl bg-surface-container-lowest p-0.5 shadow-sm group hover:scale-[1.002] transition-all dark:bg-surface-container-low/40">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDragOver(true)
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault()
+            setDragOver(false)
+            handleFile(e.dataTransfer.files?.[0])
+          }}
+          className={`relative flex min-h-[220px] w-full flex-col items-center justify-center rounded-[26px] border-2 border-dashed bg-surface-container-lowest px-md py-xl transition-colors dark:bg-surface-container-high ${
+            dragOver ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary'
+          }`}
+        >
+          <Icon name="cloud_upload" size={48} className={dragOver ? 'text-primary' : 'text-outline'} />
+          <p className="mt-sm text-center text-title-md text-on-surface font-semibold">
+            Tarik & lepas file di sini, atau klik untuk browse
+          </p>
+          <p className="mt-xs max-w-md text-center text-body-sm text-on-surface-variant font-medium">
+            Gunakan format resmi spreadsheet kampus. Ukuran maksimal file 10MB.
+          </p>
+        </button>
+      </div>
 
       {error && (
-        <div className="flex items-start gap-sm rounded-lg border border-error/20 bg-error-container/50 p-md text-body-sm text-on-error-container">
+        <div className="flex items-start gap-sm rounded-2xl border border-error/20 bg-error-container/50 p-md text-body-sm text-on-error-container">
           <Icon name="warning" size={20} className="mt-xs shrink-0 text-error" />
           <span>{error}</span>
         </div>
@@ -272,7 +274,7 @@ export default function UploadImport() {
         <>
           {/* Ringkasan validasi */}
           <div
-            className={`rounded-lg border p-md ${
+            className={`rounded-2xl border p-md ${
               canPublish
                 ? 'border-primary/30 bg-primary/10'
                 : 'border-error/20 bg-error-container/40'
@@ -280,7 +282,7 @@ export default function UploadImport() {
           >
             <h4 className="flex items-center gap-xs text-title-md text-on-surface">
               <Icon name={canPublish ? 'check_circle' : 'warning'} size={20} className={canPublish ? 'text-primary' : 'text-error'} />
-              Hasil Validasi — {fileName}
+              Hasil Validasi - {fileName}
             </h4>
             <ul className="mt-sm space-y-xs text-body-sm text-on-surface-variant">
               <li>{parsed.scheduleEntries.length} entri jadwal terbaca</li>
@@ -304,7 +306,7 @@ export default function UploadImport() {
             </ul>
             {canPublish && (
               <p className="mt-sm flex items-center gap-xs text-body-sm font-medium text-primary">
-                <Icon name="verified" size={16} /> Semua valid — siap dipublikasikan.
+                <Icon name="verified" size={16} /> Semua valid - siap dipublikasikan.
               </p>
             )}
           </div>
@@ -343,7 +345,7 @@ function previewRows(entries, validation) {
     key: `${index}-${entry.kodeMK}-${entry.jamMulai}`,
     valid: !errorIndexes.has(index),
     errors: validation?.entryErrors.find((r) => r.index === index)?.errors ?? [],
-    cells: [entry.hari, `${entry.jamMulai ?? '-'} – ${entry.jamSelesai ?? '-'}`, entry.kodeMK, entry.prodi, `Sem ${entry.semester}`, entry.ruang, entry.tipeKelas],
+    cells: [entry.hari, `${entry.jamMulai ?? '-'} - ${entry.jamSelesai ?? '-'}`, entry.kodeMK, entry.prodi, `Sem ${entry.semester}`, entry.ruang, entry.tipeKelas],
   }))
 }
 

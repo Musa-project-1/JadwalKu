@@ -99,17 +99,17 @@ export default function Tasks() {
 
         {/* Progress + prioritas tinggi — desktop */}
         <aside className="hidden space-y-lg desktop:block">
-          <div className="relative overflow-hidden rounded-2xl bg-primary-container p-lg text-on-primary-container shadow-level-1">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-[#004e47] p-lg text-on-primary shadow-level-1">
             <div className="absolute right-4 top-4 opacity-20">
               <Icon name="monitoring" size={64} />
             </div>
-            <h3 className="relative z-10 mb-xs text-title-md">Progres Minggu Ini</h3>
+            <h3 className="relative z-10 mb-xs text-title-md font-semibold">Progres Minggu Ini</h3>
             <p className="relative z-10 mb-md text-body-sm opacity-90">
               Kamu telah menyelesaikan {done.length} dari {tasks.length} tugas.
             </p>
-            <div className="relative z-10 mb-2 h-2 w-full rounded-full bg-on-primary-container/20">
+            <div className="relative z-10 mb-2 h-2 w-full rounded-full bg-white/25">
               <div
-                className="h-2 rounded-full bg-primary-fixed-dim transition-all"
+                className="h-2 rounded-full bg-white transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -203,28 +203,40 @@ function TaskCard({ task, onToggle, onDelete }) {
   const daysLeft = daysUntil(task.deadline)
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-surface-variant bg-surface p-sm shadow-level-1 transition-colors hover:border-primary-fixed-dim dark:bg-surface-container-high">
+    <div className="group relative overflow-hidden rounded-xl border border-surface-variant/40 bg-surface p-4 shadow-level-1 transition-all duration-200 hover:border-primary-fixed-dim hover:bg-surface-container-lowest hover:shadow-level-2 dark:bg-surface-container-high">
       <div className={`absolute bottom-0 left-0 top-0 w-1 ${PRIORITY_STRIPE[task.prioritas] ?? 'bg-secondary'}`} />
-      <div className="flex items-start gap-md pl-xs">
-        <input
-          type="checkbox"
-          checked={task.selesai}
-          onChange={() => onToggle(task.id)}
-          className="mt-1 h-5 w-5 cursor-pointer rounded accent-[#00685f]"
+      <div className="flex items-start gap-md">
+        <button
+          type="button"
+          onClick={() => onToggle(task.id)}
+          className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200 active:scale-90 ${
+            task.selesai
+              ? 'bg-primary border-primary text-on-primary'
+              : 'border-outline text-transparent hover:border-primary hover:text-primary'
+          }`}
           aria-label={`Tandai ${task.judul} selesai`}
-        />
+        >
+          <Icon name="check" size={14} />
+        </button>
         <div className="min-w-0 flex-1">
-          <div className="mb-xs flex flex-wrap items-center justify-between gap-xs">
+          <h4
+            className={`text-title-md font-semibold group-hover:text-primary transition-colors ${
+              task.selesai ? 'line-through text-outline' : 'text-on-surface'
+            }`}
+          >
+            {task.judul}
+          </h4>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
             {task.kodeMK && (
-              <span className="rounded bg-surface-container-high px-2 py-0.5 text-label-caps uppercase tracking-wider text-on-surface-variant">
+              <span className="rounded bg-surface-container-high px-2 py-0.5 text-label-caps uppercase tracking-wider text-on-surface-variant dark:bg-surface-container-highest">
                 {task.kodeMK}
               </span>
             )}
             {!task.selesai && (
               <span
-                className={`flex items-center gap-1 rounded-full px-2 py-1 text-label-caps ${
+                className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-label-caps ${
                   daysLeft <= 2
-                    ? 'bg-error-container/50 text-error'
+                    ? 'bg-error-container/50 text-error font-bold'
                     : 'bg-surface-container text-on-surface-variant dark:bg-surface-container-high'
                 }`}
               >
@@ -233,18 +245,13 @@ function TaskCard({ task, onToggle, onDelete }) {
               </span>
             )}
           </div>
-          <h4
-            className={`text-title-md ${task.selesai ? 'line-through text-outline' : 'text-on-surface'}`}
-          >
-            {task.judul}
-          </h4>
           {task.catatan && (
-            <p className="mt-xs line-clamp-2 text-body-sm text-on-surface-variant">
+            <p className="mt-2 line-clamp-2 text-body-sm text-on-surface-variant">
               {task.catatan}
             </p>
           )}
-          <div className="mt-xs flex items-center justify-between">
-            <span className="text-label-caps text-on-surface-variant">
+          <div className="mt-2 flex items-center justify-between border-t border-outline-variant/15 pt-1.5">
+            <span className="text-label-caps text-on-surface-variant font-medium">
               Prioritas: {PRIORITY_LABEL[task.prioritas] ?? task.prioritas}
             </span>
             <button
@@ -253,7 +260,7 @@ function TaskCard({ task, onToggle, onDelete }) {
               className="rounded p-1 text-on-surface-variant transition-colors hover:text-error"
               aria-label="Hapus tugas"
             >
-              <Icon name="delete" size={18} />
+              <Icon name="delete" size={16} />
             </button>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { Icon } from '../../components/Icon'
 import { Button } from '../../components/Button'
 import { sampleSchedule } from '../../data/sampleSchedule'
 import { firebaseReady } from '../../lib/firebaseClient'
+import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 
 const FONT_SIZES = [
   { value: 'sm', label: 'Kecil' },
@@ -55,6 +56,10 @@ export default function Settings() {
   } = useApp()
   const { tasks } = useTasks()
 
+  // TA sesuai kalender kampus (tahunAjaran.js) — semester ganjil saat
+  // libur Jul–Sep sudah mengarah ke TA berikutnya.
+  const taLabel = semester ? expectedTahunAjaranForSemester(semester) : null
+
   const { data: jadwal } = useFirestore(
     'jadwal',
     firebaseReady
@@ -100,6 +105,7 @@ export default function Settings() {
             <p className="text-label-caps text-on-surface-variant">SETELAN SAAT INI</p>
             <p className="mt-1 text-title-md text-on-surface">
               {program ?? 'Belum dipilih'} · Semester {semester ?? '-'}
+              {taLabel ? ` · TA ${taLabel}` : ''}
             </p>
           </div>
           <Button variant="secondary" onClick={() => navigate('/onboarding/prodi')}>
@@ -149,24 +155,25 @@ export default function Settings() {
       <SettingsSection title="Tampilan" icon="dark_mode">
         <div className="flex items-center justify-between py-sm">
           <span className="text-body-lg text-on-surface">Mode gelap</span>
-          <div className="flex gap-xs">
+          <div className="flex rounded-full bg-surface-container p-1 dark:bg-surface-container-high">
             {[
-              { value: 'light', icon: 'light_mode' },
-              { value: 'dark', icon: 'dark_mode' },
-              { value: 'system', icon: 'contrast' },
+              { value: 'light', icon: 'light_mode', label: 'Terang' },
+              { value: 'dark', icon: 'dark_mode', label: 'Gelap' },
+              { value: 'system', icon: 'settings_brightness', label: 'Sistem' },
             ].map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setTheme(opt.value)}
-                aria-label={`Tema ${opt.value}`}
-                className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+                title={`Tema ${opt.label}`}
+                aria-label={`Tema ${opt.label}`}
+                className={`flex h-8 w-12 items-center justify-center rounded-full transition-all duration-200 active:scale-95 ${
                   theme === opt.value
-                    ? 'bg-primary text-on-primary'
-                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high dark:bg-surface-container-high'
+                    ? 'bg-primary text-on-primary shadow-level-1'
+                    : 'text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface'
                 }`}
               >
-                <Icon name={opt.icon} size={20} />
+                <Icon name={opt.icon} size={18} />
               </button>
             ))}
           </div>
@@ -174,16 +181,16 @@ export default function Settings() {
 
         <div className="border-t border-surface-variant py-sm">
           <p className="mb-sm text-body-lg text-on-surface">Ukuran font</p>
-          <div className="flex gap-xs">
+          <div className="flex rounded-full bg-surface-container p-1 dark:bg-surface-container-high">
             {FONT_SIZES.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setFontSize(opt.value)}
-                className={`flex-1 rounded-lg py-sm text-body-sm transition-colors ${
+                className={`flex-1 rounded-full py-1 text-body-sm font-medium transition-all duration-200 active:scale-95 ${
                   fontSize === opt.value
-                    ? 'bg-primary text-on-primary'
-                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high dark:bg-surface-container-high'
+                    ? 'bg-primary text-on-primary shadow-level-1'
+                    : 'text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface'
                 }`}
               >
                 {opt.label}
@@ -229,35 +236,41 @@ export default function Settings() {
         </ul>
       </SettingsSection>
 
-      <button
-        type="button"
-        onClick={() => navigate('/riwayat')}
-        className="flex w-full items-center justify-between rounded-lg bg-primary/10 px-md py-sm text-body-lg text-primary transition-colors hover:bg-primary/15"
-      >
-        Riwayat Perubahan Jadwal
-        <Icon name="chevron_right" size={20} />
-      </button>
+      <div className="border border-outline-variant/10 rounded-2xl bg-surface-container-lowest p-0.5 shadow-sm group hover:scale-[1.002] transition-all">
+        <button
+          type="button"
+          onClick={() => navigate('/riwayat')}
+          className="flex w-full items-center justify-between px-4 py-3 bg-primary/5 rounded-[14px] text-body-lg text-primary group-hover:bg-primary/10 transition-colors font-semibold"
+        >
+          Riwayat Perubahan Jadwal
+          <Icon name="chevron_right" size={20} />
+        </button>
+      </div>
 
-      <button
-        type="button"
-        onClick={() => navigate('/tentang')}
-        className="flex w-full items-center justify-between rounded-lg bg-surface-container px-md py-sm text-body-lg text-on-surface transition-colors hover:bg-surface-container-high dark:bg-surface-container-high"
-      >
-        Tentang & Bantuan
-        <Icon name="chevron_right" size={20} className="text-on-surface-variant" />
-      </button>
+      <div className="border border-outline-variant/10 rounded-2xl bg-surface-container-lowest p-0.5 shadow-sm group hover:scale-[1.002] transition-all">
+        <button
+          type="button"
+          onClick={() => navigate('/tentang')}
+          className="flex w-full items-center justify-between px-4 py-3 bg-surface-container rounded-[14px] text-body-lg text-on-surface hover:bg-surface-container-high transition-colors font-semibold"
+        >
+          Tentang & Bantuan
+          <Icon name="chevron_right" size={20} className="text-on-surface-variant" />
+        </button>
+      </div>
 
-      <button
-        type="button"
-        onClick={() => navigate('/admin/login')}
-        className="flex w-full items-center justify-between rounded-lg border border-outline-variant/60 bg-surface-container-lowest px-md py-sm text-body-lg text-on-surface-variant transition-colors hover:bg-surface-container dark:bg-surface-container-low"
-      >
-        <span className="flex items-center gap-sm">
-          <Icon name="admin_panel_settings" size={20} />
-          Panel Admin
-        </span>
-        <Icon name="chevron_right" size={20} />
-      </button>
+      <div className="border border-outline-variant/10 rounded-2xl bg-surface-container-lowest p-0.5 shadow-sm group hover:scale-[1.002] transition-all">
+        <button
+          type="button"
+          onClick={() => navigate('/admin/login')}
+          className="flex w-full items-center justify-between px-4 py-3 bg-surface-container-low rounded-[14px] text-body-lg text-on-surface-variant hover:bg-surface-container dark:bg-surface-container-low transition-all font-semibold"
+        >
+          <span className="flex items-center gap-sm">
+            <Icon name="admin_panel_settings" size={20} />
+            Panel Admin
+          </span>
+          <Icon name="chevron_right" size={20} />
+        </button>
+      </div>
     </div>
   )
 }
@@ -332,12 +345,12 @@ const STAT_TONES = {
 function StatCard({ icon, value, label, tone = 'primary' }) {
   const t = STAT_TONES[tone] ?? STAT_TONES.primary
   return (
-    <div className="flex flex-col items-center rounded-schedule bg-surface-container-lowest p-md text-center shadow-level-1 dark:bg-surface-container-low">
-      <span className={`mb-xs flex h-9 w-9 items-center justify-center rounded-xl ${t.bg}`}>
-        <Icon name={icon} size={20} className={t.text} />
+    <div className="flex flex-col items-center rounded-2xl border border-outline-variant/10 bg-surface-container-lowest p-4 text-center shadow-sm transition-all duration-200 hover:scale-[1.005] hover:shadow-md dark:bg-surface-container-low">
+      <span className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl ${t.bg}`}>
+        <Icon name={icon} size={22} className={t.text} />
       </span>
-      <span className="text-headline-lg-mobile text-on-surface">{value}</span>
-      <span className="text-body-sm text-on-surface-variant">{label}</span>
+      <span className="text-[20px] font-bold text-on-surface">{value}</span>
+      <span className="text-[11px] text-on-surface-variant font-medium mt-1 leading-tight">{label}</span>
     </div>
   )
 }

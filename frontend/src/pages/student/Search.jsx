@@ -96,11 +96,11 @@ export default function Search() {
         <h2 className="text-display text-on-surface">Search</h2>
       </header>
 
-      <div className="relative">
+      <div className="relative group rounded-full border border-outline-variant/40 bg-surface-container-lowest p-1 shadow-sm transition-all focus-within:border-primary focus-within:shadow-md dark:bg-surface-container-low">
         <Icon
           name="search"
           size={20}
-          className="absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant"
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors"
         />
         {/* Token warna otomatis berubah di mode gelap, tanpa override dark: */}
         <input
@@ -110,7 +110,7 @@ export default function Search() {
           onKeyDown={handleSearchKeyDown}
           placeholder="Cari mata kuliah, dosen, atau tugas..."
           autoFocus
-          className="w-full rounded-full border border-surface-variant bg-surface-container-lowest py-sm pl-lg pr-md text-body-lg text-on-surface shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:bg-surface-container-low"
+          className="w-full bg-transparent py-2.5 pl-11 pr-4 text-body-lg text-on-surface focus:outline-none"
         />
       </div>
 
@@ -122,15 +122,34 @@ export default function Search() {
           </h3>
           <div className="flex flex-wrap gap-xs">
             {recents.map((r) => (
-              <button
+              <div
                 key={r}
-                type="button"
-                onClick={() => setQueryText(r)}
-                className="flex items-center gap-1 rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-body-sm text-on-surface transition-colors hover:bg-surface-container dark:bg-surface-container-low"
+                className="flex items-center rounded-full border border-outline-variant bg-surface-container-lowest text-body-sm text-on-surface dark:bg-surface-container-low transition-all hover:border-primary-fixed"
               >
-                <Icon name="history" size={16} className="text-on-surface-variant" />
-                {r}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setQueryText(r)}
+                  className="flex items-center gap-1.5 py-1.5 pl-3 pr-2 text-left text-body-sm font-medium hover:text-primary"
+                >
+                  <Icon name="history" size={16} className="text-on-surface-variant" />
+                  {r}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setRecents((prev) => {
+                      const next = prev.filter((item) => item !== r)
+                      setItem(STORAGE_KEYS.recentSearches, next)
+                      return next
+                    })
+                  }}
+                  className="pr-2.5 pl-1 py-1.5 text-on-surface-variant hover:text-error transition-colors"
+                  aria-label={`Hapus ${r} dari pencarian terakhir`}
+                >
+                  <Icon name="close" size={14} />
+                </button>
+              </div>
             ))}
           </div>
         </section>
@@ -143,9 +162,9 @@ export default function Search() {
             key={f.value}
             type="button"
             onClick={() => setFilter(f.value)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-body-sm font-medium transition-colors ${
+            className={`shrink-0 rounded-full px-4 py-1.5 text-body-sm font-medium transition-all duration-150 active:scale-95 ${
               filter === f.value
-                ? 'bg-primary text-on-primary'
+                ? 'bg-primary text-on-primary shadow-sm'
                 : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high dark:bg-surface-container-high'
             }`}
           >
@@ -172,6 +191,7 @@ export default function Search() {
                   icon="menu_book"
                   title={c.namaMK}
                   subtitle={`${c.kodeMK} · ${c.sks} SKS`}
+                  tintClass="bg-primary/10 text-primary"
                 />
               ))}
             </ResultSection>
@@ -180,7 +200,13 @@ export default function Search() {
           {(filter === 'all' || filter === 'dosen') && results.lecturerHits.length > 0 && (
             <ResultSection title="Dosen" icon="person">
               {results.lecturerHits.map((c) => (
-                <ResultRow key={c.dosen} icon="person" title={c.dosen} subtitle={c.kontakDosen ?? ''} />
+                <ResultRow
+                  key={c.dosen}
+                  icon="person"
+                  title={c.dosen}
+                  subtitle={c.kontakDosen ?? ''}
+                  tintClass="bg-tertiary-container/20 text-tertiary"
+                />
               ))}
             </ResultSection>
           )}
@@ -193,6 +219,7 @@ export default function Search() {
                   icon="assignment"
                   title={t.judul}
                   subtitle={`Tenggat: ${t.deadline}`}
+                  tintClass="bg-warning-container/30 text-warning"
                 />
               ))}
             </ResultSection>
@@ -205,7 +232,8 @@ export default function Search() {
                   key={s.id ?? `${s.kodeMK}-${s.hari}-${s.jamMulai}`}
                   icon="calendar_month"
                   title={courseNameMap.get(s.kodeMK) ?? s.kodeMK}
-                  subtitle={`${s.kodeMK} · ${s.hari}, ${s.jamMulai}–${s.jamSelesai}`}
+                  subtitle={`${s.kodeMK} · ${s.hari}, ${s.jamMulai}-${s.jamSelesai}`}
+                  tintClass="bg-info-container/30 text-info"
                 />
               ))}
             </ResultSection>
@@ -219,7 +247,7 @@ export default function Search() {
 function ResultSection({ title, icon, children }) {
   return (
     <section>
-      <h3 className="mb-sm flex items-center gap-sm text-label-caps uppercase text-on-surface-variant">
+      <h3 className="mb-sm flex items-center gap-sm text-label-caps uppercase text-on-surface-variant font-semibold">
         <Icon name={icon} size={18} />
         {title}
       </h3>
@@ -228,16 +256,16 @@ function ResultSection({ title, icon, children }) {
   )
 }
 
-function ResultRow({ icon, title, subtitle }) {
+function ResultRow({ icon, title, subtitle, tintClass = 'bg-surface-container text-primary' }) {
   return (
-    <div className="flex items-center gap-sm rounded-lg bg-surface-container-lowest p-sm shadow-level-1 transition-colors hover:bg-surface-container-low dark:bg-surface-container-low">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container dark:bg-surface-container-high">
-        <Icon name={icon} size={18} className="text-primary" />
+    <div className="flex items-center gap-md rounded-2xl bg-surface-container-lowest p-3 border border-outline-variant/10 transition-all duration-200 hover:scale-[1.002] hover:bg-surface-container-low dark:bg-surface-container-low">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tintClass}`}>
+        <Icon name={icon} size={18} />
       </div>
       <div className="min-w-0">
-        <p className="truncate text-body-lg text-on-surface">{title}</p>
+        <p className="truncate text-body-lg text-on-surface font-semibold">{title}</p>
         {subtitle && (
-          <p className="truncate text-body-sm text-on-surface-variant">{subtitle}</p>
+          <p className="truncate text-body-sm text-on-surface-variant font-medium mt-0.5">{subtitle}</p>
         )}
       </div>
     </div>

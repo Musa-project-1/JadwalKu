@@ -2,24 +2,24 @@ import { Icon } from './Icon'
 
 const ACCENTS = {
   primary: {
-    bar: 'bg-primary',
+    border: 'border-l-[4px] border-primary',
     iconBg: 'bg-primary/10 text-primary',
     dot: 'bg-primary',
   },
   tertiary: {
-    bar: 'bg-tertiary',
+    border: 'border-l-[4px] border-tertiary',
     iconBg: 'bg-tertiary/10 text-tertiary',
-    dot: 'bg-primary',
+    dot: 'bg-tertiary',
   },
   error: {
-    bar: 'bg-error',
-    iconBg: 'bg-error-container text-on-error-container',
-    dot: 'bg-primary',
+    border: 'border-l-[4px] border-error',
+    iconBg: 'bg-error-container text-on-error-container dark:bg-error/15 dark:text-error',
+    dot: 'bg-error',
   },
   secondary: {
-    bar: 'bg-secondary-fixed-dim',
-    iconBg: 'bg-surface-container-high text-secondary',
-    dot: 'bg-primary',
+    border: 'border-l-[4px] border-outline-variant',
+    iconBg: 'bg-surface-container-high text-secondary-fixed-dim dark:bg-surface-container-high/40',
+    dot: 'bg-outline-variant',
   },
 }
 
@@ -36,31 +36,32 @@ export function NotificationItem({ item, onMarkRead }) {
     <button
       type="button"
       onClick={() => onMarkRead?.(item.id)}
-      className={`relative w-full overflow-hidden rounded-xl border border-surface-variant bg-surface-container-lowest p-sm text-left transition-colors hover:bg-surface-bright dark:bg-surface-container-low ${
-        isRead ? '' : 'cursor-pointer'
+      className={`group relative w-full overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-4 text-left transition-all duration-200 hover:scale-[1.002] hover:bg-surface-bright dark:bg-surface-container-low ${accent.border} ${
+        isRead ? 'opacity-65 cursor-default hover:scale-[1.001]' : 'cursor-pointer hover:shadow-level-2'
       }`}
       aria-label={isRead ? item.title : `Tandai sudah dibaca: ${item.title}`}
     >
-      <span aria-hidden="true" className={`absolute bottom-0 left-0 top-0 w-1 ${accent.bar}`} />
       <div className="flex items-start gap-md">
         <span
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${accent.iconBg}`}
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-105 active:scale-95 ${accent.iconBg}`}
         >
           <Icon name={item.icon} filled={!isRead} />
         </span>
-        <div className="min-w-0 flex-1 pt-1">
+        <div className="min-w-0 flex-1 pt-0.5">
           <div className="mb-xs flex items-start justify-between gap-sm">
-            <h4 className="text-title-md text-on-surface">{item.title}</h4>
-            <span className="shrink-0 text-body-sm text-on-surface-variant">
+            <h4 className="text-title-md text-on-surface font-semibold group-hover:text-primary transition-colors">
+              {item.title}
+            </h4>
+            <span className="shrink-0 text-body-sm text-on-surface-variant/80 font-medium">
               {item.timeLabel}
             </span>
           </div>
-          <p className="text-body-sm text-secondary">{item.description}</p>
+          <p className="text-body-sm text-secondary font-medium">{item.description}</p>
         </div>
         {!isRead && (
           <span
             aria-hidden="true"
-            className={`mt-3 h-2 w-2 shrink-0 rounded-full ${accent.dot}`}
+            className={`mt-3 h-2 w-2 shrink-0 rounded-full animate-pulse ${accent.dot}`}
           />
         )}
       </div>

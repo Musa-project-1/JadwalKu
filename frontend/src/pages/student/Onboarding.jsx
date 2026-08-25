@@ -5,6 +5,7 @@ import { Button } from '../../components/Button'
 import { samplePrograms } from '../../data/samplePrograms'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 import { useFirestore } from '../../hooks/useFirestore'
+import { useApp } from '../../hooks/useApp'
 
 function RoleSelection() {
   const navigate = useNavigate()
@@ -24,12 +25,12 @@ function RoleSelection() {
           <button
             type="button"
             onClick={() => navigate('/onboarding/prodi')}
-            className="group flex flex-col items-center justify-center rounded-xl border-2 border-transparent bg-surface-container-lowest p-xl text-center shadow-level-1 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-level-2 focus:outline-none focus:ring-4 focus:ring-primary/20 dark:bg-surface-container-low"
+            className="group flex flex-col items-center justify-center rounded-3xl border-2 border-transparent bg-surface-container-lowest p-xl text-center shadow-level-1 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-level-2 focus:outline-none focus:ring-4 focus:ring-primary/20 dark:bg-surface-container-low"
           >
             <div className="mb-md flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 transition-colors duration-300 group-hover:bg-primary">
               <Icon name="school" size={40} filled className="text-primary transition-colors duration-300 group-hover:text-on-primary" />
             </div>
-            <h2 className="mb-xs text-title-md text-on-surface">
+            <h2 className="mb-xs text-title-md text-on-surface font-semibold">
               Masuk sebagai Mahasiswa
             </h2>
             <p className="text-body-sm text-on-surface-variant">
@@ -39,12 +40,12 @@ function RoleSelection() {
           <button
             type="button"
             onClick={() => navigate('/admin/login')}
-            className="group flex flex-col items-center justify-center rounded-xl border-2 border-transparent bg-surface-container-lowest p-xl text-center shadow-level-1 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-level-2 focus:outline-none focus:ring-4 focus:ring-primary/20 dark:bg-surface-container-low"
+            className="group flex flex-col items-center justify-center rounded-3xl border-2 border-transparent bg-surface-container-lowest p-xl text-center shadow-level-1 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-level-2 focus:outline-none focus:ring-4 focus:ring-primary/20 dark:bg-surface-container-low"
           >
             <div className="mb-md flex h-24 w-24 items-center justify-center rounded-full bg-surface-container-highest transition-colors duration-300 group-hover:bg-primary dark:bg-surface-container-high">
               <Icon name="admin_panel_settings" size={40} className="text-on-surface-variant transition-colors duration-300 group-hover:text-on-primary" />
             </div>
-            <h2 className="mb-xs text-title-md text-on-surface">
+            <h2 className="mb-xs text-title-md text-on-surface font-semibold">
               Masuk sebagai Admin
             </h2>
             <p className="text-body-sm text-on-surface-variant">
@@ -94,7 +95,7 @@ function ProdiStep() {
             key={p.nama}
             type="button"
             onClick={() => setProdi(p.nama)}
-            className={`flex items-center justify-between rounded-lg border-2 bg-surface-container-lowest px-md py-sm text-left transition-colors dark:bg-surface-container-low ${
+            className={`flex items-center justify-between rounded-2xl border-2 bg-surface-container-lowest px-md py-sm text-left transition-colors dark:bg-surface-container-low ${
               prodi === p.nama
                 ? 'border-primary'
                 : 'border-transparent hover:border-outline-variant'
@@ -121,6 +122,9 @@ function ProdiStep() {
 function SemesterStep() {
   const navigate = useNavigate()
   const location = useLocation()
+  // Setter context: tanpa ini, perubahan prodi/semester hanya tersimpan di
+  // localStorage dan UI tetap memakai nilai lama sampai reload penuh.
+  const { setProgram, setSemester: setSemesterContext } = useApp()
   const prodi = location.state?.prodi ?? getItem(STORAGE_KEYS.program)
   const [semester, setSemester] = useState(() => getItem(STORAGE_KEYS.semester, null))
 
@@ -135,6 +139,9 @@ function SemesterStep() {
   }, [program])
 
   function handleSave() {
+    // Sinkronkan ke context App agar perubahan langsung terasa tanpa reload.
+    setProgram(prodi)
+    setSemesterContext(semester)
     setItem(STORAGE_KEYS.program, prodi)
     setItem(STORAGE_KEYS.semester, semester)
     setItem(STORAGE_KEYS.onboardingDone, true)
@@ -159,7 +166,7 @@ function SemesterStep() {
             key={s}
             type="button"
             onClick={() => setSemester(s)}
-            className={`flex h-16 items-center justify-center rounded-lg border-2 bg-surface-container-lowest text-title-md transition-colors dark:bg-surface-container-low ${
+            className={`flex h-16 items-center justify-center rounded-2xl border-2 bg-surface-container-lowest text-title-md transition-colors dark:bg-surface-container-low ${
               semester === s
                 ? 'border-primary text-primary'
                 : 'border-transparent text-on-surface hover:border-outline-variant'

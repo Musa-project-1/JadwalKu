@@ -12,7 +12,7 @@ export function BottomNav() {
       <ul className="flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-container-lowest/90 px-2 py-1.5 shadow-level-2 backdrop-blur-xl dark:bg-surface-container-low/90">
         {STUDENT_NAV.map((item) => (
           <li key={item.to}>
-            <NavLink to={item.to} end={item.to === '/'}>
+            <NavLink to={item.to} end={item.to === '/'} viewTransition>
               {({ isActive }) => (
                 <span
                   className={`flex w-16 flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] transition-all duration-200 active:scale-95 ${
