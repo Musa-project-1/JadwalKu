@@ -279,11 +279,11 @@ function ReminderToggle({ prefKey, label, description }) {
   const enabled = prefs[prefKey] ?? true
 
   function handleToggle() {
-    setPrefs((prev) => {
-      const next = { ...prev, [prefKey]: !(prev[prefKey] ?? true) }
-      setItem(STORAGE_KEYS.reminderPrefs, next)
-      return next
-    })
+    // Hitung nilai berikutnya di luar updater — updater harus murni
+    // (StrictMode bisa memanggilnya dua kali).
+    const next = { ...prefs, [prefKey]: !(prefs[prefKey] ?? true) }
+    setItem(STORAGE_KEYS.reminderPrefs, next)
+    setPrefs(next)
   }
 
   return (

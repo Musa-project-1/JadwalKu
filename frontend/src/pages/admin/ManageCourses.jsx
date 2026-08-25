@@ -59,6 +59,13 @@ export default function ManageCourses() {
 
     setSaving(true)
     const kodeMK = form.kodeMK.trim().toUpperCase()
+    // Tolak duplikat: setDocument dengan merge akan menimpa MK yang sudah
+    // ada secara diam-diam — "Tambah" harus benar-benar tambah.
+    if (courses.some((c) => c.kodeMK === kodeMK)) {
+      setSaving(false)
+      setFormErrors([`Kode MK ${kodeMK} sudah terdaftar. Gunakan tombol Edit untuk mengubahnya.`])
+      return
+    }
     const result = await setDocument('mataKuliah', kodeMK, { ...form, kodeMK }, actor)
     if (result.ok) {
       await appendHistory({

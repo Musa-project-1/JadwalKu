@@ -331,10 +331,12 @@ function parseUnivSheet(grid) {
       // di preview admin, jangan diam-diam dipaksa jadi K1.
       const tipeKelas = kelasMap[kelasKey] ?? normalizeClassType(kelasRaw)
       const prodi = g.prodi
+      // Tidak ada fallback diam-diam ke semester 1 — biarkan NaN agar
+      // validator menandai baris ini di preview admin.
       const semester =
         semesterByCourse[`${prodi}|${kodeMK}`] ??
         semesterByCourse[kodeMK] ??
-        1
+        NaN
 
       scheduleEntries.push({
         hari: currentDay,
@@ -582,7 +584,10 @@ function normalizeTimeOfDay(value) {
 
 function normalizeClassType(value) {
   const upper = String(value).toUpperCase()
-  return CLASS_TYPE_CODES.find((c) => upper.includes(c)) ?? upper
+  // Longest-first: 'HB' adalah substring 'HBH'/'HBD' — tanpa sorting,
+  // input HBH/HBD salah terpetakan ke 'HB'.
+  const sorted = [...CLASS_TYPE_CODES].sort((a, b) => b.length - a.length)
+  return sorted.find((c) => upper.includes(c)) ?? upper
 }
 
 function splitProdiSemester(headerText) {

@@ -4,6 +4,7 @@ import { Icon } from '../../components/Icon'
 import { Button } from '../../components/Button'
 import { samplePrograms } from '../../data/samplePrograms'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
+import { useFirestore } from '../../hooks/useFirestore'
 
 function RoleSelection() {
   const navigate = useNavigate()
@@ -37,7 +38,7 @@ function RoleSelection() {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/admin')}
+            onClick={() => navigate('/admin/login')}
             className="group flex flex-col items-center justify-center rounded-xl border-2 border-transparent bg-surface-container-lowest p-xl text-center shadow-level-1 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-level-2 focus:outline-none focus:ring-4 focus:ring-primary/20 dark:bg-surface-container-low"
           >
             <div className="mb-md flex h-24 w-24 items-center justify-center rounded-full bg-surface-container-highest transition-colors duration-300 group-hover:bg-primary dark:bg-surface-container-high">
@@ -59,6 +60,21 @@ function RoleSelection() {
 function ProdiStep() {
   const navigate = useNavigate()
   const [prodi, setProdi] = useState(() => getItem(STORAGE_KEYS.program, null))
+  // Daftar prodi dikelola admin (koleksi `prodi`); fallback ke sample saat
+  // Firestore kosong / belum terkonfigurasi.
+  const { data: prodiDocs } = useFirestore('prodi')
+  const programs = useMemo(() => {
+    if (prodiDocs.length > 0) {
+      return prodiDocs
+        .map((p) => ({
+          nama: p.nama,
+          semesterMin: p.semesterMin ?? 1,
+          semesterMax: p.semesterMax ?? 8,
+        }))
+        .sort((a, b) => a.nama.localeCompare(b.nama, 'id'))
+    }
+    return samplePrograms
+  }, [prodiDocs])
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-transparent p-md sm:p-lg">
@@ -73,7 +89,7 @@ function ProdiStep() {
       </p>
 
       <div className="flex flex-1 flex-col gap-sm">
-        {samplePrograms.map((p) => (
+        {programs.map((p) => (
           <button
             key={p.nama}
             type="button"

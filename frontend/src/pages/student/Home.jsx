@@ -18,6 +18,7 @@ import {
   minutesUntil,
   sortByTime,
 } from '../../lib/scheduleUtils'
+
 import { deriveTahunAjaran } from '../../lib/publishHelpers'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 
@@ -56,6 +57,21 @@ export default function Home() {
   )
 
   const next = useMemo(() => findNextClass(todayEntries), [todayEntries])
+  // TA yang ditampilkan = TA milik data (bukan tanggal hari ini).
+  // Ambil TA paling sering muncul; bila beragam, pilih yang terbaru —
+  // jangan asal ambil entri pertama.
+  const dataTA = useMemo(() => {
+    const counts = new Map()
+    scheduleSource.forEach((e) => {
+      const t = String(e.tahunAjaran ?? '').trim()
+      if (t) counts.set(t, (counts.get(t) ?? 0) + 1)
+    })
+    if (counts.size === 0) return deriveTahunAjaran()
+    return [...counts.entries()].sort((a, b) => {
+      if (b[1] !== a[1]) return b[1] - a[1]
+      return String(b[0]).localeCompare(String(a[0]))
+    })[0][0]
+  }, [scheduleSource])
   const [nowMinutes, setNowMinutes] = useState(() => currentMinuteOfDay())
 
   // Tick tiap 30 detik untuk countdown "kelas berikutnya".
@@ -86,7 +102,7 @@ export default function Home() {
           {program && (
             <span className="mt-xs inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-label-caps text-primary">
               <Icon name="school" size={14} />
-              {program} · Semester {semester} · TA {deriveTahunAjaran()}
+              {program} · Semester {semester}{dataTA ? ` · TA ${dataTA}` : ''}
             </span>
           )}
         </header>
@@ -146,20 +162,16 @@ export default function Home() {
                 const startM = minutesUntil(entry.jamMulai)
                 const prevEnded =
                   i === 0 || minutesUntil(todayEntries[i - 1].jamSelesai) <= 0
-                const showNow = nowMinutes > 0 && startM > 0 && prevEnded
+                const showNow = startM > 0 && prevEnded
                 return (
                   <ClassTimelineItem
                     key={entry.id}
                     entry={entry}
                     course={courseMap.get(entry.kodeMK)}
                     index={i}
-                    isPast={minutesUntil(entry.jamSelesai) <= 0 && nowMinutes > 0}
+                    isPast={minutesUntil(entry.jamSelesai) <= 0}
                     showNowBefore={showNow}
-                    nowLabel={
-                      nowMinutes > 0
-                        ? `${String(Math.floor(nowMinutes / 60)).padStart(2, '0')}:${String(nowMinutes % 60).padStart(2, '0')}`
-                        : ''
-                    }
+                    nowLabel={`${String(Math.floor(nowMinutes / 60)).padStart(2, '0')}:${String(nowMinutes % 60).padStart(2, '0')}`}
                     onNoteClick={() =>
                       navigate('/jadwal', { state: { openKodeMK: entry.kodeMK } })
                     }
@@ -195,7 +207,13 @@ function currentMinuteOfDay() {
 }
 
 function dailyNoteKey() {
-  return `${STORAGE_KEYS.dailyNotes}:${new Date().toISOString().slice(0, 10)}`
+  const d = new Date()
+  // Kunci memakai tanggal LOKAL (WIB), bukan UTC — kalau pakai UTC,
+  // catatan "hari ini" baru berganti pada jam 07:00, bukan tengah malam.
+  const localIso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`
+  return `${STORAGE_KEYS.dailyNotes}:${localIso}`
 }
 
 function getDailyNote() {

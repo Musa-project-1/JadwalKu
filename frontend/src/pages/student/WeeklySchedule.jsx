@@ -31,55 +31,54 @@ export default function WeeklySchedule() {
   const location = useLocation()
 
   // TA aktif = dari tanggal hari ini; TA lain = arsip tahun-tahun sebelumnya.
+  // Pilihan TIDAK dipersistenkan — default selalu TA berjalan (anti state basi).
   const currentTA = deriveTahunAjaran()
-  const [selectedTA, setSelectedTA] = useState(() =>
-    getItem(STORAGE_KEYS.tahunAjaran, deriveTahunAjaran()),
-  )
-
-  function handleTAChange(value) {
-    setSelectedTA(value)
-    setItem(STORAGE_KEYS.tahunAjaran, value)
-  }
+  const [selectedTA, setSelectedTA] = useState(currentTA)
 
   const viewingArchive = selectedTA !== currentTA
 
+  // Dua langganan ringan: published (TA berjalan) + archived (TA lampau).
   const { data: jadwal, loading } = useFirestore('jadwal', [
     ['prodi', '==', program ?? ''],
     ['semester', '==', Number(semester) || 0],
-    // TA berjalan → published; TA lampau → arsip
-    viewingArchive ? ['status', '==', 'archived'] : ['status', '==', 'published'],
+    ['status', '==', 'published'],
   ])
-  // Arsip dipakai untuk mengisi daftar TA yang pernah ada di dropdown.
   const { data: archivedJadwal } = useFirestore('jadwal', [
     ['prodi', '==', program ?? ''],
     ['semester', '==', Number(semester) || 0],
     ['status', '==', 'archived'],
   ])
+  const { data: settingsDocs } = useFirestore('settings', [])
+
+  // Semua TA yang diketahui: settings + data published + data arsip.
+  const allTAs = useMemo(() => {
+    const set = new Set([currentTA])
+    const app = settingsDocs.find((d) => d.id === 'app')
+    if (Array.isArray(app?.availableTAs)) app.availableTAs.forEach((t) => set.add(String(t)))
+    ;[...jadwal, ...archivedJadwal].forEach((e) => {
+      const t = String(e.tahunAjaran ?? '').trim()
+      if (t) set.add(t)
+    })
+    return [...set].sort((a, b) => b.localeCompare(a))
+  }, [settingsDocs, jadwal, archivedJadwal, currentTA])
+
   const { data: mataKuliah } = useFirestore('mataKuliah')
 
   const useSample = !firebaseReady
   const scheduleSource = useMemo(() => {
     if (loading) return []
-    const fetched = jadwal.filter(
-      (e) => String(e.tahunAjaran ?? (viewingArchive ? '' : currentTA)) === selectedTA,
+    // Cari di KEDUA published + archived — TA lampau bisa saja masih published.
+    const pool = [...jadwal, ...archivedJadwal]
+    const active = pool.filter(
+      (e) => String(e.tahunAjaran ?? currentTA) === selectedTA,
     )
-    if (fetched.length > 0) return fetched
+    if (active.length > 0) return active
     if (viewingArchive) return []
     if (!useSample) return []
     return sampleSchedule.filter(
       (e) => e.prodi === program && e.semester === Number(semester),
     )
-  }, [loading, jadwal, viewingArchive, selectedTA, currentTA, useSample, program, semester])
-
-  // Daftar TA lampau (dari arsip) untuk dropdown.
-  const pastTAs = useMemo(() => {
-    const set = new Set()
-    archivedJadwal.forEach((e) => {
-      const t = String(e.tahunAjaran ?? '').trim()
-      if (t && t !== currentTA) set.add(t)
-    })
-    return [...set].sort((a, b) => b.localeCompare(a))
-  }, [archivedJadwal, currentTA])
+  }, [loading, jadwal, archivedJadwal, viewingArchive, selectedTA, currentTA, useSample, program, semester])
 
   // Buka panel detail otomatis saat diarahkan dari layar lain
   // (mis. tombol catatan pada timeline Home). Effect ini menyinkronkan
@@ -91,7 +90,9 @@ export default function WeeklySchedule() {
     const match = scheduleSource.find((e) => e.kodeMK === kode)
     // oxlint-disable-next-line react/set-state-in-effect -- sinkronisasi deep-link router → state UI; harus menunggu data jadwal termuat.
     if (match) setDetailEntry(match)
-    return () => window.history.replaceState({}, '')
+    // Tanpa cleanup yang menghapus history state: menghapusnya di unmount
+    // merusak navigasi back ke halaman lain yang membawa deep-link ini.
+    return undefined
   }, [location.state, scheduleSource])
 
   const courseMap = useMemo(() => {
@@ -135,8 +136,8 @@ export default function WeeklySchedule() {
     libur.forEach((l) => {
       const t = l?.tanggal
       if (!t) return
-      const iso = typeof t.toDate === 'function' ? t.toDate().toISOString() : String(t)
-      set.add(iso.slice(0, 10))
+      const d = typeof t.toDate === 'function' ? t.toDate() : new Date(t)
+      set.add(localDateKey(d))
     })
     return set
   }, [libur])
@@ -211,16 +212,19 @@ export default function WeeklySchedule() {
         <div className="flex items-center gap-sm">
           <select
             value={selectedTA}
-            onChange={(e) => handleTAChange(e.target.value)}
+            onChange={(e) => setSelectedTA(e.target.value)}
             aria-label="Pilih tahun ajaran"
             className="rounded-full border border-outline-variant/60 bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface transition-colors focus:border-primary focus:outline-none dark:bg-surface-container-high"
           >
-            <option value={currentTA}>TA {currentTA}</option>
-            {pastTAs.map((t) => (
-              <option key={t} value={t}>
-                TA {t} (arsip)
-              </option>
-            ))}
+            <option value={currentTA}>TA {currentTA} (berjalan)</option>
+            {allTAs
+              .filter((t) => t !== currentTA)
+              .sort((a, b) => b.localeCompare(a))
+              .map((t) => (
+                <option key={t} value={t}>
+                  TA {t} (arsip)
+                </option>
+              ))}
           </select>
           <button
             type="button"
@@ -469,10 +473,11 @@ function CourseDetailPanel({ entry, course, onClose }) {
   }
 
   function handleReminderToggle() {
-    setReminderOn((prev) => {
-      setItem(`${STORAGE_KEYS.courseReminders}:${kode}`, !prev)
-      return !prev
-    })
+    const next = !reminderOn
+    // Persist dulu di luar updater — updater harus murni (StrictMode
+    // bisa memanggilnya dua kali).
+    setItem(`${STORAGE_KEYS.courseReminders}:${kode}`, next)
+    setReminderOn(next)
   }
 
   return (
@@ -602,4 +607,11 @@ function toMin(hhmm) {
 function currentMinuteOfDay() {
   const now = new Date()
   return now.getHours() * 60 + now.getMinutes()
+}
+
+/** YYYY-MM-DD dari bagian tanggal LOKAL (bukan UTC) — hindari off-by-one WIB. */
+function localDateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`
 }

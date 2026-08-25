@@ -12,6 +12,7 @@ import {
   CLASS_TYPE_CODES,
   validateScheduleEntry,
   validateCourseEntry,
+  findConflicts,
 } from '../../lib/uploadValidator'
 
 const EMPTY_SESSION = {
@@ -51,17 +52,14 @@ export default function ManualEntry() {
     setFormErrors(errors)
     if (errors.length > 0) return
 
-    // Bentrok lokal dalam daftar sesi yang belum disimpan.
-    const clash = sessions.find(
-      (s) =>
-        s.hari === form.hari &&
-        s.prodi === form.prodi.trim() &&
-        Number(s.semester) === Number(form.semester) &&
-        toMinutes(s.jamMulai) < toMinutes(form.jamSelesai) &&
-        toMinutes(form.jamMulai) < toMinutes(s.jamSelesai),
-    )
-    if (clash) {
-      setFormErrors([`Bentrok dengan ${clash.kodeMK} (${clash.jamMulai}–${clash.jamSelesai}) pada ${clash.hari}.`])
+    // Bentrok lokal dalam daftar sesi yang belum disimpan — pakai aturan
+    // yang sama dengan validator upload (hari + prodi + semester + ruang +
+    // tipe kelas), supaya K1/K2 paralel di ruang berbeda tidak salah flag.
+    const candidate = { ...form, prodi: form.prodi.trim(), semester: Number(form.semester) }
+    const conflicts = findConflicts([...sessions, candidate])
+    const clashIndex = conflicts.findIndex((c) => c.b === sessions.length)
+    if (clashIndex !== -1) {
+      setFormErrors([conflicts[clashIndex].message])
       return
     }
 
@@ -317,10 +315,4 @@ export default function ManualEntry() {
       )}
     </div>
   )
-}
-
-function toMinutes(hhmm) {
-  if (!hhmm) return 0
-  const [h, m] = String(hhmm).split(':').map(Number)
-  return h * 60 + m
 }

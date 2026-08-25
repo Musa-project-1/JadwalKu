@@ -140,12 +140,19 @@ export function buildChangeNotifications(historyEntries = [], now = new Date()) 
 
 /**
  * Gabungkan notifikasi baru ke daftar lama tanpa duplikat (berdasarkan id).
- * Item lama dipertahankan urutan & status bacanya.
+ * Item yang sudah ada tetap dipertahankan status bacanya, TAPI kontennya
+ * (deskripsi/timeLabel/createdAt) diperbarui dari versi baru — penting untuk
+ * pengingat kelas yang memuat hitungan menit agar tidak tampil basi.
  */
 export function mergeNotifications(existing = [], incoming = []) {
-  const knownIds = new Set(existing.map((item) => item.id))
-  const fresh = incoming.filter((item) => !knownIds.has(item.id))
-  return [...fresh, ...existing].sort((a, b) => b.createdAt - a.createdAt)
+  const existingById = new Map(existing.map((item) => [item.id, item]))
+  const refreshed = incoming.map((item) => {
+    const prev = existingById.get(item.id)
+    return prev ? { ...item, read: prev.read } : item
+  })
+  const incomingIds = new Set(incoming.map((item) => item.id))
+  const rest = existing.filter((item) => !incomingIds.has(item.id))
+  return [...refreshed, ...rest].sort((a, b) => b.createdAt - a.createdAt)
 }
 
 /** Kelompokkan notifikasi: Hari ini / Kemarin / Lebih awal. */

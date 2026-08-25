@@ -55,6 +55,11 @@ export default function ManageHolidays() {
       setFormError('Keterangan libur wajib diisi.')
       return
     }
+    // Tolak tanggal ganda — tanpa ini libur yang sama bisa masuk berkali-kali.
+    if (holidays.some((h) => String(h.tanggal) === tanggal)) {
+      setFormError(`Tanggal ${tanggal} sudah ada di daftar libur.`)
+      return
+    }
 
     setSaving(true)
     const data = { tanggal, label: label.trim() }

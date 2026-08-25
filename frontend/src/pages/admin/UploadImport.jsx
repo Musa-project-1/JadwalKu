@@ -13,8 +13,8 @@ import {
   findConflicts,
   findUnmatchedCourseCodes,
 } from '../../lib/uploadValidator'
-import { publishAllDrafts, appendHistory, saveSettings, deriveTahunAjaran } from '../../lib/publishHelpers'
-import { setDocument, addDocument } from '../../lib/adminData'
+import { publishDocuments, appendHistory, saveSettings, deriveTahunAjaran } from '../../lib/publishHelpers'
+import { setDocument } from '../../lib/adminData'
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024
 
@@ -54,7 +54,8 @@ export default function UploadImport() {
     validation &&
     validation.entryErrors.length === 0 &&
     validation.courseErrors.length === 0 &&
-    validation.conflicts.length === 0
+    validation.conflicts.length === 0 &&
+    validation.unmatched.length === 0
 
   async function handleFile(file) {
     setError('')
@@ -79,6 +80,33 @@ export default function UploadImport() {
     }
   }
 
+  /** ID deterministik per entri jadwal — re-upload file yang sama menimpa,
+   *  bukan menduplikasi (idempoten). */
+  function jadwalDocId(entry) {
+    return [
+      entry.prodi,
+      Number(entry.semester),
+      entry.hari,
+      entry.jamMulai,
+      entry.kodeMK,
+      entry.tipeKelas,
+    ]
+      .join('|')
+      .replace(/[/#?[\]]/g, '-')
+  }
+
+  function ujianDocId(exam) {
+    return [
+      exam.prodi,
+      Number(exam.semester),
+      exam.tanggal,
+      exam.jam,
+      exam.kodeMK,
+    ]
+      .join('|')
+      .replace(/[/#?[\]]/g, '-')
+  }
+
   async function saveAll({ publish }) {
     if (!parsed) return
     setBusy(true)
@@ -86,6 +114,8 @@ export default function UploadImport() {
     let savedCourses = 0
     let failed = 0
     let firstError = ''
+    const jadwalIds = []
+    const ujianIds = []
 
     for (const course of parsed.courses) {
       const result = await setDocument('mataKuliah', course.kodeMK.toUpperCase(), course, actor)
@@ -94,8 +124,9 @@ export default function UploadImport() {
     }
 
     for (const entry of parsed.scheduleEntries) {
-      const result = await addDocument(
+      const result = await setDocument(
         'jadwal',
+        jadwalDocId(entry),
         {
           ...entry,
           semester: Number(entry.semester),
@@ -104,13 +135,18 @@ export default function UploadImport() {
         },
         actor,
       )
-      if (result.ok) savedEntries += 1
+      if (result.ok) { savedEntries += 1; jadwalIds.push(result.id) }
       else { failed += 1; if (!firstError) firstError = result.error ?? 'unknown' }
     }
 
     for (const exam of parsed.exams) {
-      const result = await addDocument('ujian', { ...exam, status: 'draft' }, actor)
-      if (result.ok) savedEntries += 1
+      const result = await setDocument(
+        'ujian',
+        ujianDocId(exam),
+        { ...exam, semester: Number(exam.semester), status: 'draft' },
+        actor,
+      )
+      if (result.ok) { savedEntries += 1; ujianIds.push(result.id) }
       else { failed += 1; if (!firstError) firstError = result.error ?? 'unknown' }
     }
 
@@ -124,14 +160,19 @@ export default function UploadImport() {
     })
     await saveSettings({ lastFileName: fileName, lastUploadedAt: new Date().toISOString() })
 
+    // Publikasi TERBATAS pada entri file ini — bukan seluruh draft di koleksi
+    // (publishAllDrafts lama ikut menerbitkan draft prodi/semester lain).
     if (failed === 0 && publish && canPublish) {
-      const pubResult = await publishAllDrafts('jadwal', actor)
-      if (!pubResult.ok) {
-        setBanner({ ok: false, message: `Draft tersimpan tapi publikasi gagal: ${pubResult.error}` })
+      const pubJadwal = await publishDocuments('jadwal', jadwalIds, actor)
+      if (!pubJadwal.ok) {
+        setBanner({ ok: false, message: `Draft tersimpan tapi publikasi gagal: ${pubJadwal.error}` })
         setBusy(false)
         setParsed(null)
         setFileName('')
         return
+      }
+      if (ujianIds.length > 0) {
+        await publishDocuments('ujian', ujianIds, actor)
       }
     }
 

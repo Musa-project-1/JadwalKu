@@ -55,7 +55,12 @@ export default function AdminDashboard() {
   const [busy, setBusy] = useState(false)
 
   const recentHistory = useMemo(
-    () => [...history].sort((a, b) => String(b.timestamp ?? '').localeCompare(String(a.timestamp ?? ''))).slice(0, 6),
+    () =>
+      // timestamp adalah Firestore Timestamp — bandingkan epoch millis,
+      // bukan String() (urutan leksikografisnya tidak kronologis).
+      [...history]
+        .sort((a, b) => (b.timestamp?.toMillis?.() ?? 0) - (a.timestamp?.toMillis?.() ?? 0))
+        .slice(0, 6),
     [history],
   )
 

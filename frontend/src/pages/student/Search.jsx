@@ -13,6 +13,7 @@ const FILTERS = [
   { value: 'mk', label: 'Mata Kuliah' },
   { value: 'dosen', label: 'Dosen' },
   { value: 'tugas', label: 'Tugas' },
+  { value: 'jadwal', label: 'Jadwal' },
 ]
 
 export default function Search() {
@@ -43,6 +44,10 @@ export default function Search() {
     () => (jadwal.length > 0 ? jadwal : useSample ? sampleSchedule : []),
     [jadwal, useSample],
   )
+  const courseNameMap = useMemo(
+    () => new Map(courses.map((c) => [c.kodeMK, c.namaMK])),
+    [courses],
+  )
 
   const results = useMemo(() => {
     const q = queryText.trim().toLowerCase()
@@ -70,18 +75,19 @@ export default function Search() {
     results &&
     (results.courseHits.length > 0 ||
       results.lecturerHits.length > 0 ||
-      results.taskHits.length > 0)
+      results.taskHits.length > 0 ||
+      results.scheduleHits.length > 0)
 
   // Simpan kata kunci ke riwayat pencarian (maks 5) saat menekan Enter.
   function handleSearchKeyDown(e) {
     if (e.key !== 'Enter') return
     const q = queryText.trim()
     if (q.length < 2) return
-    setRecents((prev) => {
-      const next = [q, ...prev.filter((r) => r !== q)].slice(0, 5)
-      setItem(STORAGE_KEYS.recentSearches, next)
-      return next
-    })
+    // Hitung nilai berikutnya di luar updater — updater harus murni
+    // (StrictMode bisa memanggilnya dua kali).
+    const next = [q, ...recents.filter((r) => r !== q)].slice(0, 5)
+    setItem(STORAGE_KEYS.recentSearches, next)
+    setRecents(next)
   }
 
   return (
@@ -187,6 +193,19 @@ export default function Search() {
                   icon="assignment"
                   title={t.judul}
                   subtitle={`Tenggat: ${t.deadline}`}
+                />
+              ))}
+            </ResultSection>
+          )}
+
+          {(filter === 'all' || filter === 'jadwal') && results.scheduleHits.length > 0 && (
+            <ResultSection title="Jadwal" icon="calendar_month">
+              {results.scheduleHits.map((s) => (
+                <ResultRow
+                  key={s.id ?? `${s.kodeMK}-${s.hari}-${s.jamMulai}`}
+                  icon="calendar_month"
+                  title={courseNameMap.get(s.kodeMK) ?? s.kodeMK}
+                  subtitle={`${s.kodeMK} · ${s.hari}, ${s.jamMulai}–${s.jamSelesai}`}
                 />
               ))}
             </ResultSection>

@@ -77,7 +77,7 @@ export default function Exams() {
           {grouped.map(([dateLabel, exams]) => (
             <section key={dateLabel} className="space-y-sm">
               <h3 className="sticky top-0 z-10 border-b border-surface-variant bg-background/90 py-2 text-label-caps uppercase text-on-surface-variant backdrop-blur dark:bg-background/90">
-                {dateLabel}
+                {formatExamDate(dateLabel)}
               </h3>
               {exams.map((exam) => (
                 <ExamCard key={exam.id} exam={exam} />
@@ -136,11 +136,15 @@ function ExamCard({ exam }) {
 function groupByDate(exams) {
   const groups = new Map()
   for (const exam of exams) {
-    const label = formatExamDate(exam.tanggal)
-    if (!groups.has(label)) groups.set(label, [])
-    groups.get(label).push(exam)
+    const key = exam.tanggal ?? ''
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(exam)
   }
-  return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))
+  return [...groups.entries()].sort(([a], [b]) => {
+    if (!a) return 1 // "Tanggal belum ditentukan" di akhir
+    if (!b) return -1
+    return a.localeCompare(b) // ISO string → urutan kronologis benar
+  })
 }
 
 function formatExamDate(isoDate) {

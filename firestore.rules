@@ -9,7 +9,9 @@ service cloud.firestore {
     }
 
     match /jadwal/{doc} {
-      allow read: if isAdmin() || resource.data.status == "published";
+      // "archived" ikut boleh dibaca — dipakai fitur arsip TA di sisi mahasiswa
+      // (WeeklySchedule: dropdown tahun ajaran lampau).
+      allow read: if isAdmin() || resource.data.status in ["published", "archived"];
       allow write: if isAdmin();
     }
 
@@ -19,7 +21,7 @@ service cloud.firestore {
     }
 
     match /ujian/{doc} {
-      allow read: if isAdmin() || resource.data.status == "published";
+      allow read: if isAdmin() || resource.data.status in ["published", "archived"];
       allow write: if isAdmin();
     }
 

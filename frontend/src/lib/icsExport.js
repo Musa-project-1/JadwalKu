@@ -22,8 +22,11 @@ export function downloadIcs(entries, { prodi = '', semester = '' } = {}) {
     const dayIndex = DAY_INDEX[entry.hari]
     if (dayIndex === undefined) continue
 
+    // Hitung END relatif terhadap START: kelas lewat tengah malam
+    // (jamSelesai < jamMulai, mis. 22:00–01:00) harus berakhir besoknya,
+    // bukan DTEND < DTSTART.
     const start = nextOccurrence(dayIndex, entry.jamMulai)
-    const end = nextOccurrence(dayIndex, entry.jamSelesai)
+    const end = addMinutes(start, toMinutes(entry.jamSelesai) - toMinutes(entry.jamMulai))
 
     lines.push(
       'BEGIN:VEVENT',
@@ -32,8 +35,8 @@ export function downloadIcs(entries, { prodi = '', semester = '' } = {}) {
       `DTSTART;TZID=Asia/Jakarta:${formatIcsDate(start)}`,
       `DTEND;TZID=Asia/Jakarta:${formatIcsDate(end)}`,
       `RRULE:FREQ=WEEKLY;BYDAY=${WEEKLY_BYDAY[entry.hari]}`,
-      `SUMMARY:${entry.kodeMK}`,
-      entry.ruang ? `LOCATION:${entry.ruang}` : null,
+      `SUMMARY:${escapeIcsText(entry.kodeMK)}`,
+      entry.ruang ? `LOCATION:${escapeIcsText(entry.ruang)}` : null,
       'END:VEVENT',
     )
   }
@@ -72,6 +75,27 @@ function nextOccurrence(dayIndex, hhmm) {
   if (diff < 0 || (diff === 0 && target <= now)) diff += 7
   target.setDate(target.getDate() + diff)
   return target
+}
+
+function toMinutes(hhmm) {
+  const [h, m] = String(hhmm).split(':').map(Number)
+  return h * 60 + m
+}
+
+function addMinutes(date, minutes) {
+  return new Date(date.getTime() + minutes * 60_000)
+}
+
+/**
+ * Escaping teks sesuai RFC 5545 §3.3.11 — tanpa ini karakter koma/titik
+ * dua/backslash/newline merusak parsing .ics di Google Calendar/Outlook.
+ */
+function escapeIcsText(value) {
+  return String(value ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\r?\n/g, '\\n')
 }
 
 function formatIcsDate(date) {

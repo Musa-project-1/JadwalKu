@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../hooks/useApp'
 import { useFirestore } from '../hooks/useFirestore'
 import { NotificationsContext } from '../hooks/useNotifications'
@@ -30,6 +30,14 @@ export function NotificationsProvider({ children }) {
   const { program, semester } = useApp()
   const [items, setItems] = useState(() => getItem(STORAGE_KEYS.notifications, []))
 
+  // Ref agar mesin notifikasi bisa membaca daftar terbaru tanpa menjadikan
+  // `items` dependensi callback (yang akan me-reset interval tiap tick).
+  // Sinkronisasi lewat effect — menulis ref saat render dilarang React.
+  const itemsRef = useRef(items)
+  useEffect(() => {
+    itemsRef.current = items
+  }, [items])
+
   const persist = useCallback((next) => {
     setItems(next)
     setItem(STORAGE_KEYS.notifications, next)
@@ -60,13 +68,17 @@ export function NotificationsProvider({ children }) {
     ]
     if (incoming.length === 0) return
 
-    setItems((prev) => {
-      const merged = mergeNotifications(prev, incoming).slice(0, MAX_ITEMS)
-      if (merged.length === prev.length) return prev
-      setItem(STORAGE_KEYS.notifications, merged)
-      return merged
-    })
-  }, [jadwal, mataKuliah, ujian, riwayat])
+    // Merge di luar updater — updater harus murni; penulisan localStorage
+    // dilakukan lewat persist() sekali saja. Deteksi perubahan lewat
+    // referensi item (bukan hanya panjang): konten pengingat yang di-refresh
+    // (mis. hitungan menit) juga harus dipersist ulang.
+    const merged = mergeNotifications(itemsRef.current, incoming).slice(0, MAX_ITEMS)
+    const prev = itemsRef.current
+    const changed =
+      merged.length !== prev.length || merged.some((item, i) => item !== prev[i])
+    if (!changed) return
+    persist(merged)
+  }, [jadwal, mataKuliah, ujian, riwayat, persist])
 
   useEffect(() => {
     // Effect ini sengaja menyinkronkan state dengan "sistem eksternal"

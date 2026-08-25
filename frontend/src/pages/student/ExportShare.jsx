@@ -26,14 +26,16 @@ export default function ExportShare() {
   const { program, semester } = useApp()
   const [scope, setScope] = useState('semester')
   const [shared, setShared] = useState(false)
-  const [imageStatus, setImageStatus] = useState(null) // 'shared' | 'downloaded'
+  const [imageStatus, setImageStatus] = useState(null) // { ok: boolean, text: string }
 
+  // Query TANPA filter semester — supaya opsi cakupan "Semua kelas"
+  // benar-benar memuat semua semester prodi ini (filter semester dilakukan
+  // di klien sesuai pilihan cakupan).
   const { data: jadwal } = useFirestore(
     'jadwal',
     firebaseReady
       ? [
           ['prodi', '==', program ?? ''],
-          ['semester', '==', Number(semester) || 0],
           ['status', '==', 'published'],
         ]
       : [],
@@ -74,11 +76,12 @@ export default function ExportShare() {
         canvas,
         `jadwal-${(program ?? 'kampus').toLowerCase().replace(/\s+/g, '-')}-sem-${semester}.png`,
       )
-      setImageStatus(result === 'shared' ? 'Dibagikan!' : 'Tersimpan!')
-      setTimeout(() => setImageStatus(null), 2000)
+      setImageStatus({ ok: true, text: result === 'shared' ? 'Dibagikan!' : 'Tersimpan!' })
     } catch {
-      // user membatalkan share atau browser tidak mendukung
+      // Jangan diam-diam: beri tahu user kalau rendering/share gagal.
+      setImageStatus({ ok: false, text: 'Gagal membuat gambar' })
     }
+    setTimeout(() => setImageStatus(null), 2500)
   }
 
   return (
@@ -94,34 +97,6 @@ export default function ExportShare() {
         </button>
         <h2 className="text-display text-on-surface">Bagikan Jadwal</h2>
       </header>
-
-      {/* Pilihan cakupan */}
-      <section className="space-y-sm">
-        {OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => setScope(opt.value)}
-            className={`flex w-full items-center gap-md rounded-xl border-2 bg-surface-container-lowest p-md text-left transition-colors dark:bg-surface-container-low ${
-              scope === opt.value ? 'border-primary' : 'border-transparent shadow-level-1'
-            }`}
-          >
-            <span
-              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                scope === opt.value ? 'border-primary' : 'border-outline-variant'
-              }`}
-            >
-              {scope === opt.value && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
-            </span>
-            <div>
-              <p className="text-title-md text-on-surface">{opt.label}</p>
-              <p className="text-body-sm text-on-surface-variant">
-                {opt.description}
-              </p>
-            </div>
-          </button>
-        ))}
-      </section>
 
       {/* Pilihan cakupan */}
       <section className="space-y-sm">
@@ -176,7 +151,8 @@ export default function ExportShare() {
           iconBg="bg-error-container/60 text-error dark:bg-error-container/30"
           title="Bagikan Gambar"
           description="Simpan/kirim jadwal sebagai PNG"
-          status={imageStatus}
+          status={imageStatus?.text ?? null}
+          statusOk={imageStatus?.ok ?? true}
           onAction={handleShareImage}
         />
       </section>
@@ -190,7 +166,7 @@ export default function ExportShare() {
   )
 }
 
-function OptionCard({ icon, iconBg, title, description, status, onAction }) {
+function OptionCard({ icon, iconBg, title, description, status, statusOk = true, onAction }) {
   return (
     <button
       type="button"
@@ -205,7 +181,11 @@ function OptionCard({ icon, iconBg, title, description, status, onAction }) {
         <span className="block text-body-sm text-on-surface-variant">{description}</span>
       </span>
       {status ? (
-        <span className="shrink-0 text-label-caps font-medium text-success">{status}</span>
+        <span
+          className={`shrink-0 text-label-caps font-medium ${statusOk ? 'text-success' : 'text-error'}`}
+        >
+          {status}
+        </span>
       ) : (
         <Icon name="chevron_right" size={22} className="shrink-0 text-on-surface-variant" />
       )}

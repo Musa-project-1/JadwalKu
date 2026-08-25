@@ -376,7 +376,7 @@ function groupTasks(tasks) {
       groups.done.push(task)
       continue
     }
-    const dl = new Date(task.deadline)
+    const dl = parseLocalDate(task.deadline)
     const diff = dl.getTime() - startOfToday.getTime()
     if (diff <= weekMs) groups.thisWeek.push(task)
     else groups.nextWeek.push(task)
@@ -387,7 +387,18 @@ function groupTasks(tasks) {
 function daysUntil(isoDate) {
   const now = new Date()
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return Math.round((new Date(isoDate).getTime() - startOfToday.getTime()) / (24 * 60 * 60 * 1000))
+  return Math.round((parseLocalDate(isoDate).getTime() - startOfToday.getTime()) / (24 * 60 * 60 * 1000))
+}
+
+/**
+ * 'YYYY-MM-DD' diparse JS sebagai UTC midnight — di WIB (UTC+7) itu jam
+ * 07:00 lokal, sehingga batas minggu meleset 7 jam. Parse ke bagian tanggal
+ * lokal agar boundary tepat tengah malam.
+ */
+function parseLocalDate(isoDate) {
+  const m = String(isoDate ?? '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)
+  if (!m) return new Date(isoDate)
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
 }
 
 function formatDeadline(isoDate) {

@@ -9,6 +9,7 @@ import {
   where,
   writeBatch,
   documentId,
+  arrayUnion,
 } from 'firebase/firestore'
 import { db } from './firebaseClient'
 import { logError } from './errorLogger'
@@ -139,6 +140,7 @@ export async function publishDocuments(collectionName, docIds, actor) {
       lastPublishedAt: new Date().toISOString(),
       lastPublishedBy: actor,
       currentTahunAjaran: activeTa,
+      availableTAs: arrayUnion(activeTa),
     })
 
     return { ok: true, publishedCount: draftDocs.length }
@@ -147,55 +149,6 @@ export async function publishDocuments(collectionName, docIds, actor) {
       type: 'publish',
       detail: err?.message ?? String(err),
       context: { collectionName, count: docIds.length },
-    })
-    return { ok: false, publishedCount: 0, error: err?.message ?? String(err) }
-  }
-}
-
-/**
- * Publish SEMUA dokumen ber-status draft di satu koleksi.
- * Query pakai composite index (collection + status).
- *
- * @param {'jadwal'|'ujian'} collectionName
- * @param {string} actor
- */
-export async function publishAllDrafts(collectionName, actor) {
-  if (!db) return { ok: false, publishedCount: 0, error: 'Firestore belum siap' }
-
-  try {
-    const q = query(collection(db, collectionName), where('status', '==', 'draft'))
-    const snap = await getDocs(q)
-    const ids = snap.docs.map((d) => d.id)
-
-    if (!ids.length) return { ok: true, publishedCount: 0 }
-
-    // Aturan semester: arsipkan published lama untuk prodi+semester yang sama
-    // SEKALI di awal — jangan arsip ulang per chunk, chunk berikutnya tidak
-    // boleh mengarsipkan chunk sebelumnya yang baru saja dipublish.
-    await archiveReplacedPublished(collectionName, snap.docs, new Set(ids), actor)
-
-    const fallbackTa = deriveTahunAjaran()
-
-    // Firestore membatasi 500 operasi per batch - pecah kalau lebih.
-    let publishedCount = 0
-    for (let i = 0; i < snap.docs.length; i += 450) {
-      const chunk = snap.docs.slice(i, i + 450)
-      await publishIds(collectionName, chunk, fallbackTa, actor)
-      publishedCount += chunk.length
-    }
-
-    await saveSettings({
-      lastPublishedAt: new Date().toISOString(),
-      lastPublishedBy: actor,
-      currentTahunAjaran: fallbackTa,
-    })
-
-    return { ok: true, publishedCount }
-  } catch (err) {
-    logError({
-      type: 'publish',
-      detail: err?.message ?? String(err),
-      context: { collectionName, scope: 'all-drafts' },
     })
     return { ok: false, publishedCount: 0, error: err?.message ?? String(err) }
   }
