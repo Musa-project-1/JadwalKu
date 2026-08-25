@@ -7,7 +7,6 @@ import Home from './pages/student/Home'
 import Settings from './pages/student/Settings'
 import Tasks from './pages/student/Tasks'
 import WeeklySchedule from './pages/student/WeeklySchedule'
-import Intro from './pages/student/Intro'
 import Onboarding, { ProdiStep, SemesterStep } from './pages/student/Onboarding'
 import Search from './pages/student/Search'
 import About from './pages/student/About'
@@ -28,7 +27,7 @@ import ManageHolidays from './pages/admin/ManageHolidays'
 function RequireOnboarding({ children }) {
   const done = getItem(STORAGE_KEYS.onboardingDone, false)
   if (!done) {
-    return <Navigate to="/intro" replace />
+    return <Navigate to="/onboarding" replace />
   }
   return children
 }
@@ -37,7 +36,6 @@ export default function App() {
   return (
     <NotificationsProvider>
       <Routes>
-      <Route path="/intro" element={<Intro />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/onboarding/prodi" element={<ProdiStep />} />
       <Route path="/onboarding/semester" element={<SemesterStep />} />

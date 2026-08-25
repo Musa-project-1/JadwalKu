@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
-import { Button } from '../../components/Button'
 
 const FAQS = [
   {
@@ -88,9 +87,6 @@ export default function About() {
             </p>
           </div>
         </div>
-        <Button variant="ghost" onClick={() => navigate('/intro')}>
-          Lihat panduan lagi
-        </Button>
       </section>
     </div>
   )

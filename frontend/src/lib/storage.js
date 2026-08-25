@@ -35,7 +35,6 @@ export const STORAGE_KEYS = {
   program: 'program',
   semester: 'semester',
   adminSession: 'adminSession',
-  introSeen: 'introSeen',
   onboardingDone: 'onboardingDone',
   tasks: 'tasks',
   dailyNotes: 'dailyNotes',
