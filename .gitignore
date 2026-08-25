@@ -6,9 +6,12 @@ yarn-debug.log*
 yarn-error.log*
 firebase-debug.log*
 firebase-debug.*.log*
+firestore-debug.log*
+firestore-debug.*.log*
 
-# Firebase cache
+# Deploy & Local Tooling
 .firebase/
+.netlify/
 
 # Firebase config
 
