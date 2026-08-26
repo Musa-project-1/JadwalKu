@@ -78,14 +78,14 @@ frontend/dist/
 # Design references (xlsx berisi data pribadi dosen + PNG besar)
 references/
 
-# Local tooling
+# Local tooling & documentation
 .claude/
 .agents/
 .vscode/
 skills-lock.json
 *.md
-!docs/**/*.md
 !README.md
+docs/
 
 # Local Netlify folder
 .netlify
