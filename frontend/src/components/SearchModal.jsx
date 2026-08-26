@@ -98,49 +98,59 @@ export function SearchModal({ open, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 tablet:pt-20">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-3 pt-4 tablet:p-4 tablet:pt-20">
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-md transition-opacity"
+        className="fixed inset-0 bg-black/50 backdrop-blur-md transition-opacity"
         onClick={onClose}
         role="presentation"
       />
-      <div className="relative z-10 w-full max-w-2xl overflow-hidden rounded-3xl border border-outline-variant/40 bg-surface/90 backdrop-blur-2xl shadow-2xl dark:bg-surface-container-lowest/90 animate-fade-up">
+      <div className="relative z-10 w-full max-w-2xl overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl backdrop-blur-2xl animate-fade-up">
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 border-b border-outline-variant/30 px-4 py-3.5 bg-surface-container/30">
-          <Icon name="search" size={24} className="text-primary shrink-0" />
+        <div className="flex items-center gap-3 border-b border-outline-variant/25 px-4 py-3.5 bg-surface-container/40">
+          <Icon name="search" size={22} className="text-primary shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={queryText}
             onChange={(e) => setQueryText(e.target.value)}
-            placeholder="Cari mata kuliah, dosen, tugas, atau ruangan..."
-            className="flex-1 bg-transparent text-body-lg text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none"
+            placeholder="Cari jadwal, dosen, tugas..."
+            className="flex-1 min-w-0 bg-transparent text-body-md tablet:text-body-lg text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none"
           />
           {queryText && (
             <button
               type="button"
               onClick={() => setQueryText('')}
-              className="text-on-surface-variant hover:text-on-surface p-1 rounded-full"
+              className="text-on-surface-variant hover:text-on-surface p-1 rounded-full hover:bg-surface-container transition-colors cursor-pointer"
+              title="Hapus pencarian"
             >
-              <Icon name="close" size={18} />
+              <Icon name="backspace" size={18} />
             </button>
           )}
-          <span className="hidden tablet:inline-block rounded border border-outline-variant/40 px-2 py-0.5 text-[11px] font-semibold text-on-surface-variant">
+          <span className="hidden tablet:inline-block rounded-md border border-outline-variant/40 bg-surface-container px-2 py-0.5 text-[11px] font-mono font-semibold text-on-surface-variant">
             ESC
           </span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex tablet:hidden h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
+            title="Tutup pencarian"
+            aria-label="Tutup modal pencarian"
+          >
+            <Icon name="close" size={20} />
+          </button>
         </div>
 
         {/* Filter Chips */}
-        <div className="flex gap-1.5 overflow-x-auto border-b border-outline-variant/20 px-4 py-2 bg-surface-container/30 no-scrollbar">
+        <div className="flex w-full max-w-full gap-2 overflow-x-auto border-b border-outline-variant/20 px-4 py-2.5 bg-surface-container/20 no-scrollbar">
           {FILTERS.map((f) => (
             <button
               key={f.value}
               type="button"
               onClick={() => setFilter(f.value)}
-              className={`rounded-full px-3 py-1 text-label-caps transition-colors ${
+              className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-3.5 py-1.5 text-body-xs font-semibold transition-all cursor-pointer ${
                 filter === f.value
-                  ? 'bg-primary text-on-primary font-bold'
-                  : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                  ? 'bg-primary text-on-primary shadow-xs'
+                  : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
               }`}
             >
               {f.label}
@@ -178,18 +188,18 @@ export function SearchModal({ open, onClose }) {
                         key={c.kodeMK}
                         type="button"
                         onClick={() => handleSelect(`/jadwal`)}
-                        className="flex w-full items-center justify-between p-2.5 rounded-2xl bg-surface-container/50 hover:bg-primary/10 transition-colors text-left group"
+                        className="flex w-full items-center justify-between p-2.5 rounded-2xl bg-surface-container/50 hover:bg-primary/10 transition-colors text-left group cursor-pointer"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1 mr-2">
                           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                             <Icon name="menu_book" size={20} />
                           </span>
-                          <div>
-                            <p className="text-body-sm font-bold text-on-surface group-hover:text-primary">{c.namaMK}</p>
-                            <p className="text-[12px] text-on-surface-variant">{c.kodeMK} • {c.dosen}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-body-sm font-bold text-on-surface group-hover:text-primary truncate">{c.namaMK}</p>
+                            <p className="text-[12px] text-on-surface-variant truncate">{c.kodeMK} • {c.dosen}</p>
                           </div>
                         </div>
-                        <Icon name="chevron_right" size={18} className="text-on-surface-variant group-hover:text-primary" />
+                        <Icon name="chevron_right" size={18} className="text-on-surface-variant group-hover:text-primary shrink-0" />
                       </button>
                     ))}
                   </div>
@@ -206,18 +216,18 @@ export function SearchModal({ open, onClose }) {
                         key={c.dosen}
                         type="button"
                         onClick={() => handleSelect(`/jadwal`)}
-                        className="flex w-full items-center justify-between p-2.5 rounded-2xl bg-surface-container/50 hover:bg-secondary/10 transition-colors text-left group"
+                        className="flex w-full items-center justify-between p-2.5 rounded-2xl bg-surface-container/50 hover:bg-secondary/10 transition-colors text-left group cursor-pointer"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1 mr-2">
                           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
                             <Icon name="person" size={20} />
                           </span>
-                          <div>
-                            <p className="text-body-sm font-bold text-on-surface group-hover:text-secondary">{c.dosen}</p>
-                            <p className="text-[12px] text-on-surface-variant">Dosen {c.namaMK}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-body-sm font-bold text-on-surface group-hover:text-secondary truncate">{c.dosen}</p>
+                            <p className="text-[12px] text-on-surface-variant truncate">Dosen {c.namaMK}</p>
                           </div>
                         </div>
-                        <Icon name="chevron_right" size={18} className="text-on-surface-variant group-hover:text-secondary" />
+                        <Icon name="chevron_right" size={18} className="text-on-surface-variant group-hover:text-secondary shrink-0" />
                       </button>
                     ))}
                   </div>
@@ -234,18 +244,18 @@ export function SearchModal({ open, onClose }) {
                         key={t.id}
                         type="button"
                         onClick={() => handleSelect(`/tugas`)}
-                        className="flex w-full items-center justify-between p-2.5 rounded-2xl bg-surface-container/50 hover:bg-tertiary/10 transition-colors text-left group"
+                        className="flex w-full items-center justify-between p-2.5 rounded-2xl bg-surface-container/50 hover:bg-tertiary/10 transition-colors text-left group cursor-pointer"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1 mr-2">
                           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-tertiary/10 text-tertiary">
                             <Icon name="checklist" size={20} />
                           </span>
-                          <div>
-                            <p className="text-body-sm font-bold text-on-surface group-hover:text-tertiary">{t.judul}</p>
-                            <p className="text-[12px] text-on-surface-variant">Tenggat: {t.deadline} • {t.prioritas}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-body-sm font-bold text-on-surface group-hover:text-tertiary truncate">{t.judul}</p>
+                            <p className="text-[12px] text-on-surface-variant truncate">Tenggat: {t.deadline} • {t.prioritas}</p>
                           </div>
                         </div>
-                        <Icon name="chevron_right" size={18} className="text-on-surface-variant group-hover:text-tertiary" />
+                        <Icon name="chevron_right" size={18} className="text-on-surface-variant group-hover:text-tertiary shrink-0" />
                       </button>
                     ))}
                   </div>

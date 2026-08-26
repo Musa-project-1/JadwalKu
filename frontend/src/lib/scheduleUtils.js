@@ -66,14 +66,16 @@ export function getGreeting(now = new Date()) {
   return 'Selamat malam'
 }
 
-/** Data lengkap sapaan dengan ikon dan warna untuk header beranda. */
+/** Data lengkap sapaan dengan ikon, gradien warna teks, dan background dinamis untuk header beranda. */
 export function getGreetingData(now = new Date()) {
   const hour = now.getHours()
   if (hour < 11) {
     return {
       text: 'Selamat pagi',
       icon: 'wb_sunny',
-      iconBg: 'bg-amber-500/15 text-amber-600 dark:bg-amber-400/20 dark:text-amber-300',
+      iconBg: 'bg-amber-500/20 text-amber-600 dark:bg-amber-400/25 dark:text-amber-300 ring-2 ring-amber-500/30',
+      textGradient: 'from-amber-600 via-orange-500 to-yellow-500 dark:from-amber-300 dark:via-orange-300 dark:to-yellow-200',
+      headerBg: 'bg-gradient-to-r from-amber-500/15 via-orange-500/5 to-transparent dark:from-amber-950/30 dark:via-orange-950/10 dark:to-transparent',
       subtitle: 'Semoga harimu menyenangkan dan penuh semangat.',
     }
   }
@@ -81,7 +83,9 @@ export function getGreetingData(now = new Date()) {
     return {
       text: 'Selamat siang',
       icon: 'light_mode',
-      iconBg: 'bg-orange-500/15 text-orange-600 dark:bg-orange-400/20 dark:text-orange-300',
+      iconBg: 'bg-sky-500/20 text-sky-600 dark:bg-sky-400/25 dark:text-sky-300 ring-2 ring-sky-500/30',
+      textGradient: 'from-sky-600 via-blue-600 to-cyan-500 dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200',
+      headerBg: 'bg-gradient-to-r from-sky-500/15 via-blue-500/5 to-transparent dark:from-sky-950/30 dark:via-blue-950/10 dark:to-transparent',
       subtitle: 'Tetap fokus dan jaga energi untuk sesi kuliah berikutnya.',
     }
   }
@@ -89,14 +93,18 @@ export function getGreetingData(now = new Date()) {
     return {
       text: 'Selamat sore',
       icon: 'wb_twilight',
-      iconBg: 'bg-violet-500/15 text-violet-600 dark:bg-violet-400/20 dark:text-violet-300',
+      iconBg: 'bg-rose-500/20 text-rose-600 dark:bg-rose-400/25 dark:text-rose-300 ring-2 ring-rose-500/30',
+      textGradient: 'from-orange-500 via-rose-500 to-purple-600 dark:from-orange-300 dark:via-rose-300 dark:to-purple-300',
+      headerBg: 'bg-gradient-to-r from-rose-500/15 via-purple-500/5 to-transparent dark:from-rose-950/30 dark:via-purple-950/10 dark:to-transparent',
       subtitle: 'Selesaikan agenda harimu dan bersiap istirahat.',
     }
   }
   return {
     text: 'Selamat malam',
     icon: 'dark_mode',
-    iconBg: 'bg-indigo-500/15 text-indigo-600 dark:bg-indigo-400/20 dark:text-indigo-300',
+    iconBg: 'bg-indigo-500/20 text-indigo-600 dark:bg-indigo-400/25 dark:text-indigo-300 ring-2 ring-indigo-500/30',
+    textGradient: 'from-indigo-600 via-purple-600 to-pink-500 dark:from-indigo-300 dark:via-purple-300 dark:to-pink-300',
+    headerBg: 'bg-gradient-to-r from-indigo-500/15 via-purple-500/5 to-transparent dark:from-indigo-950/30 dark:via-purple-950/10 dark:to-transparent',
     subtitle: 'Waktunya rehat dan mengevaluasi materi belajar.',
   }
 }

@@ -3,6 +3,7 @@ import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
+import { FormSelect } from '../../components/FormSelect'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Skeleton } from '../../components/Skeleton'
 import { EmptyState } from '../../components/EmptyState'
@@ -186,30 +187,22 @@ export default function ManageProdi() {
             onChange={(e) => setNama(e.target.value)}
             placeholder="mis. Informatika"
           />
-          <label className="block">
-            <span className="mb-1 block text-body-sm text-on-surface-variant">Sem. Awal</span>
-            <select
+          <div>
+            <label className="mb-1 block text-body-sm font-semibold text-on-surface-variant">Sem. Awal</label>
+            <FormSelect
               value={semesterMin}
-              onChange={(e) => setSemesterMin(Number(e.target.value))}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface dark:bg-surface-container-low"
-            >
-              {SEMESTER_OPTIONS.map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-body-sm text-on-surface-variant">Sem. Akhir</span>
-            <select
+              onChange={(val) => setSemesterMin(Number(val))}
+              options={SEMESTER_OPTIONS.map((n) => ({ value: n, label: String(n) }))}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-body-sm font-semibold text-on-surface-variant">Sem. Akhir</label>
+            <FormSelect
               value={semesterMax}
-              onChange={(e) => setSemesterMax(Number(e.target.value))}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface dark:bg-surface-container-low"
-            >
-              {SEMESTER_OPTIONS.map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
-          </label>
+              onChange={(val) => setSemesterMax(Number(val))}
+              options={SEMESTER_OPTIONS.map((n) => ({ value: n, label: String(n) }))}
+            />
+          </div>
           <Button type="submit" disabled={saving} className="justify-center">
             <Icon name="add" size={20} />
             Tambah
@@ -244,24 +237,16 @@ export default function ManageProdi() {
                     value={editDraft.nama}
                     onChange={(e) => setEditDraft((d) => ({ ...d, nama: e.target.value }))}
                   />
-                  <select
+                  <FormSelect
                     value={editDraft.semesterMin}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, semesterMin: Number(e.target.value) }))}
-                    className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface dark:bg-surface-container-low"
-                  >
-                    {SEMESTER_OPTIONS.map((n) => (
-                      <option key={n} value={n}>{n}</option>
-                    ))}
-                  </select>
-                  <select
+                    onChange={(val) => setEditDraft((d) => ({ ...d, semesterMin: Number(val) }))}
+                    options={SEMESTER_OPTIONS.map((n) => ({ value: n, label: String(n) }))}
+                  />
+                  <FormSelect
                     value={editDraft.semesterMax}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, semesterMax: Number(e.target.value) }))}
-                    className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface dark:bg-surface-container-low"
-                  >
-                    {SEMESTER_OPTIONS.map((n) => (
-                      <option key={n} value={n}>{n}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setEditDraft((d) => ({ ...d, semesterMax: Number(val) }))}
+                    options={SEMESTER_OPTIONS.map((n) => ({ value: n, label: String(n) }))}
+                  />
                   <div className="flex gap-xs">
                     <Button onClick={() => handleEditSave(program)} className="!px-3 !py-2">
                       <Icon name="save" size={20} />

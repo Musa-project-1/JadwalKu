@@ -6,6 +6,7 @@ import { Input } from '../../components/Input'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Skeleton } from '../../components/Skeleton'
 import { EmptyState } from '../../components/EmptyState'
+import { FormSelect } from '../../components/FormSelect'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { addDocument, deleteDocument, setDocument } from '../../lib/adminData'
@@ -109,7 +110,7 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">Mulai (Tgl & Bln)</label>
-              <div className="flex gap-1.5">
+              <div className="flex gap-1.5 items-center">
                 <input
                   type="number"
                   min="1"
@@ -118,20 +119,17 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
                   onChange={(e) => setCustomCal((c) => ({ ...c, ganjilStartDay: e.target.value }))}
                   className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-center text-body-sm font-bold text-on-surface"
                 />
-                <select
+                <FormSelect
                   value={customCal.ganjilStartMonth}
-                  onChange={(e) => setCustomCal((c) => ({ ...c, ganjilStartMonth: Number(e.target.value) }))}
-                  className="w-full rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-body-sm font-semibold text-on-surface"
-                >
-                  {MONTH_NAMES.map((m, idx) => (
-                    <option key={m} value={idx}>{m}</option>
-                  ))}
-                </select>
+                  onChange={(val) => setCustomCal((c) => ({ ...c, ganjilStartMonth: Number(val) }))}
+                  options={MONTH_NAMES.map((m, idx) => ({ value: idx, label: m }))}
+                  className="flex-1"
+                />
               </div>
             </div>
             <div>
               <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">Selesai (Tgl & Bln)</label>
-              <div className="flex gap-1.5">
+              <div className="flex gap-1.5 items-center">
                 <input
                   type="number"
                   min="1"
@@ -140,15 +138,12 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
                   onChange={(e) => setCustomCal((c) => ({ ...c, ganjilEndDay: e.target.value }))}
                   className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-center text-body-sm font-bold text-on-surface"
                 />
-                <select
+                <FormSelect
                   value={customCal.ganjilEndMonth}
-                  onChange={(e) => setCustomCal((c) => ({ ...c, ganjilEndMonth: Number(e.target.value) }))}
-                  className="w-full rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-body-sm font-semibold text-on-surface"
-                >
-                  {MONTH_NAMES.map((m, idx) => (
-                    <option key={m} value={idx}>{m}</option>
-                  ))}
-                </select>
+                  onChange={(val) => setCustomCal((c) => ({ ...c, ganjilEndMonth: Number(val) }))}
+                  options={MONTH_NAMES.map((m, idx) => ({ value: idx, label: m }))}
+                  className="flex-1"
+                />
               </div>
             </div>
           </div>
@@ -163,7 +158,7 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">Mulai (Tgl & Bln)</label>
-              <div className="flex gap-1.5">
+              <div className="flex gap-1.5 items-center">
                 <input
                   type="number"
                   min="1"
@@ -172,20 +167,17 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
                   onChange={(e) => setCustomCal((c) => ({ ...c, genapStartDay: e.target.value }))}
                   className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-center text-body-sm font-bold text-on-surface"
                 />
-                <select
+                <FormSelect
                   value={customCal.genapStartMonth}
-                  onChange={(e) => setCustomCal((c) => ({ ...c, genapStartMonth: Number(e.target.value) }))}
-                  className="w-full rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-body-sm font-semibold text-on-surface"
-                >
-                  {MONTH_NAMES.map((m, idx) => (
-                    <option key={m} value={idx}>{m}</option>
-                  ))}
-                </select>
+                  onChange={(val) => setCustomCal((c) => ({ ...c, genapStartMonth: Number(val) }))}
+                  options={MONTH_NAMES.map((m, idx) => ({ value: idx, label: m }))}
+                  className="flex-1"
+                />
               </div>
             </div>
             <div>
               <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">Selesai (Tgl & Bln)</label>
-              <div className="flex gap-1.5">
+              <div className="flex gap-1.5 items-center">
                 <input
                   type="number"
                   min="1"
@@ -194,15 +186,12 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
                   onChange={(e) => setCustomCal((c) => ({ ...c, genapEndDay: e.target.value }))}
                   className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-center text-body-sm font-bold text-on-surface"
                 />
-                <select
+                <FormSelect
                   value={customCal.genapEndMonth}
-                  onChange={(e) => setCustomCal((c) => ({ ...c, genapEndMonth: Number(e.target.value) }))}
-                  className="w-full rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-body-sm font-semibold text-on-surface"
-                >
-                  {MONTH_NAMES.map((m, idx) => (
-                    <option key={m} value={idx}>{m}</option>
-                  ))}
-                </select>
+                  onChange={(val) => setCustomCal((c) => ({ ...c, genapEndMonth: Number(val) }))}
+                  options={MONTH_NAMES.map((m, idx) => ({ value: idx, label: m }))}
+                  className="flex-1"
+                />
               </div>
             </div>
           </div>

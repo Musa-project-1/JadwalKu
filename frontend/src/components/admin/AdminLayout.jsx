@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 import { ADMIN_NAV } from '../../lib/navigation'
 import { Icon } from '../Icon'
 import { OfflineBanner } from '../OfflineBanner'
+import { SearchModal } from '../SearchModal'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useApp } from '../../hooks/useApp'
 import { getItem, setItem } from '../../lib/storage'
+import { AdminBottomNav } from './AdminBottomNav'
 
 // Shared label class helper — only opacity + max-width transition, NO scale
 function labelCls(isCollapsed, spacing = 'ml-3.5') {
@@ -89,6 +91,19 @@ function AdminAccount({ isPinned }) {
           </span>
           <span className={labelCls(!isPinned, 'ml-3.5')}>Pengaturan</span>
         </NavLink>
+
+        {/* Mode Mahasiswa Switcher — in sidebar below Pengaturan */}
+        <NavLink
+          to="/"
+          viewTransition
+          title="Mode Mahasiswa"
+          className="flex w-full items-center rounded-full h-12 px-3.5 transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-high group/link"
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center text-primary">
+            <Icon name="school" size={22} />
+          </span>
+          <span className={labelCls(!isPinned, 'ml-3.5')}>Mode Mahasiswa</span>
+        </NavLink>
       </div>
     </div>
   )
@@ -98,11 +113,24 @@ function AdminAccount({ isPinned }) {
 export function AdminLayout() {
   const { theme, setTheme } = useApp()
   const [isPinned, setIsPinned] = useState(() => getItem('jadwalku:sidebar_pinned', false))
+  const [searchOpen, setSearchOpen] = useState(false)
   const nextTheme = theme === 'dark' ? 'light' : 'dark'
 
   useEffect(() => {
     setItem('jadwalku:sidebar_pinned', isPinned)
   }, [isPinned])
+
+  // Shortcut global: Cmd+K / Ctrl+K untuk toggle search
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setSearchOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
@@ -118,97 +146,152 @@ export function AdminLayout() {
   const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
   return (
-    <div className="flex min-h-screen bg-transparent text-on-background">
-      {/* Sidebar — permanent spacer with pin transition */}
-      <div className={`sticky top-0 hidden h-screen shrink-0 tablet:block z-50 transition-[width] duration-300 ease-in-out ${isPinned ? 'w-[280px]' : 'w-20'}`}>
-        <div className={`group absolute left-0 top-0 h-screen transition-[width] duration-300 ease-in-out z-50 ${isPinned ? 'w-[280px] shadow-lg' : 'w-20 hover:w-[280px] hover:shadow-2xl'}`}>
-          <nav style={{ viewTransitionName: 'sidebar' }} className="w-full h-full flex flex-col overflow-x-hidden overflow-y-auto border-r border-outline-variant/30 bg-surface-container-low py-lg dark:bg-surface-container-low">
-            {/* Logo & Brand Wordmark — fixed anchor point at x = 20px */}
-            <div className="relative mb-xl flex items-center px-5 min-h-[48px]">
-              <div className="flex items-center min-w-0">
-                <img src="/logo.svg" alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
-                <div className={labelCls(!isPinned, 'ml-3')}>
-                  <h1 className="text-headline-lg-mobile font-bold font-brand tracking-[-0.025em] desktop:text-headline-lg truncate">
-                    <span className="text-on-surface">Jadwal</span>
-                    <span className="text-primary">Ku</span>
-                  </h1>
-                  <p className="font-brand font-medium text-[10.5px] tracking-[0.09em] uppercase text-on-surface-variant/80 truncate mt-0.5">
-                    ADMIN CONSOLE
-                  </p>
-                </div>
-              </div>
+    <div className="flex min-h-screen w-full bg-transparent text-on-background">
+      {/* Sidebar spacer — reserves layout width for fixed sidebar */}
+      <div
+        aria-hidden="true"
+        className={`hidden tablet:block shrink-0 transition-[width] duration-300 ease-in-out ${
+          isPinned ? 'w-[280px]' : 'w-20'
+        }`}
+      />
 
-              {/* Pin Toggle Button — absolute positioning ensures 0px interference with collapsed logo */}
-              <button
-                type="button"
-                onClick={() => setIsPinned((prev) => !prev)}
-                title={isPinned ? 'Lepaskan sidebar (Auto-tutup)' : 'Kunci sidebar (Tetap terbuka)'}
-                aria-label={isPinned ? 'Lepaskan sidebar' : 'Kunci sidebar'}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all duration-200 ${
-                  isPinned
-                    ? 'bg-primary/15 text-primary opacity-100'
-                    : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto'
-                }`}
-              >
-                <Icon name="push_pin" size={18} filled={isPinned} className={isPinned ? '-rotate-45 text-primary' : ''} />
-              </button>
-            </div>
-            <ul className="flex-1 space-y-1.5 px-3.5">
-              {ADMIN_NAV.map((item) => (
-                <li key={item.to}>
-                  <AdminNavItem item={item} isPinned={isPinned} />
-                </li>
-              ))}
-            </ul>
-            <AdminAccount isPinned={isPinned} />
-          </nav>
-        </div>
-      </div>
-
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        {/* Top app bar — Generous Height (72px), Crisp & High-Affordance */}
-        <header className="sticky top-0 z-30 h-[72px] flex items-center bg-surface-container-lowest/95 dark:bg-surface-container-low/95 px-md tablet:px-lg desktop:px-xl backdrop-blur-md border-b border-outline-variant/30 shadow-xs transition-colors">
-          <div className="mx-auto flex w-full max-w-container-max items-center justify-between gap-md relative">
-            {/* Left: Mobile Header or Desktop Admin Console Status Badge */}
-            <div className="flex items-center gap-2.5 shrink-0 min-w-0">
-              {/* Mobile Header: Logo + Title */}
-              <div className="flex items-center gap-sm tablet:hidden">
-                <img src="/logo.svg" alt="Logo JadwalKu" className="h-9 w-9" />
-                <h1 className="text-headline-lg-mobile font-bold font-brand tracking-[-0.025em]">
+      {/* Sidebar — permanently fixed to viewport at all scroll positions */}
+      <aside
+        className={`group fixed left-0 top-0 h-screen hidden tablet:block z-50 transition-[width] duration-300 ease-in-out ${
+          isPinned ? 'w-[280px] shadow-lg' : 'w-20 hover:w-[280px] hover:shadow-2xl'
+        }`}
+      >
+        <nav
+          style={{ viewTransitionName: 'sidebar' }}
+          className="w-full h-full flex flex-col overflow-x-hidden overflow-y-auto border-r border-outline-variant/30 bg-surface-container-low py-lg dark:bg-surface-container-low"
+        >
+          {/* Logo & Brand Wordmark — fixed anchor point at x = 20px */}
+          <div className="relative mb-xl flex items-center px-5 min-h-[48px]">
+            <div className="flex items-center min-w-0">
+              <img src="/logo.svg" alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
+              <div className={labelCls(!isPinned, 'ml-3')}>
+                <h1 className="text-headline-lg-mobile font-bold font-brand tracking-[-0.025em] desktop:text-headline-lg truncate">
                   <span className="text-on-surface">Jadwal</span>
                   <span className="text-primary">Ku</span>
                 </h1>
-              </div>
-
-              {/* Desktop Left: Admin Console Status Badge (text-sm, px-4 py-2) */}
-              <div className="hidden tablet:flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-body-sm font-bold text-primary shadow-xs">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Admin Console</span>
+                <p className="font-brand font-medium text-[10.5px] tracking-[0.09em] uppercase text-on-surface-variant/80 truncate mt-0.5">
+                  ADMIN CONSOLE
+                </p>
               </div>
             </div>
 
-            {/* Right: Date & Clock + Mode Mahasiswa Switcher + Theme Toggle */}
-            <div className="flex items-center gap-2.5 shrink-0">
-              {/* Today's Date & Live Clock Chip (Matching Student View, text-sm, px-4 py-2) */}
-              <div className="hidden desktop:flex items-center gap-2 rounded-full bg-surface-container-high/60 px-4 py-2 text-body-sm font-semibold text-on-surface-variant border border-outline-variant/25 shadow-xs">
+            {/* Pin Toggle Button — absolute positioning ensures 0px interference with collapsed logo */}
+            <button
+              type="button"
+              onClick={() => setIsPinned((prev) => !prev)}
+              title={isPinned ? 'Lepaskan sidebar (Auto-tutup)' : 'Kunci sidebar (Tetap terbuka)'}
+              aria-label={isPinned ? 'Lepaskan sidebar' : 'Kunci sidebar'}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all duration-200 ${
+                isPinned
+                  ? 'bg-primary/15 text-primary opacity-100'
+                  : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto'
+              }`}
+            >
+              <Icon name="push_pin" size={18} filled={isPinned} className={isPinned ? '-rotate-45 text-primary' : ''} />
+            </button>
+          </div>
+          <ul className="flex-1 space-y-1.5 px-3.5">
+            {ADMIN_NAV.map((item) => (
+              <li key={item.to}>
+                <AdminNavItem item={item} isPinned={isPinned} />
+              </li>
+            ))}
+          </ul>
+          <AdminAccount isPinned={isPinned} />
+        </nav>
+      </aside>
+
+      <div className="flex min-h-screen min-w-0 w-full flex-1 flex-col">
+        {/* Top app bar — Sticky Header (Matching AppLayout h-[72px]) */}
+        <header className="shrink-0 sticky top-0 z-40 h-[72px] flex items-center bg-surface-container-lowest/95 dark:bg-surface-container-low/95 px-md tablet:px-lg desktop:px-xl backdrop-blur-md border-b border-outline-variant/30 shadow-xs transition-colors">
+          <div className="mx-auto flex w-full max-w-container-max items-center justify-between gap-md relative">
+            {/* Left: Mobile Logo + Live Clock or Desktop Admin Console Status Badge */}
+            <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 min-w-0">
+              {/* Mobile Header: Logo + Live Clock Chip (Matching Student view) */}
+              <div className="flex items-center gap-2 tablet:hidden">
+                <img src="/logo.svg" alt="JadwalKu" className="h-9 w-9 shrink-0" />
+                <div className="flex items-center gap-1 rounded-full bg-surface-container-high/70 dark:bg-surface-container-high/60 border border-outline-variant/30 px-2.5 py-1 text-label-caps font-bold text-on-surface shadow-2xs">
+                  <Icon name="schedule" size={13} className="text-primary shrink-0" />
+                  <span className="text-[11px] tracking-tight">{timeString} WIB</span>
+                </div>
+              </div>
+
+              {/* Desktop Left: Admin Console Status Pill (Matching Student Pill dimensions) */}
+              <div className="hidden tablet:flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-4 py-2 text-body-sm font-semibold text-on-surface shadow-xs">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-bold text-primary">Admin Console</span>
+              </div>
+            </div>
+
+            {/* Center: Large & Solid Search Bar (Desktop/Tablet) */}
+            <div className="hidden tablet:flex flex-1 min-w-[160px] max-w-[400px] justify-center mx-2">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="group flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-full border border-outline-variant/35 bg-surface-container/70 dark:bg-surface-container-high/60 hover:bg-surface-container hover:border-primary/50 px-3.5 text-body-sm text-on-surface-variant transition-all shadow-xs cursor-pointer text-left"
+                aria-label="Pencarian Cepat (Ctrl+K)"
+              >
+                <div className="flex min-w-0 items-center gap-2 text-on-surface-variant/75 group-hover:text-on-surface">
+                  <Icon name="search" size={18} className="group-hover:text-primary transition-colors shrink-0" />
+                  <span className="text-body-sm font-medium truncate whitespace-nowrap">Cari MK, dosen, ruang...</span>
+                </div>
+                <kbd className="hidden desktop:inline-flex shrink-0 items-center gap-0.5 rounded-md border border-outline-variant/40 bg-surface-container-highest/80 px-2 py-0.5 text-[11px] font-mono font-semibold text-on-surface-variant">
+                  Ctrl K
+                </kbd>
+              </button>
+            </div>
+
+            {/* Right: Date & Clock + Switch Mode + Mobile Search + Theme Toggle */}
+            <div className="flex items-center gap-1.5 tablet:gap-2 shrink-0">
+              {/* Today's Date & Live Clock Chip (Matching Student View, text-sm, px-3.5 py-1.5) */}
+              <div className="hidden desktop:flex items-center gap-1.5 whitespace-nowrap rounded-full bg-surface-container-high/60 px-3.5 py-1.5 text-body-sm font-semibold text-on-surface-variant border border-outline-variant/25 shadow-xs shrink-0">
                 <Icon name="schedule" size={16} className="text-primary shrink-0" />
                 <span>{todayString}</span>
                 <span className="text-outline-variant/50">·</span>
                 <span className="text-on-surface font-semibold">{timeString} WIB</span>
               </div>
 
-              {/* Mode Mahasiswa Switcher Button (text-sm, px-4 py-2) */}
-              <Link
+              {/* Desktop: Switch to Mode Mahasiswa Button */}
+              <NavLink
                 to="/"
                 viewTransition
-                title="Kembali ke Mode Mahasiswa"
-                className="group flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-high/70 px-4 py-2 text-body-sm font-bold text-on-surface hover:border-primary/60 hover:bg-primary/10 hover:text-primary transition-all shadow-xs"
+                title="Beralih ke Mode Mahasiswa"
+                className="hidden tablet:flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/25 px-3.5 py-1.5 text-body-sm font-bold text-primary hover:bg-primary/20 transition-all shadow-xs shrink-0"
               >
-                <Icon name="arrow_back" size={15} className="opacity-60 group-hover:-translate-x-0.5 transition-transform text-on-surface-variant group-hover:text-primary" />
-                <Icon name="school" size={18} className="text-primary" />
-                <span className="hidden sm:inline">Mode Mahasiswa</span>
-                <span className="sm:hidden">Mahasiswa</span>
-              </Link>
+                <Icon name="school" size={16} />
+                <span>Mode Mahasiswa</span>
+              </NavLink>
+
+              {/* Mobile: Switch to Mode Mahasiswa Button (Icon-only) */}
+              <NavLink
+                to="/"
+                viewTransition
+                title="Beralih ke Mode Mahasiswa"
+                aria-label="Mode Mahasiswa"
+                className="tablet:hidden flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-colors shadow-xs"
+              >
+                <Icon name="school" size={19} />
+              </NavLink>
+
+              {/* Mobile Search button (icon only for mobile screens) */}
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                aria-label="Search (Ctrl+K)"
+                title="Pencarian Cepat (Ctrl+K)"
+                className={`tablet:hidden relative flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                  searchOpen
+                    ? 'bg-primary text-on-primary shadow-xs'
+                    : 'bg-primary/10 text-primary hover:bg-primary-container hover:text-on-primary-container'
+                }`}
+              >
+                <Icon name="search" size={18} />
+              </button>
 
               {/* Theme Switcher Button */}
               <button
@@ -216,9 +299,9 @@ export function AdminLayout() {
                 onClick={() => setTheme(nextTheme)}
                 aria-label={`Ganti ke mode ${nextTheme === 'dark' ? 'gelap' : 'terang'}`}
                 title={`Mode ${nextTheme === 'dark' ? 'Gelap' : 'Terang'}`}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface shadow-xs"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface shadow-xs"
               >
-                <Icon name={nextTheme === 'dark' ? 'dark_mode' : 'light_mode'} size={20} />
+                <Icon name={nextTheme === 'dark' ? 'dark_mode' : 'light_mode'} size={18} />
               </button>
             </div>
           </div>
@@ -226,28 +309,15 @@ export function AdminLayout() {
 
         <OfflineBanner />
 
-        {/* Tab navigasi horizontal — mobile */}
-        <nav className="sticky top-16 z-30 flex gap-xs overflow-x-auto border-b border-surface-variant bg-surface px-md py-sm tablet:hidden no-scrollbar dark:bg-surface-container-low">
-          {ADMIN_NAV.map((item) => (
-            <NavLink key={item.to} to={item.to}>
-              {({ isActive }) => (
-                <span
-                  className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-4 py-2 text-body-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-primary text-on-primary'
-                      : 'bg-surface-container-high/60 text-on-surface-variant'
-                  }`}
-                >
-                  {item.label}
-                </span>
-              )}
-            </NavLink>
-          ))}
-        </nav>
-
-        <main className="mx-auto w-full max-w-container-max flex-1 px-md pb-xl pt-lg desktop:px-xl">
+        <main className="mx-auto w-full max-w-container-max flex-1 px-md pb-20 tablet:pb-4 pt-2.5 tablet:pt-3.5 desktop:px-xl overflow-x-hidden">
           <Outlet />
         </main>
+
+        {/* Global Search Dialog Modal */}
+        <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
+        {/* Floating Bottom Nav untuk Admin Console Mobile */}
+        <AdminBottomNav />
       </div>
     </div>
   )

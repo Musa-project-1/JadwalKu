@@ -142,21 +142,30 @@
 
   html {
     font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
   }
 
   html,
   body,
   #root {
     min-height: 100%;
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
   }
 
   body {
     @apply bg-background text-on-background antialiased;
+    overflow-x: hidden;
+    position: relative;
   }
 
   #root {
     position: relative;
     z-index: 1;
+    overflow-x: hidden;
   }
 
   html.font-sm {
@@ -308,6 +317,43 @@
   pointer-events: none;
 }
 
+/*
+ * Safe-area insets (MOBILE_REDESIGN.md F1) — untuk elemen fixed di bawah
+ * (bottom nav, FAB, bulk bar) agar tidak tertutup home-indicator iOS PWA.
+ * Hanya berdampak di perangkat dengan notch/home indicator; desktop aman.
+ */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+.bottom-safe {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--safe-offset, 0px));
+}
+
+/*
+ * Presisi 600px visibility helpers (MOBILE_REDESIGN.md S1) — dipakai saat
+ * utilitas bawaan `sm:`(640px) tidak cocok dengan breakpoint `tablet`(600px).
+ * Menjamin elemen muncul/hilang TEPAT di 600px tanpa menyentuh desktop.
+ */
+.show-from-tablet {
+  display: none;
+}
+@media (min-width: 600px) {
+  .show-from-tablet {
+    display: revert;
+  }
+}
+.hide-from-tablet {
+  display: revert;
+}
+@media (min-width: 600px) {
+  .hide-from-tablet {
+    display: none;
+  }
+}
+
 /* Kolom hari libur pada grid mingguan (garis diagonal) */
 .holiday-stripes {
   background-image: repeating-linear-gradient(
@@ -321,11 +367,13 @@
 
 /* Scrollbar tersembunyi untuk strip horizontal (tab hari, chip filter) */
 .no-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 .no-scrollbar::-webkit-scrollbar {
-  display: none;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Tint kartu gelap — slate + 8% warna kategori (JadwalKu Expressive Dark) */

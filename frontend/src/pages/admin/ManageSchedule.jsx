@@ -7,6 +7,14 @@ import { Input } from '../../components/Input'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Skeleton } from '../../components/Skeleton'
 import { EmptyState } from '../../components/EmptyState'
+import { Pagination } from '../../components/Pagination'
+import { FormSelect } from '../../components/FormSelect'
+import {
+  ProdiFilterDropdown,
+  SemesterFilterDropdown,
+  HariFilterDropdown,
+  StatusFilterDropdown,
+} from '../../components/admin/AdminFilterDropdowns'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
@@ -60,322 +68,6 @@ const SEMESTERS = [
   { label: 'Semester 7', value: '7' },
   { label: 'Semester 8', value: '8' },
 ]
-
-/** Custom Modern Popover Dropdown for Prodi */
-function ProdiFilterDropdown({ prodiOptions, selected, onSelect }) {
-  const [open, setOpen] = useState(false)
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false)
-      }
-    }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
-
-  return (
-    <div ref={dropdownRef} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-body-xs font-medium transition-all cursor-pointer ${
-          selected
-            ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 font-semibold'
-            : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
-        }`}
-      >
-        <Icon name="school" size={14} className={selected ? 'text-primary' : 'text-on-surface-variant'} />
-        <span className="max-w-[140px] truncate">{selected || 'Semua Prodi'}</span>
-        <Icon
-          name="expand_more"
-          size={14}
-          className={`text-on-surface-variant transition-transform duration-200 ${
-            open ? 'rotate-180 text-primary' : ''
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute left-0 top-full z-40 mt-1.5 w-60 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up space-y-0.5">
-          <button
-            type="button"
-            onClick={() => {
-              onSelect('')
-              setOpen(false)
-            }}
-            className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
-              !selected
-                ? 'bg-primary/10 text-primary font-bold'
-                : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
-            }`}
-          >
-            <span>Semua Prodi</span>
-            {!selected && <Icon name="check" size={14} className="text-primary" />}
-          </button>
-          {prodiOptions.map((p) => {
-            const isSelected = selected === p
-            return (
-              <button
-                key={p}
-                type="button"
-                onClick={() => {
-                  onSelect(p)
-                  setOpen(false)
-                }}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-primary/10 text-primary font-bold'
-                    : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
-                }`}
-              >
-                <span>{p}</span>
-                {isSelected && <Icon name="check" size={14} className="text-primary" />}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/** Custom Modern Popover Dropdown for Semester */
-function SemesterFilterDropdown({ selected, onSelect }) {
-  const [open, setOpen] = useState(false)
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false)
-      }
-    }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
-
-  const selectedLabel = SEMESTERS.find((s) => s.value === selected)?.label || 'Semua Semester'
-
-  return (
-    <div ref={dropdownRef} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-body-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
-          selected
-            ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 font-semibold'
-            : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
-        }`}
-      >
-        <Icon name="layers" size={14} className={selected ? 'text-primary' : 'text-on-surface-variant'} />
-        <span>{selectedLabel}</span>
-        <Icon
-          name="expand_more"
-          size={14}
-          className={`text-on-surface-variant transition-transform duration-200 ${
-            open ? 'rotate-180 text-primary' : ''
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute left-0 top-full z-40 mt-1.5 w-68 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up max-h-72 overflow-y-auto space-y-0.5 custom-scrollbar">
-          {SEMESTERS.map((s) => {
-            const isSelected = selected === s.value
-            return (
-              <button
-                key={s.value}
-                type="button"
-                onClick={() => {
-                  onSelect(s.value)
-                  setOpen(false)
-                }}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-primary/10 text-primary font-bold'
-                    : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
-                }`}
-              >
-                <span>{s.label}</span>
-                {isSelected && <Icon name="check" size={14} className="text-primary" />}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/** Custom Modern Popover Dropdown for Hari */
-function HariFilterDropdown({ selected, onSelect }) {
-  const [open, setOpen] = useState(false)
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false)
-      }
-    }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
-
-  return (
-    <div ref={dropdownRef} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-body-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
-          selected
-            ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 font-semibold'
-            : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
-        }`}
-      >
-        <Icon name="calendar_today" size={14} className={selected ? 'text-primary' : 'text-on-surface-variant'} />
-        <span>{selected || 'Semua Hari'}</span>
-        <Icon
-          name="expand_more"
-          size={14}
-          className={`text-on-surface-variant transition-transform duration-200 ${
-            open ? 'rotate-180 text-primary' : ''
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute left-0 top-full z-40 mt-1.5 w-48 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up space-y-0.5">
-          <button
-            type="button"
-            onClick={() => {
-              onSelect('')
-              setOpen(false)
-            }}
-            className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
-              !selected
-                ? 'bg-primary/10 text-primary font-bold'
-                : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
-            }`}
-          >
-            <span>Semua Hari</span>
-            {!selected && <Icon name="check" size={14} className="text-primary" />}
-          </button>
-          {DAYS.map((d) => {
-            const isSelected = selected === d
-            return (
-              <button
-                key={d}
-                type="button"
-                onClick={() => {
-                  onSelect(d)
-                  setOpen(false)
-                }}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-primary/10 text-primary font-bold'
-                    : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
-                }`}
-              >
-                <span>{d}</span>
-                {isSelected && <Icon name="check" size={14} className="text-primary" />}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/** Custom Modern Popover Dropdown for Status */
-function StatusFilterDropdown({ selected, onSelect }) {
-  const [open, setOpen] = useState(false)
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false)
-      }
-    }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
-
-  const options = [
-    { label: 'Semua Status', value: '', dot: null },
-    { label: 'Published', value: 'published', dot: 'bg-emerald-500' },
-    { label: 'Draft', value: 'draft', dot: 'bg-amber-500' },
-  ]
-
-  const selectedOption = options.find((o) => o.value === selected) || options[0]
-
-  return (
-    <div ref={dropdownRef} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-body-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
-          selected
-            ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 font-semibold'
-            : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
-        }`}
-      >
-        <Icon name="verified" size={14} className={selected ? 'text-primary' : 'text-on-surface-variant'} />
-        <span>{selectedOption.label}</span>
-        <Icon
-          name="expand_more"
-          size={14}
-          className={`text-on-surface-variant transition-transform duration-200 ${
-            open ? 'rotate-180 text-primary' : ''
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full z-40 mt-1.5 w-48 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up space-y-0.5">
-          {options.map((o) => {
-            const isSelected = selected === o.value
-            return (
-              <button
-                key={o.value}
-                type="button"
-                onClick={() => {
-                  onSelect(o.value)
-                  setOpen(false)
-                }}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-primary/10 text-primary font-bold'
-                    : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {o.dot && <span className={`h-2 w-2 rounded-full ${o.dot}`} />}
-                  <span>{o.label}</span>
-                </div>
-                {isSelected && <Icon name="check" size={14} className="text-primary" />}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
 
 export default function ManageSchedule() {
   const { data: rawSchedule, loading: loadingSchedule } = useFirestore('jadwal')
@@ -439,6 +131,12 @@ export default function ManageSchedule() {
   // ── State Bulk Selection ──
   const [selectedIds, setSelectedIds] = useState(new Set())
 
+  // ── State UX: Import Modal, Conflict Filter & Pagination ──
+  const [importModalOpen, setImportModalOpen] = useState(false)
+  const [onlyShowConflicts, setOnlyShowConflicts] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(7)
+
   // ── State Edit Jadwal Modal ──
   const [editingItem, setEditingItem] = useState(null)
   const [editForm, setEditForm] = useState(EMPTY_SESSION)
@@ -447,6 +145,17 @@ export default function ManageSchedule() {
   // ── State Delete Dialog ──
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
+
+  // Global ESC key to deselect bulk
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        if (selectedIds.size > 0) setSelectedIds(new Set())
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedIds.size])
 
   // ── Validasi Bentrok Data Database ──
   const conflictMap = useMemo(() => {
@@ -476,6 +185,7 @@ export default function ManageSchedule() {
       })
       .filter((item) => (hariFilter ? item.hari === hariFilter : true))
       .filter((item) => (statusFilter ? (item.status || 'published') === statusFilter : true))
+      .filter((item) => (onlyShowConflicts ? conflictMap.has(item.id) : true))
       .filter((item) => {
         if (!q) return true
         const course = courseMap.get(item.kodeMK)
@@ -488,7 +198,16 @@ export default function ManageSchedule() {
         if (dayDiff !== 0) return dayDiff
         return String(a.jamMulai).localeCompare(String(b.jamMulai))
       })
-  }, [rawSchedule, prodiFilter, semesterFilter, hariFilter, statusFilter, search, courseMap])
+  }, [rawSchedule, prodiFilter, semesterFilter, hariFilter, statusFilter, onlyShowConflicts, conflictMap, search, courseMap])
+
+  // ── Paginasi Data Jadwal (Auto-clamped during render) ──
+  const totalPages = pageSize === 0 ? 1 : Math.ceil(filteredSchedule.length / pageSize) || 1
+  const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages))
+  const paginatedSchedule = useMemo(() => {
+    if (pageSize === 0) return filteredSchedule
+    const start = (safeCurrentPage - 1) * pageSize
+    return filteredSchedule.slice(start, start + pageSize)
+  }, [filteredSchedule, safeCurrentPage, pageSize])
 
   // ── Validasi Upload Data ──
   const uploadValidation = useMemo(() => {
@@ -606,6 +325,7 @@ export default function ManageSchedule() {
       })
       setUploadParsed(null)
       setUploadFileName('')
+      setImportModalOpen(false)
     } else {
       setBanner({ ok: false, message: res.error })
     }
@@ -890,315 +610,208 @@ export default function ManageSchedule() {
   }
 
   return (
-    <div className="space-y-6 pb-16 animate-fade-in">
-      {/* ── 1. Header & Live Quick Stats ── */}
-      <header className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
-        <div className="flex items-center gap-3.5">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-xs dark:bg-secondary-container/30">
-            <Icon name="edit_calendar" size={26} />
+    <div className="h-full flex flex-col space-y-2.5 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
+      {/* ── 1. Page Header (Icon, Title, Stat Chips, Action Buttons) — 1 Horizontal Row on Desktop ── */}
+      <header className="flex flex-col gap-2.5 tablet:flex-row tablet:items-center tablet:justify-between shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-tertiary/10 text-tertiary shadow-xs">
+            <Icon name="calendar_month" size={22} />
           </span>
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-headline-lg font-bold tracking-tight text-on-surface">Kelola & Upload Jadwal</h1>
-              <span className="inline-flex items-center gap-1 font-mono text-label-caps font-bold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
-                <Icon name="event" size={13} />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+                Kelola Jadwal
+              </h1>
+              <span className="inline-flex items-center gap-1 font-mono text-label-caps font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
                 TA {currentTA}
               </span>
             </div>
-            <p className="text-body-sm font-medium text-on-surface-variant mt-0.5">
-              Pusat manajemen jadwal kuliah — unggah spreadsheet master, input sesi baru, atau edit jadwal aktif.
+            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">
+              Unggah spreadsheet master, tambah sesi, atau edit jadwal.
             </p>
           </div>
         </div>
 
-        {/* Primary Action Button */}
-        <div className="flex items-center gap-2">
+        {/* Right side: Stat Chips (Published, Draft, Bentrok) + Import + Tambah Sesi */}
+        <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 flex-wrap tablet:flex-nowrap">
+          <div className="grid grid-cols-2 tablet:flex tablet:w-auto gap-1.5 tablet:gap-2">
+            <div className="flex items-center gap-1.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1.5 shadow-2xs min-w-0">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="text-body-xs font-bold text-emerald-700 dark:text-emerald-300 truncate">
+                {rawSchedule.filter((s) => (s.status || 'published') === 'published').length} Published
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-2.5 py-1.5 shadow-2xs min-w-0">
+              <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+              <span className="text-body-xs font-bold text-amber-700 dark:text-amber-300 truncate">
+                {rawSchedule.filter((s) => (s.status || 'published') === 'draft').length} Draft
+              </span>
+            </div>
+
+            {conflictMap.size > 0 && (
+              <button
+                type="button"
+                onClick={() => setOnlyShowConflicts(!onlyShowConflicts)}
+                className={`flex items-center gap-1.5 rounded-2xl border px-2.5 py-1.5 shadow-2xs min-w-0 transition-all cursor-pointer ${
+                  onlyShowConflicts
+                    ? 'bg-error text-on-error border-error'
+                    : 'border-error/30 bg-error/10 text-error hover:bg-error/20'
+                }`}
+                title={onlyShowConflicts ? 'Tampilkan Semua Jadwal' : 'Klik untuk Hanya Tampilkan Jadwal Bentrok'}
+              >
+                <Icon name="warning" size={14} className="shrink-0" />
+                <span className="text-body-xs font-bold truncate">{conflictMap.size} Bentrok</span>
+              </button>
+            )}
+          </div>
+
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setUploadError(null)
+              setImportModalOpen(true)
+            }}
+            className="rounded-2xl px-3.5 py-2 font-bold shadow-2xs cursor-pointer text-body-xs shrink-0"
+            title="Import Spreadsheet Master (.xlsx / .csv)"
+            aria-label="Import Spreadsheet"
+          >
+            <Icon name="upload_file" size={16} className="mr-1 text-primary" />
+            <span className="hidden tablet:inline">Import</span>
+          </Button>
+
           <Button
             onClick={() => {
               setManualForm(EMPTY_SESSION)
               setManualErrors([])
               setAddModalOpen(true)
             }}
-            className="font-bold shadow-xs cursor-pointer text-body-sm"
+            className="rounded-2xl px-3.5 py-2 font-bold shadow-xs cursor-pointer text-body-xs shrink-0"
+            title="Tambah Sesi Manual"
+            aria-label="Tambah Sesi"
           >
-            <Icon name="add_circle" size={18} className="mr-1.5" />
-            <span>Tambah Sesi Manual</span>
+            <Icon name="add" size={16} className="mr-1" />
+            <span>Tambah Sesi</span>
           </Button>
         </div>
       </header>
 
       {banner && (
-        <StatusBanner
-          ok={banner.ok}
-          message={banner.message}
-          onClose={() => setBanner(null)}
-        />
+        <div className="shrink-0">
+          <StatusBanner
+            ok={banner.ok}
+            message={banner.message}
+            onClose={() => setBanner(null)}
+          />
+        </div>
       )}
 
-      {/* ── 2. Top Action Area: Spreadsheet Uploader ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15">
-        <div className="flex items-center gap-2.5 pb-3 border-b border-outline-variant/10 mb-4">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Icon name="upload_file" size={20} />
-          </span>
-          <div>
-            <h2 className="text-title-md font-bold tracking-tight text-on-surface">Import Spreadsheet Master</h2>
-            <p className="text-body-xs font-medium text-on-surface-variant">Unggah file jadwal resmi (.xlsx / .csv)</p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {/* Dropzone */}
-          <div
-            onDragOver={(e) => {
-              e.preventDefault()
-              setDragOver(true)
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => {
-              e.preventDefault()
-              setDragOver(false)
-              const f = e.dataTransfer.files?.[0]
-              if (f) handleFile(f)
-            }}
-            onClick={() => fileInputRef.current?.click()}
-            className={`group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center transition-all cursor-pointer ${
-              dragOver
-                ? 'border-primary bg-primary/10'
-                : 'border-outline-variant/40 bg-surface-container-low/40 hover:border-primary/60 hover:bg-surface-container-low'
-            }`}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx,.xls,.csv"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0]
-                if (f) handleFile(f)
-              }}
+      {/* ── 2. Live Database Schedule Management (Unified 1-Row Toolbar) ── */}
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
+        {/* Unified Search & Filters in 1 Row on Desktop */}
+        <div className="relative z-30 flex flex-col gap-2 tablet:flex-row tablet:items-center">
+          {/* Search Input */}
+          <div className="relative flex-1 min-w-[200px]">
+            <Icon
+              name="search"
+              size={17}
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
             />
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-              <Icon name="cloud_upload" size={26} />
-            </div>
-            <p className="mt-2.5 text-body-md font-bold text-on-surface">
-              {uploadFileName || 'Tarik file spreadsheet ke sini atau klik untuk browse'}
-            </p>
-            <p className="text-body-xs font-medium text-on-surface-variant mt-0.5">
-              Format resmi .xlsx / .csv • Maksimal 10MB
-            </p>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari mata kuliah, dosen, ruang, prodi, hari…"
+              className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low/50 py-1.5 tablet:py-2 pl-9 pr-8 text-body-xs tablet:text-body-sm font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-2xs"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:bg-surface-container rounded-full p-1 cursor-pointer"
+              >
+                <Icon name="close" size={13} />
+              </button>
+            )}
           </div>
 
-          {uploadError && (
-            <div className="rounded-xl bg-error/10 p-3 text-body-xs font-semibold text-error">
-              {uploadError}
-            </div>
-          )}
+          {/* Custom Popover Filter Dropdowns + Template & Ekspor */}
+          <div className="flex items-center gap-1.5 overflow-x-auto tablet:overflow-visible no-scrollbar w-full tablet:w-auto shrink-0 pb-0.5 tablet:pb-0 relative z-30">
+            <ProdiFilterDropdown
+              prodiOptions={prodiOptions}
+              selected={prodiFilter}
+              onSelect={setProdiFilter}
+            />
 
-          {/* Hasil Parsing File */}
-          {uploadParsed && (
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-3 animate-fade-up">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-body-xs font-bold text-primary uppercase">
-                  Hasil Analisis: {uploadFileName}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setUploadParsed(null)
-                    setUploadFileName('')
-                  }}
-                  className="text-body-xs text-error hover:underline font-bold cursor-pointer"
-                >
-                  Batal File
-                </button>
-              </div>
+            <SemesterFilterDropdown
+              selected={semesterFilter}
+              onSelect={setSemesterFilter}
+            />
 
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
-                  <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Jadwal Sesi</p>
-                  <p className="text-title-lg font-bold text-primary mt-0.5">
-                    {uploadParsed.scheduleEntries.length}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
-                  <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Master MK</p>
-                  <p className="text-title-lg font-bold text-secondary mt-0.5">
-                    {uploadParsed.courses.length}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
-                  <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Ujian</p>
-                  <p className="text-title-lg font-bold text-tertiary mt-0.5">
-                    {uploadParsed.exams.length}
-                  </p>
-                </div>
-              </div>
+            <HariFilterDropdown
+              selected={hariFilter}
+              onSelect={setHariFilter}
+            />
 
-              {uploadValidation?.conflicts.length > 0 && (
-                <div className="rounded-xl bg-amber-500/10 p-2.5 text-body-xs font-semibold text-amber-800 dark:text-amber-300">
-                  ⚠️ Terdeteksi {uploadValidation.conflicts.length} bentrok jadwal di dalam file.
-                </div>
-              )}
+            <StatusFilterDropdown
+              selected={statusFilter}
+              onSelect={setStatusFilter}
+            />
 
-              <Button
-                onClick={handlePublishUpload}
-                disabled={busy || !canPublishUpload}
-                className="w-full justify-center font-bold shadow-xs cursor-pointer"
+            {(search || prodiFilter || semesterFilter || hariFilter || statusFilter || onlyShowConflicts) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('')
+                  setProdiFilter('')
+                  setSemesterFilter('')
+                  setHariFilter('')
+                  setStatusFilter('')
+                  setOnlyShowConflicts(false)
+                }}
+                className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-error/30 bg-error/10 px-2.5 py-1.5 text-body-xs font-bold text-error hover:bg-error/20 cursor-pointer transition-colors"
               >
-                <Icon name="rocket_launch" size={18} className="mr-1.5" />
-                {busy ? 'Mempublikasikan...' : 'Publikasikan Jadwal Spreadsheet'}
-              </Button>
-            </div>
-          )}
+                <Icon name="refresh" size={13} />
+                <span>Reset</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={downloadTemplate}
+              className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1.5 text-body-xs font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
+              title="Download Template Format Excel"
+            >
+              <Icon name="download" size={14} className="text-primary" />
+              <span className="hidden desktop:inline">Template</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={exportCurrentSchedule}
+              className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1.5 text-body-xs font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
+              title="Ekspor Seluruh Jadwal Tampil ke Excel"
+            >
+              <Icon name="file_download" size={14} className="text-secondary" />
+              <span>Ekspor</span>
+            </button>
+          </div>
         </div>
-      </div>
-
-      {/* ── 3. Live Database Schedule Management ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 space-y-4">
-        {/* Header & Filter Bar */}
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-2 tablet:flex-row tablet:items-center tablet:justify-between">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-tertiary/10 text-tertiary font-bold">
-                <Icon name="table_chart" size={20} />
-              </span>
-              <div>
-                <h2 className="text-title-md font-bold tracking-tight text-on-surface">Daftar Jadwal Aktif</h2>
-                <p className="text-body-xs font-medium text-on-surface-variant">
-                  Total {filteredSchedule.length} dari {rawSchedule.length} sesi perkuliahan di database
-                </p>
-              </div>
-            </div>
-
-            {/* Table Header Action Buttons & Bulk Controls */}
-            <div className="flex items-center gap-2 flex-wrap">
-              {selectedIds.size > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 rounded-2xl bg-primary/10 px-3 py-1 border border-primary/20 animate-fade-in mr-1">
-                  <span className="text-body-xs font-bold text-primary">
-                    {selectedIds.size} dipilih:
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleBulkStatusChange('published')}
-                    className="rounded-lg bg-emerald-500/15 px-2 py-0.5 text-body-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/25 cursor-pointer transition-colors"
-                  >
-                    Publish
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleBulkStatusChange('draft')}
-                    className="rounded-lg bg-amber-500/15 px-2 py-0.5 text-body-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 cursor-pointer transition-colors"
-                  >
-                    Unpublish
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBulkDeleteOpen(true)}
-                    className="rounded-lg bg-error/15 px-2 py-0.5 text-body-xs font-bold text-error hover:bg-error/25 cursor-pointer transition-colors"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={downloadTemplate}
-                className="inline-flex items-center gap-1.5 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-body-xs font-medium text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
-                title="Download Template Format Excel"
-              >
-                <Icon name="download" size={14} className="text-primary" />
-                <span>Template Excel</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={exportCurrentSchedule}
-                className="inline-flex items-center gap-1.5 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-body-xs font-medium text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
-                title="Ekspor Seluruh Jadwal Tampil ke Excel"
-              >
-                <Icon name="file_download" size={14} className="text-secondary" />
-                <span>Ekspor Data</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Filter Toolbar */}
-          <div className="flex flex-col gap-2.5 tablet:flex-row tablet:items-center">
-            {/* Search Input */}
-            <div className="relative flex-1">
-              <Icon
-                name="search"
-                size={18}
-                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
-              />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari mata kuliah, dosen, ruang, prodi, hari…"
-                className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low/50 py-2 pl-10 pr-4 text-body-sm font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:outline-none"
-              />
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:bg-surface-container rounded-full p-1 cursor-pointer"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              )}
-            </div>
-
-            {/* Custom Popover Filter Dropdowns */}
-            <div className="flex flex-wrap items-center gap-2">
-              <ProdiFilterDropdown
-                prodiOptions={prodiOptions}
-                selected={prodiFilter}
-                onSelect={setProdiFilter}
-              />
-
-              <SemesterFilterDropdown
-                selected={semesterFilter}
-                onSelect={setSemesterFilter}
-              />
-
-              <HariFilterDropdown
-                selected={hariFilter}
-                onSelect={setHariFilter}
-              />
-
-              <StatusFilterDropdown
-                selected={statusFilter}
-                onSelect={setStatusFilter}
-              />
-
-              {(search || prodiFilter || semesterFilter || hariFilter || statusFilter) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearch('')
-                    setProdiFilter('')
-                    setSemesterFilter('')
-                    setHariFilter('')
-                    setStatusFilter('')
-                  }}
-                  className="inline-flex items-center gap-1 rounded-2xl border border-error/30 bg-error/10 px-3 py-2 text-body-xs font-bold text-error hover:bg-error/20 cursor-pointer transition-colors"
-                >
-                  <Icon name="refresh" size={14} />
-                  <span>Reset</span>
-                </button>
-              )}
-            </div>
-          </div>
 
           {/* Active Filter Badges */}
-          {(prodiFilter || semesterFilter || hariFilter || statusFilter || search) && (
+          {(prodiFilter || semesterFilter || hariFilter || statusFilter || search || onlyShowConflicts) && (
             <div className="flex flex-wrap items-center gap-1.5 pt-1 animate-fade-in">
               <span className="text-label-caps font-bold uppercase tracking-wider text-on-surface-variant mr-1">
                 Filter Aktif:
               </span>
+              {onlyShowConflicts && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-error/15 px-2.5 py-0.5 text-body-xs font-bold text-error border border-error/30">
+                  <span>Hanya Bentrok</span>
+                  <button type="button" onClick={() => setOnlyShowConflicts(false)} className="hover:opacity-70 cursor-pointer">
+                    <Icon name="close" size={12} />
+                  </button>
+                </span>
+              )}
               {search && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-body-xs font-semibold text-primary">
                   <span>Pencarian: "{search}"</span>
@@ -1241,7 +854,6 @@ export default function ManageSchedule() {
               )}
             </div>
           )}
-        </div>
 
         {/* ── Table Jadwal Database ── */}
         {loadingSchedule ? (
@@ -1258,12 +870,12 @@ export default function ManageSchedule() {
           />
         ) : (
           <>
-            {/* Desktop Table */}
-            <div className="hidden overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-outline-variant/15 bg-surface-container-low/60 dark:bg-surface-container-high/30">
-                    <th className="px-4 py-3 text-center w-10">
+            {/* Desktop Table with Sticky Header & Dynamic Flex Fit */}
+            <div className="hidden overflow-x-hidden overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
+              <table className="w-full table-fixed text-left border-collapse">
+                <thead className="sticky top-0 z-20 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
+                  <tr className="border-b border-outline-variant/15">
+                    <th className="w-[4%] px-3 py-2.5 text-center">
                       <input
                         type="checkbox"
                         checked={selectedIds.size === filteredSchedule.length && filteredSchedule.length > 0}
@@ -1272,28 +884,28 @@ export default function ManageSchedule() {
                         aria-label="Pilih Semua"
                       />
                     </th>
-                    <th className="px-4 py-3 text-label-caps uppercase text-on-surface-variant">
+                    <th className="w-[15%] px-3 py-2.5 text-label-caps uppercase text-on-surface-variant font-bold">
                       Hari & Waktu
                     </th>
-                    <th className="px-4 py-3 text-label-caps uppercase text-on-surface-variant">
+                    <th className="w-[17%] px-3 py-2.5 text-label-caps uppercase text-on-surface-variant font-bold">
                       Prodi & Sem
                     </th>
-                    <th className="px-4 py-3 text-label-caps uppercase text-on-surface-variant">
+                    <th className="w-[31%] px-3.5 py-2.5 text-label-caps uppercase text-on-surface-variant font-bold">
                       Mata Kuliah & Dosen
                     </th>
-                    <th className="px-4 py-3 text-label-caps uppercase text-on-surface-variant">
+                    <th className="w-[14%] px-3 py-2.5 text-label-caps uppercase text-on-surface-variant font-bold">
                       Ruang / Tipe
                     </th>
-                    <th className="px-4 py-3 text-label-caps uppercase text-on-surface-variant text-center">
+                    <th className="w-[10%] px-2 py-2.5 text-label-caps uppercase text-on-surface-variant text-center font-bold">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-label-caps uppercase text-on-surface-variant text-right">
+                    <th className="w-[9%] px-3 py-2.5 text-label-caps uppercase text-on-surface-variant text-right font-bold">
                       Aksi
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/10">
-                  {filteredSchedule.map((item) => {
+                  {paginatedSchedule.map((item) => {
                     const course = courseMap.get(item.kodeMK)
                     const isSelected = selectedIds.has(item.id)
                     const clashMsg = conflictMap.get(item.id)
@@ -1306,7 +918,7 @@ export default function ManageSchedule() {
                         } ${clashMsg ? 'bg-red-500/5 dark:bg-red-500/10' : ''}`}
                       >
                         {/* Checkbox */}
-                        <td className="px-4 py-3.5 text-center">
+                        <td className="px-3 py-2.5 text-center">
                           <input
                             type="checkbox"
                             checked={isSelected}
@@ -1316,50 +928,50 @@ export default function ManageSchedule() {
                         </td>
 
                         {/* Hari & Waktu */}
-                        <td className="px-4 py-3.5 whitespace-nowrap">
-                          <p className="font-bold text-body-md text-on-surface">{item.hari}</p>
-                          <p className="font-mono text-body-xs font-semibold text-on-surface-variant">
+                        <td className="px-3 py-2.5">
+                          <p className="font-bold text-body-md text-on-surface leading-tight">{item.hari}</p>
+                          <p className="font-mono text-body-xs font-semibold text-on-surface-variant mt-0.5 whitespace-nowrap">
                             {item.jamMulai} - {item.jamSelesai}
                           </p>
                           {clashMsg && (
-                            <span className="inline-flex items-center gap-1 text-label-caps font-bold text-error mt-0.5">
-                              <Icon name="warning" size={13} />
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-error mt-0.5">
+                              <Icon name="warning" size={12} />
                               Bentrok
                             </span>
                           )}
                         </td>
 
                         {/* Prodi & Sem */}
-                        <td className="px-4 py-3.5 whitespace-nowrap">
-                          <p className="font-semibold text-body-sm text-on-surface">{item.prodi}</p>
-                          <span className="inline-flex items-center rounded-md bg-indigo-500/10 px-2 py-0.5 text-body-xs font-bold text-indigo-700 dark:text-indigo-300">
+                        <td className="px-3 py-2.5">
+                          <p className="font-semibold text-body-sm text-on-surface truncate leading-tight">{item.prodi}</p>
+                          <span className="inline-flex items-center rounded-md bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 mt-0.5">
                             Sem. {item.semester}
                           </span>
                         </td>
 
                         {/* Mata Kuliah & Dosen */}
-                        <td className="px-4 py-3.5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-body-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                        <td className="px-3.5 py-2.5">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="font-mono text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md shrink-0">
                               {item.kodeMK}
                             </span>
-                            <span className="font-bold text-body-md text-on-surface">
+                            <span className="font-bold text-body-sm text-on-surface truncate">
                               {course?.namaMK || item.kodeMK}
                             </span>
                           </div>
-                          <p className="text-body-xs font-medium text-on-surface-variant mt-0.5 truncate max-w-xs">
+                          <p className="text-body-xs font-medium text-on-surface-variant mt-0.5 truncate">
                             {course?.dosen || 'Dosen belum ditentukan'}
                           </p>
                         </td>
 
                         {/* Ruang & Tipe */}
-                        <td className="px-4 py-3.5 whitespace-nowrap">
-                          <p className="font-bold text-body-sm text-on-surface">{formatRuang(item.ruang, item.tipeKelas)}</p>
+                        <td className="px-3 py-2.5">
+                          <p className="font-bold text-body-xs text-on-surface truncate">{formatRuang(item.ruang, item.tipeKelas)}</p>
                           {(() => {
                             const ct = getClassType(item.tipeKelas)
                             return (
-                              <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-label-caps font-bold mt-0.5 ${TONE_CLASSES[ct.tone] || 'bg-surface-container text-on-surface-variant'}`}>
-                                <span className={`h-1.5 w-1.5 rounded-full ${TONE_DOT_CLASSES[ct.tone] || 'bg-surface-variant'}`} />
+                              <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold mt-0.5 ${TONE_CLASSES[ct.tone] || 'bg-surface-container text-on-surface-variant'}`}>
+                                <span className={`h-1 w-1 rounded-full ${TONE_DOT_CLASSES[ct.tone] || 'bg-surface-variant'}`} />
                                 {ct.label}
                               </span>
                             )
@@ -1367,9 +979,9 @@ export default function ManageSchedule() {
                         </td>
 
                         {/* Status */}
-                        <td className="px-4 py-3.5 text-center whitespace-nowrap">
+                        <td className="px-2 py-2.5 text-center">
                           <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-body-xs font-bold ${
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] uppercase font-bold ${
                               (item.status || 'published') === 'published'
                                 ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300'
                                 : 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
@@ -1380,31 +992,31 @@ export default function ManageSchedule() {
                         </td>
 
                         {/* Aksi */}
-                        <td className="px-4 py-3.5 text-right whitespace-nowrap">
+                        <td className="px-3 py-2.5 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <button
                               type="button"
                               onClick={() => handleDuplicate(item)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-secondary/15 hover:text-secondary transition-colors cursor-pointer"
+                              className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-secondary/15 hover:text-secondary transition-colors cursor-pointer"
                               title="Duplikat Sesi"
                             >
-                              <Icon name="content_copy" size={16} />
+                              <Icon name="content_copy" size={15} />
                             </button>
                             <button
                               type="button"
                               onClick={() => openEditModal(item)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer"
+                              className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer"
                               title="Edit Jadwal"
                             >
-                              <Icon name="edit" size={16} />
+                              <Icon name="edit" size={15} />
                             </button>
                             <button
                               type="button"
                               onClick={() => setDeleteTarget(item)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer"
+                              className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer"
                               title="Hapus Jadwal"
                             >
-                              <Icon name="delete" size={16} />
+                              <Icon name="delete" size={15} />
                             </button>
                           </div>
                         </td>
@@ -1417,7 +1029,7 @@ export default function ManageSchedule() {
 
             {/* Mobile Cards */}
             <div className="space-y-3 tablet:hidden">
-              {filteredSchedule.map((item) => {
+              {paginatedSchedule.map((item) => {
                 const course = courseMap.get(item.kodeMK)
                 const isSelected = selectedIds.has(item.id)
                 const clashMsg = conflictMap.get(item.id)
@@ -1425,72 +1037,114 @@ export default function ManageSchedule() {
                 return (
                   <div
                     key={item.id}
-                    className={`rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4 space-y-2.5 dark:bg-surface-container-low ${
-                      isSelected ? 'border-primary' : ''
+                    className={`rounded-2xl border bg-surface-container-lowest p-4 space-y-3 dark:bg-surface-container-low shadow-xs transition-all ${
+                      isSelected ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-outline-variant/20'
                     } ${clashMsg ? 'border-red-500/40 bg-red-500/5' : ''}`}
                   >
+                    {/* Header Row: Checkbox + Kode MK + Mata Kuliah + Action Toolbar */}
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-start gap-2.5 min-w-0 flex-1">
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelectOne(item.id)}
-                          className="rounded"
+                          className="mt-1 rounded cursor-pointer shrink-0"
+                          aria-label={`Pilih ${item.kodeMK}`}
                         />
-                        <div>
-                          <span className="font-mono text-body-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md mr-1.5">
-                            {item.kodeMK}
-                          </span>
-                          <span className="font-bold text-body-md text-on-surface">
-                            {course?.namaMK || item.kodeMK}
-                          </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-mono text-label-caps font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md shrink-0">
+                              {item.kodeMK}
+                            </span>
+                            <span className="font-bold text-body-sm text-on-surface truncate">
+                              {course?.namaMK || item.kodeMK}
+                            </span>
+                          </div>
+                          <p className="text-body-xs font-medium text-on-surface-variant mt-0.5 truncate flex items-center gap-1">
+                            <Icon name="person" size={13} className="text-secondary shrink-0" />
+                            <span>{course?.dosen || 'Dosen belum ditentukan'}</span>
+                          </p>
                         </div>
                       </div>
 
-                      <div className="flex shrink-0 gap-1">
+                      {/* Action buttons */}
+                      <div className="flex shrink-0 items-center gap-0.5 rounded-xl bg-surface-container/60 p-0.5 border border-outline-variant/20">
                         <button
                           type="button"
                           onClick={() => handleDuplicate(item)}
-                          className="p-1 text-on-surface-variant hover:text-secondary"
-                          title="Duplikat"
+                          className="p-1 text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer"
+                          title="Duplikat Jadwal"
+                          aria-label="Duplikat"
                         >
-                          <Icon name="content_copy" size={16} />
+                          <Icon name="content_copy" size={15} />
                         </button>
                         <button
                           type="button"
                           onClick={() => openEditModal(item)}
-                          className="p-1 text-on-surface-variant hover:text-primary"
-                          title="Edit"
+                          className="p-1 text-on-surface-variant hover:text-primary rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer"
+                          title="Edit Jadwal"
+                          aria-label="Edit"
                         >
-                          <Icon name="edit" size={16} />
+                          <Icon name="edit" size={15} />
                         </button>
                         <button
                           type="button"
                           onClick={() => setDeleteTarget(item)}
-                          className="p-1 text-on-surface-variant hover:text-error"
-                          title="Hapus"
+                          className="p-1 text-on-surface-variant hover:text-error rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer"
+                          title="Hapus Jadwal"
+                          aria-label="Hapus"
                         >
-                          <Icon name="delete" size={16} />
+                          <Icon name="delete" size={15} />
                         </button>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-body-xs text-on-surface-variant">
-                      <span className="font-bold text-on-surface">{item.hari}, {item.jamMulai} - {item.jamSelesai}</span>
-                      <span>•</span>
-                      <span>{item.prodi} (Sem. {item.semester})</span>
-                      <span>•</span>
-                      <span>Ruang: {formatRuang(item.ruang, item.tipeKelas)}</span>
+                    {/* Details Row: Chips & Badges */}
+                    <div className="flex flex-wrap items-center gap-1.5 text-body-xs pt-1 border-t border-outline-variant/15">
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-surface-container px-2 py-1 font-semibold text-on-surface">
+                        <Icon name="schedule" size={13} className="text-primary" />
+                        <span>{item.hari}, {item.jamMulai} - {item.jamSelesai}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-indigo-500/10 px-2 py-1 font-semibold text-indigo-700 dark:text-indigo-300">
+                        <Icon name="school" size={13} />
+                        <span>{item.prodi} (Sem. {item.semester})</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-surface-container px-2 py-1 font-semibold text-on-surface-variant">
+                        <Icon name="meeting_room" size={13} />
+                        <span>{formatRuang(item.ruang, item.tipeKelas)}</span>
+                      </span>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] uppercase font-bold ml-auto ${
+                          (item.status || 'published') === 'published'
+                            ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300'
+                            : 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
+                        }`}
+                      >
+                        {item.status || 'published'}
+                      </span>
                     </div>
 
                     {clashMsg && (
-                      <p className="text-body-xs font-bold text-error">
-                        ⚠️ {clashMsg}
-                      </p>
+                      <div className="flex items-center gap-1.5 rounded-xl bg-error/10 border border-error/20 p-2 text-body-xs font-bold text-error">
+                        <Icon name="warning" size={15} className="shrink-0" />
+                        <span>{clashMsg}</span>
+                      </div>
                     )}
                   </div>
                 )
               })}
+            </div>
+
+            {/* Shared Pagination Controls */}
+            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
+              <Pagination
+                currentPage={safeCurrentPage}
+                totalItems={filteredSchedule.length}
+                pageSize={pageSize === 0 ? 'Semua' : pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
+                itemLabel="sesi"
+              />
             </div>
           </>
         )}
@@ -1501,14 +1155,18 @@ export default function ManageSchedule() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:justify-stretch max-[599px]:p-0"
         >
           <div
             onClick={() => setAddModalOpen(false)}
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          <div className="relative w-full max-w-lg rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up">
+          <div className="relative w-full max-w-lg rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:p-5 max-[599px]:animate-[sheet-up_300ms_var(--ease-emphasized)_both]">
+            {/* Drag handle — mobile only */}
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pb-2 -mx-2">
+              <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
+            </div>
             <header className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -1532,15 +1190,11 @@ export default function ManageSchedule() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Hari</label>
-                  <select
+                  <FormSelect
                     value={manualForm.hari}
-                    onChange={(e) => setManualForm((f) => ({ ...f, hari: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none cursor-pointer"
-                  >
-                    {DAYS.map((d) => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setManualForm((f) => ({ ...f, hari: val }))}
+                    options={DAYS.map((d) => ({ value: d, label: d }))}
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1">
@@ -1565,31 +1219,23 @@ export default function ManageSchedule() {
 
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Tipe Kelas</label>
-                  <select
+                  <FormSelect
                     value={manualForm.tipeKelas}
-                    onChange={(e) => setManualForm((f) => ({ ...f, tipeKelas: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none cursor-pointer"
-                  >
-                    {CLASS_TYPE_CODES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setManualForm((f) => ({ ...f, tipeKelas: val }))}
+                    options={CLASS_TYPE_CODES.map((t) => ({ value: t, label: t }))}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Program Studi</label>
-                  <select
+                  <FormSelect
                     value={manualForm.prodi}
-                    onChange={(e) => setManualForm((f) => ({ ...f, prodi: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none cursor-pointer"
-                  >
-                    <option value="">- Pilih Prodi -</option>
-                    {prodiOptions.map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setManualForm((f) => ({ ...f, prodi: val }))}
+                    placeholder="- Pilih Prodi -"
+                    options={prodiOptions.map((p) => ({ value: p, label: p }))}
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1">
@@ -1627,18 +1273,15 @@ export default function ManageSchedule() {
                     + Buat MK Baru
                   </button>
                 </div>
-                <select
+                <FormSelect
                   value={manualForm.kodeMK}
-                  onChange={(e) => setManualForm((f) => ({ ...f, kodeMK: e.target.value }))}
-                  className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none cursor-pointer"
-                >
-                  <option value="">- Pilih Mata Kuliah Terdaftar -</option>
-                  {courses.map((c) => (
-                    <option key={c.kodeMK} value={c.kodeMK}>
-                      {c.kodeMK} — {c.namaMK} ({c.dosen || 'Dosen -'})
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setManualForm((f) => ({ ...f, kodeMK: val }))}
+                  placeholder="- Pilih Mata Kuliah Terdaftar -"
+                  options={courses.map((c) => ({
+                    value: c.kodeMK,
+                    label: `${c.kodeMK} — ${c.namaMK} (${c.dosen || 'Dosen -'})`,
+                  }))}
+                />
               </div>
 
               {manualErrors.length > 0 && (
@@ -1673,14 +1316,18 @@ export default function ManageSchedule() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:justify-stretch max-[599px]:p-0"
         >
           <div
             onClick={() => setEditingItem(null)}
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          <div className="relative w-full max-w-lg rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up">
+          <div className="relative w-full max-w-lg rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:p-5 max-[599px]:animate-[sheet-up_300ms_var(--ease-emphasized)_both]">
+            {/* Drag handle — mobile only */}
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pb-2 -mx-2">
+              <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
+            </div>
             <header className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -1704,15 +1351,11 @@ export default function ManageSchedule() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Hari</label>
-                  <select
+                  <FormSelect
                     value={editForm.hari}
-                    onChange={(e) => setEditForm((f) => ({ ...f, hari: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  >
-                    {DAYS.map((d) => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setEditForm((f) => ({ ...f, hari: val }))}
+                    options={DAYS.map((d) => ({ value: d, label: d }))}
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1">
@@ -1737,30 +1380,23 @@ export default function ManageSchedule() {
 
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Tipe Kelas</label>
-                  <select
+                  <FormSelect
                     value={editForm.tipeKelas}
-                    onChange={(e) => setEditForm((f) => ({ ...f, tipeKelas: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  >
-                    {CLASS_TYPE_CODES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setEditForm((f) => ({ ...f, tipeKelas: val }))}
+                    options={CLASS_TYPE_CODES.map((t) => ({ value: t, label: t }))}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Prodi</label>
-                  <select
+                  <FormSelect
                     value={editForm.prodi}
-                    onChange={(e) => setEditForm((f) => ({ ...f, prodi: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  >
-                    {prodiOptions.map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setEditForm((f) => ({ ...f, prodi: val }))}
+                    placeholder="- Pilih Prodi -"
+                    options={prodiOptions.map((p) => ({ value: p, label: p }))}
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1">
@@ -1789,29 +1425,26 @@ export default function ManageSchedule() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Mata Kuliah</label>
-                  <select
+                  <FormSelect
                     value={editForm.kodeMK}
-                    onChange={(e) => setEditForm((f) => ({ ...f, kodeMK: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  >
-                    {courses.map((c) => (
-                      <option key={c.kodeMK} value={c.kodeMK}>
-                        {c.kodeMK} — {c.namaMK}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setEditForm((f) => ({ ...f, kodeMK: val }))}
+                    options={courses.map((c) => ({
+                      value: c.kodeMK,
+                      label: `${c.kodeMK} — ${c.namaMK}`,
+                    }))}
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Status Publikasi</label>
-                  <select
+                  <FormSelect
                     value={editForm.status}
-                    onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  >
-                    <option value="published">Published</option>
-                    <option value="draft">Draft</option>
-                  </select>
+                    onChange={(val) => setEditForm((f) => ({ ...f, status: val }))}
+                    options={[
+                      { value: 'published', label: 'Published' },
+                      { value: 'draft', label: 'Draft' },
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -1847,14 +1480,18 @@ export default function ManageSchedule() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:justify-stretch max-[599px]:p-0"
         >
           <div
             onClick={() => setNewCourseOpen(false)}
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          <div className="relative w-full max-w-md rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up">
+          <div className="relative w-full max-w-md rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:p-5 max-[599px]:animate-[sheet-up_300ms_var(--ease-emphasized)_both]">
+            {/* Drag handle — mobile only */}
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pb-2 -mx-2">
+              <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
+            </div>
             <header className="flex items-center justify-between pb-3 border-b border-outline-variant/15 mb-4">
               <h3 className="text-title-md font-bold text-on-surface">Tambah Mata Kuliah Baru</h3>
               <button
@@ -1946,6 +1583,217 @@ export default function ManageSchedule() {
         onConfirm={handleBulkDelete}
         onCancel={() => setBulkDeleteOpen(false)}
       />
+
+      {/* ── 8. Floating Bulk Actions Bar (Melayang di Bawah Layar) ── */}
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest/95 dark:bg-surface-container-high/95 backdrop-blur-md px-4 py-2.5 shadow-2xl animate-fade-up max-w-[95vw]">
+          <span className="font-bold text-body-sm text-primary flex items-center gap-2">
+            <span className="flex h-6 min-w-[24px] px-1.5 items-center justify-center rounded-full bg-primary text-on-primary text-body-xs font-bold shadow-xs">
+              {selectedIds.size}
+            </span>
+            <span className="hidden sm:inline">Sesi Terpilih</span>
+          </span>
+
+          <div className="h-5 w-px bg-outline-variant/30" />
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => handleBulkStatusChange('published')}
+              className="flex items-center gap-1 rounded-xl bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 px-2.5 py-1.5 text-body-xs font-bold hover:bg-emerald-500/25 active:scale-95 transition-all cursor-pointer"
+            >
+              <Icon name="check_circle" size={15} />
+              <span>Publish</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleBulkStatusChange('draft')}
+              className="flex items-center gap-1 rounded-xl bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 px-2.5 py-1.5 text-body-xs font-bold hover:bg-amber-500/25 active:scale-95 transition-all cursor-pointer"
+            >
+              <Icon name="pause_circle" size={15} />
+              <span>Draft</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setBulkDeleteOpen(true)}
+              className="flex items-center gap-1 rounded-xl bg-error/15 text-error border border-error/25 px-2.5 py-1.5 text-body-xs font-bold hover:bg-error/25 active:scale-95 transition-all cursor-pointer"
+            >
+              <Icon name="delete" size={15} />
+              <span>Hapus</span>
+            </button>
+          </div>
+
+          <div className="h-5 w-px bg-outline-variant/30" />
+
+          <button
+            type="button"
+            onClick={() => setSelectedIds(new Set())}
+            className="flex items-center gap-1 text-body-xs font-bold text-on-surface-variant hover:text-on-surface px-2 py-1 rounded-lg hover:bg-surface-container transition-colors cursor-pointer"
+            title="Batalkan Pilihan (Esc)"
+          >
+            <Icon name="close" size={16} />
+            <span className="hidden sm:inline">Batal</span>
+          </button>
+        </div>
+      )}
+
+      {/* ── Modal Dialog: Import Spreadsheet Master (.xlsx / .csv) ── */}
+      {importModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:justify-stretch max-[599px]:p-0"
+        >
+          <div
+            onClick={() => !busy && setImportModalOpen(false)}
+            className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
+          />
+
+          <div className="relative w-full max-w-xl rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:p-5 max-[599px]:animate-[sheet-up_300ms_var(--ease-emphasized)_both] max-h-[90vh] overflow-y-auto">
+            {/* Drag handle — mobile only */}
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pb-2 -mx-2">
+              <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
+            </div>
+
+            <header className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-4">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Icon name="upload_file" size={22} />
+                </span>
+                <div>
+                  <h3 className="text-title-lg font-bold tracking-tight text-on-surface">Import Spreadsheet Master</h3>
+                  <p className="text-body-xs font-medium text-on-surface-variant">Unggah file jadwal resmi (.xlsx / .csv)</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setImportModalOpen(false)}
+                className="rounded-full p-1.5 text-on-surface-variant hover:bg-surface-container cursor-pointer disabled:opacity-50"
+              >
+                <Icon name="close" size={20} />
+              </button>
+            </header>
+
+            <div className="space-y-4">
+              {/* Dropzone */}
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  setDragOver(true)
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setDragOver(false)
+                  const f = e.dataTransfer.files?.[0]
+                  if (f) handleFile(f)
+                }}
+                onClick={() => fileInputRef.current?.click()}
+                className={`group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center transition-all cursor-pointer ${
+                  dragOver
+                    ? 'border-primary bg-primary/10'
+                    : 'border-outline-variant/40 bg-surface-container-low/40 hover:border-primary/60 hover:bg-surface-container-low'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    if (f) handleFile(f)
+                  }}
+                />
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                  <Icon name="cloud_upload" size={26} />
+                </div>
+                <p className="mt-2.5 text-body-md font-bold text-on-surface">
+                  {uploadFileName || 'Tarik file spreadsheet ke sini atau klik untuk browse'}
+                </p>
+                <p className="text-body-xs font-medium text-on-surface-variant mt-0.5">
+                  Format resmi .xlsx / .csv • Maksimal 10MB
+                </p>
+              </div>
+
+              {uploadError && (
+                <div className="rounded-xl bg-error/10 p-3 text-body-xs font-semibold text-error">
+                  {uploadError}
+                </div>
+              )}
+
+              {/* Hasil Parsing File */}
+              {uploadParsed && (
+                <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-3 animate-fade-up">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-body-xs font-bold text-primary uppercase">
+                      Hasil Analisis: {uploadFileName}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUploadParsed(null)
+                        setUploadFileName('')
+                      }}
+                      className="text-body-xs text-error hover:underline font-bold cursor-pointer"
+                    >
+                      Batal File
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
+                      <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Jadwal Sesi</p>
+                      <p className="text-title-lg font-bold text-primary mt-0.5">
+                        {uploadParsed.scheduleEntries.length}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
+                      <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Master MK</p>
+                      <p className="text-title-lg font-bold text-secondary mt-0.5">
+                        {uploadParsed.courses.length}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
+                      <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Ujian</p>
+                      <p className="text-title-lg font-bold text-tertiary mt-0.5">
+                        {uploadParsed.exams.length}
+                      </p>
+                    </div>
+                  </div>
+
+                  {uploadValidation?.conflicts.length > 0 && (
+                    <div className="rounded-xl bg-amber-500/10 p-2.5 text-body-xs font-semibold text-amber-800 dark:text-amber-300">
+                      ⚠️ Terdeteksi {uploadValidation.conflicts.length} bentrok jadwal di dalam file.
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-end gap-2.5 pt-2">
+                    <Button
+                      variant="secondary"
+                      onClick={() => setImportModalOpen(false)}
+                      disabled={busy}
+                    >
+                      Tutup
+                    </Button>
+                    <Button
+                      onClick={handlePublishUpload}
+                      disabled={busy || !canPublishUpload}
+                      className="font-bold shadow-xs cursor-pointer"
+                    >
+                      <Icon name="rocket_launch" size={18} className="mr-1.5" />
+                      {busy ? 'Mempublikasikan...' : 'Publikasikan Jadwal'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

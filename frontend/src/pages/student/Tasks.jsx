@@ -86,7 +86,7 @@ export default function Tasks() {
   )
 
   return (
-    <div className="space-y-lg">
+    <div className="space-y-lg w-full max-w-full overflow-x-hidden">
       {/* Header Halaman — Bold, Rich Icon Badge & Action */}
       <header className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
         <div className="flex items-center gap-3.5">
@@ -117,7 +117,7 @@ export default function Tasks() {
               setInitialKodeMK('')
               setShowForm(true)
             }}
-            className="hidden shrink-0 tablet:inline-flex shadow-sm px-4 py-2 text-body-sm font-bold"
+            className="hidden shrink-0 tablet:inline-flex shadow-sm px-4 py-2 text-body-sm font-bold cursor-pointer"
           >
             <Icon name="add" size={18} />
             Tambah Tugas
@@ -126,8 +126,10 @@ export default function Tasks() {
       </header>
 
       {/* Filter Tabs & Toolbar (Hanya muncul jika sudah ada tugas) */}
+      {/* P3: di <600px baris filter jadi satu baris scroll (tidak wrap 3-4 baris).
+          >=600px tetap flex-wrap + justify-between seperti semula. */}
       {tasks.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant/25 pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant/25 pb-3 max-[599px]:flex-nowrap max-[599px]:overflow-x-auto max-[599px]:no-scrollbar w-full max-w-full">
           {/* Scope Tabs (Semua / Tugas Prodi / Tugas Pribadi) */}
           <div className="flex items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-1 shadow-xs">
             <button
@@ -168,7 +170,7 @@ export default function Tasks() {
           </div>
 
           {/* Status Filter & Course Dropdown */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 max-[599px]:shrink-0">
             {/* Status Segmented Switch */}
             <div className="flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/40 p-0.5 shadow-xs">
               <button
@@ -388,6 +390,22 @@ export default function Tasks() {
         />
       )}
 
+      {/* Floating Action Button (FAB) on Mobile — Hanya muncul jika sudah ada tugas & berbentuk bulat sempurna */}
+      {tasks.length > 0 && (
+        <button
+          type="button"
+          onClick={() => {
+            setInitialKodeMK('')
+            setShowForm(true)
+          }}
+          className="tablet:hidden fixed right-4 bottom-20 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border border-white/20"
+          title="Tambah Tugas Baru"
+          aria-label="Tambah tugas baru"
+        >
+          <Icon name="add" size={28} />
+        </button>
+      )}
+
       {/* Confirm Delete Dialog */}
       {deleteTarget && (
         <ConfirmDialog
@@ -541,13 +559,20 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
     )
   }
 
+  // P5: >=600px tetap centered dialog persis seperti sebelumnya;
+  //     <600px menjadi bottom sheet (sheet-up + drag handle + tanpa gap samping).
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:justify-stretch max-[599px]:p-0">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onCancel} role="presentation" />
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 w-full max-w-lg overflow-y-auto max-h-[90vh] rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 tablet:p-8 shadow-level-3 dark:bg-surface-container-low animate-fade-up"
+        className="relative z-10 w-full max-w-lg overflow-y-auto max-h-[90vh] rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 tablet:p-8 shadow-level-3 dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:animate-[sheet-up_300ms_var(--ease-emphasized)_both]"
       >
+        {/* Drag handle — mobile only */}
+        <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-1 pb-2 -mx-2">
+          <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
+        </div>
+
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">

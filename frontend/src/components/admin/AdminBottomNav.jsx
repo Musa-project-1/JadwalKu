@@ -1,41 +1,38 @@
 import { NavLink } from 'react-router-dom'
-import { Icon } from './Icon'
+import { Icon } from '../Icon'
 
 /**
- * Floating Pill Nav — kontainer terpusat, blur, border halus
- * (JadwalKu Expressive v2). Mobile only (`tablet:hidden`) — komponen ini
- * tidak pernah dirender >=600px, jadi aman didesain ulang bebas.
- *
- * 5 Tab Utama Mobile:
- * 1. Home
- * 2. Jadwal
- * 3. Tugas
- * 4. Ujian
- * 5. Pengaturan
+ * Floating Pill Nav — Admin Console Mobile (`tablet:hidden`).
+ * 5 Tab Utama Admin:
+ * 1. Dashboard (/admin/dashboard)
+ * 2. Kelola Jadwal (/admin/jadwal)
+ * 3. MK & Dosen (/admin/mata-kuliah)
+ * 4. Ujian (/admin/ujian)
+ * 5. Akademik (/admin/pengaturan-akademik)
  */
 
-const PRIMARY_TABS = [
-  { to: '/', label: 'Home', icon: 'home' },
-  { to: '/jadwal', label: 'Jadwal', icon: 'calendar_month' },
-  { to: '/tugas', label: 'Tugas', icon: 'checklist' },
-  { to: '/ujian', label: 'Ujian', icon: 'edit_note' },
-  { to: '/pengaturan', label: 'Pengaturan', icon: 'settings' },
+const ADMIN_BOTTOM_TABS = [
+  { to: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { to: '/admin/jadwal', label: 'Jadwal', icon: 'edit_calendar' },
+  { to: '/admin/mata-kuliah', label: 'Matkul', icon: 'menu_book' },
+  { to: '/admin/ujian', label: 'Ujian', icon: 'event_note' },
+  { to: '/admin/pengaturan-akademik', label: 'Akademik', icon: 'settings_suggest' },
 ]
 
-export function BottomNav() {
+export function AdminBottomNav() {
   return (
     <nav
-      aria-label="Navigasi utama"
+      aria-label="Navigasi Admin Utama"
       className="fixed left-1/2 z-40 -translate-x-1/2 tablet:hidden"
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
     >
       <ul className="flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-container-lowest/90 px-2 py-1.5 shadow-level-2 backdrop-blur-xl dark:bg-surface-container-low/90">
-        {PRIMARY_TABS.map((item) => (
+        {ADMIN_BOTTOM_TABS.map((item) => (
           <li key={item.to}>
-            <NavLink to={item.to} end={item.to === '/'} viewTransition>
+            <NavLink to={item.to} end={item.to === '/admin/dashboard'} viewTransition>
               {({ isActive }) => (
                 <span
-                  className={`flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] transition-all duration-200 active:scale-95 ${
+                  className={`flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1 text-[10px] tracking-tight transition-all duration-200 active:scale-95 ${
                     isActive
                       ? 'font-bold text-primary'
                       : 'font-normal text-on-surface-variant'
@@ -50,7 +47,7 @@ export function BottomNav() {
                   >
                     <Icon name={item.icon} size={21} filled={isActive} />
                   </span>
-                  {item.label}
+                  <span className="whitespace-nowrap text-center leading-tight">{item.label}</span>
                 </span>
               )}
             </NavLink>
@@ -60,3 +57,4 @@ export function BottomNav() {
     </nav>
   )
 }
+

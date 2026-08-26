@@ -66,7 +66,7 @@ export default function Exams() {
   const grouped = useMemo(() => groupByDate(filtered), [filtered])
 
   return (
-    <div className="space-y-lg">
+    <div className="space-y-lg w-full max-w-full overflow-x-hidden">
       {/* Header Halaman — Bold, Rich Icon Badge, TA Dropdown & Switcher */}
       <header className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
         <div className="flex items-center gap-3.5">
@@ -88,16 +88,16 @@ export default function Exams() {
           </div>
         </div>
 
-        {/* Controls: Segmented UTS/UAS + Tahun Ajaran Selector */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* Controls: Segmented UTS/UAS + Tahun Ajaran Selector (100% Pas di Layar Tanpa Seret Kanan Kiri) */}
+        <div className="flex items-center justify-between gap-2 w-full tablet:w-auto">
           {/* Segmented control */}
-          <div className="flex rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-1 shadow-xs">
+          <div className="flex rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-1 shadow-xs shrink-0">
             {['UTS', 'UAS'].map((j) => (
               <button
                 key={j}
                 type="button"
                 onClick={() => setJenis(j)}
-                className={`rounded-full px-5 py-1.5 text-body-sm font-bold transition-all duration-200 cursor-pointer ${
+                className={`rounded-full px-4 py-1 text-body-xs tablet:text-body-sm font-bold transition-all duration-200 cursor-pointer ${
                   jenis === j
                     ? 'bg-surface text-primary shadow-xs'
                     : 'text-on-surface-variant hover:text-on-surface'
@@ -109,12 +109,14 @@ export default function Exams() {
           </div>
 
           {/* Tahun Ajaran Dropdown */}
-          <TahunAjaranDropdown
-            selectedTA={selectedTA}
-            onSelect={setSelectedTA}
-            currentTA={currentTA}
-            allTAs={allTAs}
-          />
+          <div className="shrink-0">
+            <TahunAjaranDropdown
+              selectedTA={selectedTA}
+              onSelect={setSelectedTA}
+              currentTA={currentTA}
+              allTAs={allTAs}
+            />
+          </div>
         </div>
       </header>
 
@@ -252,10 +254,10 @@ function TahunAjaranDropdown({ selectedTA, onSelect, currentTA, allTAs }) {
             : 'border-outline-variant/40 bg-surface-container-lowest hover:border-primary/50 hover:bg-surface-container-low text-on-surface dark:bg-surface-container-high'
         }`}
       >
-        <Icon name="calendar_month" size={16} className="text-primary shrink-0" />
-        <span>TA {selectedTA}</span>
+        <Icon name="calendar_month" size={15} className="text-primary shrink-0" />
+        <span className="whitespace-nowrap font-bold text-body-xs tablet:text-body-sm">TA {selectedTA}</span>
         <span
-          className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+          className={`hidden tablet:inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
             selectedTA === currentTA
               ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
               : 'bg-surface-container-highest text-on-surface-variant'

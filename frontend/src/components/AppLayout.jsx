@@ -77,21 +77,21 @@ export function AppLayout() {
   }, [])
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen w-full bg-transparent">
       <Sidebar />
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col relative">
-        {/* Top app bar — Generous Height (72px), Crisp & High-Affordance */}
+      <div className="flex min-h-screen min-w-0 w-full flex-1 flex-col relative">
+        {/* Top app bar — Sticky Header */}
         <header className="sticky top-0 z-40 h-[72px] flex items-center bg-surface-container-lowest/95 dark:bg-surface-container-low/95 px-md tablet:px-lg desktop:px-xl backdrop-blur-md border-b border-outline-variant/30 shadow-xs transition-colors">
           <div className="mx-auto flex w-full max-w-container-max items-center justify-between gap-md relative">
-            {/* Left: Mobile Logo or Desktop Active Academic Program */}
-            <div className="flex items-center gap-2.5 shrink-0 min-w-0">
-              {/* Mobile Logo + Title */}
-              <div className="flex items-center gap-sm tablet:hidden">
-                <img src="/logo.svg" alt="Logo JadwalKu" className="h-9 w-9" />
-                <h1 className="text-headline-lg-mobile font-bold font-brand tracking-[-0.025em]">
-                  <span className="text-on-surface">Jadwal</span>
-                  <span className="text-primary">Ku</span>
-                </h1>
+            {/* Left: Mobile Logo + Live Clock or Desktop Active Academic Program */}
+            <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 min-w-0">
+              {/* Mobile Header: Logo + Live Clock Chip */}
+              <div className="flex items-center gap-2 tablet:hidden">
+                <img src="/logo.svg" alt="JadwalKu" className="h-9 w-9 shrink-0" />
+                <div className="flex items-center gap-1 rounded-full bg-surface-container-high/70 dark:bg-surface-container-high/60 border border-outline-variant/30 px-2.5 py-1 text-label-caps font-bold text-on-surface shadow-2xs">
+                  <Icon name="schedule" size={13} className="text-primary shrink-0" />
+                  <span className="text-[11px] tracking-tight">{timeString} WIB</span>
+                </div>
               </div>
 
               {/* Desktop: Active Academic Program & Semester Pill (text-sm, px-4 py-2) */}
@@ -112,44 +112,42 @@ export function AppLayout() {
             </div>
 
             {/* Center: Large & Solid Search Bar (Desktop/Tablet) */}
-            <div className="hidden tablet:flex flex-1 max-w-[420px] justify-center mx-3">
+            <div className="hidden tablet:flex flex-1 min-w-[160px] max-w-[400px] justify-center mx-2">
               <button
                 type="button"
                 onClick={toggleSearch}
-                className="group flex h-11 w-full items-center justify-between rounded-full border border-outline-variant/35 bg-surface-container/70 dark:bg-surface-container-high/60 hover:bg-surface-container hover:border-primary/50 px-4 text-body-sm text-on-surface-variant transition-all shadow-xs cursor-pointer text-left"
+                className="group flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-full border border-outline-variant/35 bg-surface-container/70 dark:bg-surface-container-high/60 hover:bg-surface-container hover:border-primary/50 px-3.5 text-body-sm text-on-surface-variant transition-all shadow-xs cursor-pointer text-left"
                 aria-label="Pencarian Cepat (Ctrl+K)"
               >
-                <div className="flex items-center gap-2.5 text-on-surface-variant/75 group-hover:text-on-surface">
+                <div className="flex min-w-0 items-center gap-2 text-on-surface-variant/75 group-hover:text-on-surface">
                   <Icon name="search" size={18} className="group-hover:text-primary transition-colors shrink-0" />
-                  <span className="text-body-sm font-medium">Cari MK, dosen, ruang...</span>
+                  <span className="text-body-sm font-medium truncate whitespace-nowrap">Cari MK, dosen, ruang...</span>
                 </div>
-                <kbd className="hidden desktop:inline-flex items-center gap-0.5 rounded-md border border-outline-variant/40 bg-surface-container-highest/80 px-2 py-0.5 text-[11px] font-mono font-semibold text-on-surface-variant">
+                <kbd className="hidden desktop:inline-flex shrink-0 items-center gap-0.5 rounded-md border border-outline-variant/40 bg-surface-container-highest/80 px-2 py-0.5 text-[11px] font-mono font-semibold text-on-surface-variant">
                   Ctrl K
                 </kbd>
               </button>
             </div>
 
             {/* Right: Date & Clock + Switch Mode + Mobile Search + Bell + Theme Toggle */}
-            <div className="flex items-center gap-2.5 shrink-0">
-              {/* Today's Date & Live Clock Chip (Desktop only, text-sm, px-4 py-2) */}
-              <div className="hidden desktop:flex items-center gap-2 rounded-full bg-surface-container-high/60 px-4 py-2 text-body-sm font-semibold text-on-surface-variant border border-outline-variant/25 shadow-xs">
+            <div className="flex items-center gap-1.5 tablet:gap-2 shrink-0">
+              {/* Today's Date & Live Clock Chip (Desktop only, text-sm, px-3.5 py-1.5) */}
+              <div className="hidden desktop:flex items-center gap-1.5 whitespace-nowrap rounded-full bg-surface-container-high/60 px-3.5 py-1.5 text-body-sm font-semibold text-on-surface-variant border border-outline-variant/25 shadow-xs shrink-0">
                 <Icon name="schedule" size={16} className="text-primary shrink-0" />
                 <span>{todayString}</span>
                 <span className="text-outline-variant/50">·</span>
                 <span className="text-on-surface font-semibold">{timeString} WIB</span>
               </div>
 
-              {/* Mode Admin Switcher Button (text-sm, px-4 py-2) */}
+              {/* Mobile: Switch to Mode Admin Button (Icon-only) */}
               <Link
                 to="/admin/login"
                 viewTransition
-                title="Beralih ke Mode / Dashboard Admin"
-                className="group flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-high/70 px-4 py-2 text-body-sm font-bold text-on-surface hover:border-primary/60 hover:bg-primary/10 hover:text-primary transition-all shadow-xs"
+                title="Beralih ke Panel Admin"
+                aria-label="Panel Admin"
+                className="tablet:hidden flex h-9 w-9 items-center justify-center rounded-full bg-secondary/10 border border-secondary/20 text-secondary hover:bg-secondary/20 transition-colors shadow-xs"
               >
-                <Icon name="admin_panel_settings" size={18} className="text-primary" />
-                <span className="hidden sm:inline">Mode Admin</span>
-                <span className="sm:hidden">Admin</span>
-                <Icon name="arrow_forward" size={15} className="opacity-60 group-hover:translate-x-0.5 transition-transform text-on-surface-variant group-hover:text-primary" />
+                <Icon name="admin_panel_settings" size={19} />
               </Link>
 
               {/* Mobile Search button (icon only for mobile screens) */}
@@ -158,13 +156,13 @@ export function AppLayout() {
                 onClick={toggleSearch}
                 aria-label="Search (Ctrl+K)"
                 title="Pencarian Cepat (Ctrl+K)"
-                className={`tablet:hidden relative flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+                className={`tablet:hidden relative flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
                   searchOpen
                     ? 'bg-primary text-on-primary shadow-xs'
                     : 'bg-primary/10 text-primary hover:bg-primary-container hover:text-on-primary-container'
                 }`}
               >
-                <Icon name="search" size={20} />
+                <Icon name="search" size={18} />
               </button>
 
               {/* Bell notification button with popover toggle */}
@@ -176,9 +174,9 @@ export function AppLayout() {
                 onClick={() => setTheme(nextTheme)}
                 aria-label={`Ganti ke mode ${nextTheme === 'dark' ? 'gelap' : 'terang'}`}
                 title={`Mode ${nextTheme === 'dark' ? 'Gelap' : 'Terang'}`}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface shadow-xs"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface shadow-xs"
               >
-                <Icon name={nextTheme === 'dark' ? 'dark_mode' : 'light_mode'} size={20} />
+                <Icon name={nextTheme === 'dark' ? 'dark_mode' : 'light_mode'} size={18} />
               </button>
 
               {/* Notification Popover */}
@@ -191,9 +189,9 @@ export function AppLayout() {
         <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
 
         <OfflineBanner />
-        <main className="mx-auto w-full max-w-container-max flex-1 px-md pb-24 pt-md tablet:pb-md desktop:px-lg">
+        <main className="mx-auto w-full max-w-container-max flex-1 px-md pb-24 pt-md tablet:pb-md desktop:px-lg overflow-x-hidden">
           {/* Kunci dengan pathname agar animasi masuk dipicu ulang tiap pindah halaman */}
-          <div key={location.pathname} className="animate-page-enter">
+          <div key={location.pathname} className="animate-page-enter w-full max-w-full min-w-0">
             <Outlet />
           </div>
         </main>

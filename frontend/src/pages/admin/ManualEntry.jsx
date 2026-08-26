@@ -3,6 +3,7 @@ import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
+import { FormSelect } from '../../components/FormSelect'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { addDocument, setDocument } from '../../lib/adminData'
@@ -233,50 +234,39 @@ export default function ManualEntry() {
         className="grid gap-md rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low tablet:grid-cols-4 desktop:grid-cols-8"
       >
         <h3 className="col-span-full text-title-md text-on-surface">Sesi Kelas</h3>
-        <label className="block">
-          <span className="mb-1 block text-body-sm text-on-surface-variant">Hari</span>
-          <select
+        <div>
+          <label className="mb-1 block text-body-sm font-semibold text-on-surface-variant">Hari</label>
+          <FormSelect
             value={form.hari}
-            onChange={(e) => update('hari', e.target.value)}
-            className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface dark:bg-surface-container-low"
-          >
-            {DAYS.map((day) => (
-              <option key={day} value={day}>{day}</option>
-            ))}
-          </select>
-        </label>
+            onChange={(val) => update('hari', val)}
+            options={DAYS.map((day) => ({ value: day, label: day }))}
+          />
+        </div>
         <Input label="Jam Mulai" type="time" value={form.jamMulai} onChange={(e) => update('jamMulai', e.target.value)} />
         <Input label="Jam Selesai" type="time" value={form.jamSelesai} onChange={(e) => update('jamSelesai', e.target.value)} />
         <Input label="Prodi" value={form.prodi} onChange={(e) => update('prodi', e.target.value)} placeholder="mis. Informatika" />
         <Input label="Semester" type="number" min="1" max="14" value={form.semester} onChange={(e) => update('semester', Number(e.target.value))} />
-        <label className="block">
-          <span className="mb-1 block text-body-sm text-on-surface-variant">Kode MK</span>
-          <select
+        <div>
+          <label className="mb-1 block text-body-sm font-semibold text-on-surface-variant">Kode MK</label>
+          <FormSelect
             value={form.kodeMK}
-            onChange={(e) => update('kodeMK', e.target.value)}
-            className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface dark:bg-surface-container-low"
-          >
-            <option value="">- Pilih MK -</option>
-            {courses.map((c) => (
-              <option key={c.id} value={c.kodeMK}>
-                {c.kodeMK} - {c.namaMK}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={(val) => update('kodeMK', val)}
+            placeholder="- Pilih MK -"
+            options={courses.map((c) => ({
+              value: c.kodeMK,
+              label: `${c.kodeMK} - ${c.namaMK}`,
+            }))}
+          />
+        </div>
         <Input label="Ruang" value={form.ruang} onChange={(e) => update('ruang', e.target.value)} placeholder="mis. R.302" />
-        <label className="block">
-          <span className="mb-1 block text-body-sm text-on-surface-variant">Tipe Kelas</span>
-          <select
+        <div>
+          <label className="mb-1 block text-body-sm font-semibold text-on-surface-variant">Tipe Kelas</label>
+          <FormSelect
             value={form.tipeKelas}
-            onChange={(e) => update('tipeKelas', e.target.value)}
-            className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface dark:bg-surface-container-low"
-          >
-            {CLASS_TYPE_CODES.map((code) => (
-              <option key={code} value={code}>{code}</option>
-            ))}
-          </select>
-        </label>
+            onChange={(val) => update('tipeKelas', val)}
+            options={CLASS_TYPE_CODES.map((code) => ({ value: code, label: code }))}
+          />
+        </div>
         <div className="col-span-full flex justify-end">
           <Button type="submit" disabled={loading}>
             <Icon name="add" size={20} /> Tambah ke Daftar Sesi

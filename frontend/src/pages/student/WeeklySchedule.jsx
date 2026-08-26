@@ -213,12 +213,30 @@ export default function WeeklySchedule() {
     })
   }, [weekOffset, activeWeekDays])
 
+  const monthYearLabel = useMemo(() => {
+    if (weekDates.length === 0) return ''
+    const first = weekDates[0]
+    const last = weekDates[weekDates.length - 1]
+    const dFirst = new Date(first.iso)
+    const dLast = new Date(last.iso)
+    const mFirst = dFirst.toLocaleDateString('id-ID', { month: 'long' })
+    const mLast = dLast.toLocaleDateString('id-ID', { month: 'long' })
+    const y = dLast.getFullYear()
+    if (mFirst === mLast) {
+      return `${mFirst} ${y}`
+    }
+    return `${mFirst} – ${mLast} ${y}`
+  }, [weekDates])
+
   const weekRangeLabel = useMemo(() => {
     if (weekDates.length === 0) return ''
     const first = weekDates[0]
     const last = weekDates[weekDates.length - 1]
     if (weekOffset === 0) {
-      return `Minggu Ini (${first.dateNum} - ${last.dateNum} ${last.monthShort})`
+      return `Minggu Ini · ${first.dateNum} - ${last.dateNum} ${last.monthShort}`
+    }
+    if (first.monthShort === last.monthShort) {
+      return `${first.dateNum} - ${last.dateNum} ${last.monthShort}`
     }
     return `${first.dateNum} ${first.monthShort} - ${last.dateNum} ${last.monthShort}`
   }, [weekDates, weekOffset])
@@ -264,7 +282,7 @@ export default function WeeklySchedule() {
   }
 
   return (
-    <div className="space-y-lg">
+    <div className="space-y-lg w-full max-w-full overflow-x-hidden">
       <header className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
         <div className="flex items-center gap-3.5">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
@@ -286,8 +304,9 @@ export default function WeeklySchedule() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="hidden desktop:inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-xs">
+        {/* Controls Desktop (>=600px) */}
+        <div className="hidden tablet:flex items-center gap-2 shrink-0">
+          <div className="hidden desktop:inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-xs shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -318,17 +337,18 @@ export default function WeeklySchedule() {
             </button>
           </div>
 
-          <div className="flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-1 py-1 shadow-xs">
+          {/* Desktop Week Navigator */}
+          <div className="flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-1 py-1 shadow-xs min-w-0">
             <button
               type="button"
               onClick={() => setWeekOffset((prev) => prev - 1)}
               title="Minggu Sebelumnya"
               aria-label="Minggu Sebelumnya"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
             >
               <Icon name="chevron_left" size={18} />
             </button>
-            <span className="px-2.5 text-body-xs font-bold text-on-surface whitespace-nowrap">
+            <span className="px-3 text-body-xs font-bold text-on-surface whitespace-nowrap">
               {weekRangeLabel}
             </span>
             <button
@@ -336,7 +356,7 @@ export default function WeeklySchedule() {
               onClick={() => setWeekOffset((prev) => prev + 1)}
               title="Minggu Berikutnya"
               aria-label="Minggu Berikutnya"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
             >
               <Icon name="chevron_right" size={18} />
             </button>
@@ -344,13 +364,14 @@ export default function WeeklySchedule() {
               <button
                 type="button"
                 onClick={() => setWeekOffset(0)}
-                className="ml-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-bold text-primary hover:bg-primary/25 transition-colors"
+                className="ml-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-bold text-primary hover:bg-primary/25 transition-colors shrink-0"
               >
                 Hari Ini
               </button>
             )}
           </div>
 
+          {/* TA Selector & Share */}
           <TahunAjaranDropdown
             selectedTA={selectedTA}
             onSelect={(ta) => setSelectedTA(ta)}
@@ -369,22 +390,104 @@ export default function WeeklySchedule() {
         </div>
       </header>
 
-      <div className="-mx-md flex gap-xs overflow-x-auto px-md pb-1 desktop:hidden no-scrollbar">
-        {activeWeekDays.map((day) => (
+      {/* Mobile Controls (<600px): Baris 1 Aligned (Bulan di Kiri, TA & Share di Kanan) */}
+      <div className="flex flex-col gap-2 tablet:hidden w-full max-w-full">
+        {/* Row 1: Bulan (Kiri) & TA Selector + Share (Kanan) — 100% ALIGNED */}
+        <div className="flex items-center justify-between gap-2 w-full">
+          <div className="flex items-center gap-1.5 text-body-xs font-bold text-primary bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-2xl shadow-2xs shrink-0">
+            <Icon name="calendar_month" size={15} />
+            <span>{monthYearLabel}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            <TahunAjaranDropdown
+              selectedTA={selectedTA}
+              onSelect={(ta) => setSelectedTA(ta)}
+              currentTA={currentTA}
+              allTAs={allTAs}
+            />
+            <button
+              type="button"
+              onClick={() => setShareOpen(true)}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/20 shadow-xs cursor-pointer"
+              title="Bagikan Jadwal"
+              aria-label="Bagikan jadwal"
+            >
+              <Icon name="ios_share" size={16} />
+            </button>
+          </div>
+        </div>
+
+        {/* Row 2: Week Navigator Pill Lebar Penuh + Tombol Hari Ini jika bergeser */}
+        <div className="flex items-center justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-high/60 px-2 py-1.5 shadow-xs w-full">
           <button
-            key={day}
             type="button"
-            onClick={() => setSelectedDay(day)}
-            className={`shrink-0 rounded-full px-4 py-2 text-body-sm font-medium transition-colors ${
-              selectedDay === day
-                ? 'bg-primary text-on-primary'
-                : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high dark:bg-surface-container-high'
-            }`}
+            onClick={() => setWeekOffset((prev) => prev - 1)}
+            title="Minggu Sebelumnya"
+            aria-label="Minggu Sebelumnya"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
           >
-            {day}
-            {day === todayName && <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-error" />}
+            <Icon name="chevron_left" size={20} />
           </button>
-        ))}
+          <div className="flex items-center gap-1.5">
+            <span className="text-body-xs font-bold text-on-surface text-center whitespace-nowrap">
+              {weekRangeLabel}
+            </span>
+            {weekOffset !== 0 && (
+              <button
+                type="button"
+                onClick={() => setWeekOffset(0)}
+                className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary hover:bg-primary/25 transition-colors shrink-0"
+              >
+                Hari Ini
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setWeekOffset((prev) => prev + 1)}
+            title="Minggu Berikutnya"
+            aria-label="Minggu Berikutnya"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
+          >
+            <Icon name="chevron_right" size={20} />
+          </button>
+        </div>
+      </div>
+
+      {/* Bar 2: Segmented Day Grid 100% Pas Tanpa Seret Kanan Kiri */}
+      <div
+        className="grid gap-1.5 desktop:hidden w-full max-w-full"
+        style={{ gridTemplateColumns: `repeat(${activeWeekDays.length}, minmax(0, 1fr))` }}
+      >
+        {weekDates.map(({ day, dateNum }) => {
+          const isSelected = selectedDay === day
+          const isToday = day === todayName && weekOffset === 0
+          const shortDay = day.slice(0, 3)
+
+          return (
+            <button
+              key={day}
+              type="button"
+              onClick={() => setSelectedDay(day)}
+              className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all duration-200 cursor-pointer min-w-0 ${
+                isSelected
+                  ? 'bg-primary text-on-primary font-bold shadow-xs scale-[1.02]'
+                  : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high dark:bg-surface-container-high'
+              }`}
+            >
+              <span className="text-[11px] uppercase font-bold tracking-tight">
+                {shortDay}
+              </span>
+              <span className={`text-body-sm font-extrabold mt-0.5 ${isSelected ? 'text-on-primary' : 'text-on-surface'}`}>
+                {dateNum}
+              </span>
+              {isToday && (
+                <span className={`h-1 w-1 rounded-full mt-0.5 ${isSelected ? 'bg-white' : 'bg-error animate-pulse'}`} />
+              )}
+            </button>
+          )
+        })}
       </div>
 
       <div className="desktop:hidden">
@@ -951,10 +1054,10 @@ function TahunAjaranDropdown({ selectedTA, onSelect, currentTA, allTAs }) {
             : 'border-outline-variant/40 bg-surface-container-lowest hover:border-primary/50 hover:bg-surface-container-low text-on-surface dark:bg-surface-container-high'
         }`}
       >
-        <Icon name="calendar_month" size={16} className="text-primary shrink-0" />
-        <span>TA {selectedTA}</span>
+        <Icon name="calendar_month" size={15} className="text-primary shrink-0" />
+        <span className="whitespace-nowrap font-bold text-body-xs tablet:text-body-sm">TA {selectedTA}</span>
         <span
-          className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+          className={`hidden tablet:inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
             selectedTA === currentTA
               ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
               : 'bg-surface-container-highest text-on-surface-variant'

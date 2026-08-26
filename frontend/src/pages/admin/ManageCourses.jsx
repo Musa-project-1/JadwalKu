@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
+import * as XLSX from 'xlsx'
 import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
 import { Button } from '../../components/Button'
@@ -6,11 +7,20 @@ import { Input } from '../../components/Input'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Skeleton } from '../../components/Skeleton'
 import { EmptyState } from '../../components/EmptyState'
+import { Pagination } from '../../components/Pagination'
+import {
+  ProdiFilterDropdown,
+  SemesterFilterDropdown,
+  DosenFilterDropdown,
+  SksFilterDropdown,
+} from '../../components/admin/AdminFilterDropdowns'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory } from '../../lib/publishHelpers'
 import { validateCourseEntry } from '../../lib/uploadValidator'
+import { PRODIS, SEMESTER_OPTIONS } from '../../constants/academicConstants'
+import { parseLecturers, getLecturerInitial, formatWhatsAppUrl } from '../../lib/lecturerUtils'
 
 const EMPTY_FORM = {
   kodeMK: '',
@@ -21,36 +31,6 @@ const EMPTY_FORM = {
   durasi: 100,
   semester: 1,
 }
-
-const PRODIS = [
-  { label: 'Semua Prodi', value: '', prefix: '' },
-  { label: 'Arsitektur (ARS)', value: 'Arsitektur', prefix: 'ARS' },
-  { label: 'Bisnis Digital (BD)', value: 'Bisnis Digital', prefix: 'BD' },
-  { label: 'Informatika (IF)', value: 'Informatika', prefix: 'IF' },
-  { label: 'Kewirausahaan (KW)', value: 'Kewirausahaan', prefix: 'KW' },
-  { label: 'Teknik Sipil (TS)', value: 'Teknik Sipil', prefix: 'TS' },
-]
-
-const SKS_OPTIONS = [
-  { label: 'Semua SKS', value: '' },
-  { label: '1 – 2 SKS', value: '1-2' },
-  { label: '3 SKS', value: '3' },
-  { label: '4+ SKS', value: '4+' },
-]
-
-const SEMESTER_OPTIONS = [
-  { label: 'Semua Semester', value: '' },
-  { label: 'Semester Ganjil (1, 3, 5, 7)', value: 'ganjil' },
-  { label: 'Semester Genap (2, 4, 6, 8)', value: 'genap' },
-  { label: 'Semester 1', value: '1' },
-  { label: 'Semester 2', value: '2' },
-  { label: 'Semester 3', value: '3' },
-  { label: 'Semester 4', value: '4' },
-  { label: 'Semester 5', value: '5' },
-  { label: 'Semester 6', value: '6' },
-  { label: 'Semester 7', value: '7' },
-  { label: 'Semester 8', value: '8' },
-]
 
 /** Helper: Dapatkan nomor semester dari field atau auto-ekstrak dari digit pertama kode MK */
 function getCourseSemester(course) {
@@ -65,339 +45,6 @@ function getCourseSemester(course) {
   return null
 }
 
-/** Custom Modern Popover Dropdown for Dosen with built-in search */
-function DosenFilterDropdown({ lecturers, selected, onSelect }) {
-  const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState('')
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false)
-      }
-    }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
-
-  const filteredLecturers = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    if (!q) return lecturers
-    return lecturers.filter((name) => name.toLowerCase().includes(q))
-  }, [lecturers, search])
-
-  return (
-    <div ref={dropdownRef} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-body-xs font-semibold transition-all cursor-pointer ${
-          selected
-            ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
-            : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
-        }`}
-      >
-        <Icon name="person" size={18} className={selected ? 'text-primary' : 'text-on-surface-variant'} />
-        <span className="max-w-[130px] truncate sm:max-w-[160px]">
-          {selected || `Dosen (${lecturers.length})`}
-        </span>
-        <Icon
-          name="expand_more"
-          size={18}
-          className={`text-on-surface-variant transition-transform duration-200 ${
-            open ? 'rotate-180 text-primary' : ''
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full z-40 mt-2 w-72 sm:w-80 rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-3 shadow-2xl dark:bg-surface-container-high animate-fade-up">
-          {/* Search inside lecturer dropdown */}
-          <div className="relative mb-2">
-            <Icon
-              name="search"
-              size={18}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
-            />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari dosen..."
-              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 py-1.5 pl-9 pr-3 text-body-xs font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:outline-none"
-              autoFocus
-            />
-          </div>
-
-          <div className="max-h-60 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
-            <button
-              type="button"
-              onClick={() => {
-                onSelect('')
-                setOpen(false)
-              }}
-              className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-body-xs font-semibold transition-colors cursor-pointer ${
-                !selected
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-on-surface hover:bg-surface-container-low'
-              }`}
-            >
-              <span>Semua Dosen</span>
-              {!selected && <Icon name="check" size={18} className="text-primary" />}
-            </button>
-
-            {filteredLecturers.map((name) => {
-              const isSelected = selected === name
-              return (
-                <button
-                  key={name}
-                  type="button"
-                  onClick={() => {
-                    onSelect(name)
-                    setOpen(false)
-                  }}
-                  className={`flex w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-body-xs font-medium transition-colors cursor-pointer ${
-                    isSelected
-                      ? 'bg-primary/10 text-primary font-bold'
-                      : 'text-on-surface hover:bg-surface-container-low'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary-container text-label-caps font-bold text-on-secondary-container">
-                      {name.slice(0, 1).toUpperCase()}
-                    </div>
-                    <span className="truncate">{name}</span>
-                  </div>
-                  {isSelected && <Icon name="check" size={18} className="text-primary shrink-0" />}
-                </button>
-              )
-            })}
-
-            {filteredLecturers.length === 0 && (
-              <p className="py-4 text-center text-body-xs text-on-surface-variant font-medium">
-                Dosen tidak ditemukan
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-/** Custom Modern Popover Dropdown for Prodi */
-function ProdiFilterDropdown({ selected, onSelect }) {
-  const [open, setOpen] = useState(false)
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false)
-      }
-    }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
-
-  const selectedLabel = PRODIS.find((p) => p.value === selected)?.label || 'Semua Prodi'
-
-  return (
-    <div ref={dropdownRef} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-body-xs font-semibold transition-all cursor-pointer ${
-          selected
-            ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
-            : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
-        }`}
-      >
-        <Icon name="school" size={18} className={selected ? 'text-primary' : 'text-on-surface-variant'} />
-        <span className="max-w-[120px] truncate sm:max-w-[150px]">{selectedLabel}</span>
-        <Icon
-          name="expand_more"
-          size={18}
-          className={`text-on-surface-variant transition-transform duration-200 ${
-            open ? 'rotate-180 text-primary' : ''
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full z-40 mt-2 w-64 rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up space-y-1">
-          {PRODIS.map((p) => {
-            const isSelected = selected === p.value
-            return (
-              <button
-                key={p.value}
-                type="button"
-                onClick={() => {
-                  onSelect(p.value)
-                  setOpen(false)
-                }}
-                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-body-xs font-semibold transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-on-surface hover:bg-surface-container-low'
-                }`}
-              >
-                <span>{p.label}</span>
-                {isSelected && <Icon name="check" size={18} className="text-primary" />}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/** Custom Modern Popover Dropdown for Semester */
-function SemesterFilterDropdown({ selected, onSelect }) {
-  const [open, setOpen] = useState(false)
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false)
-      }
-    }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
-
-  const selectedLabel = SEMESTER_OPTIONS.find((s) => s.value === selected)?.label || 'Semua Semester'
-
-  return (
-    <div ref={dropdownRef} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-body-xs font-semibold transition-all cursor-pointer ${
-          selected
-            ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
-            : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
-        }`}
-      >
-        <Icon name="calendar_view_month" size={18} className={selected ? 'text-primary' : 'text-on-surface-variant'} />
-        <span className="max-w-[120px] truncate sm:max-w-[150px]">{selectedLabel}</span>
-        <Icon
-          name="expand_more"
-          size={18}
-          className={`text-on-surface-variant transition-transform duration-200 ${
-            open ? 'rotate-180 text-primary' : ''
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full z-40 mt-2 w-64 max-h-72 overflow-y-auto rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up space-y-1 custom-scrollbar">
-          {SEMESTER_OPTIONS.map((s) => {
-            const isSelected = selected === s.value
-            return (
-              <button
-                key={s.value}
-                type="button"
-                onClick={() => {
-                  onSelect(s.value)
-                  setOpen(false)
-                }}
-                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-body-xs font-semibold transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-on-surface hover:bg-surface-container-low'
-                }`}
-              >
-                <span>{s.label}</span>
-                {isSelected && <Icon name="check" size={18} className="text-primary" />}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/** Custom Modern Popover Dropdown for SKS */
-function SksFilterDropdown({ selected, onSelect }) {
-  const [open, setOpen] = useState(false)
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false)
-      }
-    }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
-
-  const selectedLabel = SKS_OPTIONS.find((s) => s.value === selected)?.label || 'Semua SKS'
-
-  return (
-    <div ref={dropdownRef} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-body-xs font-semibold transition-all cursor-pointer ${
-          selected
-            ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
-            : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
-        }`}
-      >
-        <Icon name="workspace_premium" size={18} className={selected ? 'text-primary' : 'text-on-surface-variant'} />
-        <span>{selectedLabel}</span>
-        <Icon
-          name="expand_more"
-          size={18}
-          className={`text-on-surface-variant transition-transform duration-200 ${
-            open ? 'rotate-180 text-primary' : ''
-          }`}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full z-40 mt-2 w-48 rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up space-y-1">
-          {SKS_OPTIONS.map((s) => {
-            const isSelected = selected === s.value
-            return (
-              <button
-                key={s.value}
-                type="button"
-                onClick={() => {
-                  onSelect(s.value)
-                  setOpen(false)
-                }}
-                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-body-xs font-semibold transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-on-surface hover:bg-surface-container-low'
-                }`}
-              >
-                <span>{s.label}</span>
-                {isSelected && <Icon name="check" size={18} className="text-primary" />}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
 export default function ManageCourses() {
   const { data: courses, loading } = useFirestore('mataKuliah')
   const { user } = useAdminAuth()
@@ -408,6 +55,10 @@ export default function ManageCourses() {
   const [prodiFilter, setProdiFilter] = useState('')
   const [semesterFilter, setSemesterFilter] = useState('')
   const [sksFilter, setSksFilter] = useState('')
+
+  // ── State Pagination ──
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(7)
 
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add') // 'add' | 'edit'
@@ -470,6 +121,15 @@ export default function ManageCourses() {
       .sort((a, b) => String(a.kodeMK).localeCompare(String(b.kodeMK)))
   }, [courses, search, dosenFilter, prodiFilter, semesterFilter, sksFilter])
 
+  // ── Paginasi Data Mata Kuliah ──
+  const totalPages = pageSize === 0 ? 1 : Math.ceil(filtered.length / pageSize) || 1
+  const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages))
+  const paginatedCourses = useMemo(() => {
+    if (pageSize === 0) return filtered
+    const start = (safeCurrentPage - 1) * pageSize
+    return filtered.slice(start, start + pageSize)
+  }, [filtered, safeCurrentPage, pageSize])
+
   const hasActiveFilters = Boolean(search || dosenFilter || prodiFilter || semesterFilter || sksFilter)
 
   function resetAllFilters() {
@@ -478,6 +138,29 @@ export default function ManageCourses() {
     setProdiFilter('')
     setSemesterFilter('')
     setSksFilter('')
+  }
+
+  function exportCoursesToExcel() {
+    if (filtered.length === 0) {
+      setBanner({ ok: false, message: 'Tidak ada data mata kuliah untuk diekspor.' })
+      return
+    }
+    const exportData = filtered.map((c) => {
+      const sem = getCourseSemester(c)
+      return {
+        'Kode MK': c.kodeMK,
+        'Nama Mata Kuliah': c.namaMK,
+        Semester: sem ? `Semester ${sem}` : '-',
+        'Dosen Pengampu': c.dosen || '-',
+        'Kontak WhatsApp': c.kontakDosen || '-',
+        'Bobot SKS': c.sks || 2,
+        'Durasi (Menit)': c.durasi || 100,
+      }
+    })
+    const ws = XLSX.utils.json_to_sheet(exportData)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Master_Mata_Kuliah')
+    XLSX.writeFile(wb, `Master_Mata_Kuliah_${new Date().toISOString().slice(0, 10)}.xlsx`)
   }
 
   function openAddModal() {
@@ -575,44 +258,60 @@ export default function ManageCourses() {
   }
 
   return (
-    <div className="space-y-6 pb-12 animate-fade-in">
-      {/* Header & Quick Stats */}
-      <header className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
-        <div className="flex items-center gap-3.5">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-sm dark:bg-secondary-container/30">
-            <Icon name="menu_book" size={26} />
+    <div className="space-y-6 pb-12 animate-fade-in w-full max-w-full overflow-x-hidden">
+      {/* Header & Live Quick Stats — 1 Horizontal Row on Desktop */}
+      <header className="flex flex-col gap-2.5 tablet:flex-row tablet:items-center tablet:justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xs dark:bg-primary/20">
+            <Icon name="menu_book" size={22} />
           </span>
-          <div>
-            <h1 className="text-headline-lg font-bold text-on-surface">Kelola MK & Dosen</h1>
-            <p className="text-body-sm text-on-surface-variant mt-0.5">
-              Daftar master mata kuliah, bobot SKS, tingkat semester, dan dosen pengampu universitas
+          <div className="min-w-0">
+            <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+              Kelola MK & Dosen
+            </h1>
+            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">
+              Master mata kuliah, SKS, semester & dosen pengampu
             </p>
           </div>
         </div>
 
-        {/* Live Quick Stat Chips */}
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-3.5 py-2 shadow-xs dark:bg-surface-container-low">
-            <Icon name="library_books" size={18} className="text-primary" />
-            <div>
-              <p className="text-label-caps uppercase font-bold text-on-surface-variant">Total MK</p>
-              <p className="text-title-sm font-bold text-on-surface">{stats.totalCourses}</p>
+        {/* Right side: 3 Stat Chips + Tambah MK Button */}
+        <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 flex-wrap tablet:flex-nowrap">
+          <div className="grid grid-cols-3 gap-1.5 w-full tablet:flex tablet:w-auto tablet:gap-2">
+            <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-1.5 tablet:px-3 tablet:py-1.5 shadow-2xs dark:bg-surface-container-low min-w-0">
+              <Icon name="library_books" size={16} className="text-primary shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase font-bold text-on-surface-variant leading-none">Total MK</p>
+                <p className="text-body-sm font-bold text-on-surface leading-tight mt-0.5">{stats.totalCourses}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-1.5 tablet:px-3 tablet:py-1.5 shadow-2xs dark:bg-surface-container-low min-w-0">
+              <Icon name="person" size={16} className="text-secondary shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase font-bold text-on-surface-variant leading-none">Dosen</p>
+                <p className="text-body-sm font-bold text-on-surface leading-tight mt-0.5">{stats.totalLecturers}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-1.5 tablet:px-3 tablet:py-1.5 shadow-2xs dark:bg-surface-container-low min-w-0">
+              <Icon name="workspace_premium" size={16} className="text-tertiary shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase font-bold text-on-surface-variant leading-none">Total SKS</p>
+                <p className="text-body-sm font-bold text-on-surface leading-tight mt-0.5">{stats.totalSks}</p>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-3.5 py-2 shadow-xs dark:bg-surface-container-low">
-            <Icon name="person" size={18} className="text-secondary" />
-            <div>
-              <p className="text-label-caps uppercase font-bold text-on-surface-variant">Dosen</p>
-              <p className="text-title-sm font-bold text-on-surface">{stats.totalLecturers}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-3.5 py-2 shadow-xs dark:bg-surface-container-low">
-            <Icon name="workspace_premium" size={18} className="text-tertiary" />
-            <div>
-              <p className="text-label-caps uppercase font-bold text-on-surface-variant">Total SKS</p>
-              <p className="text-title-sm font-bold text-on-surface">{stats.totalSks}</p>
-            </div>
-          </div>
+
+          <Button
+            onClick={openAddModal}
+            className="rounded-2xl px-3.5 py-2 font-bold shadow-xs cursor-pointer text-body-xs shrink-0"
+            title="Tambah Mata Kuliah"
+            aria-label="Tambah MK"
+          >
+            <Icon name="add" size={16} className="mr-1" />
+            <span>Tambah MK</span>
+          </Button>
         </div>
       </header>
 
@@ -624,38 +323,38 @@ export default function ManageCourses() {
         />
       )}
 
-      {/* Modern Filter Toolbar */}
-      <div className="flex flex-col gap-3 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15">
-        <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center">
-          {/* Main Search Input */}
-          <div className="relative flex-1 min-w-0">
+      {/* ── 2. Master Courses Management (Unified Single Card Container) ── */}
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
+        {/* Unified Search & Filters in 1 Row on Desktop */}
+        <div className="relative z-30 flex flex-col gap-2 tablet:flex-row tablet:items-center">
+          <div className="relative flex-1 min-w-[200px]">
             <Icon
               name="search"
-              size={20}
+              size={17}
               className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
             />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari kode MK, nama mata kuliah, atau dosen…"
+              placeholder="Cari kode MK, nama mata kuliah, dosen…"
               aria-label="Cari mata kuliah"
-              className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low/50 py-2.5 pl-11 pr-9 text-body-sm font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all"
+              className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low/50 py-1.5 tablet:py-2 pl-9 pr-8 text-body-xs tablet:text-body-sm font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-2xs"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-on-surface-variant hover:bg-surface-container cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-on-surface-variant hover:bg-surface-container cursor-pointer"
                 aria-label="Hapus pencarian"
               >
-                <Icon name="close" size={16} />
+                <Icon name="close" size={13} />
               </button>
             )}
           </div>
 
-          {/* Filter Dropdowns & Add Button */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Filter Dropdowns & Actions */}
+          <div className="flex items-center gap-1.5 overflow-x-auto tablet:overflow-visible no-scrollbar w-full tablet:w-auto shrink-0 pb-0.5 tablet:pb-0 relative z-30">
             <ProdiFilterDropdown
               selected={prodiFilter}
               onSelect={setProdiFilter}
@@ -677,82 +376,101 @@ export default function ManageCourses() {
               onSelect={setSksFilter}
             />
 
-            <Button
-              onClick={openAddModal}
-              className="rounded-2xl px-4 py-2.5 font-bold shadow-sm whitespace-nowrap cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
+            <button
+              type="button"
+              onClick={exportCoursesToExcel}
+              className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1.5 text-body-xs font-semibold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
+              title="Ekspor Kurikulum Mata Kuliah ke Excel"
             >
-              <Icon name="add" size={20} className="mr-1" />
-              Tambah MK
-            </Button>
+              <Icon name="file_download" size={14} className="text-secondary" />
+              <span>Ekspor</span>
+            </button>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('')
+                  setProdiFilter('')
+                  setSemesterFilter('')
+                  setDosenFilter('')
+                  setSksFilter('')
+                }}
+                className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-error/30 bg-error/10 px-2.5 py-1.5 text-body-xs font-bold text-error hover:bg-error/20 cursor-pointer transition-colors"
+              >
+                <Icon name="refresh" size={13} />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
         </div>
 
         {/* Active Filter Chips */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-outline-variant/15 text-label-caps uppercase font-semibold text-on-surface-variant">
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-outline-variant/15 text-label-caps uppercase font-semibold text-on-surface-variant">
             <span>Filter Aktif:</span>
 
             {search && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-2.5 py-1 text-on-surface">
+              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-2.5 py-0.5 text-body-xs font-semibold text-on-surface">
                 <span>Keyword: "{search}"</span>
                 <button
                   type="button"
                   onClick={() => setSearch('')}
                   className="rounded-full p-0.5 hover:bg-surface-container-highest cursor-pointer"
                 >
-                  <Icon name="close" size={14} />
+                  <Icon name="close" size={12} />
                 </button>
               </span>
             )}
 
             {prodiFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-primary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-body-xs font-semibold text-primary">
                 <span>Prodi: {prodiFilter}</span>
                 <button
                   type="button"
                   onClick={() => setProdiFilter('')}
                   className="rounded-full p-0.5 hover:bg-primary/20 cursor-pointer"
                 >
-                  <Icon name="close" size={14} />
+                  <Icon name="close" size={12} />
                 </button>
               </span>
             )}
 
             {semesterFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-1 text-indigo-700 dark:text-indigo-300">
+              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-body-xs font-semibold text-indigo-700 dark:text-indigo-300">
                 <span>Semester: {SEMESTER_OPTIONS.find((s) => s.value === semesterFilter)?.label}</span>
                 <button
                   type="button"
                   onClick={() => setSemesterFilter('')}
                   className="rounded-full p-0.5 hover:bg-indigo-500/20 cursor-pointer"
                 >
-                  <Icon name="close" size={14} />
+                  <Icon name="close" size={12} />
                 </button>
               </span>
             )}
 
             {dosenFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-1 text-secondary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-0.5 text-body-xs font-semibold text-secondary">
                 <span className="max-w-[140px] truncate">Dosen: {dosenFilter}</span>
                 <button
                   type="button"
                   onClick={() => setDosenFilter('')}
                   className="rounded-full p-0.5 hover:bg-secondary/20 cursor-pointer"
                 >
-                  <Icon name="close" size={14} />
+                  <Icon name="close" size={12} />
                 </button>
               </span>
             )}
 
             {sksFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-tertiary/10 px-2.5 py-1 text-tertiary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-tertiary/10 px-2.5 py-0.5 text-body-xs font-semibold text-tertiary">
                 <span>SKS: {SKS_OPTIONS.find((s) => s.value === sksFilter)?.label}</span>
                 <button
                   type="button"
                   onClick={() => setSksFilter('')}
                   className="rounded-full p-0.5 hover:bg-tertiary/20 cursor-pointer"
                 >
-                  <Icon name="close" size={14} />
+                  <Icon name="close" size={12} />
                 </button>
               </span>
             )}
@@ -766,17 +484,15 @@ export default function ManageCourses() {
             </button>
           </div>
         )}
-      </div>
 
-      {/* Main Course Table / List */}
-      {loading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-16 w-full rounded-2xl" />
-          <Skeleton className="h-16 w-full rounded-2xl" />
-          <Skeleton className="h-16 w-full rounded-2xl" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-8 dark:bg-surface-container-low">
+        {/* Main Course Table / List */}
+        {loading ? (
+          <div className="space-y-2.5">
+            <Skeleton className="h-14 w-full rounded-2xl" />
+            <Skeleton className="h-14 w-full rounded-2xl" />
+            <Skeleton className="h-14 w-full rounded-2xl" />
+          </div>
+        ) : filtered.length === 0 ? (
           <EmptyState
             icon="menu_book"
             title="Tidak ada mata kuliah yang cocok"
@@ -786,234 +502,283 @@ export default function ManageCourses() {
                 : 'Belum ada data mata kuliah. Tekan tombol "+ Tambah MK" untuk membuat master mata kuliah.'
             }
           />
-          {hasActiveFilters && (
-            <div className="flex justify-center mt-4">
-              <Button variant="secondary" onClick={resetAllFilters} className="cursor-pointer">
-                <Icon name="refresh" size={18} className="mr-1" />
-                Reset Semua Filter
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <>
-          {/* Table — Desktop & Tablet */}
-          <div className="hidden overflow-hidden rounded-3xl border border-outline-variant/20 bg-surface-container-lowest shadow-sm tablet:block dark:bg-surface-container-low dark:border-outline-variant/15">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-outline-variant/15 bg-surface-container-low/50 dark:bg-surface-container-high/20">
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Kode MK
-                  </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Nama Mata Kuliah
-                  </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Semester
-                  </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Dosen Pengampu
-                  </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Kontak
-                  </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-center">
-                    Bobot / Durasi
-                  </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-right">
-                    Aksi
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/10">
-                {filtered.map((course) => {
-                  const rawPhone = String(course.kontakDosen || '').replace(/[^0-9]/g, '')
-                  const waUrl = rawPhone ? `https://wa.me/${rawPhone.startsWith('0') ? '62' + rawPhone.slice(1) : rawPhone}` : null
-                  const semester = getCourseSemester(course)
-                  return (
-                    <tr
-                      key={course.id}
-                      className="group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20"
-                    >
-                      {/* Kode MK */}
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-3 py-1 font-mono text-body-xs font-bold text-primary border border-primary/20 dark:bg-primary/20">
-                          {course.kodeMK}
-                        </span>
-                      </td>
+        ) : (
+          <>
+            {/* Table — Desktop & Tablet with Sticky Header & Dynamic Viewport Height */}
+            <div className="hidden overflow-x-hidden overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
+              <table className="w-full table-fixed text-left border-collapse">
+                <thead className="sticky top-0 z-20 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
+                  <tr className="border-b border-outline-variant/15">
+                    <th className="w-[12%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                      Kode MK
+                    </th>
+                    <th className="w-[27%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                      Nama Mata Kuliah
+                    </th>
+                    <th className="w-[10%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                      Semester
+                    </th>
+                    <th className="w-[24%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                      Dosen Pengampu
+                    </th>
+                    <th className="w-[12%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                      Kontak
+                    </th>
+                    <th className="w-[9%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-center">
+                      Bobot
+                    </th>
+                    <th className="w-[6%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-right">
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/10">
+                  {paginatedCourses.map((course) => {
+                    const waUrl = formatWhatsAppUrl(course.kontakDosen)
+                    const semester = getCourseSemester(course)
+                    const lecturerList = parseLecturers(course.dosen)
 
-                      {/* Nama MK */}
-                      <td className="px-5 py-4">
-                        <p className="font-bold text-body-md text-on-surface leading-snug">
-                          {course.namaMK}
-                        </p>
-                      </td>
-
-                      {/* Semester */}
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        {semester ? (
-                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2.5 py-1 text-label-caps font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
-                            Sem. {semester}
+                    return (
+                      <tr
+                        key={course.id}
+                        className="group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20"
+                      >
+                        {/* Kode MK */}
+                        <td className="px-3.5 py-2.5">
+                          <span className="inline-flex items-center rounded-xl bg-primary/10 px-2 py-0.5 font-mono text-body-xs font-bold text-primary border border-primary/20 dark:bg-primary/20">
+                            {course.kodeMK}
                           </span>
-                        ) : (
-                          <span className="text-on-surface-variant/40 text-body-sm">-</span>
-                        )}
-                      </td>
+                        </td>
 
-                      {/* Dosen */}
-                      <td className="px-5 py-4">
-                        {course.dosen ? (
-                          <div className="flex items-center gap-2.5">
-                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-label-caps">
-                              {course.dosen.slice(0, 1).toUpperCase()}
-                            </div>
-                            <span className="text-body-xs font-semibold text-on-surface-variant">
-                              {course.dosen}
+                        {/* Nama MK */}
+                        <td className="px-3.5 py-2.5">
+                          <p className="font-bold text-body-md text-on-surface leading-snug break-words">
+                            {course.namaMK}
+                          </p>
+                        </td>
+
+                        {/* Semester */}
+                        <td className="px-3 py-2.5">
+                          {semester ? (
+                            <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+                              Sem. {semester}
                             </span>
-                          </div>
-                        ) : (
-                          <span className="text-on-surface-variant/50 text-body-xs">-</span>
-                        )}
-                      </td>
+                          ) : (
+                            <span className="text-on-surface-variant/40 text-body-sm">-</span>
+                          )}
+                        </td>
 
-                      {/* Kontak */}
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        {course.kontakDosen ? (
-                          <a
-                            href={waUrl || `tel:${course.kontakDosen}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors cursor-pointer"
-                            title="Buka Chat WhatsApp"
-                          >
-                            <Icon name="chat" size={13} className="shrink-0" />
-                            <span>{course.kontakDosen}</span>
-                          </a>
-                        ) : (
-                          <span className="text-on-surface-variant/40 text-body-sm">-</span>
-                        )}
-                      </td>
+                        {/* Dosen Pengampu (Smart Multi-Lecturer Formatter) */}
+                        <td className="px-3.5 py-2.5">
+                          {lecturerList.length === 0 ? (
+                            <span className="text-on-surface-variant/50 text-body-xs">-</span>
+                          ) : lecturerList.length === 1 ? (
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-label-caps shadow-2xs">
+                                {getLecturerInitial(lecturerList[0])}
+                              </div>
+                              <span className="text-body-xs font-semibold text-on-surface truncate">
+                                {lecturerList[0]}
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="space-y-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                {/* Avatar stack */}
+                                <div className="flex -space-x-1.5 shrink-0">
+                                  {lecturerList.slice(0, 3).map((docName, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-[10px] ring-2 ring-surface-container-lowest dark:ring-surface-container-low shadow-2xs"
+                                      title={docName}
+                                    >
+                                      {getLecturerInitial(docName)}
+                                    </div>
+                                  ))}
+                                </div>
+                                <span className="inline-flex items-center gap-0.5 rounded-md bg-secondary/10 px-1.5 py-0.5 text-[10px] uppercase font-bold text-secondary border border-secondary/20">
+                                  {lecturerList.length} Dosen
+                                </span>
+                              </div>
+                              <div className="text-body-xs text-on-surface-variant space-y-0.5">
+                                {lecturerList.map((docName, idx) => (
+                                  <p key={idx} className="font-semibold text-on-surface leading-tight truncate">
+                                    {idx + 1}. {docName}
+                                  </p>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </td>
 
-                      {/* Bobot & Durasi */}
-                      <td className="px-5 py-4 whitespace-nowrap text-center">
-                        <div className="inline-flex items-center gap-1.5">
-                          <span className="rounded-lg bg-surface-container px-2.5 py-1 text-label-caps font-bold text-on-surface">
+                        {/* Kontak */}
+                        <td className="px-3.5 py-2.5">
+                          {course.kontakDosen ? (
+                            <a
+                              href={waUrl || `tel:${course.kontakDosen}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors border border-emerald-500/20"
+                              title={`Hubungi ${course.kontakDosen} via WhatsApp`}
+                            >
+                              <Icon name="chat" size={13} />
+                              <span className="font-mono">{course.kontakDosen}</span>
+                            </a>
+                          ) : (
+                            <span className="text-on-surface-variant/40 text-body-xs font-mono">-</span>
+                          )}
+                        </td>
+
+                        {/* SKS & Durasi */}
+                        <td className="px-3 py-2.5 text-center">
+                          <span className="inline-block rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface">
                             {course.sks} SKS
                           </span>
-                          <span className="rounded-lg bg-surface-container-high/60 px-2.5 py-1 text-label-caps font-medium text-on-surface-variant">
+                          <span className="block text-[10px] text-on-surface-variant mt-0.5">
                             {course.durasi} mnt
                           </span>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Aksi */}
-                      <td className="px-5 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => openEditModal(course)}
-                            className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer"
-                            title={`Edit ${course.kodeMK}`}
-                          >
-                            <Icon name="edit" size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteTarget(course)}
-                            className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer"
-                            title={`Hapus ${course.kodeMK}`}
-                          >
-                            <Icon name="delete" size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                        {/* Aksi */}
+                        <td className="px-3 py-2.5 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              type="button"
+                              onClick={() => openEditModal(course)}
+                              className="flex h-7 w-7 items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer border border-outline-variant/15"
+                              title="Edit Mata Kuliah"
+                            >
+                              <Icon name="edit" size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDeleteTarget(course)}
+                              className="flex h-7 w-7 items-center justify-center rounded-xl text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer border border-outline-variant/15"
+                              title="Hapus Mata Kuliah"
+                            >
+                              <Icon name="delete" size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-          {/* Cards — Mobile */}
-          <div className="space-y-3 tablet:hidden">
-            {filtered.map((course) => {
-              const rawPhone = String(course.kontakDosen || '').replace(/[^0-9]/g, '')
-              const waUrl = rawPhone ? `https://wa.me/${rawPhone.startsWith('0') ? '62' + rawPhone.slice(1) : rawPhone}` : null
-              const semester = getCourseSemester(course)
-              return (
-                <div
-                  key={course.id}
-                  className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-xs dark:bg-surface-container-low space-y-3"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-label-caps font-bold text-primary border border-primary/20">
-                          {course.kodeMK}
-                        </span>
-                        {semester && (
-                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300">
-                            Sem. {semester}
+            {/* Mobile Cards */}
+            <div className="space-y-3 tablet:hidden overflow-y-auto flex-1 min-h-0">
+              {paginatedCourses.map((course) => {
+                const waUrl = formatWhatsAppUrl(course.kontakDosen)
+                const semester = getCourseSemester(course)
+                const lecturerList = parseLecturers(course.dosen)
+
+                return (
+                  <div
+                    key={course.id}
+                    className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-2xs dark:bg-surface-container-low space-y-2.5"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-label-caps font-bold text-primary border border-primary/20">
+                            {course.kodeMK}
                           </span>
-                        )}
+                          {semester && (
+                            <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300">
+                              Sem. {semester}
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-body-md font-bold text-on-surface mt-1.5 leading-snug">
+                          {course.namaMK}
+                        </h3>
                       </div>
-                      <h3 className="text-body-md font-bold text-on-surface mt-1.5 leading-snug">
-                        {course.namaMK}
-                      </h3>
-                    </div>
-                    <div className="flex shrink-0 gap-1">
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(course)}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/10 hover:text-primary cursor-pointer"
-                        aria-label="Edit"
-                      >
-                        <Icon name="edit" size={18} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleteTarget(course)}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer"
-                        aria-label="Hapus"
-                      >
-                        <Icon name="delete" size={18} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-body-sm text-on-surface-variant">
-                    <Icon name="person" size={16} className="text-secondary shrink-0" />
-                    <span className="font-semibold truncate">{course.dosen || 'Dosen belum diisi'}</span>
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-outline-variant/10">
-                    <div className="flex items-center gap-1.5">
-                      <span className="rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface">
-                        {course.sks} SKS
-                      </span>
-                      <span className="rounded-md bg-surface-container-high px-2 py-0.5 text-label-caps font-medium text-on-surface-variant">
-                        {course.durasi} mnt
-                      </span>
+                      <div className="flex shrink-0 gap-1">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(course)}
+                          className="flex h-8 w-8 items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary cursor-pointer border border-outline-variant/15"
+                          aria-label="Edit"
+                        >
+                          <Icon name="edit" size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTarget(course)}
+                          className="flex h-8 w-8 items-center justify-center rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer border border-outline-variant/15"
+                          aria-label="Hapus"
+                        >
+                          <Icon name="delete" size={16} />
+                        </button>
+                      </div>
                     </div>
 
-                    {course.kontakDosen && (
-                      <a
-                        href={waUrl || `tel:${course.kontakDosen}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300"
-                      >
-                        <Icon name="chat" size={12} />
-                        <span>{course.kontakDosen}</span>
-                      </a>
-                    )}
+                    <div className="space-y-1 pt-1 border-t border-outline-variant/10">
+                      {lecturerList.length <= 1 ? (
+                        <div className="flex items-center gap-2">
+                          <Icon name="person" size={16} className="text-on-surface-variant shrink-0" />
+                          <span className="text-body-xs font-semibold text-on-surface truncate">
+                            {lecturerList[0] || 'Dosen belum ditentukan'}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 text-secondary font-bold text-body-xs">
+                            <Icon name="groups" size={16} />
+                            <span>Tim {lecturerList.length} Dosen:</span>
+                          </div>
+                          <ul className="text-body-xs font-medium text-on-surface pl-5 list-disc space-y-0.5">
+                            {lecturerList.map((docName, idx) => (
+                              <li key={idx}>{docName}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-outline-variant/10">
+                      <div className="flex items-center gap-1.5">
+                        <span className="rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface">
+                          {course.sks} SKS
+                        </span>
+                        <span className="rounded-md bg-surface-container-high px-2 py-0.5 text-label-caps font-medium text-on-surface-variant">
+                          {course.durasi} mnt
+                        </span>
+                      </div>
+
+                      {course.kontakDosen && (
+                        <a
+                          href={waUrl || `tel:${course.kontakDosen}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-500/20"
+                        >
+                          <Icon name="chat" size={12} />
+                          <span>{course.kontakDosen}</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
-        </>
-      )}
+                )
+              })}
+            </div>
+
+            {/* Shared Pagination Controls inside bottom with border-t */}
+            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
+              <Pagination
+                currentPage={safeCurrentPage}
+                totalItems={filtered.length}
+                pageSize={pageSize === 0 ? 'Semua' : pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
+                itemLabel="mata kuliah"
+              />
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Modal Dialog Form (Tambah / Edit) */}
       {modalOpen && (
