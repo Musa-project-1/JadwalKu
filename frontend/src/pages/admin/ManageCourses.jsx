@@ -259,59 +259,60 @@ export default function ManageCourses() {
 
   return (
     <div className="space-y-6 pb-12 animate-fade-in w-full max-w-full overflow-x-hidden">
-      {/* Header & Live Quick Stats — 1 Horizontal Row on Desktop */}
-      <header className="flex flex-col gap-2.5 tablet:flex-row tablet:items-center tablet:justify-between">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xs dark:bg-primary/20">
-            <Icon name="menu_book" size={22} />
-          </span>
-          <div className="min-w-0">
-            <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
-              Kelola MK & Dosen
-            </h1>
-            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">
-              Master mata kuliah, SKS, semester & dosen pengampu
-            </p>
+      {/* Header & Quick Stats */}
+      <header className="flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <span className="flex h-11 w-11 tablet:h-12 tablet:w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-xs dark:bg-secondary-container/30 mt-0.5">
+              <Icon name="menu_book" size={24} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl tablet:text-headline-lg font-bold tracking-tight text-on-surface">
+                Kelola MK & Dosen
+              </h1>
+              <p className="text-body-xs tablet:text-body-sm font-normal text-on-surface-variant mt-0.5">
+                Master mata kuliah, SKS, semester & dosen pengampu
+              </p>
+            </div>
+          </div>
+
+          {/* Primary Action Button beside title */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              onClick={openAddModal}
+              className="rounded-2xl p-2.5 tablet:px-4 tablet:py-2.5 font-bold shadow-xs cursor-pointer text-body-sm shrink-0"
+              title="Tambah Mata Kuliah"
+              aria-label="Tambah MK"
+            >
+              <Icon name="add" size={20} className="tablet:mr-1.5" />
+              <span className="hidden tablet:inline">Tambah MK</span>
+            </Button>
           </div>
         </div>
 
-        {/* Right side: 3 Stat Chips + Tambah MK Button */}
-        <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 flex-wrap tablet:flex-nowrap">
-          <div className="grid grid-cols-3 gap-1.5 w-full tablet:flex tablet:w-auto tablet:gap-2">
-            <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-1.5 tablet:px-3 tablet:py-1.5 shadow-2xs dark:bg-surface-container-low min-w-0">
-              <Icon name="library_books" size={16} className="text-primary shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase font-bold text-on-surface-variant leading-none">Total MK</p>
-                <p className="text-body-sm font-bold text-on-surface leading-tight mt-0.5">{stats.totalCourses}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-1.5 tablet:px-3 tablet:py-1.5 shadow-2xs dark:bg-surface-container-low min-w-0">
-              <Icon name="person" size={16} className="text-secondary shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase font-bold text-on-surface-variant leading-none">Dosen</p>
-                <p className="text-body-sm font-bold text-on-surface leading-tight mt-0.5">{stats.totalLecturers}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-1.5 tablet:px-3 tablet:py-1.5 shadow-2xs dark:bg-surface-container-low min-w-0">
-              <Icon name="workspace_premium" size={16} className="text-tertiary shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase font-bold text-on-surface-variant leading-none">Total SKS</p>
-                <p className="text-body-sm font-bold text-on-surface leading-tight mt-0.5">{stats.totalSks}</p>
-              </div>
+        {/* Live Quick Stat Chips — 3-Column Grid on Mobile, Flex on Desktop */}
+        <div className="grid grid-cols-3 gap-2 w-full tablet:flex tablet:w-auto">
+          <div className="flex flex-col tablet:flex-row items-center tablet:items-center text-center tablet:text-left gap-1 tablet:gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-2.5 tablet:px-3.5 tablet:py-2 shadow-xs dark:bg-surface-container-low min-w-0">
+            <Icon name="library_books" size={18} className="text-primary shrink-0" />
+            <div className="min-w-0 w-full">
+              <p className="text-[10px] tablet:text-label-caps uppercase font-bold text-on-surface-variant truncate">Total MK</p>
+              <p className="text-title-sm font-bold text-on-surface">{stats.totalCourses}</p>
             </div>
           </div>
-
-          <Button
-            onClick={openAddModal}
-            className="rounded-2xl px-3.5 py-2 font-bold shadow-xs cursor-pointer text-body-xs shrink-0"
-            title="Tambah Mata Kuliah"
-            aria-label="Tambah MK"
-          >
-            <Icon name="add" size={16} className="mr-1" />
-            <span>Tambah MK</span>
-          </Button>
+          <div className="flex flex-col tablet:flex-row items-center tablet:items-center text-center tablet:text-left gap-1 tablet:gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-2.5 tablet:px-3.5 tablet:py-2 shadow-xs dark:bg-surface-container-low min-w-0">
+            <Icon name="person" size={18} className="text-secondary shrink-0" />
+            <div className="min-w-0 w-full">
+              <p className="text-[10px] tablet:text-label-caps uppercase font-bold text-on-surface-variant truncate">Dosen</p>
+              <p className="text-title-sm font-bold text-on-surface">{stats.totalLecturers}</p>
+            </div>
+          </div>
+          <div className="flex flex-col tablet:flex-row items-center tablet:items-center text-center tablet:text-left gap-1 tablet:gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-2.5 tablet:px-3.5 tablet:py-2 shadow-xs dark:bg-surface-container-low min-w-0">
+            <Icon name="workspace_premium" size={18} className="text-tertiary shrink-0" />
+            <div className="min-w-0 w-full">
+              <p className="text-[10px] tablet:text-label-caps uppercase font-bold text-on-surface-variant truncate">Total SKS</p>
+              <p className="text-title-sm font-bold text-on-surface">{stats.totalSks}</p>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -323,8 +324,8 @@ export default function ManageCourses() {
         />
       )}
 
-      {/* ── 2. Master Courses Management (Unified Single Card Container) ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
+      {/* ── 2. Filter & Search Controls (Unified 1-Row Toolbar) ── */}
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs space-y-2.5 dark:bg-surface-container-low">
         {/* Unified Search & Filters in 1 Row on Desktop */}
         <div className="relative z-30 flex flex-col gap-2 tablet:flex-row tablet:items-center">
           <div className="relative flex-1 min-w-[200px]">
@@ -407,70 +408,70 @@ export default function ManageCourses() {
 
         {/* Active Filter Chips */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-outline-variant/15 text-label-caps uppercase font-semibold text-on-surface-variant">
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-outline-variant/15 text-label-caps uppercase font-semibold text-on-surface-variant">
             <span>Filter Aktif:</span>
 
             {search && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-2.5 py-0.5 text-body-xs font-semibold text-on-surface">
+              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-2.5 py-1 text-on-surface">
                 <span>Keyword: "{search}"</span>
                 <button
                   type="button"
                   onClick={() => setSearch('')}
                   className="rounded-full p-0.5 hover:bg-surface-container-highest cursor-pointer"
                 >
-                  <Icon name="close" size={12} />
+                  <Icon name="close" size={14} />
                 </button>
               </span>
             )}
 
             {prodiFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-body-xs font-semibold text-primary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-primary">
                 <span>Prodi: {prodiFilter}</span>
                 <button
                   type="button"
                   onClick={() => setProdiFilter('')}
                   className="rounded-full p-0.5 hover:bg-primary/20 cursor-pointer"
                 >
-                  <Icon name="close" size={12} />
+                  <Icon name="close" size={14} />
                 </button>
               </span>
             )}
 
             {semesterFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-body-xs font-semibold text-indigo-700 dark:text-indigo-300">
+              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-1 text-indigo-700 dark:text-indigo-300">
                 <span>Semester: {SEMESTER_OPTIONS.find((s) => s.value === semesterFilter)?.label}</span>
                 <button
                   type="button"
                   onClick={() => setSemesterFilter('')}
                   className="rounded-full p-0.5 hover:bg-indigo-500/20 cursor-pointer"
                 >
-                  <Icon name="close" size={12} />
+                  <Icon name="close" size={14} />
                 </button>
               </span>
             )}
 
             {dosenFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-0.5 text-body-xs font-semibold text-secondary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-1 text-secondary">
                 <span className="max-w-[140px] truncate">Dosen: {dosenFilter}</span>
                 <button
                   type="button"
                   onClick={() => setDosenFilter('')}
                   className="rounded-full p-0.5 hover:bg-secondary/20 cursor-pointer"
                 >
-                  <Icon name="close" size={12} />
+                  <Icon name="close" size={14} />
                 </button>
               </span>
             )}
 
             {sksFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-tertiary/10 px-2.5 py-0.5 text-body-xs font-semibold text-tertiary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-tertiary/10 px-2.5 py-1 text-tertiary">
                 <span>SKS: {SKS_OPTIONS.find((s) => s.value === sksFilter)?.label}</span>
                 <button
                   type="button"
                   onClick={() => setSksFilter('')}
                   className="rounded-full p-0.5 hover:bg-tertiary/20 cursor-pointer"
                 >
-                  <Icon name="close" size={12} />
+                  <Icon name="close" size={14} />
                 </button>
               </span>
             )}
@@ -484,15 +485,17 @@ export default function ManageCourses() {
             </button>
           </div>
         )}
+      </div>
 
-        {/* Main Course Table / List */}
-        {loading ? (
-          <div className="space-y-2.5">
-            <Skeleton className="h-14 w-full rounded-2xl" />
-            <Skeleton className="h-14 w-full rounded-2xl" />
-            <Skeleton className="h-14 w-full rounded-2xl" />
-          </div>
-        ) : filtered.length === 0 ? (
+      {/* Main Course Table / List */}
+      {loading ? (
+        <div className="space-y-3">
+          <Skeleton className="h-16 w-full rounded-2xl" />
+          <Skeleton className="h-16 w-full rounded-2xl" />
+          <Skeleton className="h-16 w-full rounded-2xl" />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-8 dark:bg-surface-container-low">
           <EmptyState
             icon="menu_book"
             title="Tidak ada mata kuliah yang cocok"
@@ -502,283 +505,292 @@ export default function ManageCourses() {
                 : 'Belum ada data mata kuliah. Tekan tombol "+ Tambah MK" untuk membuat master mata kuliah.'
             }
           />
-        ) : (
-          <>
-            {/* Table — Desktop & Tablet with Sticky Header & Dynamic Viewport Height */}
-            <div className="hidden overflow-x-hidden overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
-              <table className="w-full table-fixed text-left border-collapse">
-                <thead className="sticky top-0 z-20 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
-                  <tr className="border-b border-outline-variant/15">
-                    <th className="w-[12%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Kode MK
-                    </th>
-                    <th className="w-[27%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Nama Mata Kuliah
-                    </th>
-                    <th className="w-[10%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Semester
-                    </th>
-                    <th className="w-[24%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Dosen Pengampu
-                    </th>
-                    <th className="w-[12%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Kontak
-                    </th>
-                    <th className="w-[9%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-center">
-                      Bobot
-                    </th>
-                    <th className="w-[6%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-right">
-                      Aksi
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant/10">
-                  {paginatedCourses.map((course) => {
-                    const waUrl = formatWhatsAppUrl(course.kontakDosen)
-                    const semester = getCourseSemester(course)
-                    const lecturerList = parseLecturers(course.dosen)
+          {hasActiveFilters && (
+            <div className="flex justify-center mt-4">
+              <Button variant="secondary" onClick={resetAllFilters} className="cursor-pointer">
+                <Icon name="refresh" size={18} className="mr-1" />
+                Reset Semua Filter
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Table — Desktop & Tablet with Sticky Header & Dynamic Viewport Height */}
+          <div className="hidden overflow-x-hidden overflow-y-auto max-h-[calc(100vh-270px)] rounded-3xl border border-outline-variant/20 bg-surface-container-lowest shadow-sm tablet:block dark:bg-surface-container-low dark:border-outline-variant/15 w-full">
+            <table className="w-full table-fixed text-left border-collapse">
+              <thead className="sticky top-0 z-20 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
+                <tr className="border-b border-outline-variant/15">
+                  <th className="w-[12%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                    Kode MK
+                  </th>
+                  <th className="w-[27%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                    Nama Mata Kuliah
+                  </th>
+                  <th className="w-[10%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                    Semester
+                  </th>
+                  <th className="w-[24%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                    Dosen Pengampu
+                  </th>
+                  <th className="w-[12%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                    Kontak
+                  </th>
+                  <th className="w-[9%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-center">
+                    Bobot
+                  </th>
+                  <th className="w-[6%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-right">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/10">
+                {paginatedCourses.map((course) => {
+                  const waUrl = formatWhatsAppUrl(course.kontakDosen)
+                  const semester = getCourseSemester(course)
+                  const lecturerList = parseLecturers(course.dosen)
 
-                    return (
-                      <tr
-                        key={course.id}
-                        className="group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20"
-                      >
-                        {/* Kode MK */}
-                        <td className="px-3.5 py-2.5">
-                          <span className="inline-flex items-center rounded-xl bg-primary/10 px-2 py-0.5 font-mono text-body-xs font-bold text-primary border border-primary/20 dark:bg-primary/20">
-                            {course.kodeMK}
+                  return (
+                    <tr
+                      key={course.id}
+                      className="group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20"
+                    >
+                      {/* Kode MK */}
+                      <td className="px-3.5 py-2.5">
+                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-2 py-0.5 font-mono text-body-xs font-bold text-primary border border-primary/20 dark:bg-primary/20">
+                          {course.kodeMK}
+                        </span>
+                      </td>
+
+                      {/* Nama MK */}
+                      <td className="px-4 py-3.5">
+                        <p className="font-bold text-body-md text-on-surface leading-snug break-words">
+                          {course.namaMK}
+                        </p>
+                      </td>
+
+                      {/* Semester */}
+                      <td className="px-3 py-3.5">
+                        {semester ? (
+                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+                            Sem. {semester}
                           </span>
-                        </td>
+                        ) : (
+                          <span className="text-on-surface-variant/40 text-body-sm">-</span>
+                        )}
+                      </td>
 
-                        {/* Nama MK */}
-                        <td className="px-3.5 py-2.5">
-                          <p className="font-bold text-body-md text-on-surface leading-snug break-words">
-                            {course.namaMK}
-                          </p>
-                        </td>
-
-                        {/* Semester */}
-                        <td className="px-3 py-2.5">
-                          {semester ? (
-                            <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
-                              Sem. {semester}
-                            </span>
-                          ) : (
-                            <span className="text-on-surface-variant/40 text-body-sm">-</span>
-                          )}
-                        </td>
-
-                        {/* Dosen Pengampu (Smart Multi-Lecturer Formatter) */}
-                        <td className="px-3.5 py-2.5">
-                          {lecturerList.length === 0 ? (
-                            <span className="text-on-surface-variant/50 text-body-xs">-</span>
-                          ) : lecturerList.length === 1 ? (
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-label-caps shadow-2xs">
-                                {getLecturerInitial(lecturerList[0])}
-                              </div>
-                              <span className="text-body-xs font-semibold text-on-surface truncate">
-                                {lecturerList[0]}
-                              </span>
+                      {/* Dosen Pengampu (Smart Multi-Lecturer Formatter) */}
+                      <td className="px-4 py-3.5">
+                        {lecturerList.length === 0 ? (
+                          <span className="text-on-surface-variant/50 text-body-xs">-</span>
+                        ) : lecturerList.length === 1 ? (
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-label-caps shadow-2xs">
+                              {getLecturerInitial(lecturerList[0])}
                             </div>
-                          ) : (
-                            <div className="space-y-1 min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                {/* Avatar stack */}
-                                <div className="flex -space-x-1.5 shrink-0">
-                                  {lecturerList.slice(0, 3).map((docName, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-[10px] ring-2 ring-surface-container-lowest dark:ring-surface-container-low shadow-2xs"
-                                      title={docName}
-                                    >
-                                      {getLecturerInitial(docName)}
-                                    </div>
-                                  ))}
-                                </div>
-                                <span className="inline-flex items-center gap-0.5 rounded-md bg-secondary/10 px-1.5 py-0.5 text-[10px] uppercase font-bold text-secondary border border-secondary/20">
-                                  {lecturerList.length} Dosen
-                                </span>
-                              </div>
-                              <div className="text-body-xs text-on-surface-variant space-y-0.5">
-                                {lecturerList.map((docName, idx) => (
-                                  <p key={idx} className="font-semibold text-on-surface leading-tight truncate">
-                                    {idx + 1}. {docName}
-                                  </p>
+                            <span className="text-body-xs font-semibold text-on-surface truncate">
+                              {lecturerList[0]}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="space-y-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              {/* Avatar stack */}
+                              <div className="flex -space-x-1.5 shrink-0">
+                                {lecturerList.slice(0, 3).map((docName, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-[10px] ring-2 ring-surface-container-lowest dark:ring-surface-container-low shadow-2xs"
+                                    title={docName}
+                                  >
+                                    {getLecturerInitial(docName)}
+                                  </div>
                                 ))}
                               </div>
+                              <span className="inline-flex items-center gap-0.5 rounded-md bg-secondary/10 px-1.5 py-0.5 text-[10px] uppercase font-bold text-secondary border border-secondary/20">
+                                {lecturerList.length} Dosen
+                              </span>
                             </div>
-                          )}
-                        </td>
+                            <div className="text-body-xs text-on-surface-variant space-y-0.5">
+                              {lecturerList.map((docName, idx) => (
+                                <p key={idx} className="font-semibold text-on-surface leading-tight truncate">
+                                  {idx + 1}. {docName}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </td>
 
-                        {/* Kontak */}
-                        <td className="px-3.5 py-2.5">
-                          {course.kontakDosen ? (
-                            <a
-                              href={waUrl || `tel:${course.kontakDosen}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors border border-emerald-500/20"
-                              title={`Hubungi ${course.kontakDosen} via WhatsApp`}
-                            >
-                              <Icon name="chat" size={13} />
-                              <span className="font-mono">{course.kontakDosen}</span>
-                            </a>
-                          ) : (
-                            <span className="text-on-surface-variant/40 text-body-xs font-mono">-</span>
-                          )}
-                        </td>
+                      {/* Kontak WhatsApp */}
+                      <td className="px-3 py-3.5">
+                        {course.kontakDosen ? (
+                          <a
+                            href={waUrl || `tel:${course.kontakDosen}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors cursor-pointer max-w-full truncate"
+                            title={`Buka WhatsApp ${course.kontakDosen}`}
+                          >
+                            <Icon name="chat" size={12} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+                            <span className="truncate">{course.kontakDosen}</span>
+                          </a>
+                        ) : (
+                          <span className="text-on-surface-variant/40 text-body-sm">-</span>
+                        )}
+                      </td>
 
-                        {/* SKS & Durasi */}
-                        <td className="px-3 py-2.5 text-center">
-                          <span className="inline-block rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface">
+                      {/* Bobot & Durasi */}
+                      <td className="px-3 py-3.5 text-center">
+                        <div className="inline-flex flex-col items-center gap-0.5">
+                          <span className="rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface whitespace-nowrap">
                             {course.sks} SKS
                           </span>
-                          <span className="block text-[10px] text-on-surface-variant mt-0.5">
+                          <span className="text-[10px] font-medium text-on-surface-variant whitespace-nowrap">
                             {course.durasi} mnt
                           </span>
-                        </td>
-
-                        {/* Aksi */}
-                        <td className="px-3 py-2.5 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              type="button"
-                              onClick={() => openEditModal(course)}
-                              className="flex h-7 w-7 items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer border border-outline-variant/15"
-                              title="Edit Mata Kuliah"
-                            >
-                              <Icon name="edit" size={15} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setDeleteTarget(course)}
-                              className="flex h-7 w-7 items-center justify-center rounded-xl text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer border border-outline-variant/15"
-                              title="Hapus Mata Kuliah"
-                            >
-                              <Icon name="delete" size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Cards */}
-            <div className="space-y-3 tablet:hidden overflow-y-auto flex-1 min-h-0">
-              {paginatedCourses.map((course) => {
-                const waUrl = formatWhatsAppUrl(course.kontakDosen)
-                const semester = getCourseSemester(course)
-                const lecturerList = parseLecturers(course.dosen)
-
-                return (
-                  <div
-                    key={course.id}
-                    className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-2xs dark:bg-surface-container-low space-y-2.5"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-label-caps font-bold text-primary border border-primary/20">
-                            {course.kodeMK}
-                          </span>
-                          {semester && (
-                            <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300">
-                              Sem. {semester}
-                            </span>
-                          )}
                         </div>
-                        <h3 className="text-body-md font-bold text-on-surface mt-1.5 leading-snug">
-                          {course.namaMK}
-                        </h3>
-                      </div>
-                      <div className="flex shrink-0 gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(course)}
-                          className="flex h-8 w-8 items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary cursor-pointer border border-outline-variant/15"
-                          aria-label="Edit"
-                        >
-                          <Icon name="edit" size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteTarget(course)}
-                          className="flex h-8 w-8 items-center justify-center rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer border border-outline-variant/15"
-                          aria-label="Hapus"
-                        >
-                          <Icon name="delete" size={16} />
-                        </button>
-                      </div>
-                    </div>
+                      </td>
 
-                    <div className="space-y-1 pt-1 border-t border-outline-variant/10">
-                      {lecturerList.length <= 1 ? (
-                        <div className="flex items-center gap-2">
-                          <Icon name="person" size={16} className="text-on-surface-variant shrink-0" />
-                          <span className="text-body-xs font-semibold text-on-surface truncate">
-                            {lecturerList[0] || 'Dosen belum ditentukan'}
-                          </span>
+                      {/* Aksi */}
+                      <td className="px-3 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(course)}
+                            className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer"
+                            title={`Edit ${course.kodeMK}`}
+                          >
+                            <Icon name="edit" size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeleteTarget(course)}
+                            className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer"
+                            title={`Hapus ${course.kodeMK}`}
+                          >
+                            <Icon name="delete" size={16} />
+                          </button>
                         </div>
-                      ) : (
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-secondary font-bold text-body-xs">
-                            <Icon name="groups" size={16} />
-                            <span>Tim {lecturerList.length} Dosen:</span>
-                          </div>
-                          <ul className="text-body-xs font-medium text-on-surface pl-5 list-disc space-y-0.5">
-                            {lecturerList.map((docName, idx) => (
-                              <li key={idx}>{docName}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-outline-variant/10">
+          {/* Cards — Mobile */}
+          <div className="space-y-3 tablet:hidden">
+            {paginatedCourses.map((course) => {
+              const waUrl = formatWhatsAppUrl(course.kontakDosen)
+              const semester = getCourseSemester(course)
+              const lecturerList = parseLecturers(course.dosen)
+
+              return (
+                <div
+                  key={course.id}
+                  className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-xs dark:bg-surface-container-low space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface">
-                          {course.sks} SKS
+                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-label-caps font-bold text-primary border border-primary/20">
+                          {course.kodeMK}
                         </span>
-                        <span className="rounded-md bg-surface-container-high px-2 py-0.5 text-label-caps font-medium text-on-surface-variant">
-                          {course.durasi} mnt
-                        </span>
+                        {semester && (
+                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300">
+                            Sem. {semester}
+                          </span>
+                        )}
                       </div>
-
-                      {course.kontakDosen && (
-                        <a
-                          href={waUrl || `tel:${course.kontakDosen}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-500/20"
-                        >
-                          <Icon name="chat" size={12} />
-                          <span>{course.kontakDosen}</span>
-                        </a>
-                      )}
+                      <h3 className="text-body-md font-bold text-on-surface mt-1.5 leading-snug">
+                        {course.namaMK}
+                      </h3>
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(course)}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/10 hover:text-primary cursor-pointer"
+                        aria-label="Edit"
+                      >
+                        <Icon name="edit" size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(course)}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer"
+                        aria-label="Hapus"
+                      >
+                        <Icon name="delete" size={18} />
+                      </button>
                     </div>
                   </div>
-                )
-              })}
-            </div>
 
-            {/* Shared Pagination Controls inside bottom with border-t */}
-            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
-              <Pagination
-                currentPage={safeCurrentPage}
-                totalItems={filtered.length}
-                pageSize={pageSize === 0 ? 'Semua' : pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
-                itemLabel="mata kuliah"
-              />
-            </div>
-          </>
-        )}
-      </div>
+                  {/* Mobile Lecturer Display */}
+                  <div className="text-body-sm text-on-surface-variant">
+                    {lecturerList.length === 0 ? (
+                      <p className="text-body-xs text-on-surface-variant/50">Dosen belum diisi</p>
+                    ) : lecturerList.length === 1 ? (
+                      <div className="flex items-center gap-2">
+                        <Icon name="person" size={16} className="text-secondary shrink-0" />
+                        <span className="font-semibold text-on-surface truncate">{lecturerList[0]}</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 text-secondary font-bold text-body-xs">
+                          <Icon name="groups" size={16} />
+                          <span>Tim {lecturerList.length} Dosen:</span>
+                        </div>
+                        <ul className="text-body-xs font-medium text-on-surface pl-5 list-disc space-y-0.5">
+                          {lecturerList.map((docName, idx) => (
+                            <li key={idx}>{docName}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-outline-variant/10">
+                    <div className="flex items-center gap-1.5">
+                      <span className="rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface">
+                        {course.sks} SKS
+                      </span>
+                      <span className="rounded-md bg-surface-container-high px-2 py-0.5 text-label-caps font-medium text-on-surface-variant">
+                        {course.durasi} mnt
+                      </span>
+                    </div>
+
+                    {course.kontakDosen && (
+                      <a
+                        href={waUrl || `tel:${course.kontakDosen}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-500/20"
+                      >
+                        <Icon name="chat" size={12} />
+                        <span>{course.kontakDosen}</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Shared Pagination Controls */}
+          <Pagination
+            currentPage={safeCurrentPage}
+            totalItems={filtered.length}
+            pageSize={pageSize === 0 ? 'Semua' : pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
+            itemLabel="mata kuliah"
+          />
+        </>
+      )}
 
       {/* Modal Dialog Form (Tambah / Edit) */}
       {modalOpen && (

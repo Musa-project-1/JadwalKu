@@ -256,17 +256,6 @@ export function AdminLayout() {
                 <span className="text-on-surface font-semibold">{timeString} WIB</span>
               </div>
 
-              {/* Desktop: Switch to Mode Mahasiswa Button */}
-              <NavLink
-                to="/"
-                viewTransition
-                title="Beralih ke Mode Mahasiswa"
-                className="hidden tablet:flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/25 px-3.5 py-1.5 text-body-sm font-bold text-primary hover:bg-primary/20 transition-all shadow-xs shrink-0"
-              >
-                <Icon name="school" size={16} />
-                <span>Mode Mahasiswa</span>
-              </NavLink>
-
               {/* Mobile: Switch to Mode Mahasiswa Button (Icon-only) */}
               <NavLink
                 to="/"
