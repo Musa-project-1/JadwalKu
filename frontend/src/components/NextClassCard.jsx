@@ -17,10 +17,10 @@ export function NextClassCard({ entry, course, countdownText, urgent = false, on
       {/* Decorative circle */}
       <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-white/10 dark:bg-primary/10 blur-xl" />
       
-      <div className="relative z-10 flex justify-between items-start mb-4">
-        <div>
+      <div className="relative z-10 flex justify-between items-start gap-3 mb-4">
+        <div className="min-w-0 flex-1">
           <span className="text-label-caps text-on-primary/80 dark:text-on-primary-container/80 uppercase tracking-wider mb-1 block">Kelas Berikutnya</span>
-          <h3 className="text-[22px] font-bold leading-tight mb-3 text-white dark:text-on-primary-container">
+          <h3 className="text-[20px] tablet:text-[22px] font-bold leading-tight mb-2.5 text-white dark:text-on-primary-container truncate">
             {course?.namaMK ?? entry.kodeMK}
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -38,13 +38,13 @@ export function NextClassCard({ entry, course, countdownText, urgent = false, on
         </div>
         
         {cleanCountdown && (
-          <div className={`px-3 py-1.5 rounded-2xl flex flex-col items-center shadow-sm shrink-0 ${
+          <div className={`px-3 py-1.5 rounded-2xl flex flex-col items-center justify-center shadow-sm shrink-0 whitespace-nowrap ${
             urgent
               ? 'animate-[soft-pulse_1.6s_ease-in-out_infinite] bg-error'
               : 'bg-primary-container/80 dark:bg-primary/20 border border-white/10 dark:border-primary/30'
           }`}>
-            <span className="text-[9px] font-bold uppercase tracking-wide text-white dark:text-primary">Mulai Dalam</span>
-            <span className="font-bold text-sm text-white dark:text-primary">{cleanCountdown}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wide text-white dark:text-teal-200">Mulai Dalam</span>
+            <span className="font-bold text-xs tablet:text-sm text-white dark:text-teal-100">{cleanCountdown}</span>
           </div>
         )}
       </div>

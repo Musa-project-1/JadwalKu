@@ -203,16 +203,16 @@ export default function Home() {
         <section className="desktop:col-span-7 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low flex flex-col justify-between min-h-[460px] tablet:min-h-[480px]">
           <div>
             {/* Header: Title + Session count */}
-            <div className="flex items-center justify-between pb-3 border-b border-outline-variant/15 mb-3">
-              <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/20">
+            <div className="flex items-center justify-between pb-3 border-b border-outline-variant/15 mb-3 gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/20">
                   <Icon name="event_available" size={18} />
                 </span>
-                <h3 className="text-body-sm tablet:text-body-md font-bold text-on-surface">
+                <h3 className="text-body-sm tablet:text-body-md font-bold text-on-surface truncate">
                   Jadwal Kuliah Hari Ini — <span className="text-primary">{todayName}</span>
                 </h3>
               </div>
-              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 shrink-0">
                 {todayEntries.length} Sesi
               </span>
             </div>
