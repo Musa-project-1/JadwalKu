@@ -6,8 +6,19 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+        manualChunks(id) {
+          const nid = id.replace(/\\/g, '/')
+          if (!nid.includes('node_modules')) return undefined
+          // Heavy, rarely-needed spreadsheet parser → own chunk
+          if (nid.includes('xlsx') || nid.includes('cpexcel')) return 'xlsx'
+          // Firebase SDKs split so no single chunk exceeds the 500 kB budget
+          if (nid.includes('/firebase/firestore') || nid.includes('@firebase/firestore')) return 'firebase-firestore'
+          if (nid.includes('/firebase/auth') || nid.includes('@firebase/auth')) return 'firebase-auth'
+          if (nid.includes('/firebase/app') || nid.includes('@firebase/app')) return 'firebase-app'
+          if (nid.includes('/firebase/') || nid.includes('@firebase/')) return 'firebase-shared'
+          // React + Router + scheduler vendor
+          if (nid.includes('node_modules/react')) return 'react-vendor'
+          return undefined
         },
       },
     },

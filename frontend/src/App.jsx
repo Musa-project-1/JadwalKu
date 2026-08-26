@@ -1,26 +1,35 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
-import Notifications from './pages/student/Notifications'
 import { NotificationsProvider } from './context/NotificationsContext'
-import Exams from './pages/student/Exams'
-import Home from './pages/student/Home'
-import Settings from './pages/student/Settings'
-import Tasks from './pages/student/Tasks'
-import WeeklySchedule from './pages/student/WeeklySchedule'
-import Onboarding, { ProdiStep, SemesterStep } from './pages/student/Onboarding'
-import Search from './pages/student/Search'
-import About from './pages/student/About'
-import ChangeHistory from './pages/student/ChangeHistory'
-import ExportShare from './pages/student/ExportShare'
+import { Skeleton } from './components/Skeleton'
 import { getItem, STORAGE_KEYS } from './lib/storage'
 import { RequireAdmin } from './components/admin/RequireAdmin'
 import { AdminLayout } from './components/admin/AdminLayout'
-import AdminLogin from './pages/admin/AdminLogin'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import ManageSchedule from './pages/admin/ManageSchedule'
-import ManageCourses from './pages/admin/ManageCourses'
-import ManageExams from './pages/admin/ManageExams'
-import ManageAcademicSettings from './pages/admin/ManageAcademicSettings'
+
+const Home = lazy(() => import('./pages/student/Home'))
+const WeeklySchedule = lazy(() => import('./pages/student/WeeklySchedule'))
+const Tasks = lazy(() => import('./pages/student/Tasks'))
+const Exams = lazy(() => import('./pages/student/Exams'))
+const Settings = lazy(() => import('./pages/student/Settings'))
+const Notifications = lazy(() => import('./pages/student/Notifications'))
+const Search = lazy(() => import('./pages/student/Search'))
+const About = lazy(() => import('./pages/student/About'))
+const ChangeHistory = lazy(() => import('./pages/student/ChangeHistory'))
+const ExportShare = lazy(() => import('./pages/student/ExportShare'))
+const Onboarding = lazy(() => import('./pages/student/Onboarding'))
+const ProdiStep = lazy(() =>
+  import('./pages/student/Onboarding').then((m) => ({ default: m.ProdiStep })),
+)
+const SemesterStep = lazy(() =>
+  import('./pages/student/Onboarding').then((m) => ({ default: m.SemesterStep })),
+)
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const ManageSchedule = lazy(() => import('./pages/admin/ManageSchedule'))
+const ManageCourses = lazy(() => import('./pages/admin/ManageCourses'))
+const ManageExams = lazy(() => import('./pages/admin/ManageExams'))
+const ManageAcademicSettings = lazy(() => import('./pages/admin/ManageAcademicSettings'))
 
 function RequireOnboarding({ children }) {
   const done = getItem(STORAGE_KEYS.onboardingDone, false)
@@ -30,51 +39,61 @@ function RequireOnboarding({ children }) {
   return children
 }
 
+function RouteFallback() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center px-md">
+      <Skeleton className="h-8 w-56" />
+    </div>
+  )
+}
+
 export default function App() {
   return (
     <NotificationsProvider>
-      <Routes>
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/onboarding/prodi" element={<ProdiStep />} />
-      <Route path="/onboarding/semester" element={<SemesterStep />} />
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding/prodi" element={<ProdiStep />} />
+          <Route path="/onboarding/semester" element={<SemesterStep />} />
 
-      <Route
-        element={
-          <RequireOnboarding>
-            <AppLayout />
-          </RequireOnboarding>
-        }
-      >
-        <Route path="/" element={<Home />} />
-        <Route path="/jadwal" element={<WeeklySchedule />} />
-        <Route path="/tugas" element={<Tasks />} />
-        <Route path="/ujian" element={<Exams />} />
-        <Route path="/pengaturan" element={<Settings />} />
-        <Route path="/notifikasi" element={<Notifications />} />
-        <Route path="/cari" element={<Search />} />
-        <Route path="/tentang" element={<About />} />
-        <Route path="/riwayat" element={<ChangeHistory />} />
-        <Route path="/bagikan" element={<ExportShare />} />
-      </Route>
-
-        <Route path="/admin/login" element={<AdminLogin />} />
-
-        <Route element={<RequireAdmin />}>
-          <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/jadwal" element={<ManageSchedule />} />
-            <Route path="/admin/upload" element={<Navigate to="/admin/jadwal" replace />} />
-            <Route path="/admin/manual" element={<Navigate to="/admin/jadwal" replace />} />
-            <Route path="/admin/mata-kuliah" element={<ManageCourses />} />
-            <Route path="/admin/ujian" element={<ManageExams />} />
-            <Route path="/admin/pengaturan-akademik" element={<ManageAcademicSettings />} />
-            <Route path="/admin/prodi" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
-            <Route path="/admin/libur" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
+          <Route
+            element={
+              <RequireOnboarding>
+                <AppLayout />
+              </RequireOnboarding>
+            }
+          >
+            <Route path="/" element={<Home />} />
+            <Route path="/jadwal" element={<WeeklySchedule />} />
+            <Route path="/tugas" element={<Tasks />} />
+            <Route path="/ujian" element={<Exams />} />
+            <Route path="/pengaturan" element={<Settings />} />
+            <Route path="/notifikasi" element={<Notifications />} />
+            <Route path="/cari" element={<Search />} />
+            <Route path="/tentang" element={<About />} />
+            <Route path="/riwayat" element={<ChangeHistory />} />
+            <Route path="/bagikan" element={<ExportShare />} />
           </Route>
-        </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="/admin/login" element={<AdminLogin />} />
+
+          <Route element={<RequireAdmin />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/jadwal" element={<ManageSchedule />} />
+              <Route path="/admin/upload" element={<Navigate to="/admin/jadwal" replace />} />
+              <Route path="/admin/manual" element={<Navigate to="/admin/jadwal" replace />} />
+              <Route path="/admin/mata-kuliah" element={<ManageCourses />} />
+              <Route path="/admin/ujian" element={<ManageExams />} />
+              <Route path="/admin/pengaturan-akademik" element={<ManageAcademicSettings />} />
+              <Route path="/admin/prodi" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
+              <Route path="/admin/libur" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
+            </Route>
+          </Route>
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </NotificationsProvider>
   )
 }

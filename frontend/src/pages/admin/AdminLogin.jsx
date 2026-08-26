@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
-import { Input } from '../../components/Input'
-import { Button } from '../../components/Button'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
+import { useApp } from '../../hooks/useApp'
 import { firebaseReady } from '../../lib/firebaseClient'
 
 export default function AdminLogin() {
   const navigate = useNavigate()
+  const { theme, setTheme } = useApp()
   const { user, signIn } = useAdminAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  const nextTheme = theme === 'dark' ? 'light' : 'dark'
 
   // Sudah masuk → langsung ke dashboard.
   if (user) {
@@ -39,72 +42,183 @@ export default function AdminLogin() {
     }
   }
 
+  function fillDemo() {
+    setEmail('admin@jadwalkampus.app')
+    setPassword('admin123')
+    setError('')
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-transparent px-md">
-      <div className="w-full max-w-md">
-        <div className="mb-xl text-center">
-          <img src="/logo.svg" alt="Logo JadwalKu" className="mx-auto mb-md h-16 w-16" />
-          <h1 className="text-display-lg font-bold font-brand tracking-[-0.025em]">
-            <span className="text-on-surface">Jadwal</span>
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-surface-container-lowest/50 dark:bg-[#0B132B]/60 px-4 py-8">
+      {/* ── Ambient Background Lighting Mesh ── */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-primary/20 blur-[100px] dark:bg-primary/15"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-teal-500/20 blur-[100px] dark:bg-teal-500/15"
+      />
+
+      {/* ── Top Floating Navigation Bar (Back + Theme Switcher) ── */}
+      <header className="absolute top-4 left-4 right-4 max-w-5xl mx-auto flex items-center justify-between z-10">
+        <Link
+          to="/"
+          viewTransition
+          className="flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-lowest/80 dark:bg-surface-container-low/80 backdrop-blur-md px-3.5 py-1.5 text-body-xs font-bold text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all shadow-xs group"
+        >
+          <Icon name="arrow_back" size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+          <span>Mode Mahasiswa</span>
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setTheme(nextTheme)}
+          aria-label={`Ganti ke mode ${nextTheme === 'dark' ? 'gelap' : 'terang'}`}
+          title={`Mode ${nextTheme === 'dark' ? 'Gelap' : 'Terang'}`}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container-lowest/80 dark:bg-surface-container-low/80 backdrop-blur-md text-on-surface-variant transition-all hover:bg-surface-container-highest hover:text-on-surface shadow-xs cursor-pointer"
+        >
+          <Icon name={nextTheme === 'dark' ? 'dark_mode' : 'light_mode'} size={18} />
+        </button>
+      </header>
+
+      {/* ── Main Login Card ── */}
+      <div className="relative z-10 w-full max-w-[440px]">
+        {/* Brand Header */}
+        <div className="mb-6 text-center">
+          <div className="relative inline-flex items-center justify-center p-3 rounded-3xl bg-surface-container-lowest/90 dark:bg-surface-container-high/60 border border-outline-variant/30 shadow-md mb-3.5 group">
+            <img src="/logo.svg" alt="Logo JadwalKu" className="h-12 w-12 shrink-0 group-hover:scale-105 transition-transform" />
+          </div>
+          <h1 className="text-display-sm tablet:text-display-md font-bold font-brand tracking-tight text-on-surface">
+            <span>Jadwal</span>
             <span className="text-primary">Ku</span>
           </h1>
-          <p className="font-brand font-medium text-[10.5px] tracking-[0.09em] uppercase text-on-surface-variant/80 mt-1">
-            SCHEDULE SMARTER · ADMIN CONSOLE
-          </p>
+          <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/25 px-3 py-0.5 text-label-caps font-extrabold text-primary shadow-2xs">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>ADMIN CONSOLE</span>
+          </div>
         </div>
 
+        {/* Firebase Demo Alert (if applicable) */}
         {!firebaseReady && (
-          <div className="mb-md flex items-start gap-sm rounded-lg border border-tertiary/30 bg-tertiary/10 p-md text-body-sm text-tertiary">
-            <Icon name="info" size={20} className="mt-xs shrink-0" />
-            <p>
-              Firebase belum dikonfigurasi — mode demo aktif. Masukkan email apa saja untuk
-              mencoba alur admin tanpa backend.
-            </p>
+          <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-tertiary/30 bg-tertiary/10 p-3.5 text-body-xs text-tertiary shadow-2xs">
+            <Icon name="info" size={18} className="shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-semibold">Mode Demo Aktif</p>
+              <p className="opacity-90 text-[11.5px] mt-0.5">Firebase belum dikonfigurasi. Masukkan email sembarang atau gunakan tombol demo di bawah.</p>
+            </div>
           </div>
         )}
 
-        <div className="border border-outline-variant/10 rounded-[28px] bg-surface-container-lowest p-0.5 shadow-lg dark:bg-surface-container-low/40">
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-md rounded-[26px] bg-surface-container-lowest p-6 dark:bg-surface-container-low"
-          >
-            <Input
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@jadwalkampus.app"
-              autoComplete="username"
-              required
-            />
-            <Input
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="current-password"
-              required
-            />
+        {/* Card Form */}
+        <div className="rounded-3xl border border-outline-variant/30 bg-surface-container-lowest/85 dark:bg-surface-container-low/80 backdrop-blur-xl p-6 tablet:p-8 shadow-2xl transition-all">
+          <div className="mb-5 pb-3 border-b border-outline-variant/20 flex items-center justify-between">
+            <div>
+              <h2 className="text-title-sm font-bold text-on-surface">Masuk Panel Admin</h2>
+              <p className="text-body-xs text-on-surface-variant">Kelola jadwal kuliah, ujian, dan data master.</p>
+            </div>
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Icon name="shield_person" size={20} />
+            </span>
+          </div>
 
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email Field */}
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-body-xs font-bold text-on-surface">
+                <Icon name="mail" size={15} className="text-primary" />
+                <span>Email</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@jadwalku.app"
+                  autoComplete="username"
+                  required
+                  className="w-full rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/60 dark:bg-surface-container-high/40 px-3.5 py-2.5 text-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Password Field with Show/Hide Toggle */}
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="flex items-center gap-1.5 text-body-xs font-bold text-on-surface">
+                  <Icon name="lock" size={15} className="text-primary" />
+                  <span>Kata Sandi</span>
+                </label>
+              </div>
+              <div className="relative flex items-center">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  required
+                  className="w-full rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/60 dark:bg-surface-container-high/40 pl-3.5 pr-11 py-2.5 text-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+                  title={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+                  className="absolute right-2.5 flex h-7 w-7 items-center justify-center rounded-lg text-on-surface-variant/70 hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer"
+                >
+                  <Icon name={showPassword ? 'visibility_off' : 'visibility'} size={17} />
+                </button>
+              </div>
+            </div>
+
+            {/* Error Banner */}
             {error && (
-              <p className="flex items-center gap-xs rounded-lg bg-error-container px-md py-sm text-body-sm text-on-error-container">
-                <Icon name="error" size={18} className="shrink-0" />
-                {error}
-              </p>
+              <div className="flex items-center gap-2 rounded-2xl border border-error/30 bg-error-container/60 px-3.5 py-2.5 text-body-xs text-on-error-container">
+                <Icon name="error" size={17} className="shrink-0 text-error" />
+                <span className="font-semibold">{error}</span>
+              </div>
             )}
 
-            <Button type="submit" disabled={submitting} className="w-full justify-center hover:scale-105 active:scale-95 transition-transform duration-150">
-              {submitting ? 'Memproses…' : 'Masuk'}
-              {!submitting && <Icon name="arrow_forward" size={20} />}
-            </Button>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary via-primary to-teal-600 py-3 text-body-sm font-bold text-on-primary shadow-md hover:shadow-lg hover:brightness-105 active:scale-[0.99] disabled:opacity-60 transition-all cursor-pointer"
+            >
+              {submitting ? (
+                <>
+                  <span className="h-4 w-4 rounded-full border-2 border-on-primary border-t-transparent animate-spin" />
+                  <span>Memproses Masuk...</span>
+                </>
+              ) : (
+                <>
+                  <span>Masuk ke Dashboard</span>
+                  <Icon name="arrow_forward" size={17} />
+                </>
+              )}
+            </button>
           </form>
+
+          {/* Quick Demo Fill Shortcut */}
+          <div className="mt-5 pt-3.5 border-t border-outline-variant/15 flex items-center justify-between text-[11px] text-on-surface-variant font-medium">
+            <span>Perlu kredensial uji coba?</span>
+            <button
+              type="button"
+              onClick={fillDemo}
+              className="font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
+            >
+              <Icon name="auto_fix_high" size={13} />
+              <span>Isi Akun Demo</span>
+            </button>
+          </div>
         </div>
 
-        <p className="mt-lg text-center text-body-sm text-on-surface-variant">
-          <Link to="/" className="font-semibold text-primary hover:underline">
-            ← Kembali ke tampilan mahasiswa
-          </Link>
+        {/* Security Footer Note */}
+        <p className="mt-5 text-center text-[11.5px] text-on-surface-variant/75 flex items-center justify-center gap-1.5">
+          <Icon name="lock" size={13} className="text-primary/70" />
+          <span>Koneksi aman terenkripsi · JadwalKu Administrator</span>
         </p>
       </div>
     </div>
