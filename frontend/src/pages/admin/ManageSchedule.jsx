@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
@@ -20,19 +20,16 @@ import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory, publishDocuments, saveSettings } from '../../lib/publishHelpers'
 import { deriveTahunAjaran } from '../../lib/tahunAjaran'
-import { parseWorkbook } from '../../lib/xlsxParser'
+import { UniversalImportModal } from '../../components/admin/UniversalImportModal'
 import {
   CLASS_TYPE_CODES,
   DAYS,
   findConflicts,
-  findUnmatchedCourseCodes,
   validateCourseEntry,
   validateScheduleEntry,
 } from '../../lib/uploadValidator'
 import { getClassType, TONE_CLASSES, TONE_DOT_CLASSES } from '../../lib/classTypes'
 import { formatRuang } from '../../lib/scheduleUtils'
-
-const MAX_FILE_BYTES = 10 * 1024 * 1024
 
 const EMPTY_SESSION = {
   prodi: '',
@@ -99,16 +96,15 @@ export default function ManageSchedule() {
     return combined.sort()
   }, [programs])
 
+  // List existing Tahun Ajaran in system
+  const existingTAs = useMemo(() => {
+    const fromSchedule = rawSchedule.map((s) => s.tahunAjaran).filter(Boolean)
+    return Array.from(new Set([currentTA, ...fromSchedule]))
+  }, [rawSchedule, currentTA])
+
   // State Banner & Global Loading
   const [banner, setBanner] = useState(null)
   const [busy, setBusy] = useState(false)
-
-  // ── State Upload Spreadsheet ──
-  const fileInputRef = useRef(null)
-  const [dragOver, setDragOver] = useState(false)
-  const [uploadParsed, setUploadParsed] = useState(null)
-  const [uploadFileName, setUploadFileName] = useState('')
-  const [uploadError, setUploadError] = useState('')
 
   // ── State Input Manual Modal ──
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -209,62 +205,6 @@ export default function ManageSchedule() {
     return filteredSchedule.slice(start, start + pageSize)
   }, [filteredSchedule, safeCurrentPage, pageSize])
 
-  // ── Validasi Upload Data ──
-  const uploadValidation = useMemo(() => {
-    if (!uploadParsed) return null
-    const entryErrors = uploadParsed.scheduleEntries
-      .map((entry, index) => ({ index, entry, errors: validateScheduleEntry(entry) }))
-      .filter((r) => r.errors.length > 0)
-    const courseErrors = uploadParsed.courses
-      .map((course, index) => ({ index, course, errors: validateCourseEntry(course) }))
-      .filter((r) => r.errors.length > 0)
-    const conflicts = findConflicts(uploadParsed.scheduleEntries)
-    const knownCodes = new Set([
-      ...courses.map((c) => c.kodeMK),
-      ...uploadParsed.courses.map((c) => c.kodeMK),
-    ])
-    const unmatched = findUnmatchedCourseCodes(
-      uploadParsed.scheduleEntries,
-      [...knownCodes].map((kodeMK) => ({ kodeMK })),
-    )
-    return { entryErrors, courseErrors, conflicts, unmatched }
-  }, [uploadParsed, courses])
-
-  const canPublishUpload =
-    uploadValidation &&
-    uploadValidation.entryErrors.length === 0 &&
-    uploadValidation.courseErrors.length === 0 &&
-    uploadValidation.conflicts.length === 0 &&
-    uploadValidation.unmatched.length === 0
-
-  // ── Handler Upload Spreadsheet ──
-  async function handleFile(file) {
-    setUploadError('')
-    setBanner(null)
-    if (!file) return
-    if (file.size > MAX_FILE_BYTES) {
-      setUploadError('Ukuran file melebihi batas 10MB.')
-      return
-    }
-
-    try {
-      const buffer = await file.arrayBuffer()
-      const result = parseWorkbook(buffer)
-      if (
-        result.scheduleEntries.length === 0 &&
-        result.courses.length === 0 &&
-        result.exams.length === 0
-      ) {
-        setUploadError('Tidak ada data terbaca. Pastikan sheet jadwal atau MK tersedia.')
-        return
-      }
-      setUploadFileName(file.name)
-      setUploadParsed(result)
-    } catch (err) {
-      setUploadError(`Gagal membaca file: ${err?.message ?? err}`)
-    }
-  }
-
   function jadwalDocId(entry) {
     return [
       entry.prodi,
@@ -278,31 +218,33 @@ export default function ManageSchedule() {
       .replace(/[/#?[\]]/g, '-')
   }
 
-  async function handlePublishUpload() {
-    if (!canPublishUpload) return
+  // ── Handler Impor Jadwal Universal (Multi-Format & OCR) ──
+  async function handleUniversalImportSave(parsedData) {
     setBusy(true)
-    const activeTA = currentTA
+    const targetTA = parsedData.tahunAjaran || currentTA
 
-    // 1. Simpan Master MK
-    for (const c of uploadParsed.courses) {
-      await setDocument('mataKuliah', c.kodeMK, c, actor)
+    // 1. Simpan Master MK jika ada MK baru
+    for (const c of parsedData.courses || []) {
+      if (c.kodeMK) {
+        await setDocument('mataKuliah', c.kodeMK, c, actor)
+      }
     }
 
     // 2. Publikasikan Jadwal
-    const scheduleDocs = uploadParsed.scheduleEntries.map((e) => ({
+    const scheduleDocs = (parsedData.scheduleEntries || []).map((e) => ({
       id: jadwalDocId(e),
       ...e,
-      tahunAjaran: activeTA,
+      tahunAjaran: targetTA,
       status: 'published',
     }))
     const res = await publishDocuments('jadwal', scheduleDocs, actor)
 
     // 3. Publikasikan Ujian jika ada
-    if (uploadParsed.exams.length > 0) {
-      const examDocs = uploadParsed.exams.map((ex) => ({
+    if (parsedData.exams && parsedData.exams.length > 0) {
+      const examDocs = parsedData.exams.map((ex) => ({
         id: `${ex.prodi}|${ex.kodeMK}|${ex.jenis}|${ex.tanggal}`.replace(/[/#?[\]]/g, '-'),
         ...ex,
-        tahunAjaran: activeTA,
+        tahunAjaran: targetTA,
         status: 'published',
       }))
       await publishDocuments('ujian', examDocs, actor)
@@ -313,21 +255,19 @@ export default function ManageSchedule() {
       await saveSettings({ lastUpdated: new Date().toISOString() }, actor)
       await appendHistory({
         entitas: 'jadwal',
-        field: 'upload_master',
+        field: 'upload_universal',
         nilaiLama: null,
-        nilaiBaru: { count: scheduleDocs.length, file: uploadFileName },
+        nilaiBaru: { count: scheduleDocs.length, tahunAjaran: targetTA },
         aktor: actor,
-        detail: `Upload file spreadsheet ${uploadFileName} (${scheduleDocs.length} jadwal)`,
+        detail: `Impor jadwal universal TA ${targetTA} (${scheduleDocs.length} jadwal)`,
       })
       setBanner({
         ok: true,
-        message: `Berhasil mengimpor & mempublikasikan ${scheduleDocs.length} sesi jadwal dari ${uploadFileName}!`,
+        message: `Berhasil mengimpor & mempublikasikan ${scheduleDocs.length} sesi jadwal untuk TA ${targetTA}!`,
       })
-      setUploadParsed(null)
-      setUploadFileName('')
       setImportModalOpen(false)
     } else {
-      setBanner({ ok: false, message: res.error })
+      setBanner({ ok: false, message: res.error || 'Gagal menyimpan berkas jadwal' })
     }
   }
 
@@ -668,10 +608,7 @@ export default function ManageSchedule() {
 
           <Button
             variant="secondary"
-            onClick={() => {
-              setUploadError(null)
-              setImportModalOpen(true)
-            }}
+            onClick={() => setImportModalOpen(true)}
             className="rounded-2xl px-3.5 py-2 font-bold shadow-2xs cursor-pointer text-body-xs shrink-0"
             title="Import Spreadsheet Master (.xlsx / .csv)"
             aria-label="Import Spreadsheet"
@@ -1639,161 +1576,15 @@ export default function ManageSchedule() {
         </div>
       )}
 
-      {/* ── Modal Dialog: Import Spreadsheet Master (.xlsx / .csv) ── */}
-      {importModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:justify-stretch max-[599px]:p-0"
-        >
-          <div
-            onClick={() => !busy && setImportModalOpen(false)}
-            className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
-          />
-
-          <div className="relative w-full max-w-xl rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:p-5 max-[599px]:animate-[sheet-up_300ms_var(--ease-emphasized)_both] max-h-[90vh] overflow-y-auto">
-            {/* Drag handle — mobile only */}
-            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pb-2 -mx-2">
-              <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
-            </div>
-
-            <header className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-4">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <Icon name="upload_file" size={22} />
-                </span>
-                <div>
-                  <h3 className="text-title-lg font-bold tracking-tight text-on-surface">Import Spreadsheet Master</h3>
-                  <p className="text-body-xs font-medium text-on-surface-variant">Unggah file jadwal resmi (.xlsx / .csv)</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => setImportModalOpen(false)}
-                className="rounded-full p-1.5 text-on-surface-variant hover:bg-surface-container cursor-pointer disabled:opacity-50"
-              >
-                <Icon name="close" size={20} />
-              </button>
-            </header>
-
-            <div className="space-y-4">
-              {/* Dropzone */}
-              <div
-                onDragOver={(e) => {
-                  e.preventDefault()
-                  setDragOver(true)
-                }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => {
-                  e.preventDefault()
-                  setDragOver(false)
-                  const f = e.dataTransfer.files?.[0]
-                  if (f) handleFile(f)
-                }}
-                onClick={() => fileInputRef.current?.click()}
-                className={`group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center transition-all cursor-pointer ${
-                  dragOver
-                    ? 'border-primary bg-primary/10'
-                    : 'border-outline-variant/40 bg-surface-container-low/40 hover:border-primary/60 hover:bg-surface-container-low'
-                }`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0]
-                    if (f) handleFile(f)
-                  }}
-                />
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-                  <Icon name="cloud_upload" size={26} />
-                </div>
-                <p className="mt-2.5 text-body-md font-bold text-on-surface">
-                  {uploadFileName || 'Tarik file spreadsheet ke sini atau klik untuk browse'}
-                </p>
-                <p className="text-body-xs font-medium text-on-surface-variant mt-0.5">
-                  Format resmi .xlsx / .csv • Maksimal 10MB
-                </p>
-              </div>
-
-              {uploadError && (
-                <div className="rounded-xl bg-error/10 p-3 text-body-xs font-semibold text-error">
-                  {uploadError}
-                </div>
-              )}
-
-              {/* Hasil Parsing File */}
-              {uploadParsed && (
-                <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-3 animate-fade-up">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-body-xs font-bold text-primary uppercase">
-                      Hasil Analisis: {uploadFileName}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUploadParsed(null)
-                        setUploadFileName('')
-                      }}
-                      className="text-body-xs text-error hover:underline font-bold cursor-pointer"
-                    >
-                      Batal File
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
-                      <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Jadwal Sesi</p>
-                      <p className="text-title-lg font-bold text-primary mt-0.5">
-                        {uploadParsed.scheduleEntries.length}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
-                      <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Master MK</p>
-                      <p className="text-title-lg font-bold text-secondary mt-0.5">
-                        {uploadParsed.courses.length}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
-                      <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Ujian</p>
-                      <p className="text-title-lg font-bold text-tertiary mt-0.5">
-                        {uploadParsed.exams.length}
-                      </p>
-                    </div>
-                  </div>
-
-                  {uploadValidation?.conflicts.length > 0 && (
-                    <div className="rounded-xl bg-amber-500/10 p-2.5 text-body-xs font-semibold text-amber-800 dark:text-amber-300">
-                      ⚠️ Terdeteksi {uploadValidation.conflicts.length} bentrok jadwal di dalam file.
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-end gap-2.5 pt-2">
-                    <Button
-                      variant="secondary"
-                      onClick={() => setImportModalOpen(false)}
-                      disabled={busy}
-                    >
-                      Tutup
-                    </Button>
-                    <Button
-                      onClick={handlePublishUpload}
-                      disabled={busy || !canPublishUpload}
-                      className="font-bold shadow-xs cursor-pointer"
-                    >
-                      <Icon name="rocket_launch" size={18} className="mr-1.5" />
-                      {busy ? 'Mempublikasikan...' : 'Publikasikan Jadwal'}
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── Modal Dialog: Universal Schedule Importer (Multi-Format & OCR) ── */}
+      <UniversalImportModal
+        open={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onSave={handleUniversalImportSave}
+        prodiOptions={prodiOptions}
+        currentTA={currentTA}
+        existingTAs={existingTAs}
+      />
     </div>
   )
 }

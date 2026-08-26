@@ -3,7 +3,6 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useApp } from '../../hooks/useApp'
-import { firebaseReady } from '../../lib/firebaseClient'
 
 export default function AdminLogin() {
   const navigate = useNavigate()
@@ -40,12 +39,6 @@ export default function AdminLogin() {
     } else {
       setError(result.error ?? 'Gagal masuk.')
     }
-  }
-
-  function fillDemo() {
-    setEmail('admin@jadwalkampus.app')
-    setPassword('admin123')
-    setError('')
   }
 
   return (
@@ -98,17 +91,6 @@ export default function AdminLogin() {
             <span>ADMIN CONSOLE</span>
           </div>
         </div>
-
-        {/* Firebase Demo Alert (if applicable) */}
-        {!firebaseReady && (
-          <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-tertiary/30 bg-tertiary/10 p-3.5 text-body-xs text-tertiary shadow-2xs">
-            <Icon name="info" size={18} className="shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="font-semibold">Mode Demo Aktif</p>
-              <p className="opacity-90 text-[11.5px] mt-0.5">Firebase belum dikonfigurasi. Masukkan email sembarang atau gunakan tombol demo di bawah.</p>
-            </div>
-          </div>
-        )}
 
         {/* Card Form */}
         <div className="rounded-3xl border border-outline-variant/30 bg-surface-container-lowest/85 dark:bg-surface-container-low/80 backdrop-blur-xl p-6 tablet:p-8 shadow-2xl transition-all">
@@ -200,19 +182,6 @@ export default function AdminLogin() {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Fill Shortcut */}
-          <div className="mt-5 pt-3.5 border-t border-outline-variant/15 flex items-center justify-between text-[11px] text-on-surface-variant font-medium">
-            <span>Perlu kredensial uji coba?</span>
-            <button
-              type="button"
-              onClick={fillDemo}
-              className="font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
-            >
-              <Icon name="auto_fix_high" size={13} />
-              <span>Isi Akun Demo</span>
-            </button>
-          </div>
         </div>
 
         {/* Security Footer Note */}

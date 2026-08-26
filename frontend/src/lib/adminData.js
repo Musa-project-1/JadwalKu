@@ -4,7 +4,7 @@ import { logError } from './errorLogger'
 
 /**
  * Helper tulis Firestore untuk seluruh layar admin. Semua operasi:
- * - menolak berjalan saat SDK belum terkonfigurasi (mode demo) dengan pesan
+ * - menolak berjalan saat SDK belum terkonfigurasi dengan pesan
  *   yang jelas, bukan error mentah,
  * - mencatat kegagalan ke `errorLog`,
  * - mengembalikan `{ ok, id?, error? }` agar UI bisa menampilkan toast/banner.
@@ -18,7 +18,7 @@ function guard() {
   if (!backendReady()) {
     return {
       ok: false,
-      error: 'Mode demo: Firebase belum dikonfigurasi, perubahan tidak disimpan.',
+      error: 'Koneksi database Firebase belum terhubung. Perubahan tidak dapat disimpan.',
     }
   }
   return null

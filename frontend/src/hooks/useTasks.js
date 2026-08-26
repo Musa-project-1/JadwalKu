@@ -87,7 +87,7 @@ export function useTasks() {
         selesai: false,
         prioritas: 'sedang',
         isProdi: Boolean(isProdi),
-        dibuatOleh: isProdi ? 'Tugas Bersama (Demo)' : 'Pribadi',
+        dibuatOleh: isProdi ? 'Tugas Bersama' : 'Pribadi',
         ...taskData,
       }
       persistLocal([...localTasksRef.current, newTask])

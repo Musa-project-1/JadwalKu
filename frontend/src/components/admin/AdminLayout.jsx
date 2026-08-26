@@ -60,7 +60,7 @@ function AdminAccount({ isPinned }) {
               {user.email}
             </p>
             <p className="text-[10px] text-on-surface-variant leading-none mt-0.5">
-              {user.demo ? 'Mode Demo' : 'Administrator'}
+              Administrator
             </p>
           </div>
           {/* Logout icon — only visible when expanded or pinned */}

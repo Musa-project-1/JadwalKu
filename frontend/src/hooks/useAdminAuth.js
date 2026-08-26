@@ -6,26 +6,14 @@ import {
   signOut,
 } from 'firebase/auth'
 import { auth, firebaseReady } from '../lib/firebaseClient'
-import { getItem, removeItem, setItem, STORAGE_KEYS } from '../lib/storage'
+import { removeItem, setItem, STORAGE_KEYS } from '../lib/storage'
 
 /**
- * Sesi admin: Firebase Authentication (Email/Password) saat SDK terkonfigurasi.
- * Tanpa konfigurasi Firebase (.env kosong), tersedia "mode demo" lokal agar
- * alur admin tetap bisa dikembangkan/diuji tanpa backend — jelas ditandai di UI.
+ * Sesi admin: Firebase Authentication (Email/Password).
  */
-
-const DEMO_MARKER = { demo: true }
-
 export function useAdminAuth() {
-  // Mode demo (SDK belum dikonfigurasi): pulihkan sesi langsung saat inisialisasi.
-  const [user, setUser] = useState(() => {
-    if (!firebaseReady) {
-      const stored = getItem(STORAGE_KEYS.adminSession, null)
-      return stored?.email ? { email: stored.email, demo: true } : null
-    }
-    return null
-  })
-  const [initializing, setInitializing] = useState(firebaseReady)
+  const [user, setUser] = useState(null)
+  const [initializing, setInitializing] = useState(() => Boolean(firebaseReady && auth))
 
   useEffect(() => {
     if (!firebaseReady || !auth) {
@@ -41,10 +29,7 @@ export function useAdminAuth() {
 
   async function signIn(email, password) {
     if (!firebaseReady || !auth) {
-      const session = { email, ...DEMO_MARKER }
-      setItem(STORAGE_KEYS.adminSession, session)
-      setUser({ email, demo: true })
-      return { ok: true }
+      return { ok: false, error: 'Layanan autentikasi Firebase belum terhubung.' }
     }
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password)
@@ -56,7 +41,9 @@ export function useAdminAuth() {
   }
 
   async function registerAdmin(email, password) {
-    // Sekali pakai: membuat akun admin pertama bila belum ada di Firebase Console.
+    if (!firebaseReady || !auth) {
+      return { ok: false, error: 'Layanan autentikasi Firebase belum terhubung.' }
+    }
     try {
       await createUserWithEmailAndPassword(auth, email, password)
       return { ok: true }
@@ -68,29 +55,43 @@ export function useAdminAuth() {
   async function signOutAdmin() {
     removeItem(STORAGE_KEYS.adminSession)
     if (firebaseReady && auth) {
-      await signOut(auth)
+      try {
+        await signOut(auth)
+      } catch {
+        // Abaikan kegagalan jaringan saat logout
+      }
     }
     setUser(null)
   }
 
-  return { user, initializing, signIn, registerAdmin, signOutAdmin }
+  return {
+    user,
+    initializing,
+    signIn,
+    registerAdmin,
+    signOutAdmin,
+  }
 }
 
 function translateAuthError(code) {
   switch (code) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'Email atau password salah.'
     case 'auth/invalid-email':
       return 'Format email tidak valid.'
     case 'auth/user-disabled':
-      return 'Akun ini dinonaktifkan.'
-    case 'auth/user-not-found':
-    case 'auth/wrong-password':
-    case 'auth/invalid-credential':
-      return 'Email atau password salah.'
+      return 'Akun admin dinonaktifkan.'
     case 'auth/too-many-requests':
-      return 'Terlalu banyak percobaan gagal. Coba lagi nanti.'
+      return 'Terlalu banyak percobaan gagal. Silakan coba beberapa saat lagi.'
     case 'auth/network-request-failed':
-      return 'Gagal terhubung ke server. Periksa koneksi internet.'
+      return 'Koneksi jaringan terputus. Periksa sambungan internet Anda.'
+    case 'auth/email-already-in-use':
+      return 'Email admin ini sudah terdaftar.'
+    case 'auth/weak-password':
+      return 'Password terlalu lemah (minimal 6 karakter).'
     default:
-      return 'Gagal masuk. Coba lagi.'
+      return 'Gagal memproses autentikasi. Silakan coba lagi.'
   }
 }

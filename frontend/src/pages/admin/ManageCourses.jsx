@@ -258,74 +258,70 @@ export default function ManageCourses() {
   }
 
   return (
-    <div className="space-y-6 pb-12 animate-fade-in w-full max-w-full overflow-x-hidden">
-      {/* Header & Quick Stats */}
-      <header className="flex flex-col gap-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3 min-w-0 flex-1">
-            <span className="flex h-11 w-11 tablet:h-12 tablet:w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-xs dark:bg-secondary-container/30 mt-0.5">
-              <Icon name="menu_book" size={24} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-2xl tablet:text-headline-lg font-bold tracking-tight text-on-surface">
-                Kelola MK & Dosen
-              </h1>
-              <p className="text-body-xs tablet:text-body-sm font-normal text-on-surface-variant mt-0.5">
-                Master mata kuliah, SKS, semester & dosen pengampu
-              </p>
-            </div>
-          </div>
-
-          {/* Primary Action Button beside title */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              onClick={openAddModal}
-              className="rounded-2xl p-2.5 tablet:px-4 tablet:py-2.5 font-bold shadow-xs cursor-pointer text-body-sm shrink-0"
-              title="Tambah Mata Kuliah"
-              aria-label="Tambah MK"
-            >
-              <Icon name="add" size={20} className="tablet:mr-1.5" />
-              <span className="hidden tablet:inline">Tambah MK</span>
-            </Button>
+    <div className="h-full flex flex-col space-y-2.5 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
+      {/* ── 1. Page Header (Icon, Title, Stat Chips, Action Buttons) — 1 Horizontal Row on Desktop ── */}
+      <header className="flex flex-col gap-2.5 tablet:flex-row tablet:items-center tablet:justify-between shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-xs dark:bg-secondary-container/30">
+            <Icon name="menu_book" size={22} />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+              Kelola MK & Dosen
+            </h1>
+            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">
+              Master mata kuliah, SKS, semester & dosen pengampu
+            </p>
           </div>
         </div>
 
-        {/* Live Quick Stat Chips — 3-Column Grid on Mobile, Flex on Desktop */}
-        <div className="grid grid-cols-3 gap-2 w-full tablet:flex tablet:w-auto">
-          <div className="flex flex-col tablet:flex-row items-center tablet:items-center text-center tablet:text-left gap-1 tablet:gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-2.5 tablet:px-3.5 tablet:py-2 shadow-xs dark:bg-surface-container-low min-w-0">
-            <Icon name="library_books" size={18} className="text-primary shrink-0" />
-            <div className="min-w-0 w-full">
-              <p className="text-[10px] tablet:text-label-caps uppercase font-bold text-on-surface-variant truncate">Total MK</p>
-              <p className="text-title-sm font-bold text-on-surface">{stats.totalCourses}</p>
+        {/* Right side: Live Quick Stat Chips + Primary Action Button */}
+        <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 flex-wrap tablet:flex-nowrap">
+          <div className="grid grid-cols-3 tablet:flex tablet:w-auto gap-1.5 tablet:gap-2">
+            <div className="flex items-center gap-1.5 rounded-2xl border border-primary/20 bg-primary/10 px-2.5 py-1.5 shadow-2xs min-w-0">
+              <Icon name="library_books" size={14} className="text-primary shrink-0" />
+              <span className="text-body-xs font-bold text-primary truncate">
+                {stats.totalCourses} MK
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-2xl border border-secondary/20 bg-secondary/10 px-2.5 py-1.5 shadow-2xs min-w-0">
+              <Icon name="person" size={14} className="text-secondary shrink-0" />
+              <span className="text-body-xs font-bold text-secondary truncate">
+                {stats.totalLecturers} Dosen
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-2xl border border-tertiary/20 bg-tertiary/10 px-2.5 py-1.5 shadow-2xs min-w-0">
+              <Icon name="workspace_premium" size={14} className="text-tertiary shrink-0" />
+              <span className="text-body-xs font-bold text-tertiary truncate">
+                {stats.totalSks} SKS
+              </span>
             </div>
           </div>
-          <div className="flex flex-col tablet:flex-row items-center tablet:items-center text-center tablet:text-left gap-1 tablet:gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-2.5 tablet:px-3.5 tablet:py-2 shadow-xs dark:bg-surface-container-low min-w-0">
-            <Icon name="person" size={18} className="text-secondary shrink-0" />
-            <div className="min-w-0 w-full">
-              <p className="text-[10px] tablet:text-label-caps uppercase font-bold text-on-surface-variant truncate">Dosen</p>
-              <p className="text-title-sm font-bold text-on-surface">{stats.totalLecturers}</p>
-            </div>
-          </div>
-          <div className="flex flex-col tablet:flex-row items-center tablet:items-center text-center tablet:text-left gap-1 tablet:gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-2.5 tablet:px-3.5 tablet:py-2 shadow-xs dark:bg-surface-container-low min-w-0">
-            <Icon name="workspace_premium" size={18} className="text-tertiary shrink-0" />
-            <div className="min-w-0 w-full">
-              <p className="text-[10px] tablet:text-label-caps uppercase font-bold text-on-surface-variant truncate">Total SKS</p>
-              <p className="text-title-sm font-bold text-on-surface">{stats.totalSks}</p>
-            </div>
-          </div>
+
+          <Button
+            onClick={openAddModal}
+            className="rounded-2xl px-3.5 py-2 font-bold shadow-xs cursor-pointer text-body-xs shrink-0"
+            title="Tambah Mata Kuliah"
+            aria-label="Tambah MK"
+          >
+            <Icon name="add" size={16} className="mr-1" />
+            <span>Tambah MK</span>
+          </Button>
         </div>
       </header>
 
       {banner && (
-        <StatusBanner
-          ok={banner.ok}
-          message={banner.message}
-          onClose={() => setBanner(null)}
-        />
+        <div className="shrink-0">
+          <StatusBanner
+            ok={banner.ok}
+            message={banner.message}
+            onClose={() => setBanner(null)}
+          />
+        </div>
       )}
 
-      {/* ── 2. Filter & Search Controls (Unified 1-Row Toolbar) ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs space-y-2.5 dark:bg-surface-container-low">
+      {/* ── 2. Live Database Course Management (Unified Card Container) ── */}
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
         {/* Unified Search & Filters in 1 Row on Desktop */}
         <div className="relative z-30 flex flex-col gap-2 tablet:flex-row tablet:items-center">
           <div className="relative flex-1 min-w-[200px]">
@@ -485,39 +481,38 @@ export default function ManageCourses() {
             </button>
           </div>
         )}
-      </div>
 
-      {/* Main Course Table / List */}
-      {loading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-16 w-full rounded-2xl" />
-          <Skeleton className="h-16 w-full rounded-2xl" />
-          <Skeleton className="h-16 w-full rounded-2xl" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-8 dark:bg-surface-container-low">
-          <EmptyState
-            icon="menu_book"
-            title="Tidak ada mata kuliah yang cocok"
-            description={
-              hasActiveFilters
-                ? 'Coba sesuaikan filter atau bersihkan pencarian.'
-                : 'Belum ada data mata kuliah. Tekan tombol "+ Tambah MK" untuk membuat master mata kuliah.'
-            }
-          />
-          {hasActiveFilters && (
-            <div className="flex justify-center mt-4">
-              <Button variant="secondary" onClick={resetAllFilters} className="cursor-pointer">
-                <Icon name="refresh" size={18} className="mr-1" />
-                Reset Semua Filter
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <>
-          {/* Table — Desktop & Tablet with Sticky Header & Dynamic Viewport Height */}
-          <div className="hidden overflow-x-hidden overflow-y-auto max-h-[calc(100vh-270px)] rounded-3xl border border-outline-variant/20 bg-surface-container-lowest shadow-sm tablet:block dark:bg-surface-container-low dark:border-outline-variant/15 w-full">
+        {/* Main Course Table / List */}
+        {loading ? (
+          <div className="space-y-3 p-4">
+            <Skeleton className="h-16 w-full rounded-2xl" />
+            <Skeleton className="h-16 w-full rounded-2xl" />
+            <Skeleton className="h-16 w-full rounded-2xl" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-low/30 p-8 dark:bg-surface-container-high/20 my-auto text-center">
+            <EmptyState
+              icon="menu_book"
+              title="Tidak ada mata kuliah yang cocok"
+              description={
+                hasActiveFilters
+                  ? 'Coba sesuaikan filter atau bersihkan pencarian.'
+                  : 'Belum ada data mata kuliah. Tekan tombol "+ Tambah MK" untuk membuat master mata kuliah.'
+              }
+            />
+            {hasActiveFilters && (
+              <div className="flex justify-center mt-4">
+                <Button variant="secondary" onClick={resetAllFilters} className="cursor-pointer">
+                  <Icon name="refresh" size={18} className="mr-1" />
+                  Reset Semua Filter
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Table — Desktop & Tablet with Sticky Header */}
+            <div className="hidden overflow-x-hidden overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low dark:border-outline-variant/15 w-full">
             <table className="w-full table-fixed text-left border-collapse">
               <thead className="sticky top-0 z-20 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
                 <tr className="border-b border-outline-variant/15">
@@ -682,7 +677,7 @@ export default function ManageCourses() {
           </div>
 
           {/* Cards — Mobile */}
-          <div className="space-y-3 tablet:hidden">
+          <div className="space-y-2.5 tablet:hidden overflow-y-auto flex-1 min-h-0">
             {paginatedCourses.map((course) => {
               const waUrl = formatWhatsAppUrl(course.kontakDosen)
               const semester = getCourseSemester(course)
@@ -691,7 +686,7 @@ export default function ManageCourses() {
               return (
                 <div
                   key={course.id}
-                  className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-xs dark:bg-surface-container-low space-y-3"
+                  className="rounded-2xl border border-outline-variant/20 bg-surface-container-low/40 p-4 shadow-2xs dark:bg-surface-container-high/30 space-y-2.5"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -781,16 +776,19 @@ export default function ManageCourses() {
           </div>
 
           {/* Shared Pagination Controls */}
-          <Pagination
-            currentPage={safeCurrentPage}
-            totalItems={filtered.length}
-            pageSize={pageSize === 0 ? 'Semua' : pageSize}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
-            itemLabel="mata kuliah"
-          />
+          <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
+            <Pagination
+              currentPage={safeCurrentPage}
+              totalItems={filtered.length}
+              pageSize={pageSize === 0 ? 'Semua' : pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
+              itemLabel="mata kuliah"
+            />
+          </div>
         </>
       )}
+    </div>
 
       {/* Modal Dialog Form (Tambah / Edit) */}
       {modalOpen && (

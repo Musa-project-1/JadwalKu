@@ -107,3 +107,10 @@ export const TONE_BORDER_CLASSES = {
 export function getClassType(code) {
   return CLASS_TYPES[code] ?? { label: code || 'Tidak diketahui', shortLabel: code || 'Kelas', tone: 'neutral' }
 }
+
+export const VALID_CLASS_TYPES = ['K1', 'K2', 'HB', 'HBH', 'HBD', 'GBK1', 'GBK2']
+export const CLASS_TYPE_CODES = VALID_CLASS_TYPES
+
+export function classTypeLabel(code) {
+  return CLASS_TYPES[code]?.label ?? code ?? 'Reguler'
+}
