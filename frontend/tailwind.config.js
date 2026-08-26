@@ -100,6 +100,10 @@ export default {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['"JetBrains Mono"', '"Fira Code"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        brand: ['"Space Grotesk"', 'sans-serif'],
+        space: ['"Space Grotesk"', 'sans-serif'],
+        marker: ['"Permanent Marker"', 'cursive', 'sans-serif'],
+        handwriting: ['"Permanent Marker"', 'cursive', 'sans-serif'],
       },
       fontSize: {
         'display-lg': ['36px', { lineHeight: '44px', letterSpacing: '-0.025em', fontWeight: '800' }],

@@ -1,6 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.font-marker {
+  font-family: 'Permanent Marker', cursive, sans-serif !important;
+}
+
+.font-brand {
+  font-family: 'Space Grotesk', sans-serif !important;
+}
 
 /*
  * Token warna M3 — "JadwalKu Expressive" (Stitch v2, 25 Aug 2026).
@@ -141,38 +152,6 @@
 
   body {
     @apply bg-background text-on-background antialiased;
-  }
-
-  /* Aurora washes — teal kanan-atas, indigo kiri-bawah, peach kiri-atas (dark) */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(640px circle at 88% 8%, rgb(var(--c-primary) / 0.09), transparent 62%),
-      radial-gradient(720px circle at 8% 88%, rgb(var(--c-secondary) / 0.08), transparent 62%),
-      radial-gradient(520px circle at 55% 45%, rgb(var(--c-tertiary) / 0.05), transparent 62%),
-      linear-gradient(
-        160deg,
-        rgb(var(--c-primary) / 0.04) 0%,
-        rgb(var(--c-secondary) / 0.035) 50%,
-        rgb(var(--c-tertiary) / 0.04) 100%
-      );
-  }
-
-  .dark body::before {
-    background:
-      radial-gradient(720px circle at 90% 4%, rgb(var(--c-aurora-teal) / 0.16), transparent 62%),
-      radial-gradient(780px circle at 4% 94%, rgb(var(--c-aurora-indigo) / 0.14), transparent 62%),
-      radial-gradient(560px circle at 8% 4%, rgb(var(--c-aurora-peach) / 0.09), transparent 58%),
-      linear-gradient(
-        160deg,
-        rgb(var(--c-aurora-teal) / 0.06) 0%,
-        rgb(var(--c-aurora-indigo) / 0.05) 50%,
-        rgb(var(--c-aurora-peach) / 0.04) 100%
-      );
   }
 
   #root {

@@ -1,61 +1,139 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
+import { useFirestore } from './useFirestore'
+import { useApp } from './useApp'
+import { addDocument, deleteDocument } from '../lib/adminData'
+import { firebaseReady } from '../lib/firebaseClient'
+
+const SHARED_DONE_KEY = 'jadwal:completedSharedTasks'
 
 /**
- * Tugas tersimpan device-local di localStorage (sesuai PLAN.md — data mahasiswa
- * tidak berbasis akun). Struktur tugas:
- * { id, kodeMK, judul, deadline (ISO date), catatan, prioritas ('tinggi'|'sedang'|'rendah'), selesai }
+ * Dual-Layer Task Manager:
+ * 1. Tugas Pribadi: Tersimpan lokal di localStorage (pribadi per perangkat mahasiswa).
+ * 2. Tugas Bersama Prodi: Tersinkronisasi cloud di Firestore collection 'tugasProdi',
+ *    dengan status checklist selesai (done) disimpan independen per mahasiswa.
  */
 export function useTasks() {
-  const [tasks, setTasks] = useState(() => getItem(STORAGE_KEYS.tasks, []))
+  const { program, semester } = useApp()
+  const [localTasks, setLocalTasks] = useState(() => getItem(STORAGE_KEYS.tasks, []))
+  const [completedSharedIds, setCompletedSharedIds] = useState(() => getItem(SHARED_DONE_KEY, []))
 
-  // Ref agar mutator bisa membaca daftar terbaru tanpa menjadikan `tasks`
-  // dependensi callback (yang akan membentuk ulang callback tiap render).
-  // Menghindari stale-closure: dua mutasi beruntun (mis. double-click)
-  // tidak lagi kehilangan update karena keduanya membaca value terbaru.
-  const tasksRef = useRef(tasks)
+  // Langganan Cloud Tugas Bersama per Prodi & Semester
+  const { data: cloudProdiTasks } = useFirestore('tugasProdi', [
+    ['prodi', '==', program ?? ''],
+    ['semester', '==', Number(semester) || 0],
+  ])
+
+  const localTasksRef = useRef(localTasks)
   useEffect(() => {
-    tasksRef.current = tasks
-  }, [tasks])
+    localTasksRef.current = localTasks
+  }, [localTasks])
 
-  const persist = useCallback((next) => {
-    setTasks(next)
+  const completedSharedIdsRef = useRef(completedSharedIds)
+  useEffect(() => {
+    completedSharedIdsRef.current = completedSharedIds
+  }, [completedSharedIds])
+
+  const persistLocal = useCallback((next) => {
+    setLocalTasks(next)
     setItem(STORAGE_KEYS.tasks, next)
   }, [])
 
+  const persistCompletedShared = useCallback((next) => {
+    setCompletedSharedIds(next)
+    setItem(SHARED_DONE_KEY, next)
+  }, [])
+
+  // Gabungkan tugas bersama prodi & tugas pribadi
+  const tasks = useMemo(() => {
+    const sharedMapped = (cloudProdiTasks || []).map((t) => ({
+      id: t.id,
+      kodeMK: t.kodeMK ?? '',
+      judul: t.judul ?? '',
+      deadline: t.deadline ?? '',
+      catatan: t.catatan ?? t.deskripsi ?? '',
+      prioritas: t.prioritas ?? 'sedang',
+      selesai: completedSharedIds.includes(t.id),
+      isProdi: true,
+      dibuatOleh: t.dibuatOleh ?? 'Komti Kelas',
+    }))
+
+    const personalMapped = (localTasks || []).map((t) => ({
+      ...t,
+      isProdi: Boolean(t.isProdi),
+      dibuatOleh: t.isProdi ? (t.dibuatOleh ?? 'Komti') : 'Pribadi',
+    }))
+
+    return [...sharedMapped, ...personalMapped]
+  }, [cloudProdiTasks, localTasks, completedSharedIds])
+
   const addTask = useCallback(
-    (task) => {
+    async (taskData, isProdi = false) => {
+      if (isProdi && firebaseReady) {
+        // Tulis ke Firestore agar tersinkronisasi ke seluruh mahasiswa prodi
+        const res = await addDocument('tugasProdi', {
+          ...taskData,
+          prodi: program,
+          semester: Number(semester) || 0,
+          dibuatOleh: taskData.dibuatOleh || 'Komti / Mahasiswa',
+          createdAt: new Date(),
+        })
+        return res
+      }
+
+      // Default / fallback: simpan ke LocalStorage
       const newTask = {
         id: crypto.randomUUID(),
         selesai: false,
         prioritas: 'sedang',
-        ...task,
+        isProdi: Boolean(isProdi),
+        dibuatOleh: isProdi ? 'Tugas Bersama (Demo)' : 'Pribadi',
+        ...taskData,
       }
-      persist([...tasksRef.current, newTask])
-      return newTask
+      persistLocal([...localTasksRef.current, newTask])
+      return { ok: true, id: newTask.id }
     },
-    [persist],
+    [persistLocal, program, semester],
   )
 
   const updateTask = useCallback(
     (id, changes) => {
-      persist(tasksRef.current.map((t) => (t.id === id ? { ...t, ...changes } : t)))
+      persistLocal(localTasksRef.current.map((t) => (t.id === id ? { ...t, ...changes } : t)))
     },
-    [persist],
+    [persistLocal],
   )
 
   const toggleDone = useCallback(
     (id) => {
-      persist(tasksRef.current.map((t) => (t.id === id ? { ...t, selesai: !t.selesai } : t)))
+      const isCloudShared = (cloudProdiTasks || []).some((t) => t.id === id)
+      if (isCloudShared) {
+        const currentSet = new Set(completedSharedIdsRef.current)
+        if (currentSet.has(id)) {
+          currentSet.delete(id)
+        } else {
+          currentSet.add(id)
+        }
+        persistCompletedShared(Array.from(currentSet))
+        return
+      }
+
+      persistLocal(
+        localTasksRef.current.map((t) => (t.id === id ? { ...t, selesai: !t.selesai } : t)),
+      )
     },
-    [persist],
+    [cloudProdiTasks, persistCompletedShared, persistLocal],
   )
 
   const removeTask = useCallback(
-    (id) => {
-      persist(tasksRef.current.filter((t) => t.id !== id))
+    async (id) => {
+      const isCloudShared = (cloudProdiTasks || []).some((t) => t.id === id)
+      if (isCloudShared && firebaseReady) {
+        await deleteDocument('tugasProdi', id)
+        return
+      }
+      persistLocal(localTasksRef.current.filter((t) => t.id !== id))
     },
-    [persist],
+    [cloudProdiTasks, persistLocal],
   )
 
   return { tasks, addTask, updateTask, toggleDone, removeTask }

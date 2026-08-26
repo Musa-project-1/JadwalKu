@@ -21,6 +21,8 @@ import {
   validateCourseEntry,
   validateScheduleEntry,
 } from '../../lib/uploadValidator'
+import { getClassType, TONE_CLASSES, TONE_DOT_CLASSES } from '../../lib/classTypes'
+import { formatRuang } from '../../lib/scheduleUtils'
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024
 
@@ -81,7 +83,7 @@ function ProdiFilterDropdown({ prodiOptions, selected, onSelect }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-[12px] font-medium transition-all cursor-pointer ${
+        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-body-xs font-medium transition-all cursor-pointer ${
           selected
             ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 font-semibold'
             : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
@@ -106,7 +108,7 @@ function ProdiFilterDropdown({ prodiOptions, selected, onSelect }) {
               onSelect('')
               setOpen(false)
             }}
-            className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-[12px] font-medium transition-colors cursor-pointer ${
+            className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
               !selected
                 ? 'bg-primary/10 text-primary font-bold'
                 : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
@@ -125,7 +127,7 @@ function ProdiFilterDropdown({ prodiOptions, selected, onSelect }) {
                   onSelect(p)
                   setOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-[12px] font-medium transition-colors cursor-pointer ${
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
                   isSelected
                     ? 'bg-primary/10 text-primary font-bold'
                     : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
@@ -166,7 +168,7 @@ function SemesterFilterDropdown({ selected, onSelect }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-[12px] font-medium transition-all cursor-pointer whitespace-nowrap ${
+        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-body-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
           selected
             ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 font-semibold'
             : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
@@ -195,7 +197,7 @@ function SemesterFilterDropdown({ selected, onSelect }) {
                   onSelect(s.value)
                   setOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-[12px] font-medium transition-colors cursor-pointer ${
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
                   isSelected
                     ? 'bg-primary/10 text-primary font-bold'
                     : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
@@ -234,7 +236,7 @@ function HariFilterDropdown({ selected, onSelect }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-[12px] font-medium transition-all cursor-pointer whitespace-nowrap ${
+        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-body-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
           selected
             ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 font-semibold'
             : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
@@ -259,7 +261,7 @@ function HariFilterDropdown({ selected, onSelect }) {
               onSelect('')
               setOpen(false)
             }}
-            className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-[12px] font-medium transition-colors cursor-pointer ${
+            className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
               !selected
                 ? 'bg-primary/10 text-primary font-bold'
                 : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
@@ -278,7 +280,7 @@ function HariFilterDropdown({ selected, onSelect }) {
                   onSelect(d)
                   setOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-[12px] font-medium transition-colors cursor-pointer ${
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
                   isSelected
                     ? 'bg-primary/10 text-primary font-bold'
                     : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
@@ -325,7 +327,7 @@ function StatusFilterDropdown({ selected, onSelect }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-[12px] font-medium transition-all cursor-pointer whitespace-nowrap ${
+        className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-body-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
           selected
             ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 font-semibold'
             : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
@@ -354,7 +356,7 @@ function StatusFilterDropdown({ selected, onSelect }) {
                   onSelect(o.value)
                   setOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-[12px] font-medium transition-colors cursor-pointer ${
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-body-xs font-medium transition-colors cursor-pointer ${
                   isSelected
                     ? 'bg-primary/10 text-primary font-bold'
                     : 'text-on-surface hover:bg-surface-container-low dark:hover:bg-surface-container'
@@ -898,7 +900,7 @@ export default function ManageSchedule() {
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-headline-lg font-bold tracking-tight text-on-surface">Kelola & Upload Jadwal</h1>
-              <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 font-mono text-label-caps font-bold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
                 <Icon name="event" size={13} />
                 TA {currentTA}
               </span>
@@ -1014,19 +1016,19 @@ export default function ManageSchedule() {
 
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
-                  <p className="text-[11px] uppercase font-bold tracking-wider text-on-surface-variant">Jadwal Sesi</p>
+                  <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Jadwal Sesi</p>
                   <p className="text-title-lg font-bold text-primary mt-0.5">
                     {uploadParsed.scheduleEntries.length}
                   </p>
                 </div>
                 <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
-                  <p className="text-[11px] uppercase font-bold tracking-wider text-on-surface-variant">Master MK</p>
+                  <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Master MK</p>
                   <p className="text-title-lg font-bold text-secondary mt-0.5">
                     {uploadParsed.courses.length}
                   </p>
                 </div>
                 <div className="rounded-xl bg-surface-container-lowest p-2.5 border border-outline-variant/15 dark:bg-surface-container-low">
-                  <p className="text-[11px] uppercase font-bold tracking-wider text-on-surface-variant">Ujian</p>
+                  <p className="text-label-caps uppercase font-bold tracking-wider text-on-surface-variant">Ujian</p>
                   <p className="text-title-lg font-bold text-tertiary mt-0.5">
                     {uploadParsed.exams.length}
                   </p>
@@ -1062,7 +1064,7 @@ export default function ManageSchedule() {
                 <Icon name="table_chart" size={20} />
               </span>
               <div>
-                <h2 className="text-title-lg font-bold tracking-tight text-on-surface">Daftar Jadwal Aktif</h2>
+                <h2 className="text-title-md font-bold tracking-tight text-on-surface">Daftar Jadwal Aktif</h2>
                 <p className="text-body-xs font-medium text-on-surface-variant">
                   Total {filteredSchedule.length} dari {rawSchedule.length} sesi perkuliahan di database
                 </p>
@@ -1103,7 +1105,7 @@ export default function ManageSchedule() {
               <button
                 type="button"
                 onClick={downloadTemplate}
-                className="inline-flex items-center gap-1.5 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-[12px] font-medium text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-body-xs font-medium text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
                 title="Download Template Format Excel"
               >
                 <Icon name="download" size={14} className="text-primary" />
@@ -1113,7 +1115,7 @@ export default function ManageSchedule() {
               <button
                 type="button"
                 onClick={exportCurrentSchedule}
-                className="inline-flex items-center gap-1.5 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-[12px] font-medium text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-body-xs font-medium text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
                 title="Ekspor Seluruh Jadwal Tampil ke Excel"
               >
                 <Icon name="file_download" size={14} className="text-secondary" />
@@ -1194,7 +1196,7 @@ export default function ManageSchedule() {
           {/* Active Filter Badges */}
           {(prodiFilter || semesterFilter || hariFilter || statusFilter || search) && (
             <div className="flex flex-wrap items-center gap-1.5 pt-1 animate-fade-in">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant mr-1">
+              <span className="text-label-caps font-bold uppercase tracking-wider text-on-surface-variant mr-1">
                 Filter Aktif:
               </span>
               {search && (
@@ -1320,7 +1322,7 @@ export default function ManageSchedule() {
                             {item.jamMulai} - {item.jamSelesai}
                           </p>
                           {clashMsg && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-error mt-0.5">
+                            <span className="inline-flex items-center gap-1 text-label-caps font-bold text-error mt-0.5">
                               <Icon name="warning" size={13} />
                               Bentrok
                             </span>
@@ -1352,10 +1354,16 @@ export default function ManageSchedule() {
 
                         {/* Ruang & Tipe */}
                         <td className="px-4 py-3.5 whitespace-nowrap">
-                          <p className="font-bold text-body-sm text-on-surface">{item.ruang || '-'}</p>
-                          <span className="rounded-md bg-surface-container px-2 py-0.5 text-body-xs font-bold text-on-surface-variant">
-                            Kelas {item.tipeKelas || 'K1'}
-                          </span>
+                          <p className="font-bold text-body-sm text-on-surface">{formatRuang(item.ruang, item.tipeKelas)}</p>
+                          {(() => {
+                            const ct = getClassType(item.tipeKelas)
+                            return (
+                              <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-label-caps font-bold mt-0.5 ${TONE_CLASSES[ct.tone] || 'bg-surface-container text-on-surface-variant'}`}>
+                                <span className={`h-1.5 w-1.5 rounded-full ${TONE_DOT_CLASSES[ct.tone] || 'bg-surface-variant'}`} />
+                                {ct.label}
+                              </span>
+                            )
+                          })()}
                         </td>
 
                         {/* Status */}
@@ -1472,7 +1480,7 @@ export default function ManageSchedule() {
                       <span>•</span>
                       <span>{item.prodi} (Sem. {item.semester})</span>
                       <span>•</span>
-                      <span>Ruang: {item.ruang || '-'}</span>
+                      <span>Ruang: {formatRuang(item.ruang, item.tipeKelas)}</span>
                     </div>
 
                     {clashMsg && (

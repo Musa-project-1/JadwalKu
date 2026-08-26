@@ -19,17 +19,17 @@ export function BrandWordmark({
 
   return (
     <div className={`leading-tight ${className}`}>
-      <h1 className={`font-bold font-sans tracking-[-0.02em] ${sizeClasses[size] || sizeClasses.md} truncate`}>
+      <h1 className={`font-bold font-brand tracking-[-0.025em] ${sizeClasses[size] || sizeClasses.md} truncate`}>
         <span className="text-on-surface">Jadwal</span>
         <span className="text-primary">Ku</span>
       </h1>
       {tagline && (
-        <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-on-surface-variant/80 truncate mt-0.5">
+        <p className="font-brand font-medium text-[10.5px] tracking-[0.09em] uppercase text-on-surface-variant/80 truncate mt-0.5">
           SCHEDULE SMARTER
         </p>
       )}
       {!tagline && subtitle && (
-        <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-on-surface-variant/80 truncate mt-0.5">
+        <p className="font-brand font-medium text-[10.5px] tracking-[0.09em] uppercase text-on-surface-variant/80 truncate mt-0.5">
           {subtitle}
         </p>
       )}

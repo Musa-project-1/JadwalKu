@@ -50,5 +50,10 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow update, delete: if isAdmin();
     }
+
+    match /tugasProdi/{doc} {
+      allow read: if true;
+      allow create, update, delete: if true;
+    }
   }
 }

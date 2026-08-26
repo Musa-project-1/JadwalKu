@@ -38,11 +38,11 @@ export function Sidebar() {
             <div className="flex items-center min-w-0">
               <img src="/logo.svg" alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
               <div className={labelClsSm}>
-                <h1 className="text-headline-lg-mobile font-bold font-sans tracking-[-0.02em] desktop:text-headline-lg truncate">
+                <h1 className="text-headline-lg-mobile font-bold font-brand tracking-[-0.025em] desktop:text-headline-lg truncate">
                   <span className="text-on-surface">Jadwal</span>
                   <span className="text-primary">Ku</span>
                 </h1>
-                <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-on-surface-variant/80 truncate mt-0.5">
+                <p className="font-brand font-medium text-[10.5px] tracking-[0.09em] uppercase text-on-surface-variant/80 truncate mt-0.5">
                   SCHEDULE SMARTER
                 </p>
               </div>

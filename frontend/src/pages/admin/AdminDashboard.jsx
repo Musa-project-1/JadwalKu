@@ -151,9 +151,9 @@ export default function AdminDashboard() {
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-container/50 dark:bg-primary-container/25 text-primary">
             <Icon name="dashboard" size={26} />
           </span>
-          <h2 className="text-headline-lg font-bold text-on-surface">Dashboard Overview</h2>
+          <h1 className="text-headline-lg font-bold text-on-surface">Dashboard Overview</h1>
         </div>
-        <p className="text-body-lg text-on-surface-variant">
+        <p className="text-body-sm text-on-surface-variant">
           Status sistem dan aksi administratif cepat.
         </p>
       </header>
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
           {loadingProdi ? (
             <Skeleton className="h-9 w-16" />
           ) : (
-            <h3 className="text-display text-on-surface font-bold">{programs.length}</h3>
+            <h3 className="text-display-lg text-on-surface font-bold">{programs.length}</h3>
           )}
           <div className="mt-sm flex flex-wrap items-center justify-between gap-xs">
             <p className="flex items-center gap-xs text-body-sm font-medium text-secondary">
@@ -191,7 +191,7 @@ export default function AdminDashboard() {
                 type="button"
                 onClick={handleSyncProdi}
                 disabled={syncingProdi}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                className="inline-flex items-center gap-1 text-label-caps font-semibold text-primary hover:underline"
               >
                 <Icon name="sync" size={14} className={syncingProdi ? 'animate-spin' : ''} />
                 Sinkronkan dari {courses.length} MK
@@ -212,7 +212,7 @@ export default function AdminDashboard() {
           {loadingCourses ? (
             <Skeleton className="h-9 w-16" />
           ) : (
-            <h3 className="text-display text-on-surface font-bold">{courses.length}</h3>
+            <h3 className="text-display-lg text-on-surface font-bold">{courses.length}</h3>
           )}
           <p className="mt-sm flex items-center gap-xs text-body-sm font-medium text-info">
             <Icon name="book" size={16} /> Terdaftar
@@ -322,7 +322,7 @@ export default function AdminDashboard() {
               <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
               Sistem JadwalKampus Aktif
             </div>
-            <p className="text-[12px] text-on-surface-variant/80">
+            <p className="text-body-xs text-on-surface-variant/80">
               Perubahan pada prodi, MK, atau jadwal langsung tersinkronisasi ke seluruh mahasiswa secara realtime.
             </p>
           </div>

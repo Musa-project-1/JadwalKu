@@ -44,11 +44,11 @@ export default function AdminLogin() {
       <div className="w-full max-w-md">
         <div className="mb-xl text-center">
           <img src="/logo.svg" alt="Logo JadwalKu" className="mx-auto mb-md h-16 w-16" />
-          <h1 className="text-display font-bold font-sans tracking-[-0.02em]">
+          <h1 className="text-display-lg font-bold font-brand tracking-[-0.025em]">
             <span className="text-on-surface">Jadwal</span>
             <span className="text-primary">Ku</span>
           </h1>
-          <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-on-surface-variant/80 mt-1">
+          <p className="font-brand font-medium text-[10.5px] tracking-[0.09em] uppercase text-on-surface-variant/80 mt-1">
             SCHEDULE SMARTER · ADMIN CONSOLE
           </p>
         </div>

@@ -371,6 +371,13 @@ function parseUnivSheet(grid) {
         semesterByCourse[kodeMK] ??
         NaN
 
+      let resolvedRuang = kelasRaw || tipeKelas
+      if (tipeKelas === 'HBH') resolvedRuang = 'Gedung Halimah'
+      else if (tipeKelas === 'HBD') resolvedRuang = 'Gedung Dekanat'
+      else if (tipeKelas === 'K2' || tipeKelas === 'GBK2') resolvedRuang = 'Online / Zoom'
+      else if (tipeKelas === 'GBK1') resolvedRuang = 'Ruang Kelas Gabungan'
+      else if (tipeKelas === 'K1') resolvedRuang = kelasRaw && !['K1', 'REGULER'].includes(kelasKey) ? `Ruang Kelas ${kelasRaw}` : 'Ruang Kelas Prodi'
+
       scheduleEntries.push({
         hari: currentDay,
         jamMulai: `${pad(m[1])}:${m[2]}`,
@@ -378,7 +385,7 @@ function parseUnivSheet(grid) {
         prodi,
         semester,
         kodeMK,
-        ruang: kelasRaw || tipeKelas,
+        ruang: resolvedRuang,
         tipeKelas,
       })
     }
@@ -616,7 +623,10 @@ function normalizeTimeOfDay(value) {
 }
 
 function normalizeClassType(value) {
-  const upper = String(value).toUpperCase()
+  const upper = String(value).toUpperCase().trim()
+  if (/^\d+-A$/i.test(upper) || upper.endsWith('-A')) return 'K1'
+  if (/^\d+-[BE]$/i.test(upper) || upper.endsWith('-B') || upper.endsWith('-E')) return 'K2'
+
   // Longest-first: 'HB' adalah substring 'HBH'/'HBD' — tanpa sorting,
   // input HBH/HBD salah terpetakan ke 'HB'.
   const sorted = [...CLASS_TYPE_CODES].sort((a, b) => b.length - a.length)

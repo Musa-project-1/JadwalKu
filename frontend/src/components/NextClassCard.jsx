@@ -1,4 +1,5 @@
 import { Icon } from './Icon'
+import { formatRuang } from '../lib/scheduleUtils'
 
 /**
  * Hero card "Kelas Berikutnya" — kartu teal besar dengan countdown,
@@ -24,14 +25,14 @@ export function NextClassCard({ entry, course, countdownText, urgent = false, on
           </h3>
           <div className="flex flex-wrap gap-2">
             {course?.dosen && (
-              <span className="bg-white/20 dark:bg-primary/15 dark:border dark:border-primary/20 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 backdrop-blur-sm text-white dark:text-primary">
-                <Icon name="person" size={14} />
-                {course.dosen}
+              <span title={course.dosen} className="bg-white/20 dark:bg-primary/15 dark:border dark:border-primary/20 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 backdrop-blur-sm text-white dark:text-primary max-w-[200px] truncate">
+                <Icon name="person" size={14} className="shrink-0" />
+                <span className="truncate">{course.dosen}</span>
               </span>
             )}
             <span className="bg-white/20 dark:bg-primary/15 dark:border dark:border-primary/20 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 backdrop-blur-sm text-white dark:text-primary">
               <Icon name="location_on" size={14} />
-              {entry.ruang}
+              {formatRuang(entry.ruang, entry.tipeKelas)}
             </span>
           </div>
         </div>

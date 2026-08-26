@@ -14,7 +14,7 @@ import {
   findNextClass,
   formatCountdown,
   formatLongDate,
-  getGreeting,
+  getGreetingData,
   getTodayName,
   minutesUntil,
   sortByTime,
@@ -97,20 +97,49 @@ export default function Home() {
     }
   }, [scheduleSource, tasks])
 
+  const greeting = getGreetingData()
+
   return (
     <div className="grid grid-cols-1 gap-lg desktop:grid-cols-3">
       <div className="space-y-lg desktop:col-span-2">
-        <header className="mb-lg">
-          <h2 className="text-display text-on-surface">{getGreeting()}!</h2>
-          <p className="mt-xs text-body-lg text-on-surface-variant">
-            {formatLongDate()}
-          </p>
-          {program && (
-            <span className="mt-xs inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-label-caps text-primary">
-              <Icon name="school" size={14} />
-              {program} · Semester {semester}{dataTA ? ` · TA ${dataTA}` : ''}
+        <header className="mb-lg space-y-3">
+          <div className="flex items-center gap-3.5">
+            <div
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${greeting.iconBg} shadow-xs`}
+              aria-hidden="true"
+            >
+              <Icon name={greeting.icon} size={26} />
+            </div>
+            <div>
+              <h2 className="font-marker font-bold text-[34px] tablet:text-[42px] text-on-surface leading-tight tracking-wide">
+                {greeting.text}!
+              </h2>
+              <p className="mt-1 text-body-sm font-medium text-on-surface-variant">
+                {formatLongDate()}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 pt-0.5">
+            {program && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-container-high/70 border border-outline-variant/30 px-3 py-1 text-label-caps font-bold text-on-surface">
+                <Icon name="school" size={14} className="text-primary" />
+                {program} · Semester {semester}{dataTA ? ` · TA ${dataTA}` : ''}
+              </span>
+            )}
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-label-caps font-bold ${
+                todayEntries.length > 0
+                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  : 'bg-surface-container text-on-surface-variant'
+              }`}
+            >
+              <Icon name="calendar_today" size={13} />
+              {todayEntries.length > 0
+                ? `${todayEntries.length} Kelas Hari Ini`
+                : 'Tidak Ada Kelas Hari Ini'}
             </span>
-          )}
+          </div>
         </header>
 
         {loading ? (

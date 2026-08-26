@@ -289,17 +289,17 @@ export default function ManageAcademicSettings() {
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/10 px-2.5 py-1 dark:bg-primary/20">
             <Icon name="school" size={14} className="text-primary" />
-            <span className="text-[11px] font-bold text-primary">{programs.length} Prodi</span>
+            <span className="text-label-caps font-bold text-primary">{programs.length} Prodi</span>
           </div>
 
           <div className="flex items-center gap-1.5 rounded-xl border border-secondary/20 bg-secondary/10 px-2.5 py-1 dark:bg-secondary/20">
             <Icon name="event_available" size={14} className="text-secondary" />
-            <span className="text-[11px] font-bold text-secondary">{holidays.length} Hari Libur</span>
+            <span className="text-label-caps font-bold text-secondary">{holidays.length} Hari Libur</span>
           </div>
 
           <div className="flex items-center gap-1.5 rounded-xl border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 dark:bg-indigo-500/20">
             <Icon name="event" size={14} className="text-indigo-700 dark:text-indigo-300" />
-            <span className="font-mono text-[11px] font-bold text-indigo-700 dark:text-indigo-300">
+            <span className="font-mono text-label-caps font-bold text-indigo-700 dark:text-indigo-300">
               TA {currentComputedTA}
             </span>
           </div>
@@ -485,7 +485,7 @@ export default function ManageAcademicSettings() {
                   type="button"
                   onClick={handleSyncProdi}
                   disabled={syncingProdi}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-[12px] font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-body-xs font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors whitespace-nowrap"
                   title="Sinkronisasi dari data Jadwal & MK"
                 >
                   <Icon name="sync" size={14} className={syncingProdi ? 'animate-spin' : ''} />
@@ -501,7 +501,7 @@ export default function ManageAcademicSettings() {
                     setProdiFormError('')
                     setAddProdiModalOpen(true)
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-[12px] font-bold text-on-primary shadow-xs hover:bg-primary/90 transition-colors cursor-pointer whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-body-xs font-bold text-on-primary shadow-xs hover:bg-primary/90 transition-colors cursor-pointer whitespace-nowrap"
                 >
                   <Icon name="add_circle" size={15} />
                   <span>Tambah Prodi</span>
@@ -574,7 +574,7 @@ export default function ManageAcademicSettings() {
                         <>
                           <div className="min-w-0">
                             <p className="font-bold text-body-md text-on-surface truncate">{p.nama}</p>
-                            <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary mt-0.5">
+                            <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-label-caps font-bold text-primary mt-0.5">
                               Semester {p.semesterMin ?? 1} – {p.semesterMax ?? 8}
                             </span>
                           </div>
@@ -634,7 +634,7 @@ export default function ManageAcademicSettings() {
                   setHolidayFormError('')
                   setAddHolidayModalOpen(true)
                 }}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-1.5 text-[12px] font-bold text-on-secondary shadow-xs hover:bg-secondary/90 transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-1.5 text-body-xs font-bold text-on-secondary shadow-xs hover:bg-secondary/90 transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Icon name="add_circle" size={15} />
                 <span>Tambah Libur</span>
@@ -659,7 +659,7 @@ export default function ManageAcademicSettings() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="font-bold text-body-md text-on-surface truncate">{h.nama}</p>
-                        <span className="rounded-md bg-secondary/10 px-2 py-0.5 text-[10px] font-bold text-secondary uppercase">
+                        <span className="rounded-md bg-secondary/10 px-2 py-0.5 text-label-caps font-bold text-secondary uppercase">
                           {h.tipe || 'nasional'}
                         </span>
                       </div>

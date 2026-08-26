@@ -94,7 +94,7 @@ function DosenFilterDropdown({ lecturers, selected, onSelect }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-body-sm font-semibold transition-all cursor-pointer ${
+        className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-body-xs font-semibold transition-all cursor-pointer ${
           selected
             ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
             : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
@@ -127,7 +127,7 @@ function DosenFilterDropdown({ lecturers, selected, onSelect }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari dosen..."
-              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 py-1.5 pl-9 pr-3 text-body-sm font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 py-1.5 pl-9 pr-3 text-body-xs font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:outline-none"
               autoFocus
             />
           </div>
@@ -139,7 +139,7 @@ function DosenFilterDropdown({ lecturers, selected, onSelect }) {
                 onSelect('')
                 setOpen(false)
               }}
-              className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-body-sm font-semibold transition-colors cursor-pointer ${
+              className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-body-xs font-semibold transition-colors cursor-pointer ${
                 !selected
                   ? 'bg-primary/10 text-primary'
                   : 'text-on-surface hover:bg-surface-container-low'
@@ -159,14 +159,14 @@ function DosenFilterDropdown({ lecturers, selected, onSelect }) {
                     onSelect(name)
                     setOpen(false)
                   }}
-                  className={`flex w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-body-sm font-medium transition-colors cursor-pointer ${
+                  className={`flex w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-body-xs font-medium transition-colors cursor-pointer ${
                     isSelected
                       ? 'bg-primary/10 text-primary font-bold'
                       : 'text-on-surface hover:bg-surface-container-low'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary-container text-[10px] font-bold text-on-secondary-container">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary-container text-label-caps font-bold text-on-secondary-container">
                       {name.slice(0, 1).toUpperCase()}
                     </div>
                     <span className="truncate">{name}</span>
@@ -212,7 +212,7 @@ function ProdiFilterDropdown({ selected, onSelect }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-body-sm font-semibold transition-all cursor-pointer ${
+        className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-body-xs font-semibold transition-all cursor-pointer ${
           selected
             ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
             : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
@@ -241,7 +241,7 @@ function ProdiFilterDropdown({ selected, onSelect }) {
                   onSelect(p.value)
                   setOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-body-sm font-semibold transition-colors cursor-pointer ${
+                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-body-xs font-semibold transition-colors cursor-pointer ${
                   isSelected
                     ? 'bg-primary/10 text-primary'
                     : 'text-on-surface hover:bg-surface-container-low'
@@ -282,7 +282,7 @@ function SemesterFilterDropdown({ selected, onSelect }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-body-sm font-semibold transition-all cursor-pointer ${
+        className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-body-xs font-semibold transition-all cursor-pointer ${
           selected
             ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
             : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
@@ -311,7 +311,7 @@ function SemesterFilterDropdown({ selected, onSelect }) {
                   onSelect(s.value)
                   setOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-body-sm font-semibold transition-colors cursor-pointer ${
+                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-body-xs font-semibold transition-colors cursor-pointer ${
                   isSelected
                     ? 'bg-primary/10 text-primary'
                     : 'text-on-surface hover:bg-surface-container-low'
@@ -352,7 +352,7 @@ function SksFilterDropdown({ selected, onSelect }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-body-sm font-semibold transition-all cursor-pointer ${
+        className={`flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-body-xs font-semibold transition-all cursor-pointer ${
           selected
             ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20'
             : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'
@@ -381,7 +381,7 @@ function SksFilterDropdown({ selected, onSelect }) {
                   onSelect(s.value)
                   setOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-body-sm font-semibold transition-colors cursor-pointer ${
+                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-body-xs font-semibold transition-colors cursor-pointer ${
                   isSelected
                     ? 'bg-primary/10 text-primary'
                     : 'text-on-surface hover:bg-surface-container-low'
@@ -595,21 +595,21 @@ export default function ManageCourses() {
           <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-3.5 py-2 shadow-xs dark:bg-surface-container-low">
             <Icon name="library_books" size={18} className="text-primary" />
             <div>
-              <p className="text-[10px] uppercase font-bold text-on-surface-variant">Total MK</p>
+              <p className="text-label-caps uppercase font-bold text-on-surface-variant">Total MK</p>
               <p className="text-title-sm font-bold text-on-surface">{stats.totalCourses}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-3.5 py-2 shadow-xs dark:bg-surface-container-low">
             <Icon name="person" size={18} className="text-secondary" />
             <div>
-              <p className="text-[10px] uppercase font-bold text-on-surface-variant">Dosen</p>
+              <p className="text-label-caps uppercase font-bold text-on-surface-variant">Dosen</p>
               <p className="text-title-sm font-bold text-on-surface">{stats.totalLecturers}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-3.5 py-2 shadow-xs dark:bg-surface-container-low">
             <Icon name="workspace_premium" size={18} className="text-tertiary" />
             <div>
-              <p className="text-[10px] uppercase font-bold text-on-surface-variant">Total SKS</p>
+              <p className="text-label-caps uppercase font-bold text-on-surface-variant">Total SKS</p>
               <p className="text-title-sm font-bold text-on-surface">{stats.totalSks}</p>
             </div>
           </div>
@@ -640,7 +640,7 @@ export default function ManageCourses() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari kode MK, nama mata kuliah, atau dosen…"
               aria-label="Cari mata kuliah"
-              className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low/50 py-2.5 pl-11 pr-9 text-body-md font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all"
+              className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low/50 py-2.5 pl-11 pr-9 text-body-sm font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all"
             />
             {search && (
               <button
@@ -689,7 +689,7 @@ export default function ManageCourses() {
 
         {/* Active Filter Chips */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-outline-variant/15 text-body-xs font-semibold text-on-surface-variant">
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-outline-variant/15 text-label-caps uppercase font-semibold text-on-surface-variant">
             <span>Filter Aktif:</span>
 
             {search && (
@@ -760,7 +760,7 @@ export default function ManageCourses() {
             <button
               type="button"
               onClick={resetAllFilters}
-              className="text-[11px] font-bold text-error hover:underline cursor-pointer ml-auto"
+              className="text-label-caps font-bold text-error hover:underline cursor-pointer ml-auto"
             >
               Reset Semua Filter
             </button>
@@ -802,25 +802,25 @@ export default function ManageCourses() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-outline-variant/15 bg-surface-container-low/50 dark:bg-surface-container-high/20">
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-[11px]">
+                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
                     Kode MK
                   </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-[11px]">
+                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
                     Nama Mata Kuliah
                   </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-[11px]">
+                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
                     Semester
                   </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-[11px]">
+                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
                     Dosen Pengampu
                   </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-[11px]">
+                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
                     Kontak
                   </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-[11px] text-center">
+                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-center">
                     Bobot / Durasi
                   </th>
-                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-[11px] text-right">
+                  <th className="px-5 py-3.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-right">
                     Aksi
                   </th>
                 </tr>
@@ -837,7 +837,7 @@ export default function ManageCourses() {
                     >
                       {/* Kode MK */}
                       <td className="px-5 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-3 py-1 font-mono text-[12px] font-bold text-primary border border-primary/20 dark:bg-primary/20">
+                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-3 py-1 font-mono text-body-xs font-bold text-primary border border-primary/20 dark:bg-primary/20">
                           {course.kodeMK}
                         </span>
                       </td>
@@ -852,7 +852,7 @@ export default function ManageCourses() {
                       {/* Semester */}
                       <td className="px-5 py-4 whitespace-nowrap">
                         {semester ? (
-                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2.5 py-1 text-[11px] font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2.5 py-1 text-label-caps font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
                             Sem. {semester}
                           </span>
                         ) : (
@@ -864,15 +864,15 @@ export default function ManageCourses() {
                       <td className="px-5 py-4">
                         {course.dosen ? (
                           <div className="flex items-center gap-2.5">
-                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-[11px]">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-label-caps">
                               {course.dosen.slice(0, 1).toUpperCase()}
                             </div>
-                            <span className="text-body-sm font-semibold text-on-surface-variant">
+                            <span className="text-body-xs font-semibold text-on-surface-variant">
                               {course.dosen}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-on-surface-variant/50 text-body-sm">-</span>
+                          <span className="text-on-surface-variant/50 text-body-xs">-</span>
                         )}
                       </td>
 
@@ -883,7 +883,7 @@ export default function ManageCourses() {
                             href={waUrl || `tel:${course.kontakDosen}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors cursor-pointer"
                             title="Buka Chat WhatsApp"
                           >
                             <Icon name="chat" size={13} className="shrink-0" />
@@ -897,10 +897,10 @@ export default function ManageCourses() {
                       {/* Bobot & Durasi */}
                       <td className="px-5 py-4 whitespace-nowrap text-center">
                         <div className="inline-flex items-center gap-1.5">
-                          <span className="rounded-lg bg-surface-container px-2.5 py-1 text-[11px] font-bold text-on-surface">
+                          <span className="rounded-lg bg-surface-container px-2.5 py-1 text-label-caps font-bold text-on-surface">
                             {course.sks} SKS
                           </span>
-                          <span className="rounded-lg bg-surface-container-high/60 px-2.5 py-1 text-[11px] font-medium text-on-surface-variant">
+                          <span className="rounded-lg bg-surface-container-high/60 px-2.5 py-1 text-label-caps font-medium text-on-surface-variant">
                             {course.durasi} mnt
                           </span>
                         </div>
@@ -948,11 +948,11 @@ export default function ManageCourses() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-[11px] font-bold text-primary border border-primary/20">
+                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-label-caps font-bold text-primary border border-primary/20">
                           {course.kodeMK}
                         </span>
                         {semester && (
-                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300">
+                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300">
                             Sem. {semester}
                           </span>
                         )}
@@ -988,10 +988,10 @@ export default function ManageCourses() {
 
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-outline-variant/10">
                     <div className="flex items-center gap-1.5">
-                      <span className="rounded-md bg-surface-container px-2 py-0.5 text-[11px] font-bold text-on-surface">
+                      <span className="rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface">
                         {course.sks} SKS
                       </span>
-                      <span className="rounded-md bg-surface-container-high px-2 py-0.5 text-[11px] font-medium text-on-surface-variant">
+                      <span className="rounded-md bg-surface-container-high px-2 py-0.5 text-label-caps font-medium text-on-surface-variant">
                         {course.durasi} mnt
                       </span>
                     </div>
@@ -1001,7 +1001,7 @@ export default function ManageCourses() {
                         href={waUrl || `tel:${course.kontakDosen}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300"
+                        className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300"
                       >
                         <Icon name="chat" size={12} />
                         <span>{course.kontakDosen}</span>

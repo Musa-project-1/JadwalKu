@@ -20,24 +20,48 @@ export function useFirestore(collectionName, constraints = []) {
       return undefined
     }
 
-    setLoading(true)
-    const clauses = constraints.map(([field, op, value]) => where(field, op, value))
-    const q = query(collection(db, collectionName), ...clauses)
-
-    const unsub = onSnapshot(
-      q,
-      (snap) => {
-        setData(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
-        setError(null)
-        setLoading(false)
-      },
-      (err) => {
-        setError(err)
-        setLoading(false)
-      },
+    // Jangan query jika ada filter bernilai kosong/undefined
+    const validConstraints = constraints.filter(
+      ([field, , value]) => field && value !== '' && value !== undefined && value !== null,
     )
+    if (constraints.length > 0 && validConstraints.length !== constraints.length) {
+      setLoading(false)
+      return undefined
+    }
 
-    return unsub
+    setLoading(true)
+    let unsub = null
+    try {
+      const clauses = validConstraints.map(([field, op, value]) => where(field, op, value))
+      const q = clauses.length > 0 ? query(collection(db, collectionName), ...clauses) : collection(db, collectionName)
+
+      unsub = onSnapshot(
+        q,
+        (snap) => {
+          setData(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
+          setError(null)
+          setLoading(false)
+        },
+        (err) => {
+          console.warn(`[useFirestore] ${collectionName}:`, err?.message || err)
+          setError(err)
+          setLoading(false)
+        },
+      )
+    } catch (err) {
+      console.warn(`[useFirestore] ${collectionName} init:`, err?.message || err)
+      setLoading(false)
+    }
+
+    return () => {
+      if (typeof unsub === 'function') {
+        try {
+          unsub()
+        } catch {
+          // ignore unmount error on abrupt watch stream teardown
+        }
+      }
+    }
     // constraintKey is the stable serialization of `constraints`
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionName, constraintKey])

@@ -104,11 +104,18 @@ export function AdminLayout() {
     setItem('jadwalku:sidebar_pinned', isPinned)
   }, [isPinned])
 
-  const todayString = new Date().toLocaleDateString('id-ID', {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const todayString = now.toLocaleDateString('id-ID', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
   })
+  const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
   return (
     <div className="flex min-h-screen bg-transparent text-on-background">
@@ -121,11 +128,11 @@ export function AdminLayout() {
               <div className="flex items-center min-w-0">
                 <img src="/logo.svg" alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
                 <div className={labelCls(!isPinned, 'ml-3')}>
-                  <h1 className="text-headline-lg-mobile font-bold font-sans tracking-[-0.02em] desktop:text-headline-lg truncate">
+                  <h1 className="text-headline-lg-mobile font-bold font-brand tracking-[-0.025em] desktop:text-headline-lg truncate">
                     <span className="text-on-surface">Jadwal</span>
                     <span className="text-primary">Ku</span>
                   </h1>
-                  <p className="text-[11px] font-medium tracking-[0.08em] uppercase text-on-surface-variant/80 truncate mt-0.5">
+                  <p className="font-brand font-medium text-[10.5px] tracking-[0.09em] uppercase text-on-surface-variant/80 truncate mt-0.5">
                     ADMIN CONSOLE
                   </p>
                 </div>
@@ -159,39 +166,46 @@ export function AdminLayout() {
       </div>
 
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        {/* Top app bar — responsive admin header */}
-        <header className="sticky top-0 z-30 bg-background/80 px-md py-2.5 backdrop-blur-md border-b border-outline-variant/10 desktop:px-xl">
-          <div className="mx-auto flex w-full max-w-container-max items-center justify-between gap-sm relative">
-            {/* Mobile Header: Logo + Title */}
-            <div className="flex items-center gap-sm tablet:hidden">
-              <img src="/logo.svg" alt="Logo JadwalKu" className="h-9 w-9" />
-              <h1 className="text-headline-lg-mobile font-bold font-sans tracking-[-0.02em]">
-                <span className="text-on-surface">Jadwal</span>
-                <span className="text-primary">Ku</span>
-              </h1>
-            </div>
-
-            {/* Desktop Left: Admin Console Status Badge & Date */}
-            <div className="hidden tablet:flex items-center gap-2">
-              <div className="flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1 text-label-caps text-primary">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="font-bold">Admin Console</span>
+        {/* Top app bar — Generous Height (72px), Crisp & High-Affordance */}
+        <header className="sticky top-0 z-30 h-[72px] flex items-center bg-surface-container-lowest/95 dark:bg-surface-container-low/95 px-md tablet:px-lg desktop:px-xl backdrop-blur-md border-b border-outline-variant/30 shadow-xs transition-colors">
+          <div className="mx-auto flex w-full max-w-container-max items-center justify-between gap-md relative">
+            {/* Left: Mobile Header or Desktop Admin Console Status Badge */}
+            <div className="flex items-center gap-2.5 shrink-0 min-w-0">
+              {/* Mobile Header: Logo + Title */}
+              <div className="flex items-center gap-sm tablet:hidden">
+                <img src="/logo.svg" alt="Logo JadwalKu" className="h-9 w-9" />
+                <h1 className="text-headline-lg-mobile font-bold font-brand tracking-[-0.025em]">
+                  <span className="text-on-surface">Jadwal</span>
+                  <span className="text-primary">Ku</span>
+                </h1>
               </div>
-              <span className="rounded-full bg-surface-container/40 px-3 py-1 text-[11px] font-semibold text-on-surface-variant border border-outline-variant/15">
-                {todayString}
-              </span>
+
+              {/* Desktop Left: Admin Console Status Badge (text-sm, px-4 py-2) */}
+              <div className="hidden tablet:flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-body-sm font-bold text-primary shadow-xs">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Admin Console</span>
+              </div>
             </div>
 
-            {/* Top Right: Mode Mahasiswa Switcher + Theme Toggle */}
-            <div className="ml-auto flex items-center gap-2 relative">
-              {/* Quick switch to Student mode */}
+            {/* Right: Date & Clock + Mode Mahasiswa Switcher + Theme Toggle */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              {/* Today's Date & Live Clock Chip (Matching Student View, text-sm, px-4 py-2) */}
+              <div className="hidden desktop:flex items-center gap-2 rounded-full bg-surface-container-high/60 px-4 py-2 text-body-sm font-semibold text-on-surface-variant border border-outline-variant/25 shadow-xs">
+                <Icon name="schedule" size={16} className="text-primary shrink-0" />
+                <span>{todayString}</span>
+                <span className="text-outline-variant/50">·</span>
+                <span className="text-on-surface font-semibold">{timeString} WIB</span>
+              </div>
+
+              {/* Mode Mahasiswa Switcher Button (text-sm, px-4 py-2) */}
               <Link
                 to="/"
                 viewTransition
                 title="Kembali ke Mode Mahasiswa"
-                className="flex items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-3.5 py-1.5 text-body-sm font-semibold text-on-surface-variant hover:border-primary/50 hover:bg-surface-container-highest hover:text-primary transition-all"
+                className="group flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-high/70 px-4 py-2 text-body-sm font-bold text-on-surface hover:border-primary/60 hover:bg-primary/10 hover:text-primary transition-all shadow-xs"
               >
-                <Icon name="arrow_back" size={16} />
+                <Icon name="arrow_back" size={15} className="opacity-60 group-hover:-translate-x-0.5 transition-transform text-on-surface-variant group-hover:text-primary" />
+                <Icon name="school" size={18} className="text-primary" />
                 <span className="hidden sm:inline">Mode Mahasiswa</span>
                 <span className="sm:hidden">Mahasiswa</span>
               </Link>
@@ -202,7 +216,7 @@ export function AdminLayout() {
                 onClick={() => setTheme(nextTheme)}
                 aria-label={`Ganti ke mode ${nextTheme === 'dark' ? 'gelap' : 'terang'}`}
                 title={`Mode ${nextTheme === 'dark' ? 'Gelap' : 'Terang'}`}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface shadow-xs"
               >
                 <Icon name={nextTheme === 'dark' ? 'dark_mode' : 'light_mode'} size={20} />
               </button>

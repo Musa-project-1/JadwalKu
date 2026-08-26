@@ -187,9 +187,9 @@ export default function ManageExams() {
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-warning-container/50 dark:bg-warning-container/25 text-warning">
             <Icon name="event_note" size={26} />
           </span>
-          <h2 className="text-headline-lg font-bold text-on-surface">Kelola Jadwal Ujian</h2>
+          <h1 className="text-headline-lg font-bold text-on-surface">Kelola Jadwal Ujian</h1>
         </div>
-          <p className="text-body-lg text-on-surface-variant">
+          <p className="text-body-sm text-on-surface-variant">
             Ujian baru masuk sebagai draft sampai dipublikasikan.
           </p>
         </div>
@@ -311,7 +311,7 @@ export default function ManageExams() {
             </Button>
             <Button variant="secondary" onClick={() => setFormOpen(false)}>Batal</Button>
           </div>
-          {formError && <p className="col-span-full text-body-sm text-error">{formError}</p>}
+          {formError && <p className="col-span-full text-body-xs text-error">{formError}</p>}
         </form>
       )}
 
@@ -346,11 +346,11 @@ export default function ManageExams() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold text-on-surface">
                         {exam.kodeMK}
-                        <span className="ml-sm font-normal text-body-sm text-on-surface-variant">
+                        <span className="ml-sm font-normal text-body-xs text-on-surface-variant">
                           {exam.prodi} • Semester {exam.semester}
                         </span>
                       </p>
-                      <p className="text-body-sm text-on-surface-variant">
+                      <p className="text-body-xs text-on-surface-variant">
                         {exam.jam}
                         {exam.ruang ? ` • ${exam.ruang}` : ''} • {exam.mode}
                       </p>

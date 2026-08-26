@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import {
+  getFirestore,
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
@@ -29,15 +30,18 @@ if (isConfigured) {
   auth = getAuth(app)
 
   // Singleton di level global agar Vite HMR tidak memanggil
-  // initializeFirestore dua kali pada app yang sama — penyebab
-  // "INTERNAL ASSERTION FAILED: Unexpected state".
+  // initializeFirestore dua kali pada app yang sama.
   const g = globalThis
   if (!g.__jadwalkuFirestore) {
-    g.__jadwalkuFirestore = initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager(),
-      }),
-    })
+    try {
+      g.__jadwalkuFirestore = initializeFirestore(app, {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager(),
+        }),
+      })
+    } catch {
+      g.__jadwalkuFirestore = getFirestore(app)
+    }
   }
   db = g.__jadwalkuFirestore
 } else if (import.meta.env.DEV) {

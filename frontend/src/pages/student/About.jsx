@@ -85,12 +85,12 @@ export default function About() {
             <img src="/logo.svg" alt="Logo JadwalKu" className="h-16 w-16 drop-shadow-md" />
           </div>
 
-          <h1 className="text-headline-lg font-bold font-sans tracking-tight text-on-surface">
+          <h1 className="text-headline-lg font-bold font-brand tracking-[-0.025em] text-on-surface">
             <span>Jadwal</span>
             <span className="text-primary">Ku</span>
           </h1>
 
-          <p className="mt-1 text-[11px] font-bold tracking-[0.12em] uppercase text-primary">
+          <p className="font-brand mt-1 text-[10.5px] font-bold tracking-[0.09em] uppercase text-primary">
             SCHEDULE SMARTER · CAMPUS TIMETABLE
           </p>
 

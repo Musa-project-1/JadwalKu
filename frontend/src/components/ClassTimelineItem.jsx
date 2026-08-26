@@ -5,6 +5,7 @@ import {
   TONE_DOT_CLASSES,
   TONE_ICONS,
 } from '../lib/classTypes'
+import { formatRuang } from '../lib/scheduleUtils'
 
 /**
  * Item timeline jadwal hari ini — kartu putih dengan ikon lingkaran
@@ -34,10 +35,14 @@ export function ClassTimelineItem({
     <>
       {showNowBefore && (
         <div className="relative my-3 flex items-center gap-2 -ml-6 z-20" aria-hidden="true">
-          <span className="h-2 w-2 shrink-0 rounded-full bg-error ring-4 ring-error/20" />
-          <span className="h-0.5 flex-grow bg-error/50" />
+          {/* Pulsing Live Dot */}
+          <span className="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
+            <span className="absolute inline-flex h-full w-full animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite] rounded-full bg-error/30" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-error shadow-xs" />
+          </span>
+          <span className="h-0.5 flex-grow bg-error/40" />
           {nowLabel && (
-            <span className="bg-error text-on-error text-[10px] font-bold px-2 py-0.5 rounded-full ml-2">
+            <span className="bg-error/15 dark:bg-error/20 border border-error/50 text-red-700 dark:text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full ml-2 backdrop-blur-xs shadow-xs">
               SEKARANG {nowLabel}
             </span>
           )}
@@ -69,6 +74,11 @@ export function ClassTimelineItem({
               <div className="flex items-center gap-2 mt-1 text-xs text-on-surface-variant font-medium">
                 <span className={`h-2 w-2 rounded-full ${dot}`} />
                 <span>{classType.label} • {entry.jamMulai} - {entry.jamSelesai}</span>
+                {course?.dosen && (
+                  <span title={course.dosen} className="truncate max-w-[140px] text-on-surface-variant/80">
+                    • {course.dosen}
+                  </span>
+                )}
               </div>
             </div>
             
@@ -97,7 +107,7 @@ export function ClassTimelineItem({
           ) : (
             <div className="flex items-center gap-1.5 mt-3 text-xs text-on-surface-variant bg-surface-container px-3 py-2 rounded-xl font-semibold dark:bg-surface-container-high">
               <Icon name="location_on" size={16} />
-              <span>{entry.ruang || 'Belum ditentukan'}</span>
+              <span>{formatRuang(entry.ruang, entry.tipeKelas)}</span>
             </div>
           )}
         </div>

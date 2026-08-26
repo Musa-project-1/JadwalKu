@@ -5,13 +5,13 @@
  * (UIUX_MODERNIZATION.md Phase C2)
  */
 export const CLASS_TYPES = {
-  K1: { label: 'Kelas Offline', tone: 'offline' },
-  K2: { label: 'Kelas Online', tone: 'online' },
-  HB: { label: 'Hybrid', tone: 'hybrid' },
-  HBH: { label: 'Hybrid', tone: 'hybrid' },
-  HBD: { label: 'Hybrid', tone: 'hybrid' },
-  GBK1: { label: 'Kelas Gabungan', tone: 'combined' },
-  GBK2: { label: 'Kelas Gabungan', tone: 'combined' },
+  K1: { label: 'Kelas Reguler / Offline', shortLabel: 'Offline', tone: 'offline' },
+  K2: { label: 'Kelas Karyawan / Online', shortLabel: 'Online', tone: 'online' },
+  HB: { label: 'Hybrid', shortLabel: 'Hybrid', tone: 'hybrid' },
+  HBH: { label: 'Hybrid Halimah', shortLabel: 'Hybrid Halimah', tone: 'hybrid' },
+  HBD: { label: 'Hybrid Dekanat', shortLabel: 'Hybrid Dekanat', tone: 'hybrid' },
+  GBK1: { label: 'Gabungan Offline', shortLabel: 'GBK Offline', tone: 'combined' },
+  GBK2: { label: 'Gabungan Online', shortLabel: 'GBK Online', tone: 'combined' },
 }
 
 /** Teks judul berwarna per tone (WCAG AAA: light = deep shade, dark = luminous tint). */
@@ -59,13 +59,40 @@ export const TONE_CLASSES = {
   neutral: 'bg-surface-container text-on-surface-variant',
 }
 
-/** Ikon Material Symbols per tone (timeline). */
+/** Ikon Material Symbols per tone. */
 export const TONE_ICONS = {
-  offline: 'school',
-  online: 'laptop_mac',
-  hybrid: 'co_present',
+  offline: 'corporate_fare',
+  online: 'videocam',
+  hybrid: 'sync_alt',
   combined: 'groups',
   neutral: 'help_outline',
+}
+
+/** Latar chip ikon gelap/akcent per tone dengan teks terang. */
+export const TONE_CHIP_BG_CLASSES = {
+  offline: 'bg-emerald-700 text-emerald-50 dark:bg-emerald-500 dark:text-emerald-950',
+  online: 'bg-blue-700 text-blue-50 dark:bg-blue-500 dark:text-blue-950',
+  hybrid: 'bg-violet-700 text-violet-50 dark:bg-violet-500 dark:text-violet-950',
+  combined: 'bg-amber-700 text-amber-50 dark:bg-amber-500 dark:text-amber-950',
+  neutral: 'bg-slate-700 text-slate-50 dark:bg-slate-500 dark:text-slate-950',
+}
+
+/** Tinted shadow per tone untuk elevasi halus pada grid & kartu. */
+export const TONE_SHADOW_CLASSES = {
+  offline: 'shadow-[0_2px_8px_rgba(16,185,129,0.12)] hover:shadow-[0_4px_14px_rgba(16,185,129,0.22)]',
+  online: 'shadow-[0_2px_8px_rgba(59,130,246,0.12)] hover:shadow-[0_4px_14px_rgba(59,130,246,0.22)]',
+  hybrid: 'shadow-[0_2px_8px_rgba(139,92,246,0.12)] hover:shadow-[0_4px_14px_rgba(139,92,246,0.22)]',
+  combined: 'shadow-[0_2px_8px_rgba(245,158,11,0.12)] hover:shadow-[0_4px_14px_rgba(245,158,11,0.22)]',
+  neutral: 'shadow-[0_2px_8px_rgba(100,116,139,0.12)] hover:shadow-[0_4px_14px_rgba(100,116,139,0.22)]',
+}
+
+/** Divider halus 1px per tone. */
+export const TONE_DIVIDER_CLASSES = {
+  offline: 'border-emerald-900/10 dark:border-emerald-300/15',
+  online: 'border-blue-900/10 dark:border-blue-300/15',
+  hybrid: 'border-violet-900/10 dark:border-violet-300/15',
+  combined: 'border-amber-900/10 dark:border-amber-300/15',
+  neutral: 'border-outline-variant/20',
 }
 
 /** Bilah warna 4px di tepi kiri kartu per tone (timeline & grid mingguan). */
@@ -78,5 +105,5 @@ export const TONE_BORDER_CLASSES = {
 }
 
 export function getClassType(code) {
-  return CLASS_TYPES[code] ?? { label: code || 'Tidak diketahui', tone: 'neutral' }
+  return CLASS_TYPES[code] ?? { label: code || 'Tidak diketahui', shortLabel: code || 'Kelas', tone: 'neutral' }
 }
