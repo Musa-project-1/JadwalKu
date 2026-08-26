@@ -84,6 +84,8 @@ references/
 .vscode/
 skills-lock.json
 *.md
+!docs/**/*.md
+!README.md
 
 # Local Netlify folder
 .netlify
