@@ -17,6 +17,7 @@ import { addDocument, deleteDocument, setDocument, updateDocument } from '../../
 import { appendHistory, syncProdiFromExistingData } from '../../lib/publishHelpers'
 import { ACADEMIC_CALENDAR, deriveTahunAjaran, deriveTerm, getTermLabel } from '../../lib/tahunAjaran'
 import { MONTH_NAMES, NATIONAL_HOLIDAYS_PRESET } from '../../constants/academicConstants'
+import { DatabaseBackupRestoreModal } from '../../components/admin/DatabaseBackupRestoreModal'
 
 const SEMESTER_OPTIONS = Array.from({ length: 14 }, (_, i) => i + 1)
 
@@ -35,6 +36,7 @@ export default function ManageAcademicSettings() {
   const actor = user?.email ?? ''
 
   const [banner, setBanner] = useState(null)
+  const [backupRestoreOpen, setBackupRestoreOpen] = useState(false)
 
   // ── 1. Academic Calendar State ──
   const calDoc = useMemo(
@@ -479,12 +481,22 @@ export default function ManageAcademicSettings() {
 
           <button
             type="button"
+            onClick={() => setBackupRestoreOpen(true)}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl border border-teal-500/30 bg-teal-500/10 px-3 py-2 text-body-xs font-semibold text-teal-800 dark:text-teal-300 shadow-2xs hover:bg-teal-500/20 cursor-pointer transition-colors"
+            title="Pusat Backup & Restore Database JSON"
+          >
+            <Icon name="cloud_sync" size={15} className="text-teal-600 dark:text-teal-400" />
+            <span>Backup / Restore</span>
+          </button>
+
+          <button
+            type="button"
             onClick={exportAcademicSettingsToExcel}
             className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-2 text-body-xs font-semibold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
             title="Ekspor Seluruh Master Data ke Excel"
           >
             <Icon name="file_download" size={15} className="text-secondary" />
-            <span>Ekspor</span>
+            <span>Ekspor Excel</span>
           </button>
         </div>
       </header>
@@ -1238,6 +1250,14 @@ export default function ManageAcademicSettings() {
         confirmLabel="Hapus Libur"
         onConfirm={handleDeleteHoliday}
         onCancel={() => setDeleteHolidayTarget(null)}
+      />
+
+      {/* ── Modal: Backup & Restore Database ── */}
+      <DatabaseBackupRestoreModal
+        isOpen={backupRestoreOpen}
+        onClose={() => setBackupRestoreOpen(false)}
+        actor={actor}
+        onSuccess={(msg) => setBanner({ ok: true, message: msg })}
       />
     </div>
   )

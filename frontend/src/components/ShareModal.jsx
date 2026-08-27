@@ -7,6 +7,7 @@ import { firebaseReady } from '../lib/firebaseClient'
 import { downloadIcs } from '../lib/icsExport'
 import { renderScheduleImage, shareOrDownloadScheduleImage } from '../lib/scheduleImage'
 import { expectedTahunAjaranForSemester } from '../lib/tahunAjaran'
+import { PrintScheduleModal } from './student/PrintScheduleModal'
 
 const SCOPE_OPTIONS = [
   {
@@ -26,6 +27,7 @@ export function ShareModal({ open, onClose }) {
   const [scope, setScope] = useState('semester')
   const [copied, setCopied] = useState(false)
   const [imageStatus, setImageStatus] = useState(null) // { ok: boolean, text: string }
+  const [printModalOpen, setPrintModalOpen] = useState(false)
   const modalRef = useRef(null)
 
   const ta = expectedTahunAjaranForSemester(semester)
@@ -253,6 +255,26 @@ export function ShareModal({ open, onClose }) {
                   <Icon name="chevron_right" size={20} className="shrink-0 text-on-surface-variant group-hover:text-primary transition-colors" />
                 )}
               </button>
+
+              {/* Cetak PDF / Kartu Saku */}
+              <button
+                type="button"
+                onClick={() => setPrintModalOpen(true)}
+                className="group flex w-full items-center gap-3.5 rounded-2xl border border-outline-variant/20 bg-surface-container-low/50 p-3.5 text-left transition-all hover:border-primary/40 hover:bg-surface-container-low hover:shadow-sm dark:bg-surface-container/40"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:bg-sky-500/20 dark:text-sky-300">
+                  <Icon name="print" size={22} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="block text-body-sm font-bold text-on-surface group-hover:text-primary transition-colors">
+                    Cetak PDF / Kartu Saku
+                  </span>
+                  <span className="block text-[11px] text-on-surface-variant">
+                    Format A4 meja belajar atau kartu saku hemat tinta
+                  </span>
+                </div>
+                <Icon name="chevron_right" size={20} className="shrink-0 text-on-surface-variant group-hover:text-primary transition-colors" />
+              </button>
             </div>
           </div>
 
@@ -264,6 +286,16 @@ export function ShareModal({ open, onClose }) {
           </div>
         </div>
       </div>
+
+      <PrintScheduleModal
+        isOpen={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        scheduleEntries={source}
+        courses={[]}
+        program={program}
+        semester={semester}
+        tahunAjaran={ta}
+      />
     </div>
   )
 }

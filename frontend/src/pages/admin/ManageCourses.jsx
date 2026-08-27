@@ -58,7 +58,7 @@ export default function ManageCourses() {
 
   // ── State Pagination ──
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(7)
+  const [pageSize, setPageSize] = useState(10)
 
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add') // 'add' | 'edit'

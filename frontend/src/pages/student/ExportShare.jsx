@@ -44,6 +44,11 @@ export default function ExportShare() {
         ]
       : [],
   )
+  const { data: mataKuliah } = useFirestore('mataKuliah')
+
+  const courseMap = useMemo(() => {
+    return new Map(mataKuliah.map((c) => [c.kodeMK, c]))
+  }, [mataKuliah])
 
   const entries = useMemo(() => {
     if (scope === 'all') return jadwal
@@ -137,10 +142,17 @@ export default function ExportShare() {
         <OptionCard
           icon="event"
           iconBg="bg-primary/10 text-primary"
-          title="Google Calendar"
-          description="Sinkron otomatis ke kalender HP (.ics)"
+          title="Kalender Smartphone (.ics)"
+          description="Google Calendar, Apple iCal, Outlook (dengan Alarm Otomatis)"
           status={null}
-          onAction={() => downloadIcs(source, { prodi: program, semester, tahunAjaran: ta })}
+          onAction={() =>
+            downloadIcs(source, {
+              prodi: program,
+              semester,
+              tahunAjaran: ta,
+              courseMap,
+            })
+          }
         />
         <OptionCard
           icon="share"

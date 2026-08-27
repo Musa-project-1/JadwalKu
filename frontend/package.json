@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "test": "vite-node test_runner.mjs",
     "test:rules": "node rules.test.mjs",
     "preview": "vite preview"
   },

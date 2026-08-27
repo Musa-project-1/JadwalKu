@@ -38,6 +38,65 @@ export function findNextClass(todayEntries, now = new Date()) {
 }
 
 /**
+ * Analisis status live jadwal hari ini:
+ * - 'ongoing': Ada kelas yang sedang aktif saat ini (jamMulai <= now < jamSelesai).
+ * - 'upcoming': Ada kelas yang akan datang hari ini.
+ * - 'finished': Semua kelas hari ini sudah selesai.
+ * - 'empty': Hari ini tidak ada jadwal kuliah.
+ */
+export function getClassLiveState(todayEntries, now = new Date()) {
+  if (!todayEntries || todayEntries.length === 0) {
+    return { status: 'empty', entry: null }
+  }
+
+  const nowMinutes = typeof now === 'number' ? now : now.getHours() * 60 + now.getMinutes()
+  const sorted = sortByTime(todayEntries)
+
+  // 1. Cek apakah ada kelas yang sedang aktif/berlangsung saat ini
+  const active = sorted.find((e) => {
+    const start = toMinutes(e.jamMulai)
+    const end = toMinutes(e.jamSelesai)
+    return nowMinutes >= start && nowMinutes < end
+  })
+
+  if (active) {
+    const start = toMinutes(active.jamMulai)
+    const end = toMinutes(active.jamSelesai)
+    const totalDuration = Math.max(1, end - start)
+    const elapsedMinutes = Math.max(0, nowMinutes - start)
+    const remainingMinutes = Math.max(0, end - nowMinutes)
+    const elapsedPercent = Math.min(100, Math.round((elapsedMinutes / totalDuration) * 100))
+
+    return {
+      status: 'ongoing',
+      entry: active,
+      remainingMinutes,
+      elapsedPercent,
+      totalDuration,
+    }
+  }
+
+  // 2. Cek apakah ada kelas yang akan datang berikutnya hari ini
+  const upcoming = sorted.find((e) => toMinutes(e.jamMulai) > nowMinutes)
+  if (upcoming) {
+    const minutesToStart = toMinutes(upcoming.jamMulai) - nowMinutes
+    return {
+      status: 'upcoming',
+      entry: upcoming,
+      minutesToStart,
+      urgent: minutesToStart <= 15,
+    }
+  }
+
+  // 3. Jika semua kelas hari ini jam selesainya sudah lewat
+  return {
+    status: 'finished',
+    totalClassesToday: sorted.length,
+    lastClass: sorted[sorted.length - 1],
+  }
+}
+
+/**
  * Hitung selisih menit sampai jam tertentu hari ini ("30 menit lagi").
  * Negatif jika sudah lewat.
  */
@@ -155,4 +214,70 @@ export function formatRuang(ruang, tipeKelas = '') {
   }
 
   return cleanRuang
+}
+
+/**
+ * Deteksi perpindahan kelas yang berurutan ketat (jeda 0–15 menit) di ruangan/gedung berbeda.
+ * Mengembalikan Map: entryId -> transition metadata.
+ */
+export function detectClassTransitions(dayEntries) {
+  const transitions = new Map()
+  if (!Array.isArray(dayEntries) || dayEntries.length <= 1) {
+    return transitions
+  }
+
+  const sorted = sortByTime(dayEntries)
+  for (let i = 1; i < sorted.length; i += 1) {
+    const prev = sorted[i - 1]
+    const curr = sorted[i]
+
+    const prevEnd = toMinutes(prev.jamSelesai)
+    const currStart = toMinutes(curr.jamMulai)
+    const gap = currStart - prevEnd
+
+    // Jika kelas berikutnya dimulai dalam jeda 0 - 15 menit dari kelas sebelumnya
+    if (gap >= 0 && gap <= 15) {
+      const prevRuangFmt = formatRuang(prev.ruang, prev.tipeKelas)
+      const currRuangFmt = formatRuang(curr.ruang, curr.tipeKelas)
+
+      const isDifferent =
+        String(prev.ruang || '').trim().toLowerCase() !==
+          String(curr.ruang || '').trim().toLowerCase() ||
+        prevRuangFmt.toLowerCase() !== currRuangFmt.toLowerCase()
+
+      if (isDifferent) {
+        // Metadata untuk kelas yang baru masuk (curr)
+        transitions.set(curr.id, {
+          type: 'incoming',
+          gapMinutes: gap,
+          fromEntry: prev,
+          fromRoom: prevRuangFmt,
+          toRoom: currRuangFmt,
+          label: gap === 0 ? 'Pindah Ruang (Jeda 0 mnt)' : `Pindah Ruang (Jeda ${gap} mnt)`,
+          message:
+            gap === 0
+              ? `Langsung berpindah dari ${prevRuangFmt} tanpa jeda`
+              : `Jeda hanya ${gap} menit berpindah dari ${prevRuangFmt}`,
+        })
+
+        // Metadata untuk kelas yang akan keluar (prev) jika belum terpasang
+        if (!transitions.has(prev.id)) {
+          transitions.set(prev.id, {
+            type: 'outgoing',
+            gapMinutes: gap,
+            nextEntry: curr,
+            fromRoom: prevRuangFmt,
+            toRoom: currRuangFmt,
+            label: gap === 0 ? 'Lanjut Kelas Lain (0 mnt)' : `Lanjut Kelas Lain (${gap} mnt)`,
+            message:
+              gap === 0
+                ? `Segera lanjut ke ${currRuangFmt} tanpa jeda setelah kelas ini`
+                : `Ada kelas berikutnya di ${currRuangFmt} dalam ${gap} menit`,
+          })
+        }
+      }
+    }
+  }
+
+  return transitions
 }

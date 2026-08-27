@@ -4,6 +4,8 @@ import { useFirestore } from '../../hooks/useFirestore'
 import { Icon } from '../../components/Icon'
 import { Skeleton } from '../../components/Skeleton'
 import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
+import { downloadExamIcs } from '../../lib/icsExport'
+import { RoomLocationModal } from '../../components/student/RoomLocationModal'
 
 const MODE_ICONS = {
   Offline: 'person_outline',
@@ -14,6 +16,7 @@ const MODE_ICONS = {
 export default function Exams() {
   const { program, semester } = useApp()
   const [jenis, setJenis] = useState('UTS')
+  const [roomModalTarget, setRoomModalTarget] = useState(null)
 
   const { data: settingsDocs } = useFirestore('settings')
   const calDoc = useMemo(
@@ -63,7 +66,21 @@ export default function Exams() {
     )
   }, [ujian, archivedUjian, jenis, currentTA, selectedTA])
 
+  const { data: mataKuliah } = useFirestore('mataKuliah')
+  const courseMap = useMemo(() => {
+    return new Map(mataKuliah.map((c) => [c.kodeMK, c]))
+  }, [mataKuliah])
+
   const grouped = useMemo(() => groupByDate(filtered), [filtered])
+
+  function handleExportExamIcs() {
+    downloadExamIcs(filtered, {
+      prodi: program,
+      semester,
+      jenis,
+      courseMap,
+    })
+  }
 
   return (
     <div className="space-y-lg w-full max-w-full overflow-x-hidden">
@@ -88,8 +105,8 @@ export default function Exams() {
           </div>
         </div>
 
-        {/* Controls: Segmented UTS/UAS + Tahun Ajaran Selector (100% Pas di Layar Tanpa Seret Kanan Kiri) */}
-        <div className="flex items-center justify-between gap-2 w-full tablet:w-auto">
+        {/* Controls: Segmented UTS/UAS + Kalender Export + Tahun Ajaran Selector */}
+        <div className="flex items-center justify-between tablet:justify-end gap-2 w-full tablet:w-auto flex-wrap">
           {/* Segmented control */}
           <div className="flex rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-1 shadow-xs shrink-0">
             {['UTS', 'UAS'].map((j) => (
@@ -107,6 +124,18 @@ export default function Exams() {
               </button>
             ))}
           </div>
+
+          {/* Tombol Ekspor Kalender HP (.ics) */}
+          <button
+            type="button"
+            onClick={handleExportExamIcs}
+            disabled={filtered.length === 0}
+            title={`Tambahkan Jadwal Ujian ${jenis} ke Kalender Smartphone (.ics)`}
+            className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-body-xs font-bold text-primary hover:bg-primary/20 active:scale-95 transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          >
+            <Icon name="event" size={16} />
+            <span>Kalender HP (.ics)</span>
+          </button>
 
           {/* Tahun Ajaran Dropdown */}
           <div className="shrink-0">
@@ -148,17 +177,27 @@ export default function Exams() {
                 </span>
               </h3>
               {exams.map((exam) => (
-                <ExamCard key={exam.id} exam={exam} />
+                <ExamCard key={exam.id} exam={exam} onLocation={setRoomModalTarget} />
               ))}
             </section>
           ))}
         </div>
       )}
+
+      {roomModalTarget && (
+        <RoomLocationModal
+          isOpen={Boolean(roomModalTarget)}
+          onClose={() => setRoomModalTarget(null)}
+          ruang={roomModalTarget.ruang}
+          tipeKelas={roomModalTarget.mode === 'Online' ? 'K2' : 'K1'}
+          currentCourseName={roomModalTarget.namaMK ?? roomModalTarget.kodeMK}
+        />
+      )}
     </div>
   )
 }
 
-function ExamCard({ exam }) {
+function ExamCard({ exam, onLocation }) {
   const days = daysUntil(exam.tanggal)
   const countdown =
     days > 0 ? `${days} hari lagi` : days === 0 ? 'Hari ini' : 'Sudah lewat'
@@ -197,10 +236,15 @@ function ExamCard({ exam }) {
             <Icon name="schedule" size={16} className="text-primary" />
             {exam.jam} WIB
           </span>
-          <span className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onLocation?.(exam)}
+            className="flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer"
+            title="Lihat Denah Lantai & Lokasi Ruang Ujian"
+          >
             <Icon name={exam.mode === 'Online' ? 'videocam' : 'location_on'} size={16} className="text-primary" />
-            {exam.ruang ?? '-'}
-          </span>
+            <span className="underline decoration-dotted underline-offset-2">{exam.ruang ?? '-'}</span>
+          </button>
         </div>
         <span className="bg-surface-container-lowest text-on-surface px-2.5 py-1 rounded-lg text-[10px] font-bold border border-outline-variant/20 flex items-center gap-1">
           <Icon name={MODE_ICONS[exam.mode] ?? 'help_outline'} size={12} />

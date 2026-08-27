@@ -116,7 +116,7 @@ export default function AdminLogin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@jadwalku.app"
+                  placeholder="admin@jadwalkampus.app"
                   autoComplete="username"
                   required
                   className="w-full rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/60 dark:bg-surface-container-high/40 px-3.5 py-2.5 text-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"

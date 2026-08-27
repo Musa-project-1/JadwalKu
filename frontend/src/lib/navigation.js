@@ -23,6 +23,7 @@ export const ADMIN_NAV = [
   { to: '/admin/jadwal', label: 'Kelola Jadwal', icon: 'edit_calendar' },
   { to: '/admin/mata-kuliah', label: 'MK & Dosen', icon: 'folder_shared' },
   { to: '/admin/ujian', label: 'Jadwal Ujian', icon: 'event_note' },
+  { to: '/admin/pengumuman', label: 'Pengumuman', icon: 'campaign' },
   { to: '/admin/pengaturan-akademik', label: 'Master Akademik', icon: 'settings_suggest' },
 ]
 

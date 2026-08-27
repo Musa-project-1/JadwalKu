@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth'
 import { auth, firebaseReady } from '../lib/firebaseClient'
 import { removeItem, setItem, STORAGE_KEYS } from '../lib/storage'
+import { ADMIN_EMAIL } from '../constants/adminConstants'
 
 /**
  * Sesi admin: Firebase Authentication (Email/Password).
@@ -21,7 +22,9 @@ export function useAdminAuth() {
     }
 
     const unsub = onAuthStateChanged(auth, (fbUser) => {
-      setUser(fbUser ? { email: fbUser.email } : null)
+      // Hanya akun dengan email admin yang dianggap sesi admin.
+      // Pengguna Firebase biasa (mis. dari sign-up publik) bukan admin.
+      setUser(fbUser?.email === ADMIN_EMAIL ? { email: fbUser.email } : null)
       setInitializing(false)
     })
     return unsub
@@ -33,6 +36,12 @@ export function useAdminAuth() {
     }
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password)
+      // Tolak sesi non-admin: email yang berhasil login tapi bukan admin
+      // tidak boleh mendapatkan akses panel admin.
+      if (cred.user.email !== ADMIN_EMAIL) {
+        await signOut(auth)
+        return { ok: false, error: 'Akun ini bukan administrator.' }
+      }
       setItem(STORAGE_KEYS.adminSession, { email: cred.user.email })
       return { ok: true }
     } catch (err) {

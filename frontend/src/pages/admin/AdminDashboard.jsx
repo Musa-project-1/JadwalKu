@@ -11,12 +11,11 @@ import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { archiveSemester } from '../../lib/semesterArchive'
 import { saveSettings, deriveTahunAjaran, syncProdiFromExistingData } from '../../lib/publishHelpers'
 import {
-  collection,
   doc,
-  getDocs,
   getDoc,
 } from 'firebase/firestore'
 import { db } from '../../lib/firebaseClient'
+import { DatabaseBackupRestoreModal } from '../../components/admin/DatabaseBackupRestoreModal'
 
 const QUICK_ACTIONS = [
   {
@@ -48,6 +47,18 @@ const QUICK_ACTIONS = [
     tone: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
   },
 ]
+
+const DAY_ORDER = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+
+const CLASS_TYPE_META = {
+  K1: { label: 'Offline (K1)', tone: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' },
+  K2: { label: 'Online (K2)', tone: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30' },
+  HB: { label: 'Hybrid (HB)', tone: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
+  HBH: { label: 'Hybrid (HBH)', tone: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
+  HBD: { label: 'Hybrid (HBD)', tone: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
+  GBK1: { label: 'Gabungan (GBK1)', tone: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30' },
+  GBK2: { label: 'Gabungan (GBK2)', tone: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30' },
+}
 
 function formatDateID(iso) {
   if (!iso) return '-'
@@ -103,6 +114,7 @@ export default function AdminDashboard() {
   const [busy, setBusy] = useState(false)
   const [syncingProdi, setSyncingProdi] = useState(false)
   const [showAllHistoryModal, setShowAllHistoryModal] = useState(false)
+  const [backupRestoreOpen, setBackupRestoreOpen] = useState(false)
 
   const sortedHistory = useMemo(
     () =>
@@ -113,6 +125,45 @@ export default function AdminDashboard() {
   )
 
   const recentHistory = useMemo(() => sortedHistory.slice(0, 5), [sortedHistory])
+
+  const dayBreakdown = useMemo(() => {
+    const counts = DAY_ORDER.map((day) => ({
+      day,
+      count: schedules.filter((s) => s.hari === day).length,
+    }))
+    const max = Math.max(1, ...counts.map((c) => c.count))
+    return counts.map((c) => ({ ...c, percent: Math.round((c.count / max) * 100) }))
+  }, [schedules])
+
+  const classTypeBreakdown = useMemo(() => {
+    const groups = {}
+    schedules.forEach((s) => {
+      const t = s.tipeKelas || 'K1'
+      groups[t] = (groups[t] || 0) + 1
+    })
+    return Object.entries(groups)
+      .map(([key, count]) => ({
+        key,
+        count,
+        meta: CLASS_TYPE_META[key] || { label: key, tone: 'bg-surface-variant/80 text-on-surface-variant border-outline-variant/30' },
+      }))
+      .sort((a, b) => b.count - a.count)
+  }, [schedules])
+
+  const prodiBreakdown = useMemo(() => {
+    return programs
+      .map((p) => {
+        const name = p.nama || String(p.id || '')
+        const prodiSchedules = schedules.filter((s) => s.prodi === name)
+        return {
+          name,
+          sessionCount: prodiSchedules.length,
+          mkCount: new Set(prodiSchedules.map((s) => s.kodeMK)).size,
+        }
+      })
+      .filter((p) => p.sessionCount > 0 || p.mkCount > 0)
+      .sort((a, b) => b.sessionCount - a.sessionCount)
+  }, [programs, schedules])
 
   async function handleSyncProdi() {
     setSyncingProdi(true)
@@ -167,33 +218,6 @@ export default function AdminDashboard() {
     }
     setBusy(false)
     setArchiveOpen(false)
-  }
-
-  async function handleExportBackup() {
-    setBusy(true)
-    try {
-      const snapshot = {}
-      for (const name of ['jadwal', 'mataKuliah', 'ujian', 'prodi', 'libur', 'settings']) {
-        const snap = await getDocs(collection(db, name))
-        snapshot[name] = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      }
-      const blob = new Blob(
-        [JSON.stringify({ exportedAt: new Date().toISOString(), ...snapshot }, null, 2)],
-        {
-          type: 'application/json',
-        },
-      )
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `backup-jadwal-kampus-${Date.now()}.json`
-      a.click()
-      URL.revokeObjectURL(url)
-      setBanner({ ok: true, message: 'Backup JSON berhasil diunduh.' })
-    } catch (err) {
-      setBanner({ ok: false, message: `Gagal export backup: ${err?.message ?? err}` })
-    }
-    setBusy(false)
   }
 
   return (
@@ -491,15 +515,15 @@ export default function AdminDashboard() {
                 <span>Semester Baru</span>
               </button>
 
-              <Button
-                variant="secondary"
-                onClick={handleExportBackup}
+              <button
+                type="button"
+                onClick={() => setBackupRestoreOpen(true)}
                 disabled={busy}
-                className="justify-center rounded-xl py-2 px-2.5 text-body-xs font-bold shadow-2xs cursor-pointer"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300 hover:bg-teal-500/20 py-2 px-2.5 text-body-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98] disabled:opacity-50"
               >
-                <Icon name="download" size={14} className="mr-1" />
-                Export JSON
-              </Button>
+                <Icon name="cloud_sync" size={14} />
+                <span>Backup / Restore</span>
+              </button>
             </div>
 
             {/* Cloud Sync Status Strip */}
@@ -515,6 +539,112 @@ export default function AdminDashboard() {
           </div>
         </section>
       </div>
+
+      {/* ── 4. Bottom Analytics — Isi Ruang Kosong (3 Kolom Sejajar) ── */}
+      <section
+        className="grid grid-cols-1 desktop:grid-cols-3 gap-3.5 tablet:gap-4 items-stretch"
+        aria-label="Dashboard Analitik"
+      >
+        {/* Panel 1: Sebaran Sesi per Hari */}
+        <div className="rounded-2xl tablet:rounded-3xl bg-surface-container-lowest p-3.5 tablet:p-4.5 dark:bg-surface-container-low border border-outline-variant/20 shadow-2xs flex flex-col">
+          <div className="mb-3 flex items-center gap-2 border-b border-outline-variant/15 pb-2.5">
+            <Icon name="calendar_month" size={18} className="text-primary" />
+            <h3 className="text-body-sm tablet:text-title-sm text-on-surface font-bold">
+              Sebaran Sesi per Hari
+            </h3>
+          </div>
+          <div className="flex-1 space-y-2.5">
+            {dayBreakdown.map((item) => (
+              <div key={item.day} className="space-y-1">
+                <div className="flex items-center justify-between text-body-xs font-semibold text-on-surface-variant">
+                  <span>{item.day}</span>
+                  <span className="font-bold text-on-surface">{item.count} sesi</span>
+                </div>
+                <div className="h-1.5 w-full rounded-full bg-surface-container-high/60 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-300"
+                    style={{ width: `${item.percent}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Panel 2: Komposisi Tipe Kelas */}
+        <div className="rounded-2xl tablet:rounded-3xl bg-surface-container-lowest p-3.5 tablet:p-4.5 dark:bg-surface-container-low border border-outline-variant/20 shadow-2xs flex flex-col">
+          <div className="mb-3 flex items-center gap-2 border-b border-outline-variant/15 pb-2.5">
+            <Icon name="menu_book" size={18} className="text-primary" />
+            <h3 className="text-body-sm tablet:text-title-sm text-on-surface font-bold">
+              Komposisi Tipe Kelas
+            </h3>
+          </div>
+          <div className="flex-1 space-y-2">
+            {classTypeBreakdown.length === 0 ? (
+              <EmptyState
+                icon="menu_book"
+                title="Belum ada kelas"
+                description="Tambah kelas untuk melihat komposisi tipe."
+              />
+            ) : (
+              classTypeBreakdown.map((item) => (
+                <div
+                  key={item.key}
+                  className="flex items-center justify-between gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-low/40 p-2.5 dark:bg-surface-container-high/30"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      className={`inline-flex shrink-0 items-center rounded-md px-2 py-0.5 text-[10px] font-bold border ${item.meta.tone}`}
+                    >
+                      {item.key}
+                    </span>
+                    <span className="text-body-xs font-semibold text-on-surface-variant truncate">
+                      {item.meta.label}
+                    </span>
+                  </div>
+                  <span className="shrink-0 text-body-sm font-extrabold text-on-surface">{item.count}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Panel 3: Ringkasan Prodi */}
+        <div className="rounded-2xl tablet:rounded-3xl bg-surface-container-lowest p-3.5 tablet:p-4.5 dark:bg-surface-container-low border border-outline-variant/20 shadow-2xs flex flex-col">
+          <div className="mb-3 flex items-center gap-2 border-b border-outline-variant/15 pb-2.5">
+            <Icon name="school" size={18} className="text-primary" />
+            <h3 className="text-body-sm tablet:text-title-sm text-on-surface font-bold">
+              Ringkasan Prodi
+            </h3>
+          </div>
+          <div className="flex-1 space-y-2">
+            {prodiBreakdown.length === 0 ? (
+              <EmptyState
+                icon="school"
+                title="Belum ada prodi"
+                description="Sinkronkan atau tambah program studi."
+              />
+            ) : (
+              <div className="space-y-2">
+                {prodiBreakdown.slice(0, 6).map((p) => (
+                  <div
+                    key={p.name}
+                    className="flex items-center justify-between gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-low/40 p-2.5 dark:bg-surface-container-high/30"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-body-xs font-bold text-on-surface truncate">{p.name}</p>
+                      <p className="text-[10.5px] text-on-surface-variant font-medium">
+                        {p.mkCount} MK · {p.sessionCount} sesi
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-body-sm font-extrabold text-primary">{p.sessionCount}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Confirm Dialog: Mulai Semester Baru */}
       <ConfirmDialog
@@ -549,6 +679,14 @@ export default function AdminDashboard() {
           onClose={() => setShowAllHistoryModal(false)}
         />
       )}
+
+      {/* Modal: Backup & Restore Database */}
+      <DatabaseBackupRestoreModal
+        isOpen={backupRestoreOpen}
+        onClose={() => setBackupRestoreOpen(false)}
+        actor={actor}
+        onSuccess={(msg) => setBanner({ ok: true, message: msg })}
+      />
     </div>
   )
 }

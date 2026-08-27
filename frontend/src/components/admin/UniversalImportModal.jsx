@@ -134,9 +134,9 @@ export function UniversalImportModal({
       }
     })
 
-    const conflicts = findConflicts(entries)
+    const conflicts = findConflicts(entries, parsedData.courses)
     return { valid, review, invalid, conflictsCount: conflicts.length }
-  }, [parsedData.scheduleEntries])
+  }, [parsedData.scheduleEntries, parsedData.courses])
 
   // Handle File Upload Process
   async function handleFileSelect(selectedFile) {

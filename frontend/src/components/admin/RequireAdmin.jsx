@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { Skeleton } from '../Skeleton'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
+import { ADMIN_EMAIL } from '../../constants/adminConstants'
 
 /**
  * Pembatas rute admin: tunggu status auth Firebase, lalu arahkan ke
@@ -18,7 +19,9 @@ export function RequireAdmin() {
     )
   }
 
-  if (!user) {
+  // Hanya akun dengan email admin yang boleh melewati gerbang ini.
+  // Pengguna Firebase biasa tidak boleh membuka halaman admin.
+  if (!user || user.email !== ADMIN_EMAIL) {
     return <Navigate to="/admin/login" replace />
   }
 

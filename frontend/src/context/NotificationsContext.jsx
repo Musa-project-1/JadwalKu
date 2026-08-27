@@ -8,6 +8,8 @@ import {
   buildExamReminders,
   buildTaskDeadlineReminders,
   mergeNotifications,
+  playNotificationChime,
+  sendBrowserNotification,
 } from '../lib/notificationEngine'
 import { getTodayName } from '../lib/scheduleUtils'
 import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
@@ -17,7 +19,16 @@ const ENGINE_INTERVAL_MS = 60_000
 
 /** Preferensi pengingat global (kelas/ujian/tugas), default semua aktif. */
 function getReminderPrefs() {
-  return { kelas: true, ujian: true, tugas: true, ...getItem(STORAGE_KEYS.reminderPrefs, {}) }
+  return {
+    kelas: true,
+    ujian: true,
+    tugas: true,
+    nativePush: false,
+    classWindow: 15,
+    examDays: 3,
+    sound: true,
+    ...getItem(STORAGE_KEYS.reminderPrefs, {}),
+  }
 }
 
 /**
@@ -53,6 +64,8 @@ export function NotificationsProvider({ children }) {
   const { data: ujian } = useFirestore('ujian', [['status', '==', 'published']])
   const { data: riwayat } = useFirestore('riwayat')
 
+  const dispatchedNativeRef = useRef(new Set())
+
   const runEngine = useCallback(() => {
     const now = new Date()
     const todayEntries = jadwal.filter((e) => e.hari === getTodayName(now))
@@ -61,17 +74,35 @@ export function NotificationsProvider({ children }) {
 
     const prefs = getReminderPrefs()
     const incoming = [
-      ...(prefs.kelas ? buildClassReminders(todayEntries, courseMap, now) : []),
+      ...(prefs.kelas ? buildClassReminders(todayEntries, courseMap, now, prefs.classWindow) : []),
       ...(prefs.tugas ? buildTaskDeadlineReminders(tasks, now) : []),
-      ...(prefs.ujian ? buildExamReminders(ujian, now) : []),
+      ...(prefs.ujian ? buildExamReminders(ujian, now, prefs.examDays) : []),
       ...buildChangeNotifications(riwayat, now),
     ]
     if (incoming.length === 0) return
 
-    // Merge di luar updater — updater harus murni; penulisan localStorage
-    // dilakukan lewat persist() sekali saja. Deteksi perubahan lewat
-    // referensi item (bukan hanya panjang): konten pengingat yang di-refresh
-    // (mis. hitungan menit) juga harus dipersist ulang.
+    // Trigger Native Browser Notification & Sound if enabled
+    if (prefs.nativePush && typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      const urgentReminders = incoming.filter(
+        (item) =>
+          (item.type === 'kelas' || item.type === 'tugas' || item.type === 'ujian') &&
+          !dispatchedNativeRef.current.has(item.id),
+      )
+
+      if (urgentReminders.length > 0) {
+        const topItem = urgentReminders[0]
+        sendBrowserNotification(topItem.title, {
+          body: topItem.description,
+          tag: topItem.id,
+        })
+        if (prefs.sound) {
+          playNotificationChime()
+        }
+        urgentReminders.forEach((r) => dispatchedNativeRef.current.add(r.id))
+      }
+    }
+
+    // Merge di luar updater
     const merged = mergeNotifications(itemsRef.current, incoming).slice(0, MAX_ITEMS)
     const prev = itemsRef.current
     const changed =

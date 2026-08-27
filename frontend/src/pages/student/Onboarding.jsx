@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
 import { Button } from '../../components/Button'
@@ -213,8 +214,12 @@ function SemesterStep() {
   }, [program])
 
   function handleSave() {
-    setProgram(prodi)
-    setSemesterContext(semester)
+    // flushSync memaksa React memproses state update secara sinkron
+    // sebelum navigasi, sehingga Home.jsx langsung menerima program & semester yang benar.
+    flushSync(() => {
+      setProgram(prodi)
+      setSemesterContext(semester)
+    })
     setItem(STORAGE_KEYS.program, prodi)
     setItem(STORAGE_KEYS.semester, semester)
     setItem(STORAGE_KEYS.onboardingDone, true)

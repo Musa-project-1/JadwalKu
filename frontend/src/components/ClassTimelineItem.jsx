@@ -6,6 +6,7 @@ import {
   TONE_ICONS,
 } from '../lib/classTypes'
 import { formatRuang } from '../lib/scheduleUtils'
+import { getItem, STORAGE_KEYS } from '../lib/storage'
 
 /**
  * Item timeline jadwal hari ini — kartu putih dengan ikon lingkaran
@@ -18,10 +19,14 @@ export function ClassTimelineItem({
   course,
   isPast = false,
   onNoteClick,
+  onLocationClick,
+  note = '',
+  transition = null,
   index = 0,
   showNowBefore = false,
   nowLabel = '',
 }) {
+  const links = getItem(`${STORAGE_KEYS.courseLinks}:${entry.kodeMK}`, {}) || {}
   const classType = getClassType(entry.tipeKelas)
   const dot = TONE_DOT_CLASSES[classType.tone]
   const borderClass = TONE_BORDER_CLASSES[classType.tone] ?? TONE_BORDER_CLASSES.neutral
@@ -93,14 +98,44 @@ export function ClassTimelineItem({
               <button
                 type="button"
                 onClick={onNoteClick}
-                className="flex h-7 w-7 items-center justify-center p-1 text-on-surface-variant transition-colors hover:text-primary rounded-full hover:bg-surface-container cursor-pointer"
-                title="Catatan mata kuliah"
+                className={`flex h-7 w-7 items-center justify-center p-1 transition-colors rounded-full cursor-pointer ${
+                  note
+                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-500/30'
+                    : 'text-on-surface-variant hover:text-primary hover:bg-surface-container'
+                }`}
+                title={note ? `Catatan: ${note}` : 'Tambah catatan mata kuliah'}
                 aria-label={`Catatan untuk ${course?.namaMK ?? entry.kodeMK}`}
               >
-                <Icon name="note_add" size={16} />
+                <Icon name={note ? 'sticky_note_2' : 'note_add'} size={16} />
               </button>
             </div>
           </div>
+
+          {/* Note Snippet Preview */}
+          {note && (
+            <div
+              onClick={onNoteClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && onNoteClick()}
+              className="mb-2 flex items-center gap-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 text-amber-950 dark:text-amber-200 cursor-pointer hover:bg-amber-500/25 transition-colors"
+            >
+              <Icon name="sticky_note_2" size={13} className="text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="truncate text-[11px] font-semibold flex-1">
+                {note}
+              </span>
+            </div>
+          )}
+
+          {/* Transition Warning (Pindah Ruangan Ketat) */}
+          {transition && (
+            <div className="mb-2 flex items-center gap-1.5 rounded-xl bg-orange-500/15 border border-orange-500/30 px-2.5 py-1 text-orange-950 dark:text-orange-200">
+              <Icon name="directions_run" size={13} className="text-orange-600 dark:text-orange-400 shrink-0" />
+              <span className="truncate text-[10.5px] font-bold flex-1">
+                {transition.message}
+              </span>
+            </div>
+          )}
 
           {/* Baris 2: Dosen & Sub-Chip Lokasi */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-outline-variant/10">
@@ -111,16 +146,28 @@ export function ClassTimelineItem({
               </span>
             </div>
 
-            {classType.tone === 'online' ? (
-              <div className="inline-flex items-center gap-1 text-[11px] text-blue-700 bg-blue-500/10 dark:bg-blue-950/30 dark:text-blue-300 px-2.5 py-1 rounded-xl font-bold border border-blue-500/20">
-                <Icon name="videocam" size={14} className="shrink-0" />
-                <span className="truncate">Online / Zoom Meeting</span>
-              </div>
+            {classType.tone === 'online' || links?.meetingUrl ? (
+              <a
+                href={links?.meetingUrl || 'https://zoom.us/join'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] text-blue-700 bg-blue-500/15 hover:bg-blue-500/25 dark:bg-blue-950/40 dark:text-blue-300 px-2.5 py-1 rounded-xl font-bold border border-blue-500/30 transition-colors shadow-2xs group cursor-pointer"
+                title="Buka Meeting Perkuliahan Online"
+              >
+                <Icon name="videocam" size={14} className="shrink-0 text-blue-600 dark:text-blue-400" />
+                <span className="truncate">{links?.meetingUrl ? 'Zoom / Meet' : 'Buka Zoom'}</span>
+                <Icon name="open_in_new" size={11} className="opacity-70 group-hover:opacity-100 shrink-0" />
+              </a>
             ) : (
-              <div className="inline-flex items-center gap-1 text-[11px] text-emerald-800 bg-emerald-500/10 dark:bg-emerald-950/30 dark:text-emerald-300 px-2.5 py-1 rounded-xl font-bold border border-emerald-500/20">
+              <button
+                type="button"
+                onClick={() => onLocationClick?.(entry, course)}
+                className="inline-flex items-center gap-1 text-[11px] text-emerald-800 bg-emerald-500/10 hover:bg-emerald-500/20 dark:bg-emerald-950/30 dark:text-emerald-300 px-2.5 py-1 rounded-xl font-bold border border-emerald-500/20 transition-colors cursor-pointer"
+                title="Lihat Panduan Lokasi Ruangan & Denah Lantai"
+              >
                 <Icon name="location_on" size={14} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span className="truncate">{formatRuang(entry.ruang, entry.tipeKelas)}</span>
-              </div>
+              </button>
             )}
           </div>
         </div>

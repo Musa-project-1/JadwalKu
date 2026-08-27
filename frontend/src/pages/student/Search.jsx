@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { useApp } from '../../hooks/useApp'
 import { useTasks } from '../../hooks/useTasks'
 import { useFirestore } from '../../hooks/useFirestore'
 import { Icon } from '../../components/Icon'
@@ -8,31 +7,27 @@ import { sampleSchedule, sampleCourses } from '../../data/sampleSchedule'
 import { firebaseReady } from '../../lib/firebaseClient'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 
+import { LecturerTimetableModal } from '../../components/student/LecturerTimetableModal'
+import { getLecturerInitials } from '../../lib/lecturerUtils'
+
 const FILTERS = [
   { value: 'all', label: 'Semua' },
+  { value: 'dosen', label: '👨‍🏫 Dosen & Jadwal' },
   { value: 'mk', label: 'Mata Kuliah' },
-  { value: 'dosen', label: 'Dosen' },
   { value: 'tugas', label: 'Tugas' },
-  { value: 'jadwal', label: 'Jadwal' },
+  { value: 'jadwal', label: 'Jadwal Kelas' },
 ]
 
 export default function Search() {
-  const { program, semester } = useApp()
   const { tasks } = useTasks()
   const [queryText, setQueryText] = useState('')
   const [filter, setFilter] = useState('all')
   const [recents, setRecents] = useState(() => getItem(STORAGE_KEYS.recentSearches, []))
+  const [selectedLecturer, setSelectedLecturer] = useState(null)
 
-  const { data: jadwal } = useFirestore(
-    'jadwal',
-    firebaseReady
-      ? [
-          ['prodi', '==', program ?? ''],
-          ['semester', '==', Number(semester) || 0],
-          ['status', '==', 'published'],
-        ]
-      : [],
-  )
+  const { data: allPublishedJadwal } = useFirestore('jadwal', [
+    ['status', '==', 'published'],
+  ])
   const { data: mataKuliah } = useFirestore('mataKuliah')
 
   const useSample = !firebaseReady
@@ -40,14 +35,44 @@ export default function Search() {
     () => (mataKuliah.length > 0 ? mataKuliah : useSample ? sampleCourses : []),
     [mataKuliah, useSample],
   )
-  const schedule = useMemo(
-    () => (jadwal.length > 0 ? jadwal : useSample ? sampleSchedule : []),
-    [jadwal, useSample],
+  const fullSchedulePool = useMemo(
+    () => (allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule),
+    [allPublishedJadwal],
   )
   const courseNameMap = useMemo(
     () => new Map(courses.map((c) => [c.kodeMK, c.namaMK])),
     [courses],
   )
+
+  // Full unique lecturers list with class counts across all schedules
+  const allLecturers = useMemo(() => {
+    const map = new Map()
+    courses.forEach((c) => {
+      const d = (c.dosen || '').trim()
+      if (d && !map.has(d)) {
+        map.set(d, {
+          dosen: d,
+          kontakDosen: c.kontakDosen || '',
+          sampleCourse: c,
+        })
+      }
+    })
+
+    const list = Array.from(map.values()).map((lec) => {
+      const target = lec.dosen.toLowerCase()
+      const sessions = fullSchedulePool.filter((s) => {
+        const c = courses.find((course) => course.kodeMK === s.kodeMK)
+        const dName = (c?.dosen || s.dosen || '').trim().toLowerCase()
+        return dName === target || dName.includes(target)
+      })
+      return {
+        ...lec,
+        sessionCount: sessions.length,
+      }
+    })
+
+    return list.sort((a, b) => a.dosen.localeCompare(b.dosen))
+  }, [courses, fullSchedulePool])
 
   const results = useMemo(() => {
     const q = queryText.trim().toLowerCase()
@@ -57,7 +82,7 @@ export default function Search() {
       (c) =>
         c.namaMK?.toLowerCase().includes(q) || c.kodeMK?.toLowerCase().includes(q),
     )
-    const lecturerHits = [...new Map(courses.map((c) => [c.dosen, c])).values()].filter((c) =>
+    const lecturerHits = allLecturers.filter((c) =>
       c.dosen?.toLowerCase().includes(q),
     )
     const taskHits = tasks.filter(
@@ -66,10 +91,17 @@ export default function Search() {
         t.kodeMK?.toLowerCase().includes(q) ||
         t.catatan?.toLowerCase().includes(q),
     )
-    const scheduleHits = schedule.filter((e) => e.kodeMK?.toLowerCase().includes(q))
+    const scheduleHits = fullSchedulePool.filter((e) => {
+      const courseName = courseNameMap.get(e.kodeMK) || ''
+      return (
+        e.kodeMK?.toLowerCase().includes(q) ||
+        courseName.toLowerCase().includes(q) ||
+        e.ruang?.toLowerCase().includes(q)
+      )
+    })
 
     return { courseHits, lecturerHits, taskHits, scheduleHits }
-  }, [queryText, courses, tasks, schedule])
+  }, [queryText, courses, allLecturers, tasks, fullSchedulePool, courseNameMap])
 
   const hasResults =
     results &&
@@ -173,7 +205,29 @@ export default function Search() {
         ))}
       </div>
 
-      {!results ? (
+      {!results && filter === 'dosen' ? (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="flex items-center gap-2 text-label-caps uppercase text-on-surface-variant font-bold">
+              <Icon name="person" size={18} className="text-primary" />
+              Direktori Dosen Pengampu ({allLecturers.length})
+            </h3>
+            <span className="text-body-xs text-on-surface-variant">
+              Klik nama dosen untuk melihat jadwal mengajar
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {allLecturers.map((lec) => (
+              <LecturerCard
+                key={lec.dosen}
+                lecturer={lec}
+                onClick={() => setSelectedLecturer(lec)}
+              />
+            ))}
+          </div>
+        </section>
+      ) : !results ? (
         <EmptyState
           icon="search"
           title="Mulai mencari"
@@ -183,6 +237,20 @@ export default function Search() {
         <EmptyState icon="search_off" title="Tidak ada hasil ditemukan" />
       ) : (
         <div className="space-y-lg">
+          {(filter === 'all' || filter === 'dosen') && results.lecturerHits.length > 0 && (
+            <ResultSection title="Dosen & Jadwal Mengajar" icon="person">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {results.lecturerHits.map((lec) => (
+                  <LecturerCard
+                    key={lec.dosen}
+                    lecturer={lec}
+                    onClick={() => setSelectedLecturer(lec)}
+                  />
+                ))}
+              </div>
+            </ResultSection>
+          )}
+
           {(filter === 'all' || filter === 'mk') && results.courseHits.length > 0 && (
             <ResultSection title="Mata Kuliah" icon="menu_book">
               {results.courseHits.map((c) => (
@@ -190,22 +258,8 @@ export default function Search() {
                   key={c.kodeMK}
                   icon="menu_book"
                   title={c.namaMK}
-                  subtitle={`${c.kodeMK} · ${c.sks} SKS`}
+                  subtitle={`${c.kodeMK} · ${c.sks} SKS · ${c.dosen}`}
                   tintClass="bg-primary/10 text-primary"
-                />
-              ))}
-            </ResultSection>
-          )}
-
-          {(filter === 'all' || filter === 'dosen') && results.lecturerHits.length > 0 && (
-            <ResultSection title="Dosen" icon="person">
-              {results.lecturerHits.map((c) => (
-                <ResultRow
-                  key={c.dosen}
-                  icon="person"
-                  title={c.dosen}
-                  subtitle={c.kontakDosen ?? ''}
-                  tintClass="bg-tertiary-container/20 text-tertiary"
                 />
               ))}
             </ResultSection>
@@ -226,13 +280,13 @@ export default function Search() {
           )}
 
           {(filter === 'all' || filter === 'jadwal') && results.scheduleHits.length > 0 && (
-            <ResultSection title="Jadwal" icon="calendar_month">
+            <ResultSection title="Jadwal Kelas" icon="calendar_month">
               {results.scheduleHits.map((s) => (
                 <ResultRow
                   key={s.id ?? `${s.kodeMK}-${s.hari}-${s.jamMulai}`}
                   icon="calendar_month"
                   title={courseNameMap.get(s.kodeMK) ?? s.kodeMK}
-                  subtitle={`${s.kodeMK} · ${s.hari}, ${s.jamMulai}-${s.jamSelesai}`}
+                  subtitle={`${s.kodeMK} · ${s.hari}, ${s.jamMulai}-${s.jamSelesai} · ${s.prodi} Sem. ${s.semester} · Ruang ${s.ruang}`}
                   tintClass="bg-info-container/30 text-info"
                 />
               ))}
@@ -240,6 +294,55 @@ export default function Search() {
           )}
         </div>
       )}
+
+      <LecturerTimetableModal
+        isOpen={Boolean(selectedLecturer)}
+        onClose={() => setSelectedLecturer(null)}
+        lecturerName={selectedLecturer?.dosen}
+        lecturerContact={selectedLecturer?.kontakDosen}
+        allSchedules={fullSchedulePool}
+        courses={courses}
+      />
+    </div>
+  )
+}
+
+function LecturerCard({ lecturer, onClick }) {
+  const initials = getLecturerInitials(lecturer.dosen)
+
+  return (
+    <div
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+      className="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest hover:border-primary/50 hover:bg-surface-container-low transition-all cursor-pointer dark:bg-surface-container-low group shadow-xs"
+    >
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-body-sm group-hover:bg-primary group-hover:text-on-primary transition-colors">
+          {initials}
+        </div>
+        <div className="min-w-0">
+          <p className="text-body-sm font-bold text-on-surface truncate group-hover:text-primary transition-colors">
+            {lecturer.dosen}
+          </p>
+          <div className="flex items-center gap-2 mt-0.5 text-[11px] text-on-surface-variant font-medium">
+            <span>{lecturer.sessionCount} Sesi Mengajar</span>
+            {lecturer.kontakDosen && (
+              <>
+                <span>·</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">WA Tersedia</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <Icon
+        name="chevron_right"
+        size={18}
+        className="text-on-surface-variant group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0"
+      />
     </div>
   )
 }

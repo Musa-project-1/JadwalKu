@@ -77,6 +77,19 @@ export function getLecturerInitial(name) {
   return (clean[0] || name[0] || '?').toUpperCase()
 }
 
+/** Helper: Extract 1-2 letter uppercase initials for avatar badges */
+export function getLecturerInitials(name) {
+  if (!name) return 'DS'
+  const clean = name
+    .replace(/^[\d.)\-\s]+/, '')
+    .replace(/^(?:dr|prof|drg|drs|dra|ir|ns|h|hj)\.?\s+/i, '')
+    .trim()
+  const parts = clean.split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return 'DS'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[1][0]).toUpperCase()
+}
+
 /** Helper: Format official WhatsApp direct link */
 export function formatWhatsAppUrl(rawPhone) {
   if (!rawPhone) return null

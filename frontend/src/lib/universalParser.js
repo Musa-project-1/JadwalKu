@@ -1,12 +1,17 @@
 import * as XLSX from 'xlsx'
 import mammoth from 'mammoth'
 import { parseWorkbook } from './xlsxParser'
+// Bundle worker lokal (dari node_modules) agar tidak bergantung CDN (unpkg/jsdelivr)
+// saat runtime. Vite akan menyalin file ini ke dist/assets dan mengembalikan URL lokal.
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+import tesseractWorkerUrl from 'tesseract.js/dist/worker.min.js?url'
 
 let pdfjsLib = null
 async function getPdfJs() {
   if (!pdfjsLib) {
     pdfjsLib = await import('pdfjs-dist')
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`
+    // Worker PDF di-bundle lokal — tidak lagi dari unpkg.com.
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl
   }
   return pdfjsLib
 }
@@ -176,7 +181,11 @@ export async function parseUniversalFile(file, onProgress = () => {}) {
   if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
     onProgress({ stage: 'Memuat Engine OCR Browser...', progress: 20 })
     const { createWorker } = await getTesseract()
-    const worker = await createWorker('ind+eng')
+    // Worker script OCR di-bundle lokal. Data bahasa (lang) & core masih default
+    // dari CDN; untuk offline penuh perlu paket @tesseract.js-data/ind|eng.
+    const worker = await createWorker('ind+eng', 1, {
+      workerPath: tesseractWorkerUrl,
+    })
     onProgress({ stage: 'Menganalisis teks gambar...', progress: 50 })
     const ret = await worker.recognize(file)
     await worker.terminate()

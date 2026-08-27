@@ -30,6 +30,7 @@ const ManageSchedule = lazy(() => import('./pages/admin/ManageSchedule'))
 const ManageCourses = lazy(() => import('./pages/admin/ManageCourses'))
 const ManageExams = lazy(() => import('./pages/admin/ManageExams'))
 const ManageAcademicSettings = lazy(() => import('./pages/admin/ManageAcademicSettings'))
+const ManageAnnouncements = lazy(() => import('./pages/admin/ManageAnnouncements'))
 
 function RequireOnboarding({ children }) {
   const done = getItem(STORAGE_KEYS.onboardingDone, false)
@@ -85,6 +86,7 @@ export default function App() {
               <Route path="/admin/manual" element={<Navigate to="/admin/jadwal" replace />} />
               <Route path="/admin/mata-kuliah" element={<ManageCourses />} />
               <Route path="/admin/ujian" element={<ManageExams />} />
+              <Route path="/admin/pengumuman" element={<ManageAnnouncements />} />
               <Route path="/admin/pengaturan-akademik" element={<ManageAcademicSettings />} />
               <Route path="/admin/prodi" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
               <Route path="/admin/libur" element={<Navigate to="/admin/pengaturan-akademik" replace />} />

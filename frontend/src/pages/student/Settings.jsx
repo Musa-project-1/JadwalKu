@@ -6,30 +6,14 @@ import { useFirestore } from '../../hooks/useFirestore'
 import { Icon } from '../../components/Icon'
 import { Button } from '../../components/Button'
 import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
+import { sendBrowserNotification, playNotificationChime } from '../../lib/notificationEngine'
+import { FeatureDocsModal } from '../../components/student/FeatureDocsModal'
 
 const FONT_SIZES = [
   { value: 'sm', label: 'Kecil' },
   { value: 'md', label: 'Sedang' },
   { value: 'lg', label: 'Besar' },
   { value: 'xl', label: 'Sangat Besar' },
-]
-
-const REMINDER_ITEMS = [
-  {
-    key: 'kelas',
-    label: 'Pengingat Kelas',
-    description: 'Notifikasi 15 menit sebelum kelas dimulai.',
-  },
-  {
-    key: 'ujian',
-    label: 'Pengingat Ujian',
-    description: 'Pengingat ujian hingga 3 hari ke depan.',
-  },
-  {
-    key: 'tugas',
-    label: 'Pengingat Tugas',
-    description: 'Peringatan tenggat tugas H-1 dan hari-H.',
-  },
 ]
 
 const LEGEND = [
@@ -52,6 +36,7 @@ export default function Settings() {
     semester,
   } = useApp()
 
+  const [showDocsModal, setShowDocsModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showAboutModal, setShowAboutModal] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
@@ -101,8 +86,17 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Action Buttons in Header: Riwayat & Bantuan */}
-        <div className="flex items-center gap-2.5">
+        {/* Action Buttons in Header: Tutorial, Riwayat & Bantuan */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setShowDocsModal(true)}
+            title="Buka Pusat Panduan & Tutorial 19 Fitur Lengkap"
+            className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2.5 text-body-sm font-bold shadow-xs transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+          >
+            <Icon name="menu_book" size={19} className="text-primary" />
+            <span>Tutorial 19 Fitur</span>
+          </button>
           <button
             type="button"
             onClick={() => setShowHistoryModal(true)}
@@ -110,7 +104,7 @@ export default function Settings() {
             className="flex items-center gap-2 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest px-4 py-2.5 text-body-sm font-bold text-on-surface shadow-level-1 transition-all hover:bg-surface-container-high hover:scale-[1.02] cursor-pointer dark:bg-surface-container-low"
           >
             <Icon name="history" size={19} className="text-primary" />
-            <span>Riwayat Perubahan</span>
+            <span>Riwayat</span>
           </button>
           <button
             type="button"
@@ -119,10 +113,38 @@ export default function Settings() {
             className="flex items-center gap-2 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest px-4 py-2.5 text-body-sm font-bold text-on-surface shadow-level-1 transition-all hover:bg-surface-container-high hover:scale-[1.02] cursor-pointer dark:bg-surface-container-low"
           >
             <Icon name="help_outline" size={19} className="text-secondary" />
-            <span>Tentang & Bantuan</span>
+            <span>Tentang & FAQ</span>
           </button>
         </div>
       </header>
+
+      {/* ── HERO BANNER: PUSAT PANDUAN & DOKUMENTASI 19 FITUR ── */}
+      <div className="rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 dark:from-primary/15 dark:to-surface-container-high p-5 tablet:p-6 shadow-level-1 flex flex-col tablet:flex-row items-start tablet:items-center justify-between gap-4">
+        <div className="flex items-start gap-4 min-w-0">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-xs">
+            <Icon name="auto_stories" size={26} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-title-md font-bold text-on-surface">Pusat Panduan & Tutorial Seluruh Fitur</h3>
+              <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-extrabold text-primary uppercase tracking-wide border border-primary/30">
+                19 Fitur Lengkap
+              </span>
+            </div>
+            <p className="text-body-xs text-on-surface-variant mt-1 leading-relaxed max-w-2xl">
+              Bingung dengan fitur yang ada? Buka dokumentasi interaktif langkah demi langkah: simulator KRS, notifikasi alarm chime, ekspor kalender HP (.ics), poster gambar WA, peta lokasi ruangan, kalkulator presensi, hingga backup & restore database.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowDocsModal(true)}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary hover:brightness-105 active:scale-95 text-body-sm font-bold shadow-xs transition-all cursor-pointer shrink-0 whitespace-nowrap ml-auto tablet:ml-0"
+        >
+          <Icon name="explore" size={18} />
+          <span>Buka Panduan Tutorial</span>
+        </button>
+      </div>
 
       {/* Main 2x2 Symmetrical Grid Layout — Generous & Perfectly Aligned */}
       <div className="grid grid-cols-1 desktop:grid-cols-2 gap-6 items-stretch">
@@ -312,44 +334,14 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* ROW 2 - RIGHT: Pengingat & Integrasi Kalender */}
+        {/* ROW 2 - RIGHT: Pengingat & Notifikasi Web Push */}
         <section className="flex flex-col justify-between rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 tablet:p-7 shadow-level-1 dark:bg-surface-container-low">
-          <div>
-            <h3 className="mb-2.5 flex items-center gap-2.5 text-title-sm font-bold text-on-surface">
-              <Icon name="notifications_active" size={20} className="text-primary" />
-              Pengingat In-App
-            </h3>
-            <ul className="divide-y divide-outline-variant/15">
-              {REMINDER_ITEMS.map((item) => (
-                <ReminderToggle
-                  key={item.key}
-                  prefKey={item.key}
-                  label={item.label}
-                  description={item.description}
-                />
-              ))}
-            </ul>
-          </div>
-
-          {/* Quick Calendar Export CTA */}
-          <div className="border-t border-outline-variant/15 pt-4 mt-4 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-body-sm font-bold text-on-surface">Integrasi Kalender</p>
-              <p className="text-body-xs text-on-surface-variant">Ekspor jadwal ke Google / Apple Calendar</p>
-            </div>
-            <Button
-              variant="secondary"
-              onClick={() => navigate('/bagikan')}
-              className="shrink-0 px-4 py-2 text-body-sm font-bold rounded-2xl cursor-pointer"
-            >
-              <Icon name="event" size={16} className="mr-1.5 text-secondary" />
-              Ekspor .ics
-            </Button>
-          </div>
+          <NotificationSettingsSection navigate={navigate} />
         </section>
       </div>
 
       {/* Modals */}
+      <FeatureDocsModal isOpen={showDocsModal} onClose={() => setShowDocsModal(false)} />
       {showHistoryModal && <HistoryModal onClose={() => setShowHistoryModal(false)} />}
       {showAboutModal && <AboutModal onClose={() => setShowAboutModal(false)} />}
     </div>
@@ -368,38 +360,235 @@ function formatLastUpdated(settings) {
   })
 }
 
-function ReminderToggle({ prefKey, label, description }) {
-  const [prefs, setPrefs] = useState(() => getItem(STORAGE_KEYS.reminderPrefs, {}))
-  const enabled = prefs[prefKey] ?? true
+function NotificationSettingsSection({ navigate }) {
+  const [prefs, setPrefs] = useState(() => ({
+    kelas: true,
+    ujian: true,
+    tugas: true,
+    nativePush: false,
+    classWindow: 15,
+    sound: true,
+    ...getItem(STORAGE_KEYS.reminderPrefs, {}),
+  }))
 
-  function handleToggle() {
-    const next = { ...prefs, [prefKey]: !(prefs[prefKey] ?? true) }
+  const [permission, setPermission] = useState(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      return Notification.permission
+    }
+    return 'unsupported'
+  })
+
+  const [testSent, setTestSent] = useState(false)
+
+  function updatePref(key, value) {
+    const next = { ...prefs, [key]: value }
     setItem(STORAGE_KEYS.reminderPrefs, next)
     setPrefs(next)
   }
 
+  async function requestNotificationPermission() {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      alert('Browser Anda tidak mendukung Web Notification API.')
+      return
+    }
+
+    try {
+      const result = await Notification.requestPermission()
+      setPermission(result)
+      if (result === 'granted') {
+        updatePref('nativePush', true)
+        playNotificationChime()
+        sendBrowserNotification('🔔 Notifikasi JadwalKu Aktif!', {
+          body: 'Anda akan menerima pengingat otomatis sebelum kelas dimulai dan menjelang batas tugas.',
+        })
+      }
+    } catch (err) {
+      console.error('Request permission error:', err)
+    }
+  }
+
+  function handleTestNotification() {
+    if (prefs.sound) {
+      playNotificationChime()
+    }
+    sendBrowserNotification('🧪 Uji Coba Pengingat JadwalKu', {
+      body: `Pengingat kelas ${prefs.classWindow} menit sebelum jam kuliah berjalan dengan normal!`,
+    })
+    setTestSent(true)
+    setTimeout(() => setTestSent(false), 2500)
+  }
+
+  const CLASS_WINDOW_OPTIONS = [10, 15, 30, 45, 60]
+
   return (
-    <li className="flex items-center justify-between gap-md py-2.5">
-      <div className="min-w-0">
-        <p className="text-body-sm font-bold text-on-surface">{label}</p>
-        <p className="text-body-xs text-on-surface-variant mt-0.5">{description}</p>
+    <div className="space-y-4">
+      <div>
+        <div className="flex items-center justify-between gap-2 mb-2.5">
+          <h3 className="flex items-center gap-2.5 text-title-sm font-bold text-on-surface">
+            <Icon name="notifications_active" size={20} className="text-primary" />
+            <span>Pengingat & Web Push</span>
+          </h3>
+
+          {/* Browser Permission Badge */}
+          {permission === 'granted' ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 px-2.5 py-0.5 text-[10.5px] font-bold">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Browser Aktif</span>
+            </span>
+          ) : permission === 'denied' ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-error/15 text-error border border-error/25 px-2.5 py-0.5 text-[10.5px] font-bold">
+              <Icon name="block" size={12} />
+              <span>Diblokir</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 px-2.5 py-0.5 text-[10.5px] font-bold">
+              <Icon name="info" size={12} />
+              <span>Belum Aktif</span>
+            </span>
+          )}
+        </div>
+
+        {/* Browser Permission Request Strip */}
+        {permission !== 'granted' && permission !== 'unsupported' && (
+          <div className="mb-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 p-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-body-xs font-bold text-amber-900 dark:text-amber-200">
+                Izinkan Pop-up Notifikasi Browser
+              </p>
+              <p className="text-[11px] text-on-surface-variant">
+                Terima pengingat kelas & tugas langsung di layar komputer atau HP
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={requestNotificationPermission}
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-[11px] font-bold shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+            >
+              Izinkan Notifikasi
+            </button>
+          </div>
+        )}
+
+        {/* Waktu Pengingat Kelas Selector */}
+        <div className="rounded-2xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-3 border border-outline-variant/20 mb-3 space-y-2">
+          <div className="flex items-center justify-between text-body-xs">
+            <span className="font-bold text-on-surface flex items-center gap-1.5">
+              <Icon name="schedule" size={15} className="text-primary" />
+              <span>Waktu Pengingat Kelas</span>
+            </span>
+            <span className="font-extrabold text-primary">{prefs.classWindow} Menit Sebelum</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {CLASS_WINDOW_OPTIONS.map((mins) => (
+              <button
+                key={mins}
+                type="button"
+                onClick={() => updatePref('classWindow', mins)}
+                className={`px-2.5 py-1 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
+                  prefs.classWindow === mins
+                    ? 'bg-primary text-on-primary shadow-xs'
+                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                }`}
+              >
+                {mins} Mnt
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Reminder Module Toggles */}
+        <ul className="divide-y divide-outline-variant/15 text-body-sm">
+          {/* Kelas Toggle */}
+          <li className="flex items-center justify-between gap-3 py-2.5">
+            <div>
+              <p className="font-bold text-on-surface">Pengingat Jadwal Kuliah</p>
+              <p className="text-body-xs text-on-surface-variant">Alarm waktu sebelum sesi kelas dimulai</p>
+            </div>
+            <ToggleSwitch checked={prefs.kelas} onChange={(v) => updatePref('kelas', v)} />
+          </li>
+
+          {/* Tugas Toggle */}
+          <li className="flex items-center justify-between gap-3 py-2.5">
+            <div>
+              <p className="font-bold text-on-surface">Pengingat Deadline Tugas</p>
+              <p className="text-body-xs text-on-surface-variant">Peringatan tenggat tugas H-1 & Hari-H</p>
+            </div>
+            <ToggleSwitch checked={prefs.tugas} onChange={(v) => updatePref('tugas', v)} />
+          </li>
+
+          {/* Ujian Toggle */}
+          <li className="flex items-center justify-between gap-3 py-2.5">
+            <div>
+              <p className="font-bold text-on-surface">Pengingat Ujian Semester</p>
+              <p className="text-body-xs text-on-surface-variant">Peringatan jadwal UTS dan UAS H-3 hari</p>
+            </div>
+            <ToggleSwitch checked={prefs.ujian} onChange={(v) => updatePref('ujian', v)} />
+          </li>
+
+          {/* Sound Alarm Toggle */}
+          <li className="flex items-center justify-between gap-3 py-2.5">
+            <div>
+              <p className="font-bold text-on-surface flex items-center gap-1.5">
+                <Icon name="volume_up" size={16} className="text-secondary" />
+                <span>Bunyi Nada Pengingat (Audio Chime)</span>
+              </p>
+              <p className="text-body-xs text-on-surface-variant">Mainkan nada lembut saat notifikasi masuk</p>
+            </div>
+            <ToggleSwitch checked={prefs.sound} onChange={(v) => updatePref('sound', v)} />
+          </li>
+        </ul>
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={enabled}
-        onClick={handleToggle}
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
-          enabled ? 'bg-primary' : 'bg-surface-variant'
+
+      {/* Test Notification & Calendar CTA */}
+      <div className="border-t border-outline-variant/15 pt-3.5 space-y-3">
+        {permission === 'granted' && (
+          <button
+            type="button"
+            onClick={handleTestNotification}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface py-2 text-body-xs font-bold transition-all border border-outline-variant/25 cursor-pointer shadow-2xs"
+          >
+            <Icon name={testSent ? 'check' : 'notifications'} size={15} className="text-primary" />
+            <span>{testSent ? 'Notifikasi Terkirim!' : '🧪 Uji Coba Notifikasi Browser'}</span>
+          </button>
+        )}
+
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-body-sm font-bold text-on-surface">Integrasi Kalender</p>
+            <p className="text-body-xs text-on-surface-variant">Ekspor jadwal ke Google / Apple Calendar</p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/bagikan')}
+            className="shrink-0 px-4 py-2 text-body-sm font-bold rounded-2xl cursor-pointer"
+          >
+            <Icon name="event" size={16} className="mr-1.5 text-secondary" />
+            Ekspor .ics
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ToggleSwitch({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+        checked ? 'bg-primary' : 'bg-surface-variant'
+      }`}
+    >
+      <span
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-xs ${
+          checked ? 'left-[22px]' : 'left-0.5'
         }`}
-      >
-        <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-xs ${
-            enabled ? 'left-[22px]' : 'left-0.5'
-          }`}
-        />
-      </button>
-    </li>
+      />
+    </button>
   )
 }
 

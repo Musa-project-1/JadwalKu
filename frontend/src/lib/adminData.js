@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { db, firebaseReady } from './firebaseClient'
 import { logError } from './errorLogger'
 
@@ -40,7 +40,8 @@ export function addDocument(collectionName, data, actor = '') {
   return run(async () => {
     const ref = await addDoc(collection(db, collectionName), {
       ...data,
-      updatedAt: new Date(),
+      // serverTimestamp() dipakai agar waktu tidak bisa dipalsukan oleh klien.
+      updatedAt: serverTimestamp(),
       ...(actor ? { updatedBy: actor } : {}),
     })
     return { ok: true, id: ref.id }
@@ -52,7 +53,8 @@ export function setDocument(collectionName, docId, data, actor = '') {
   return run(async () => {
     await setDoc(doc(db, collectionName, docId), {
       ...data,
-      updatedAt: new Date(),
+      // serverTimestamp() dipakai agar waktu tidak bisa dipalsukan oleh klien.
+      updatedAt: serverTimestamp(),
       ...(actor ? { updatedBy: actor } : {}),
     }, { merge: true })
     return { ok: true, id: docId }
@@ -63,7 +65,8 @@ export function updateDocument(collectionName, docId, data, actor = '') {
   return run(async () => {
     await updateDoc(doc(db, collectionName, docId), {
       ...data,
-      updatedAt: new Date(),
+      // serverTimestamp() dipakai agar waktu tidak bisa dipalsukan oleh klien.
+      updatedAt: serverTimestamp(),
       ...(actor ? { updatedBy: actor } : {}),
     })
     return { ok: true, id: docId }

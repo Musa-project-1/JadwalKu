@@ -46,14 +46,23 @@ service cloud.firestore {
     }
 
     match /errorLog/{doc} {
-      allow create: if true;
+      // Hanya pengguna terautentikasi yang boleh menulis log error,
+      // untuk mencegah spam/DoS & log poisoning oleh anonim.
+      allow create: if request.auth != null;
       allow read: if isAdmin();
       allow update, delete: if isAdmin();
     }
 
+    match /announcements/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /tugasProdi/{doc} {
       allow read: if true;
-      allow create, update, delete: if true;
+      // Tulis hanya boleh oleh admin. Sebelumnya open (if true) —
+      // siapa pun, termasuk anonim, bisa membuat/mengubah/menghapus.
+      allow write: if isAdmin();
     }
   }
 }

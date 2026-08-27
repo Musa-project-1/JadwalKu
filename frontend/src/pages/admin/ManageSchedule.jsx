@@ -21,6 +21,7 @@ import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData
 import { appendHistory, publishDocuments, saveSettings } from '../../lib/publishHelpers'
 import { deriveTahunAjaran } from '../../lib/tahunAjaran'
 import { UniversalImportModal } from '../../components/admin/UniversalImportModal'
+import { OfficialNoticeboardModal } from '../../components/admin/OfficialNoticeboardModal'
 import {
   CLASS_TYPE_CODES,
   DAYS,
@@ -129,9 +130,10 @@ export default function ManageSchedule() {
 
   // ── State UX: Import Modal, Conflict Filter & Pagination ──
   const [importModalOpen, setImportModalOpen] = useState(false)
+  const [noticeboardModalOpen, setNoticeboardModalOpen] = useState(false)
   const [onlyShowConflicts, setOnlyShowConflicts] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(7)
+  const [pageSize, setPageSize] = useState(10)
 
   // ── State Edit Jadwal Modal ──
   const [editingItem, setEditingItem] = useState(null)
@@ -153,19 +155,45 @@ export default function ManageSchedule() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedIds.size])
 
-  // ── Validasi Bentrok Data Database ──
-  const conflictMap = useMemo(() => {
-    if (!rawSchedule || rawSchedule.length === 0) return new Map()
-    const conflicts = findConflicts(rawSchedule)
+  // ── Validasi Bentrok Cerdas Database (Rombel, Ruangan Spesifik, & Dosen) ──
+  const { conflictsList, conflictMap } = useMemo(() => {
+    if (!rawSchedule || rawSchedule.length === 0) {
+      return { conflictsList: [], conflictMap: new Map() }
+    }
+    const list = findConflicts(rawSchedule, courseMap)
     const map = new Map()
-    for (const c of conflicts) {
+    for (const c of list) {
       const entryA = rawSchedule[c.a]
       const entryB = rawSchedule[c.b]
-      if (entryA?.id) map.set(entryA.id, c.message)
-      if (entryB?.id) map.set(entryB.id, c.message)
+      if (entryA?.id) {
+        const arr = map.get(entryA.id) || []
+        arr.push(c)
+        map.set(entryA.id, arr)
+      }
+      if (entryB?.id) {
+        const arr = map.get(entryB.id) || []
+        arr.push(c)
+        map.set(entryB.id, arr)
+      }
     }
-    return map
-  }, [rawSchedule])
+    return { conflictsList: list, conflictMap: map }
+  }, [rawSchedule, courseMap])
+
+  // Live Conflict Checking di Modal Tambah & Edit
+  const addModalClash = useMemo(() => {
+    if (!manualForm.hari || !manualForm.jamMulai || !manualForm.jamSelesai || !manualForm.kodeMK) return null
+    const list = findConflicts([...rawSchedule, { ...manualForm, id: 'temp-manual' }], courseMap)
+    const found = list.find((c) => c.idA === 'temp-manual' || c.idB === 'temp-manual')
+    return found ? found.message : null
+  }, [manualForm, rawSchedule, courseMap])
+
+  const editModalClash = useMemo(() => {
+    if (!editingItem || !editForm.hari || !editForm.jamMulai || !editForm.jamSelesai || !editForm.kodeMK) return null
+    const others = rawSchedule.filter((s) => s.id !== editingItem.id)
+    const list = findConflicts([...others, { ...editForm, id: editingItem.id }], courseMap)
+    const found = list.find((c) => c.idA === editingItem.id || c.idB === editingItem.id)
+    return found ? found.message : null
+  }, [editingItem, editForm, rawSchedule, courseMap])
 
   // ── Filter Data Jadwal Database ──
   const filteredSchedule = useMemo(() => {
@@ -608,6 +636,17 @@ export default function ManageSchedule() {
 
           <Button
             variant="secondary"
+            onClick={() => setNoticeboardModalOpen(true)}
+            className="rounded-2xl px-3.5 py-2 font-bold shadow-2xs cursor-pointer text-body-xs shrink-0"
+            title="Cetak Jadwal Format Mading A4 Landscape Resmi"
+            aria-label="Cetak Mading"
+          >
+            <Icon name="table_chart" size={16} className="mr-1 text-indigo-600 dark:text-indigo-400" />
+            <span className="hidden tablet:inline">Cetak Mading</span>
+          </Button>
+
+          <Button
+            variant="secondary"
             onClick={() => setImportModalOpen(true)}
             className="rounded-2xl px-3.5 py-2 font-bold shadow-2xs cursor-pointer text-body-xs shrink-0"
             title="Import Spreadsheet Master (.xlsx / .csv)"
@@ -694,6 +733,22 @@ export default function ManageSchedule() {
               selected={statusFilter}
               onSelect={setStatusFilter}
             />
+
+            {conflictsList.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setOnlyShowConflicts((prev) => !prev)}
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-body-xs font-bold transition-all cursor-pointer shadow-xs ${
+                  onlyShowConflicts
+                    ? 'bg-error text-white border-error ring-2 ring-error/30'
+                    : 'bg-error/10 text-error border-error/30 hover:bg-error/20'
+                }`}
+                title="Filter hanya menampilkan jadwal yang bertabrakan / bentrok"
+              >
+                <Icon name="warning" size={14} />
+                <span>Bentrok ({conflictsList.length})</span>
+              </button>
+            )}
 
             {(search || prodiFilter || semesterFilter || hariFilter || statusFilter || onlyShowConflicts) && (
               <button
@@ -845,14 +900,14 @@ export default function ManageSchedule() {
                   {paginatedSchedule.map((item) => {
                     const course = courseMap.get(item.kodeMK)
                     const isSelected = selectedIds.has(item.id)
-                    const clashMsg = conflictMap.get(item.id)
+                    const clashList = conflictMap.get(item.id) || []
 
                     return (
                       <tr
                         key={item.id}
                         className={`group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20 ${
                           isSelected ? 'bg-primary/5 dark:bg-primary/10' : ''
-                        } ${clashMsg ? 'bg-red-500/5 dark:bg-red-500/10' : ''}`}
+                        } ${clashList.length > 0 ? 'bg-red-500/5 dark:bg-red-500/10' : ''}`}
                       >
                         {/* Checkbox */}
                         <td className="px-3 py-2.5 text-center">
@@ -870,11 +925,30 @@ export default function ManageSchedule() {
                           <p className="font-mono text-body-xs font-semibold text-on-surface-variant mt-0.5 whitespace-nowrap">
                             {item.jamMulai} - {item.jamSelesai}
                           </p>
-                          {clashMsg && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-error mt-0.5">
-                              <Icon name="warning" size={12} />
-                              Bentrok
-                            </span>
+                          {clashList.length > 0 && (
+                            <div className="flex flex-col gap-1 mt-1">
+                              {clashList.map((c, idx) => (
+                                <span
+                                  key={idx}
+                                  title={c.message}
+                                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                    c.type === 'room'
+                                      ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30'
+                                      : c.type === 'lecturer'
+                                      ? 'bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/30'
+                                      : 'bg-error/15 text-error border border-error/30'
+                                  }`}
+                                >
+                                  <Icon
+                                    name={c.type === 'room' ? 'meeting_room' : c.type === 'lecturer' ? 'person' : 'groups'}
+                                    size={11}
+                                  />
+                                  <span>
+                                    {c.type === 'room' ? 'Ruang Bentrok' : c.type === 'lecturer' ? 'Dosen Bentrok' : 'Rombel Bentrok'}
+                                  </span>
+                                </span>
+                              ))}
+                            </div>
                           )}
                         </td>
 
@@ -969,14 +1043,14 @@ export default function ManageSchedule() {
               {paginatedSchedule.map((item) => {
                 const course = courseMap.get(item.kodeMK)
                 const isSelected = selectedIds.has(item.id)
-                const clashMsg = conflictMap.get(item.id)
+                const clashList = conflictMap.get(item.id) || []
 
                 return (
                   <div
                     key={item.id}
                     className={`rounded-2xl border bg-surface-container-lowest p-4 space-y-3 dark:bg-surface-container-low shadow-xs transition-all ${
                       isSelected ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-outline-variant/20'
-                    } ${clashMsg ? 'border-red-500/40 bg-red-500/5' : ''}`}
+                    } ${clashList.length > 0 ? 'border-red-500/40 bg-red-500/5' : ''}`}
                   >
                     {/* Header Row: Checkbox + Kode MK + Mata Kuliah + Action Toolbar */}
                     <div className="flex items-start justify-between gap-2">
@@ -1061,10 +1135,27 @@ export default function ManageSchedule() {
                       </span>
                     </div>
 
-                    {clashMsg && (
-                      <div className="flex items-center gap-1.5 rounded-xl bg-error/10 border border-error/20 p-2 text-body-xs font-bold text-error">
-                        <Icon name="warning" size={15} className="shrink-0" />
-                        <span>{clashMsg}</span>
+                    {clashList.length > 0 && (
+                      <div className="space-y-1.5 pt-1.5 border-t border-error/20">
+                        {clashList.map((c, idx) => (
+                          <div
+                            key={idx}
+                            className={`flex items-start gap-1.5 rounded-xl p-2 text-body-xs font-semibold ${
+                              c.type === 'room'
+                                ? 'bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30'
+                                : c.type === 'lecturer'
+                                ? 'bg-purple-500/15 text-purple-900 dark:text-purple-200 border border-purple-500/30'
+                                : 'bg-error/10 text-error border border-error/20'
+                            }`}
+                          >
+                            <Icon
+                              name={c.type === 'room' ? 'meeting_room' : c.type === 'lecturer' ? 'person' : 'groups'}
+                              size={15}
+                              className="shrink-0 mt-0.5"
+                            />
+                            <span className="text-[11px] leading-tight">{c.message}</span>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -1220,6 +1311,16 @@ export default function ManageSchedule() {
                   }))}
                 />
               </div>
+
+              {addModalClash && (
+                <div className="flex items-start gap-2 rounded-xl bg-amber-500/15 border border-amber-500/30 p-2.5 text-body-xs font-semibold text-amber-900 dark:text-amber-200">
+                  <Icon name="warning" size={16} className="shrink-0 text-amber-600 mt-0.5" />
+                  <div>
+                    <p className="font-bold">Peringatan Bentrok Jadwal:</p>
+                    <p className="text-[11px] mt-0.5">{addModalClash}</p>
+                  </div>
+                </div>
+              )}
 
               {manualErrors.length > 0 && (
                 <div className="rounded-xl bg-error/10 p-2.5 text-body-xs font-semibold text-error">
@@ -1384,6 +1485,16 @@ export default function ManageSchedule() {
                   />
                 </div>
               </div>
+
+              {editModalClash && (
+                <div className="flex items-start gap-2 rounded-xl bg-amber-500/15 border border-amber-500/30 p-2.5 text-body-xs font-semibold text-amber-900 dark:text-amber-200">
+                  <Icon name="warning" size={16} className="shrink-0 text-amber-600 mt-0.5" />
+                  <div>
+                    <p className="font-bold">Peringatan Bentrok Jadwal:</p>
+                    <p className="text-[11px] mt-0.5">{editModalClash}</p>
+                  </div>
+                </div>
+              )}
 
               {editErrors.length > 0 && (
                 <div className="rounded-xl bg-error/10 p-2.5 text-body-xs font-semibold text-error">
@@ -1584,6 +1695,15 @@ export default function ManageSchedule() {
         prodiOptions={prodiOptions}
         currentTA={currentTA}
         existingTAs={existingTAs}
+      />
+
+      {/* ── Modal Dialog: Official Noticeboard Printable (A4 Landscape) ── */}
+      <OfficialNoticeboardModal
+        isOpen={noticeboardModalOpen}
+        onClose={() => setNoticeboardModalOpen(false)}
+        allSchedules={rawSchedule}
+        courses={courses}
+        currentTA={currentTA}
       />
     </div>
   )

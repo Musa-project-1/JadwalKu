@@ -1,5 +1,5 @@
 import { collection, onSnapshot, query, where } from 'firebase/firestore'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { db, firebaseReady } from '../lib/firebaseClient'
 
 /**
@@ -14,15 +14,24 @@ export function useFirestore(collectionName, constraints = []) {
     .map(([field, op, value]) => `${field}:${op}:${String(value)}`)
     .join('|')
 
+  // Track previous constraintKey so we can reset data when query changes
+  const prevKeyRef = useRef(constraintKey)
+
   useEffect(() => {
+    // Reset data when the query changes so stale results don't persist
+    if (prevKeyRef.current !== constraintKey) {
+      prevKeyRef.current = constraintKey
+      setData([])
+    }
+
     if (!firebaseReady || !db) {
       setLoading(false)
       return undefined
     }
 
-    // Jangan query jika ada filter bernilai kosong/undefined
+    // Jangan query jika ada filter bernilai kosong/undefined/0
     const validConstraints = constraints.filter(
-      ([field, , value]) => field && value !== '' && value !== undefined && value !== null,
+      ([field, , value]) => field && value !== '' && value !== undefined && value !== null && value !== 0,
     )
     if (constraints.length > 0 && validConstraints.length !== constraints.length) {
       setLoading(false)
@@ -68,3 +77,4 @@ export function useFirestore(collectionName, constraints = []) {
 
   return { data, loading, error, ready: firebaseReady }
 }
+

@@ -11,9 +11,10 @@ import { Skeleton } from '../../components/Skeleton'
 import { sampleSchedule, sampleCourses } from '../../data/sampleSchedule'
 import { firebaseReady } from '../../lib/firebaseClient'
 import {
-  findNextClass,
+  detectClassTransitions,
   formatCountdown,
   formatLongDate,
+  getClassLiveState,
   getGreetingData,
   getTodayName,
   minutesUntil,
@@ -22,16 +23,24 @@ import {
 
 import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
+import { useCustomSchedule } from '../../hooks/useCustomSchedule'
+import { AnnouncementBanner } from '../../components/student/AnnouncementBanner'
+import { RoomLocationModal } from '../../components/student/RoomLocationModal'
 
 export default function Home() {
   const navigate = useNavigate()
   const { program, semester } = useApp()
   const { tasks } = useTasks()
+  const { isCustomMode, customScheduleIds } = useCustomSchedule()
   const todayName = getTodayName()
+  const [roomModalTarget, setRoomModalTarget] = useState(null)
 
   const { data: jadwal, loading } = useFirestore('jadwal', [
     ['prodi', '==', program ?? ''],
     ['semester', '==', Number(semester) || 0],
+    ['status', '==', 'published'],
+  ])
+  const { data: allPublishedJadwal } = useFirestore('jadwal', [
     ['status', '==', 'published'],
   ])
   const { data: mataKuliah } = useFirestore('mataKuliah')
@@ -47,12 +56,17 @@ export default function Home() {
   const useSample = !firebaseReady
   const scheduleSource = useMemo(() => {
     if (loading) return []
+    if (isCustomMode) {
+      const pool = allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule
+      const customSet = new Set(customScheduleIds)
+      return pool.filter((e) => customSet.has(e.id))
+    }
     if (jadwal.length > 0) return jadwal
     if (!useSample) return []
     return sampleSchedule.filter(
       (e) => e.prodi === program && e.semester === Number(semester),
     )
-  }, [loading, jadwal, useSample, program, semester])
+  }, [loading, isCustomMode, allPublishedJadwal, customScheduleIds, jadwal, useSample, program, semester])
 
   const courseMap = useMemo(() => {
     const source = mataKuliah.length > 0 ? mataKuliah : useSample ? sampleCourses : []
@@ -83,22 +97,32 @@ export default function Home() {
       .slice(0, 3)
   }, [calDoc])
 
-  const next = useMemo(() => findNextClass(todayEntries), [todayEntries])
-  // TA ditampilkan = TA di mana semester berjalan berada (via logika
-  // tahunAjaran), bukan dari data yang mungkin basi / beragam.
-  const dataTA = expectedTahunAjaranForSemester(semester, new Date(), calDoc)
   const [nowMinutes, setNowMinutes] = useState(() => currentMinuteOfDay())
 
-  // Tick tiap 30 detik untuk countdown "kelas berikutnya".
+  // Tick tiap 15 detik untuk update real-time status kelas live & countdown
   useEffect(() => {
-    const id = setInterval(() => setNowMinutes(currentMinuteOfDay()), 30_000)
+    const id = setInterval(() => setNowMinutes(currentMinuteOfDay()), 15_000)
     return () => clearInterval(id)
   }, [])
 
-  const nextCourse = next ? courseMap.get(next.kodeMK) : null
-  const countdownText = next ? formatCountdown(minutesUntil(next.jamMulai)) : null
-  const countdownMins = next ? minutesUntil(next.jamMulai) : Infinity
-  const countdownUrgent = countdownMins > 0 && countdownMins <= 15
+  const liveClassState = useMemo(() => {
+    return getClassLiveState(todayEntries, nowMinutes)
+  }, [todayEntries, nowMinutes])
+
+  const todayTransitions = useMemo(() => {
+    return detectClassTransitions(todayEntries)
+  }, [todayEntries])
+
+  // TA ditampilkan = TA di mana semester berjalan berada (via logika
+  // tahunAjaran), bukan dari data yang mungkin basi / beragam.
+  const dataTA = expectedTahunAjaranForSemester(semester, new Date(), calDoc)
+
+  const activeEntry = liveClassState.entry
+  const activeCourse = activeEntry ? courseMap.get(activeEntry.kodeMK) : null
+  const countdownText =
+    liveClassState.status === 'upcoming' && liveClassState.minutesToStart != null
+      ? formatCountdown(liveClassState.minutesToStart)
+      : null
 
   const [dailyNote, setDailyNote] = useState(() => getDailyNote())
   function handleNoteChange(value) {
@@ -121,42 +145,52 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-3.5 w-full max-w-full min-h-0 animate-fade-in">
       {/* ── TOP HERO ROW: Dynamic Gradient Greeting (Left) & Vibrant 3 Stats (Right) ── */}
-      <header className={`rounded-3xl border border-outline-variant/25 ${greeting.headerBg} bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low flex flex-col tablet:flex-row tablet:items-center justify-between gap-3 shrink-0 backdrop-blur-xs`}>
+      <header className={`rounded-3xl border border-outline-variant/25 ${greeting.headerBg} bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low flex flex-col desktop:flex-row desktop:items-center justify-between gap-3.5 shrink-0 backdrop-blur-xs`}>
         {/* Left: Greeting icon, Gradient Title, Prodi & TA Badge */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <div
             className={`flex h-11 w-11 tablet:h-12 tablet:w-12 shrink-0 items-center justify-center rounded-2xl ${greeting.iconBg} shadow-xs`}
             aria-hidden="true"
           >
             <Icon name={greeting.icon} size={24} />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className={`font-marker font-bold text-[22px] tablet:text-[28px] leading-tight tracking-wide bg-gradient-to-r ${greeting.textGradient} bg-clip-text text-transparent drop-shadow-xs`}>
+              <h2 className={`font-marker font-bold text-[22px] tablet:text-[26px] leading-tight tracking-wide bg-gradient-to-r ${greeting.textGradient} bg-clip-text text-transparent drop-shadow-xs whitespace-nowrap`}>
                 {greeting.text}!
               </h2>
-              {program && (
-                <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/25 px-2.5 py-0.5 text-label-caps font-bold text-primary dark:text-primary-container shadow-2xs">
+              {isCustomMode ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/jadwal')}
+                  className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-label-caps font-bold text-amber-900 dark:text-amber-300 shadow-2xs hover:bg-amber-500/25 transition-colors cursor-pointer"
+                  title="Klik untuk melihat atau mengatur Jadwal Kustom"
+                >
+                  <Icon name="star" size={13} className="text-amber-500" />
+                  <span>Jadwal Kustom ({scheduleSource.length} MK)</span>
+                </button>
+              ) : program ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/25 px-2.5 py-0.5 text-label-caps font-bold text-primary dark:text-primary-container shadow-2xs">
                   <Icon name="school" size={13} className="text-primary" />
-                  {program} · Sem. {semester}{dataTA ? ` · TA ${dataTA}` : ''}
+                  <span>{program} · Sem. {semester}{dataTA ? ` · TA ${dataTA}` : ''}</span>
                 </span>
-              )}
+              ) : null}
             </div>
-            <p className="text-body-xs font-medium text-on-surface-variant">
+            <p className="text-body-xs font-medium text-on-surface-variant whitespace-nowrap mt-0.5">
               {formatLongDate()}
             </p>
           </div>
         </div>
 
         {/* Right: 3 Quick Stat Buttons (SKS, Kelas, Tugas) with Rich Gradients */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="grid grid-cols-3 gap-2 w-full desktop:w-auto desktop:flex desktop:items-center shrink-0">
           <button
             type="button"
             onClick={() => navigate('/jadwal')}
-            className="flex items-center gap-2 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-teal-500/20 border border-emerald-500/35 px-3 py-1.5 text-center shadow-xs hover:scale-[1.03] active:scale-95 transition-all cursor-pointer group"
+            className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-teal-500/20 border border-emerald-500/35 px-3 py-1.5 text-center shadow-xs hover:scale-[1.03] active:scale-95 transition-all cursor-pointer group"
             title="Total SKS Semester Ini"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold group-hover:bg-emerald-500/30 transition-colors">
+            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold group-hover:bg-emerald-500/30 transition-colors shrink-0">
               <Icon name="menu_book" size={16} />
             </span>
             <div className="text-left">
@@ -168,10 +202,10 @@ export default function Home() {
           <button
             type="button"
             onClick={() => navigate('/jadwal')}
-            className="flex items-center gap-2 rounded-2xl bg-gradient-to-br from-blue-500/15 via-blue-500/10 to-indigo-500/20 border border-blue-500/35 px-3 py-1.5 text-center shadow-xs hover:scale-[1.03] active:scale-95 transition-all cursor-pointer group"
+            className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-gradient-to-br from-blue-500/15 via-blue-500/10 to-indigo-500/20 border border-blue-500/35 px-3 py-1.5 text-center shadow-xs hover:scale-[1.03] active:scale-95 transition-all cursor-pointer group"
             title="Total Sesi Kelas Mingguan"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold group-hover:bg-blue-500/30 transition-colors">
+            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold group-hover:bg-blue-500/30 transition-colors shrink-0">
               <Icon name="calendar_month" size={16} />
             </span>
             <div className="text-left">
@@ -183,10 +217,10 @@ export default function Home() {
           <button
             type="button"
             onClick={() => navigate('/tugas')}
-            className="flex items-center gap-2 rounded-2xl bg-gradient-to-br from-purple-500/15 via-purple-500/10 to-pink-500/20 border border-purple-500/35 px-3 py-1.5 text-center shadow-xs hover:scale-[1.03] active:scale-95 transition-all cursor-pointer group"
+            className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-gradient-to-br from-purple-500/15 via-purple-500/10 to-pink-500/20 border border-purple-500/35 px-3 py-1.5 text-center shadow-xs hover:scale-[1.03] active:scale-95 transition-all cursor-pointer group"
             title="Tugas Tertunda"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold group-hover:bg-purple-500/30 transition-colors">
+            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold group-hover:bg-purple-500/30 transition-colors shrink-0">
               <Icon name="assignment_late" size={16} />
             </span>
             <div className="text-left">
@@ -196,6 +230,9 @@ export default function Home() {
           </button>
         </div>
       </header>
+
+      {/* Broadcast Pengumuman Kampus & Kuliah Pengganti */}
+      <AnnouncementBanner currentProgram={program} currentSemester={semester} />
 
       {/* ── MAIN SECTION: 2 EQUAL-HEIGHT COLUMNS ON DESKTOP ── */}
       <div className="grid grid-cols-1 desktop:grid-cols-12 gap-3.5 desktop:items-stretch">
@@ -217,15 +254,20 @@ export default function Home() {
               </span>
             </div>
 
-            {/* Next class callout (if active) */}
-            {next && (
+            {/* Status Kelas Live / Kelas Berikutnya / Selesai Hari Ini Callout */}
+            {liveClassState.status !== 'empty' && (
               <div className="mb-3">
                 <NextClassCard
-                  entry={next}
-                  course={nextCourse}
+                  liveState={liveClassState}
+                  course={activeCourse}
                   countdownText={countdownText}
-                  urgent={countdownUrgent}
-                  onDetail={() => navigate('/jadwal', { state: { openKodeMK: next.kodeMK } })}
+                  urgent={liveClassState.urgent}
+                  onDetail={() =>
+                    activeEntry &&
+                    navigate('/jadwal', { state: { openKodeMK: activeEntry.kodeMK } })
+                  }
+                  onLocation={(entry, course) => setRoomModalTarget({ entry, course })}
+                  onViewSchedule={() => navigate('/jadwal')}
                 />
               </div>
             )}
@@ -260,6 +302,10 @@ export default function Home() {
                       isPast={minutesUntil(entry.jamSelesai) <= 0}
                       showNowBefore={showNow}
                       nowLabel={`${String(Math.floor(nowMinutes / 60)).padStart(2, '0')}:${String(nowMinutes % 60).padStart(2, '0')}`}
+                      note={getItem(`${STORAGE_KEYS.courseNotes}:${entry.kodeMK}`, '')}
+                      transition={todayTransitions.get(entry.id)}
+                      links={getItem(`${STORAGE_KEYS.courseLinks}:${entry.kodeMK}`, null)}
+                      onLocationClick={(entry, course) => setRoomModalTarget({ entry, course })}
                       onNoteClick={() => navigate('/jadwal', { state: { openKodeMK: entry.kodeMK } })}
                     />
                   )
@@ -435,6 +481,17 @@ export default function Home() {
           </section>
         </aside>
       </div>
+
+      {roomModalTarget && (
+        <RoomLocationModal
+          isOpen={Boolean(roomModalTarget)}
+          onClose={() => setRoomModalTarget(null)}
+          ruang={roomModalTarget.entry?.ruang}
+          tipeKelas={roomModalTarget.entry?.tipeKelas}
+          scheduleEntries={todayEntries}
+          currentCourseName={roomModalTarget.course?.namaMK ?? roomModalTarget.entry?.kodeMK}
+        />
+      )}
     </div>
   )
 }

@@ -44,4 +44,9 @@ export const STORAGE_KEYS = {
   reminderPrefs: 'reminderPrefs',
   notifications: 'notifications',
   tahunAjaran: 'tahunAjaran',
+  scheduleMode: 'scheduleMode',
+  customScheduleIds: 'customScheduleIds',
+  attendance: 'attendance',
+  courseLinks: 'courseLinks',
+  krsPlans: 'krsPlans',
 }

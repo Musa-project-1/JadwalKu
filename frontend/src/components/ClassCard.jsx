@@ -10,24 +10,20 @@ import {
   TONE_DIVIDER_CLASSES,
 } from '../lib/classTypes'
 import { formatRuang } from '../lib/scheduleUtils'
-
-function getLecturerInitials(name) {
-  if (!name) return '?'
-  const cleaned = name
-    .replace(/(?:Dr\.|Ir\.|Prof\.|Drs\.|M\.Kom|S\.Kom|M\.T\.|S\.T\.|M\.Sc|M\.Si|S\.Si|Ph\.D)\b/gi, '')
-    .replace(/[,.]/g, '')
-    .trim()
-  const words = cleaned.split(/\s+/).filter(Boolean)
-  if (words.length === 0) return name.slice(0, 2).toUpperCase()
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
-  return (words[0][0] + words[words.length - 1][0]).toUpperCase()
-}
+import { getLecturerInitials } from '../lib/lecturerUtils'
 
 /**
  * Kartu kelas mingguan — ditingkatkan dengan icon chip tipe kelas,
- * nama & avatar inisial dosen, tinted shadow, dan hierarki judul MK yang tegas.
+ * nama & avatar inisial dosen, tinted shadow, indikator catatan, dan peringatan pindah ruang berurutan.
  */
-export function ClassCard({ entry, course, onClick, conflicted = false }) {
+export function ClassCard({
+  entry,
+  course,
+  onClick,
+  conflicted = false,
+  note = '',
+  transition = null,
+}) {
   const classType = getClassType(entry.tipeKelas)
   const text = TONE_TEXT_CLASSES[classType.tone]
   const subtext = TONE_SUBTEXT_CLASSES[classType.tone]
@@ -47,7 +43,7 @@ export function ClassCard({ entry, course, onClick, conflicted = false }) {
         conflicted ? 'ring-2 ring-error/50' : ''
       }`}
     >
-      {/* 1. Baris Atas: Chip Ikon + Kode Tipe Kelas (K1, K2, GBK1, HBH, dst.) */}
+      {/* 1. Baris Atas: Chip Ikon + Kode Tipe Kelas + Indikator */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span
@@ -60,7 +56,26 @@ export function ClassCard({ entry, course, onClick, conflicted = false }) {
             {entry.tipeKelas || 'K1'}
           </span>
         </div>
-        {conflicted && <Icon name="warning" size={16} className="shrink-0 text-error" />}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {transition && (
+            <span
+              className="flex h-5 items-center gap-1 px-2 rounded-full bg-orange-500/20 text-orange-800 dark:text-orange-300 text-[10px] font-bold shadow-2xs border border-orange-500/30"
+              title={transition.message}
+            >
+              <Icon name="directions_run" size={12} />
+              <span>{transition.gapMinutes}m</span>
+            </span>
+          )}
+          {note && (
+            <span
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 shadow-2xs"
+              title="Memiliki catatan"
+            >
+              <Icon name="sticky_note_2" size={13} />
+            </span>
+          )}
+          {conflicted && <Icon name="warning" size={16} className="shrink-0 text-error" />}
+        </div>
       </div>
 
       {/* 2. Judul Mata Kuliah */}
@@ -73,6 +88,26 @@ export function ClassCard({ entry, course, onClick, conflicted = false }) {
         {entry.jamMulai} – {entry.jamSelesai}
         <span className="opacity-75"> • {formatRuang(entry.ruang, entry.tipeKelas)}</span>
       </p>
+
+      {/* 3.5. Transition Warning Banner (if tight back-to-back transition) */}
+      {transition && (
+        <div className="mt-2 flex items-center gap-1.5 rounded-xl bg-orange-500/15 border border-orange-500/30 px-2.5 py-1 text-orange-950 dark:text-orange-200">
+          <Icon name="directions_run" size={13} className="text-orange-600 dark:text-orange-400 shrink-0" />
+          <span className="truncate text-[10.5px] font-bold">
+            {transition.message}
+          </span>
+        </div>
+      )}
+
+      {/* 3.6. Note Snippet Preview (if available) */}
+      {note && (
+        <div className="mt-2 flex items-center gap-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 text-amber-950 dark:text-amber-200">
+          <Icon name="sticky_note_2" size={13} className="text-amber-600 dark:text-amber-400 shrink-0" />
+          <span className="truncate text-[11px] font-semibold">
+            {note}
+          </span>
+        </div>
+      )}
 
       {/* 4. Garis Pembatas Halus */}
       <div className={`mt-3 border-t ${dividerClass}`} />

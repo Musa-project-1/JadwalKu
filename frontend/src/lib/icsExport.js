@@ -1,20 +1,34 @@
 /**
- * Generate file .ics (iCalendar) dari daftar jadwal, lalu unduh.
- * Format mengikuti RFC 5545 — kompatibel dengan Google Calendar.
- *
- * @param {Array<{ id: string, hari: string, jamMulai: string, jamSelesai: string, kodeMK: string, ruang?: string }>} entries
- * @param {{ prodi?: string, semester?: unknown }} meta
+ * Generate dan unduh file .ics (iCalendar) dari jadwal perkuliahan dan ujian.
+ * Format mengikuti standar RFC 5545 — kompatibel dengan Google Calendar, Apple iCal, dan Microsoft Outlook.
  */
-export function downloadIcs(entries, { prodi = '', semester = '' } = {}) {
+
+/**
+ * Unduh file .ics untuk jadwal mingguan berulang (Weekly Recurring Schedule).
+ *
+ * @param {Array<object>} entries - Daftar jadwal perkuliahan
+ * @param {object} options
+ * @param {string} [options.prodi] - Nama program studi
+ * @param {string|number} [options.semester] - Semester aktif
+ * @param {string} [options.tahunAjaran] - Tahun ajaran aktif
+ * @param {Map<string, object>} [options.courseMap] - Map kodeMK ke object mata kuliah
+ */
+export function downloadIcs(
+  entries,
+  { prodi = '', semester = '', tahunAjaran = '', courseMap = new Map() } = {},
+) {
+  if (!entries || entries.length === 0) return
+
   const now = new Date()
   const stamp = formatIcsDate(now)
 
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Jadwal Kampus//ID',
+    'PRODID:-//JadwalKu Kampus//ID',
     'CALSCALE:GREGORIAN',
-    `X-WR-CALNAME:Jadwal ${prodi} Semester ${semester}`.trim(),
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:Jadwal Kuliah ${prodi} Semester ${semester}`.trim(),
     'X-WR-TIMEZONE:Asia/Jakarta',
   ]
 
@@ -22,34 +36,192 @@ export function downloadIcs(entries, { prodi = '', semester = '' } = {}) {
     const dayIndex = DAY_INDEX[entry.hari]
     if (dayIndex === undefined) continue
 
-    // Hitung END relatif terhadap START: kelas lewat tengah malam
-    // (jamSelesai < jamMulai, mis. 22:00–01:00) harus berakhir besoknya,
-    // bukan DTEND < DTSTART.
+    const course = courseMap.get(entry.kodeMK) || {}
+    const courseTitle = course.namaMK
+      ? `${course.namaMK} (${entry.kodeMK})`
+      : escapeIcsText(entry.kodeMK)
+
     const start = nextOccurrence(dayIndex, entry.jamMulai)
-    const end = addMinutes(start, toMinutes(entry.jamSelesai) - toMinutes(entry.jamMulai))
+    const end = addMinutes(start, Math.max(30, toMinutes(entry.jamSelesai) - toMinutes(entry.jamMulai)))
+
+    const description = [
+      `Mata Kuliah: ${course.namaMK || entry.kodeMK}`,
+      `Kode MK: ${entry.kodeMK}`,
+      course.dosen ? `Dosen: ${course.dosen}` : null,
+      entry.ruang ? `Ruangan: ${entry.ruang}` : null,
+      course.sks ? `Beban: ${course.sks} SKS` : null,
+      entry.tipeKelas ? `Tipe Kelas: ${entry.tipeKelas}` : null,
+      tahunAjaran ? `Tahun Ajaran: ${tahunAjaran}` : null,
+      'Aplikasi: JadwalKu (https://schedfin.netlify.app)',
+    ]
+      .filter(Boolean)
+      .join('\\n')
 
     lines.push(
       'BEGIN:VEVENT',
-      `UID:${entry.id}@jadwal-kampus`,
+      `UID:jadwal-${entry.id || crypto.randomUUID()}@jadwalku.app`,
       `DTSTAMP:${stamp}`,
       `DTSTART;TZID=Asia/Jakarta:${formatIcsDate(start)}`,
       `DTEND;TZID=Asia/Jakarta:${formatIcsDate(end)}`,
       `RRULE:FREQ=WEEKLY;BYDAY=${WEEKLY_BYDAY[entry.hari]}`,
-      `SUMMARY:${escapeIcsText(entry.kodeMK)}`,
+      `SUMMARY:${escapeIcsText(courseTitle)}`,
       entry.ruang ? `LOCATION:${escapeIcsText(entry.ruang)}` : null,
+      `DESCRIPTION:${description}`,
+      // Alarm 30 menit & 15 menit sebelum kelas
+      'BEGIN:VALARM',
+      'TRIGGER:-PT30M',
+      'ACTION:DISPLAY',
+      `DESCRIPTION:Pengingat: 30 menit lagi kelas ${escapeIcsText(courseTitle)} dimulai`,
+      'END:VALARM',
+      'BEGIN:VALARM',
+      'TRIGGER:-PT15M',
+      'ACTION:DISPLAY',
+      `DESCRIPTION:Pengingat: 15 menit lagi kelas ${escapeIcsText(courseTitle)} dimulai`,
+      'END:VALARM',
       'END:VEVENT',
     )
   }
 
   lines.push('END:VCALENDAR')
+  saveBlobAsFile(
+    lines.filter(Boolean).join('\r\n'),
+    `jadwal-kuliah-${prodi.toLowerCase().replace(/\s+/g, '-')}-sem-${semester}.ics`,
+  )
+}
 
-  const blob = new Blob([lines.filter(Boolean).join('\r\n')], {
-    type: 'text/calendar;charset=utf-8',
+/**
+ * Unduh file .ics untuk jadwal ujian (UTS & UAS) dengan tanggal dan jam spesifik.
+ *
+ * @param {Array<object>} exams - Daftar jadwal ujian
+ * @param {object} options
+ * @param {string} [options.prodi] - Nama program studi
+ * @param {string|number} [options.semester] - Semester aktif
+ * @param {string} [options.jenis] - 'UTS' atau 'UAS'
+ * @param {Map<string, object>} [options.courseMap] - Map kodeMK ke object mata kuliah
+ */
+export function downloadExamIcs(
+  exams,
+  { prodi = '', semester = '', jenis = 'UTS', courseMap = new Map() } = {},
+) {
+  if (!exams || exams.length === 0) return
+
+  const now = new Date()
+  const stamp = formatIcsDate(now)
+
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//JadwalKu Kampus//ID',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:Jadwal Ujian ${jenis} ${prodi} Semester ${semester}`.trim(),
+    'X-WR-TIMEZONE:Asia/Jakarta',
+  ]
+
+  for (const exam of exams) {
+    if (!exam.tanggal || !exam.jamMulai) continue
+
+    const course = courseMap.get(exam.kodeMK) || {}
+    const title = course.namaMK || exam.namaMK || exam.kodeMK
+    const summary = `${exam.jenis || jenis}: ${title} (${exam.kodeMK})`
+
+    const [year, month, day] = String(exam.tanggal).split('-').map(Number)
+    const [startH, startM] = String(exam.jamMulai).split(':').map(Number)
+    const startDate = new Date(year, month - 1, day, startH, startM)
+
+    let endDate
+    if (exam.jamSelesai) {
+      const [endH, endM] = String(exam.jamSelesai).split(':').map(Number)
+      endDate = new Date(year, month - 1, day, endH, endM)
+    } else {
+      endDate = addMinutes(startDate, 90) // Default durasi ujian 90 menit
+    }
+
+    const description = [
+      `Mata Uji: ${title}`,
+      `Jenis: ${exam.jenis || jenis}`,
+      `Kode MK: ${exam.kodeMK}`,
+      exam.dosen ? `Pengawas / Dosen: ${exam.dosen}` : null,
+      exam.ruang ? `Ruangan: ${exam.ruang}` : null,
+      exam.mode ? `Mode Ujian: ${exam.mode}` : null,
+      'Aplikasi: JadwalKu (https://schedfin.netlify.app)',
+    ]
+      .filter(Boolean)
+      .join('\\n')
+
+    lines.push(
+      'BEGIN:VEVENT',
+      `UID:ujian-${exam.id || crypto.randomUUID()}@jadwalku.app`,
+      `DTSTAMP:${stamp}`,
+      `DTSTART;TZID=Asia/Jakarta:${formatIcsDate(startDate)}`,
+      `DTEND;TZID=Asia/Jakarta:${formatIcsDate(endDate)}`,
+      `SUMMARY:${escapeIcsText(summary)}`,
+      exam.ruang ? `LOCATION:${escapeIcsText(exam.ruang)}` : null,
+      `DESCRIPTION:${description}`,
+      // Alarm H-1 hari dan H-1 jam sebelum ujian
+      'BEGIN:VALARM',
+      'TRIGGER:-P1D',
+      'ACTION:DISPLAY',
+      `DESCRIPTION:Besok Ujian: ${escapeIcsText(summary)}`,
+      'END:VALARM',
+      'BEGIN:VALARM',
+      'TRIGGER:-PT1H',
+      'ACTION:DISPLAY',
+      `DESCRIPTION:1 Jam Lagi Ujian: ${escapeIcsText(summary)}`,
+      'END:VALARM',
+      'END:VEVENT',
+    )
+  }
+
+  lines.push('END:VCALENDAR')
+  saveBlobAsFile(
+    lines.filter(Boolean).join('\r\n'),
+    `jadwal-ujian-${jenis.toLowerCase()}-${prodi.toLowerCase().replace(/\s+/g, '-')}-sem-${semester}.ics`,
+  )
+}
+
+/**
+ * Buat tautan URL langsung untuk menambahkan event ke Google Calendar via Web.
+ */
+export function getGoogleCalendarUrl(entry, { course = {}, date = null } = {}) {
+  const title = course.namaMK ? `${course.namaMK} (${entry.kodeMK})` : entry.kodeMK
+  const details = `Dosen: ${course.dosen || '-'}\nRuang: ${entry.ruang || '-'}`
+
+  let startIso = ''
+  let endIso = ''
+
+  if (date) {
+    const pad = (n) => String(n).padStart(2, '0')
+    const [startH, startM] = String(entry.jamMulai).split(':')
+    const [endH, endM] = String(entry.jamSelesai || entry.jamMulai).split(':')
+    const y = date.getFullYear()
+    const m = pad(date.getMonth() + 1)
+    const d = pad(date.getDate())
+
+    startIso = `${y}${m}${d}T${startH}${startM}00`
+    endIso = `${y}${m}${d}T${endH}${endM}00`
+  }
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: title,
+    details: details,
+    location: entry.ruang || '',
   })
+
+  if (startIso && endIso) {
+    params.set('dates', `${startIso}/${endIso}`)
+  }
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`
+}
+
+function saveBlobAsFile(content, fileName) {
+  const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `jadwal-${prodi.toLowerCase().replace(/\s+/g, '-')}-semester-${semester}.ics`
+  a.download = fileName
   document.body.appendChild(a)
   a.click()
   a.remove()
@@ -87,8 +259,7 @@ function addMinutes(date, minutes) {
 }
 
 /**
- * Escaping teks sesuai RFC 5545 §3.3.11 — tanpa ini karakter koma/titik
- * dua/backslash/newline merusak parsing .ics di Google Calendar/Outlook.
+ * Escaping teks sesuai RFC 5545 §3.3.11
  */
 function escapeIcsText(value) {
   return String(value ?? '')
@@ -105,3 +276,4 @@ function formatIcsDate(date) {
     `T${pad(date.getHours())}${pad(date.getMinutes())}00`
   )
 }
+

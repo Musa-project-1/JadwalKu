@@ -121,11 +121,12 @@ async function run() {
     assertFails(getDoc(doc(anonDb, 'jadwal', 'draft1'))))
 
   // 7. Anonymous read public collections allowed
-  await check(7, 'Anon read mataKuliah/prodi/libur/settings/riwayat diizinkan', async () =>
+  await check(7, 'Anon read mataKuliah/prodi/libur/settings/riwayat/announcements diizinkan', async () =>
     (await assertSucceeds(getDoc(doc(anonDb, 'mataKuliah', 'mk1')))) &&
     (await assertSucceeds(getDoc(doc(anonDb, 'prodi', 'p1')))) &&
     (await assertSucceeds(getDoc(doc(anonDb, 'libur', 'l1')))) &&
     (await assertSucceeds(getDoc(doc(anonDb, 'settings', 'app')))) &&
+    (await assertSucceeds(getDoc(doc(anonDb, 'announcements', 'ann1')))) &&
     (await assertSucceeds(getDoc(doc(anonDb, 'riwayat', 'r1')))))
 
   // 8. errorLog create allowed for anyone (doc unik per run → selalu create)

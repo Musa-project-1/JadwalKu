@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // GitHub Pages project site: https://musa-project-1.github.io/JadwalKu/
+  // Jika repo di-rename / pakai custom domain, ubah nilai base di sini.
+  base: '/JadwalKu/',
   build: {
     rollupOptions: {
       output: {
@@ -39,7 +42,7 @@ export default defineConfig({
       ],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        navigateFallback: '/index.html',
+        navigateFallback: '/JadwalKu/index.html',
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
@@ -52,7 +55,8 @@ export default defineConfig({
         background_color: '#F5FAF8',
         display: 'standalone',
         orientation: 'portrait-primary',
-        start_url: '/',
+        start_url: '/JadwalKu/',
+        scope: '/JadwalKu/',
         lang: 'id',
         icons: [
           { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
