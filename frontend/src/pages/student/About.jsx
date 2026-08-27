@@ -82,7 +82,7 @@ export default function About() {
         
         <div className="relative flex flex-col items-center">
           <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-3xl bg-surface-container-low p-3 shadow-inner dark:bg-surface-container-high">
-            <img src="/logo.svg" alt="Logo JadwalKu" className="h-16 w-16 drop-shadow-md" />
+            <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo JadwalKu" className="h-16 w-16 drop-shadow-md" />
           </div>
 
           <h1 className="text-headline-lg font-bold font-brand tracking-[-0.025em] text-on-surface">

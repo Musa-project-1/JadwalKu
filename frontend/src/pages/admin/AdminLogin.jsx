@@ -80,7 +80,7 @@ export default function AdminLogin() {
         {/* Brand Header */}
         <div className="mb-6 text-center">
           <div className="relative inline-flex items-center justify-center p-3 rounded-3xl bg-surface-container-lowest/90 dark:bg-surface-container-high/60 border border-outline-variant/30 shadow-md mb-3.5 group">
-            <img src="/logo.svg" alt="Logo JadwalKu" className="h-12 w-12 shrink-0 group-hover:scale-105 transition-transform" />
+            <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo JadwalKu" className="h-12 w-12 shrink-0 group-hover:scale-105 transition-transform" />
           </div>
           <h1 className="text-display-sm tablet:text-display-md font-bold font-brand tracking-tight text-on-surface">
             <span>Jadwal</span>

@@ -52,7 +52,7 @@ export function Sidebar() {
           {/* Logo & Brand Wordmark — fixed anchor point at x = 20px */}
           <div className="relative mb-xl flex items-center px-5 min-h-[48px]">
             <div className="flex items-center min-w-0">
-              <img src="/logo.svg" alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
+              <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
               <div className={labelClsSm}>
                 <h1 className="text-headline-lg-mobile font-bold font-brand tracking-[-0.025em] desktop:text-headline-lg truncate">
                   <span className="text-on-surface">Jadwal</span>

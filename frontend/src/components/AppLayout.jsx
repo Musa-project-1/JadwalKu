@@ -87,7 +87,7 @@ export function AppLayout() {
             <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 min-w-0">
               {/* Mobile Header: Logo + Live Clock Chip */}
               <div className="flex items-center gap-2 tablet:hidden">
-                <img src="/logo.svg" alt="JadwalKu" className="h-9 w-9 shrink-0" />
+                <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="JadwalKu" className="h-9 w-9 shrink-0" />
                 <div className="flex items-center gap-1 rounded-full bg-surface-container-high/70 dark:bg-surface-container-high/60 border border-outline-variant/30 px-2.5 py-1 text-label-caps font-bold text-on-surface shadow-2xs">
                   <Icon name="schedule" size={13} className="text-primary shrink-0" />
                   <span className="text-[11px] tracking-tight">{timeString} WIB</span>

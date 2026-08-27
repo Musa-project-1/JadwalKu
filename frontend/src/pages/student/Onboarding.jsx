@@ -16,7 +16,7 @@ function RoleSelection() {
       <div className="flex w-full max-w-[800px] flex-col items-center animate-fade-in">
         <header className="mb-xl text-center flex flex-col items-center">
           <img
-            src="/logo.svg"
+            src={`${import.meta.env.BASE_URL}logo.svg`}
             alt="Logo JadwalKu"
             className="mb-4 h-16 w-16 drop-shadow-md transition-transform duration-300 hover:scale-105"
           />

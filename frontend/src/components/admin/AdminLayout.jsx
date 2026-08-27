@@ -168,7 +168,7 @@ export function AdminLayout() {
           {/* Logo & Brand Wordmark — fixed anchor point at x = 20px */}
           <div className="relative mb-xl flex items-center px-5 min-h-[48px]">
             <div className="flex items-center min-w-0">
-              <img src="/logo.svg" alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
+              <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
               <div className={labelCls(!isPinned, 'ml-3')}>
                 <h1 className="text-headline-lg-mobile font-bold font-brand tracking-[-0.025em] desktop:text-headline-lg truncate">
                   <span className="text-on-surface">Jadwal</span>
@@ -214,7 +214,7 @@ export function AdminLayout() {
             <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 min-w-0">
               {/* Mobile Header: Logo + Live Clock Chip (Matching Student view) */}
               <div className="flex items-center gap-2 tablet:hidden">
-                <img src="/logo.svg" alt="JadwalKu" className="h-9 w-9 shrink-0" />
+                <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="JadwalKu" className="h-9 w-9 shrink-0" />
                 <div className="flex items-center gap-1 rounded-full bg-surface-container-high/70 dark:bg-surface-container-high/60 border border-outline-variant/30 px-2.5 py-1 text-label-caps font-bold text-on-surface shadow-2xs">
                   <Icon name="schedule" size={13} className="text-primary shrink-0" />
                   <span className="text-[11px] tracking-tight">{timeString} WIB</span>
