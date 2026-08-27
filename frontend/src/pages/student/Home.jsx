@@ -170,8 +170,8 @@ export default function Home() {
                   <span>Jadwal Kustom ({scheduleSource.length} MK)</span>
                 </button>
               ) : program ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/25 px-2.5 py-0.5 text-label-caps font-bold text-primary dark:text-primary-container shadow-2xs">
-                  <Icon name="school" size={13} className="text-primary" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 dark:bg-emerald-500/15 border border-primary/25 dark:border-emerald-500/30 px-3 py-0.5 text-label-caps font-bold text-primary dark:text-emerald-300 shadow-2xs">
+                  <Icon name="school" size={13} className="text-primary dark:text-emerald-300 shrink-0" />
                   <span>{program} · Sem. {semester}{dataTA ? ` · TA ${dataTA}` : ''}</span>
                 </span>
               ) : null}
