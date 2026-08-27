@@ -682,6 +682,8 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
         <label className="mb-5 block">
           <span className="mb-1 block text-label-caps font-bold text-on-surface-variant">Catatan / Instruksi Tugas</span>
           <textarea
+            id="task-catatan"
+            name="task-catatan"
             value={catatan}
             onChange={(e) => setCatatan(e.target.value)}
             rows={3}

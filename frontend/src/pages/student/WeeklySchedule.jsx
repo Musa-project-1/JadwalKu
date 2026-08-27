@@ -1618,6 +1618,9 @@ function CourseDetailPanel({ entry, course, transition, onClose }) {
             </div>
 
             <textarea
+              id="course-note-input"
+              name="course-note"
+              aria-label="Catatan kuliah"
               value={note}
               onChange={(e) => handleNoteChange(e.target.value)}
               placeholder="Tulis catatan penting perkuliahan, instruksi dosen, tugas, atau kuis..."

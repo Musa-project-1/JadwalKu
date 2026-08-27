@@ -375,6 +375,8 @@ export default function ManageAnnouncements() {
                   Isi / Detail Pengumuman
                 </label>
                 <textarea
+                  id="form-isi-pengumuman"
+                  name="form-isi-pengumuman"
                   value={formIsi}
                   onChange={(e) => setFormIsi(e.target.value)}
                   rows={3}

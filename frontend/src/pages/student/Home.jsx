@@ -348,6 +348,9 @@ export default function Home() {
               <span>Catatan Hari Ini</span>
             </h3>
             <textarea
+              id="daily-note-input"
+              name="daily-note"
+              aria-label="Tulis catatan cepat untuk hari ini"
               value={dailyNote}
               onChange={(e) => handleNoteChange(e.target.value)}
               placeholder="Tulis catatan cepat untuk hari ini..."
