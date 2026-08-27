@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../../lib/firebaseClient'
 import { DatabaseBackupRestoreModal } from '../../components/admin/DatabaseBackupRestoreModal'
+import { FeatureDocsModal } from '../../components/student/FeatureDocsModal'
 
 const QUICK_ACTIONS = [
   {
@@ -115,6 +116,7 @@ export default function AdminDashboard() {
   const [syncingProdi, setSyncingProdi] = useState(false)
   const [showAllHistoryModal, setShowAllHistoryModal] = useState(false)
   const [backupRestoreOpen, setBackupRestoreOpen] = useState(false)
+  const [docsModalOpen, setDocsModalOpen] = useState(false)
 
   const sortedHistory = useMemo(
     () =>
@@ -223,7 +225,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-4 tablet:space-y-4.5 w-full max-w-full overflow-x-hidden">
       {/* ── 1. Page Header (Comfortable & Generous) ── */}
-      <header className="flex items-center justify-between gap-3">
+      <header className="flex flex-col desktop:flex-row desktop:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-2xs">
             <Icon name="dashboard" size={22} />
@@ -238,8 +240,17 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* System Status Badges */}
+        {/* System Status Badges & Admin Docs */}
         <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="secondary"
+            onClick={() => setDocsModalOpen(true)}
+            className="rounded-full px-3 py-1.5 font-bold shadow-2xs cursor-pointer text-label-caps shrink-0"
+            title="Buka Pusat Panduan & Tutorial Administrator"
+          >
+            <Icon name="menu_book" size={15} className="mr-1 text-primary" />
+            <span>Panduan Admin</span>
+          </Button>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-label-caps font-bold text-emerald-700 dark:text-emerald-300 shadow-2xs">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Live Sync</span>
@@ -686,6 +697,13 @@ export default function AdminDashboard() {
         onClose={() => setBackupRestoreOpen(false)}
         actor={actor}
         onSuccess={(msg) => setBanner({ ok: true, message: msg })}
+      />
+
+      {/* Modal: Pusat Panduan & Tutorial Admin */}
+      <FeatureDocsModal
+        isOpen={docsModalOpen}
+        onClose={() => setDocsModalOpen(false)}
+        mode="admin"
       />
     </div>
   )

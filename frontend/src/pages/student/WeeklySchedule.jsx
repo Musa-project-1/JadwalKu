@@ -420,7 +420,7 @@ export default function WeeklySchedule() {
 
   return (
     <div className="space-y-lg w-full max-w-full overflow-x-hidden">
-      <header className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
+      <header className="flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between">
         <div className="flex items-center gap-3.5">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
             <Icon name="calendar_month" size={26} />

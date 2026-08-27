@@ -580,7 +580,7 @@ export default function ManageSchedule() {
   return (
     <div className="h-full flex flex-col space-y-2.5 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
       {/* ── 1. Page Header (Icon, Title, Stat Chips, Action Buttons) — 1 Horizontal Row on Desktop ── */}
-      <header className="flex flex-col gap-2.5 tablet:flex-row tablet:items-center tablet:justify-between shrink-0">
+      <header className="flex flex-col gap-2.5 desktop:flex-row desktop:items-center desktop:justify-between shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-tertiary/10 text-tertiary shadow-xs">
             <Icon name="calendar_month" size={22} />
@@ -863,8 +863,8 @@ export default function ManageSchedule() {
         ) : (
           <>
             {/* Desktop Table with Sticky Header & Dynamic Flex Fit */}
-            <div className="hidden overflow-x-hidden overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
-              <table className="w-full table-fixed text-left border-collapse">
+            <div className="hidden overflow-x-auto overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
+              <table className="w-full min-w-[780px] text-left border-collapse">
                 <thead className="sticky top-0 z-20 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
                   <tr className="border-b border-outline-variant/15">
                     <th className="w-[4%] px-3 py-2.5 text-center">

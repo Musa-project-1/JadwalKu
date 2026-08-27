@@ -363,16 +363,22 @@ const FEATURE_DOCS_DATA = [
   },
 ]
 
-export function FeatureDocsModal({ isOpen, onClose }) {
+export function FeatureDocsModal({ isOpen, onClose, mode = 'student' }) {
   const navigate = useNavigate()
-  const [activePilar, setActivePilar] = useState('all') // 'all' | 'student' | 'admin'
+  const [activePilar, setActivePilar] = useState(mode === 'all' ? 'all' : mode)
   const [searchQuery, setSearchQuery] = useState('')
-  const [expandedId, setExpandedId] = useState(1)
+  const [expandedId, setExpandedId] = useState(mode === 'admin' ? 14 : 1)
+
+  const baseList = useMemo(() => {
+    if (mode === 'student') return FEATURE_DOCS_DATA.filter((i) => i.pilar === 'student')
+    if (mode === 'admin') return FEATURE_DOCS_DATA.filter((i) => i.pilar === 'admin')
+    return FEATURE_DOCS_DATA
+  }, [mode])
 
   const filteredFeatures = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
-    return FEATURE_DOCS_DATA.filter((item) => {
-      if (activePilar !== 'all' && item.pilar !== activePilar) return false
+    return baseList.filter((item) => {
+      if (mode === 'all' && activePilar !== 'all' && item.pilar !== activePilar) return false
       if (!q) return true
       return (
         item.title.toLowerCase().includes(q) ||
@@ -382,7 +388,7 @@ export function FeatureDocsModal({ isOpen, onClose }) {
         item.tips.toLowerCase().includes(q)
       )
     })
-  }, [activePilar, searchQuery])
+  }, [baseList, mode, activePilar, searchQuery])
 
   if (!isOpen) return null
 
@@ -390,6 +396,20 @@ export function FeatureDocsModal({ isOpen, onClose }) {
     onClose()
     navigate(route)
   }
+
+  const modalTitle =
+    mode === 'student'
+      ? 'Pusat Panduan Fitur Mahasiswa'
+      : mode === 'admin'
+      ? 'Pusat Panduan & Tutorial Admin'
+      : 'Pusat Panduan & Tutorial Fitur'
+
+  const modalSubtitle =
+    mode === 'student'
+      ? 'Dokumentasi & panduan lengkap penggunaan seluruh fitur mahasiswa JadwalKu'
+      : mode === 'admin'
+      ? 'Dokumentasi teknis pengelolaan master jadwal, bentrok, pengumuman, dan database'
+      : 'Dokumentasi interaktif & panduan lengkap penggunaan seluruh fitur aplikasi JadwalKu'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4">
@@ -406,17 +426,17 @@ export function FeatureDocsModal({ isOpen, onClose }) {
         <div className="flex items-center justify-between border-b border-outline-variant/20 p-5 tablet:p-6 bg-surface-container-lowest/90 dark:bg-surface-container-low/90 backdrop-blur-md">
           <div className="flex items-center gap-3.5">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary border border-primary/25 shadow-xs shrink-0">
-              <Icon name="menu_book" size={26} />
+              <Icon name={mode === 'admin' ? 'admin_panel_settings' : 'menu_book'} size={26} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-title-lg font-bold text-on-surface">Pusat Panduan & Tutorial Fitur</h3>
+                <h3 className="text-title-lg font-bold text-on-surface">{modalTitle}</h3>
                 <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary border border-primary/20">
-                  19 Fitur
+                  {baseList.length} Fitur
                 </span>
               </div>
               <p className="text-body-xs text-on-surface-variant mt-0.5">
-                Dokumentasi interaktif & panduan lengkap penggunaan seluruh fitur aplikasi JadwalKu
+                {modalSubtitle}
               </p>
             </div>
           </div>
@@ -443,7 +463,11 @@ export function FeatureDocsModal({ isOpen, onClose }) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari tutorial fitur (misal: KRS, Gambar WA, Dosen, Impor, Presensi, Bentrok)..."
+              placeholder={
+                mode === 'admin'
+                  ? 'Cari fitur admin (misal: Impor Excel, Bentrok, Kalender, Pengumuman, Backup)...'
+                  : 'Cari tutorial fitur (misal: KRS, Gambar WA, Dosen, Presensi, Kalender HP)...'
+              }
               className="w-full pl-10 pr-9 py-2 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary dark:bg-surface-container-high/60 transition-colors shadow-2xs"
             />
             {searchQuery && (
@@ -457,42 +481,44 @@ export function FeatureDocsModal({ isOpen, onClose }) {
             )}
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 tablet:pb-0 shrink-0">
-            <button
-              type="button"
-              onClick={() => setActivePilar('all')}
-              className={`px-3 py-1.5 rounded-full text-body-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                activePilar === 'all'
-                  ? 'bg-primary text-on-primary shadow-xs'
-                  : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              Semua ({FEATURE_DOCS_DATA.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActivePilar('student')}
-              className={`px-3 py-1.5 rounded-full text-body-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
-                activePilar === 'student'
-                  ? 'bg-primary text-on-primary shadow-xs'
-                  : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              <span>🎓 Mahasiswa (13)</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActivePilar('admin')}
-              className={`px-3 py-1.5 rounded-full text-body-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
-                activePilar === 'admin'
-                  ? 'bg-primary text-on-primary shadow-xs'
-                  : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              <span>🛡️ Admin & Dosen (6)</span>
-            </button>
-          </div>
+          {/* Filter Pills (only shown if mode === 'all') */}
+          {mode === 'all' && (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 tablet:pb-0 shrink-0">
+              <button
+                type="button"
+                onClick={() => setActivePilar('all')}
+                className={`px-3 py-1.5 rounded-full text-body-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activePilar === 'all'
+                    ? 'bg-primary text-on-primary shadow-xs'
+                    : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                Semua ({FEATURE_DOCS_DATA.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActivePilar('student')}
+                className={`px-3 py-1.5 rounded-full text-body-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                  activePilar === 'student'
+                    ? 'bg-primary text-on-primary shadow-xs'
+                    : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                <span>🎓 Mahasiswa (13)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActivePilar('admin')}
+                className={`px-3 py-1.5 rounded-full text-body-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                  activePilar === 'admin'
+                    ? 'bg-primary text-on-primary shadow-xs'
+                    : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                <span>🛡️ Admin & Dosen (6)</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Feature List Body */}

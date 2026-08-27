@@ -119,7 +119,7 @@ export default function Settings() {
       </header>
 
       {/* ── HERO BANNER: PUSAT PANDUAN & DOKUMENTASI 19 FITUR ── */}
-      <div className="rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 dark:from-primary/15 dark:to-surface-container-high p-5 tablet:p-6 shadow-level-1 flex flex-col tablet:flex-row items-start tablet:items-center justify-between gap-4">
+      <div className="rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 dark:from-primary/15 dark:to-surface-container-high p-5 tablet:p-6 shadow-level-1 flex flex-col desktop:flex-row items-start desktop:items-center justify-between gap-4">
         <div className="flex items-start gap-4 min-w-0">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-xs">
             <Icon name="auto_stories" size={26} />
@@ -128,18 +128,18 @@ export default function Settings() {
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-title-md font-bold text-on-surface">Pusat Panduan & Tutorial Seluruh Fitur</h3>
               <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-extrabold text-primary uppercase tracking-wide border border-primary/30">
-                19 Fitur Lengkap
+                13 Fitur Mahasiswa
               </span>
             </div>
             <p className="text-body-xs text-on-surface-variant mt-1 leading-relaxed max-w-2xl">
-              Bingung dengan fitur yang ada? Buka dokumentasi interaktif langkah demi langkah: simulator KRS, notifikasi alarm chime, ekspor kalender HP (.ics), poster gambar WA, peta lokasi ruangan, kalkulator presensi, hingga backup & restore database.
+              Bingung dengan fitur yang ada? Buka dokumentasi interaktif langkah demi langkah: simulator KRS, notifikasi alarm chime, ekspor kalender HP (.ics), poster gambar WA, peta lokasi ruangan, kalkulator presensi, hingga kustom jadwal.
             </p>
           </div>
         </div>
         <button
           type="button"
           onClick={() => setShowDocsModal(true)}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary hover:brightness-105 active:scale-95 text-body-sm font-bold shadow-xs transition-all cursor-pointer shrink-0 whitespace-nowrap ml-auto tablet:ml-0"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary hover:brightness-105 active:scale-95 text-body-sm font-bold shadow-xs transition-all cursor-pointer shrink-0 whitespace-nowrap w-full desktop:w-auto ml-auto desktop:ml-0"
         >
           <Icon name="explore" size={18} />
           <span>Buka Panduan Tutorial</span>
@@ -341,7 +341,7 @@ export default function Settings() {
       </div>
 
       {/* Modals */}
-      <FeatureDocsModal isOpen={showDocsModal} onClose={() => setShowDocsModal(false)} />
+      <FeatureDocsModal isOpen={showDocsModal} onClose={() => setShowDocsModal(false)} mode="student" />
       {showHistoryModal && <HistoryModal onClose={() => setShowHistoryModal(false)} />}
       {showAboutModal && <AboutModal onClose={() => setShowAboutModal(false)} />}
     </div>

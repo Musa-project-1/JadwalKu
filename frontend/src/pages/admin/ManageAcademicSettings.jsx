@@ -433,7 +433,7 @@ export default function ManageAcademicSettings() {
   return (
     <div className="space-y-8 pb-16 animate-fade-in w-full max-w-full overflow-x-hidden">
       {/* ── 1. Header & Live Quick Stats — 1 Horizontal Row on Desktop ── */}
-      <header className="flex flex-col gap-2.5 tablet:flex-row tablet:items-center tablet:justify-between">
+      <header className="flex flex-col gap-2.5 desktop:flex-row desktop:items-center desktop:justify-between">
         <div className="flex items-center gap-3 min-w-0">
           <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-xs dark:bg-secondary-container/30">
             <Icon name="settings_suggest" size={22} />
@@ -514,7 +514,7 @@ export default function ManageAcademicSettings() {
         {/* ── Panel 1: Master Program Studi ── */}
         <section className="h-full flex flex-col justify-between rounded-2xl tablet:rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-2xs dark:bg-surface-container-low min-h-[460px] tablet:min-h-[500px] space-y-3">
           <div className="flex-1 flex flex-col space-y-3 min-h-0">
-            <div className="flex items-center justify-between gap-2 border-b border-outline-variant/15 pb-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/15 pb-2.5">
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
                   <Icon name="school" size={20} />
@@ -534,7 +534,7 @@ export default function ManageAcademicSettings() {
                   title="Sinkronisasi dari data Jadwal & MK"
                 >
                   <Icon name="sync" size={14} className={syncingProdi ? 'animate-spin' : ''} />
-                  <span className="hidden tablet:inline">{syncingProdi ? 'Menyinkronkan...' : 'Sinkron'}</span>
+                  <span className="hidden sm:inline">{syncingProdi ? 'Menyinkronkan...' : 'Sinkron'}</span>
                 </button>
 
                 <button
@@ -551,7 +551,7 @@ export default function ManageAcademicSettings() {
                   aria-label="Tambah Prodi"
                 >
                   <Icon name="add" size={16} />
-                  <span className="hidden tablet:inline">Tambah Prodi</span>
+                  <span className="hidden sm:inline">Tambah Prodi</span>
                 </button>
               </div>
             </div>
@@ -663,7 +663,7 @@ export default function ManageAcademicSettings() {
         {/* ── Panel 2: Hari Libur, Cuti & Agenda Khusus Prodi ── */}
         <section className="h-full flex flex-col justify-between rounded-2xl tablet:rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-2xs dark:bg-surface-container-low min-h-[460px] tablet:min-h-[500px] space-y-3">
           <div className="flex-1 flex flex-col space-y-3 min-h-0">
-            <div className="flex items-center justify-between gap-2 border-b border-outline-variant/15 pb-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/15 pb-2.5">
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-secondary border border-secondary/20">
                   <Icon name="event_busy" size={20} />
@@ -682,7 +682,7 @@ export default function ManageAcademicSettings() {
                   title="Impor Libur Resmi Nasional Otomatis"
                 >
                   <Icon name="cloud_sync" size={15} />
-                  <span className="hidden tablet:inline">Sinkron Libur</span>
+                  <span className="hidden sm:inline">Sinkron Libur</span>
                 </button>
 
                 <button
@@ -701,7 +701,7 @@ export default function ManageAcademicSettings() {
                   aria-label="Tambah Libur"
                 >
                   <Icon name="add" size={16} />
-                  <span className="hidden tablet:inline">Tambah Libur</span>
+                  <span className="hidden sm:inline">Tambah Libur</span>
                 </button>
               </div>
             </div>
