@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
@@ -49,18 +48,6 @@ export function useAdminAuth() {
     }
   }
 
-  async function registerAdmin(email, password) {
-    if (!firebaseReady || !auth) {
-      return { ok: false, error: 'Layanan autentikasi Firebase belum terhubung.' }
-    }
-    try {
-      await createUserWithEmailAndPassword(auth, email, password)
-      return { ok: true }
-    } catch (err) {
-      return { ok: false, error: translateAuthError(err?.code) }
-    }
-  }
-
   async function signOutAdmin() {
     removeItem(STORAGE_KEYS.adminSession)
     if (firebaseReady && auth) {
@@ -77,7 +64,6 @@ export function useAdminAuth() {
     user,
     initializing,
     signIn,
-    registerAdmin,
     signOutAdmin,
   }
 }

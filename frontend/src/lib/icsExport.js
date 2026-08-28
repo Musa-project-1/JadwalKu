@@ -3,6 +3,15 @@
  * Format mengikuti standar RFC 5545 — kompatibel dengan Google Calendar, Apple iCal, dan Microsoft Outlook.
  */
 
+// URL aplikasi dipakai di deskripsi event .ics. Dihitung dari BASE_URL & origin
+// agar benar di GitHub Pages (base '/JadwalKu/'), bukan URL lama yang hardcoded.
+const APP_URL = (() => {
+  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+  return typeof window !== 'undefined' && window.location.origin
+    ? `${window.location.origin}${base}`
+    : 'https://jadwalku.app'
+})()
+
 /**
  * Unduh file .ics untuk jadwal mingguan berulang (Weekly Recurring Schedule).
  *
@@ -52,7 +61,7 @@ export function downloadIcs(
       course.sks ? `Beban: ${course.sks} SKS` : null,
       entry.tipeKelas ? `Tipe Kelas: ${entry.tipeKelas}` : null,
       tahunAjaran ? `Tahun Ajaran: ${tahunAjaran}` : null,
-      'Aplikasi: JadwalKu (https://schedfin.netlify.app)',
+      `Aplikasi: JadwalKu (${APP_URL})`,
     ]
       .filter(Boolean)
       .join('\\n')
@@ -144,7 +153,7 @@ export function downloadExamIcs(
       exam.dosen ? `Pengawas / Dosen: ${exam.dosen}` : null,
       exam.ruang ? `Ruangan: ${exam.ruang}` : null,
       exam.mode ? `Mode Ujian: ${exam.mode}` : null,
-      'Aplikasi: JadwalKu (https://schedfin.netlify.app)',
+      `Aplikasi: JadwalKu (${APP_URL})`,
     ]
       .filter(Boolean)
       .join('\\n')
@@ -276,4 +285,3 @@ function formatIcsDate(date) {
     `T${pad(date.getHours())}${pad(date.getMinutes())}00`
   )
 }
-

@@ -3,7 +3,16 @@ import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
 
 const DEFAULT_TOTAL_SESSIONS = 16
 const DEFAULT_MIN_PERCENT = 75 // Standar minimal kehadiran UAS 75%
-const MAX_ALLOWED_ABSENCES = 4 // 16 * (1 - 0.75) = 4
+
+/** Hitung jatah maksimum ketidakhadiran dari total sesi & ambang kehadiran. */
+function deriveMaxAbsences(totalSessions, minAttendancePercent) {
+  const sessions = Number(totalSessions) || DEFAULT_TOTAL_SESSIONS
+  const minPercent = Number(minAttendancePercent) || DEFAULT_MIN_PERCENT
+  return Math.max(0, Math.floor((sessions * (100 - minPercent)) / 100))
+}
+
+// 16 sesi × 75% kehadiran → maksimal 4 absen.
+const MAX_ALLOWED_ABSENCES = deriveMaxAbsences(DEFAULT_TOTAL_SESSIONS, DEFAULT_MIN_PERCENT)
 
 /**
  * Hook untuk mengelola data presensi dan sisa jatah ketidakhadiran kuliah.
@@ -46,9 +55,14 @@ export function useAttendance() {
         else if (status === 'alpa') alpa++
       })
 
+      const totalSessions = raw.totalSessions || DEFAULT_TOTAL_SESSIONS
+      const minAttendancePercent = raw.minAttendancePercent || DEFAULT_MIN_PERCENT
       const totalFilled = hadir + izin + sakit + alpa
       const totalAbsences = izin + sakit + alpa
-      const remainingAbsences = MAX_ALLOWED_ABSENCES - totalAbsences
+      // Jatah absen dihitung dari totalSesi & ambang kehadiran per mata
+      // kuliah, bukan konstanta global (16 sesi) yang bisa salah jika durasi beda.
+      const maxAllowedAbsences = deriveMaxAbsences(totalSessions, minAttendancePercent)
+      const remainingAbsences = maxAllowedAbsences - totalAbsences
       const attendancePercent =
         totalFilled > 0 ? Math.round((hadir / totalFilled) * 100) : 100
 
@@ -61,12 +75,12 @@ export function useAttendance() {
 
       return {
         kodeMK,
-        totalSessions: raw.totalSessions || DEFAULT_TOTAL_SESSIONS,
-        minAttendancePercent: raw.minAttendancePercent || DEFAULT_MIN_PERCENT,
+        totalSessions,
+        minAttendancePercent,
         sessions,
         counts: { hadir, izin, sakit, alpa, totalFilled, totalAbsences },
         remainingAbsences,
-        maxAllowedAbsences: MAX_ALLOWED_ABSENCES,
+        maxAllowedAbsences,
         attendancePercent,
         statusTier,
         isEligibleForExam: remainingAbsences >= 0,
@@ -159,4 +173,3 @@ function getEmptyAttendance() {
     isEligibleForExam: true,
   }
 }
-

@@ -2,10 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
 import { useFirestore } from './useFirestore'
 import { useApp } from './useApp'
-import { addDocument, deleteDocument } from '../lib/adminData'
+import { addDocument, deleteDocument, updateDocument } from '../lib/adminData'
 import { firebaseReady } from '../lib/firebaseClient'
 
-const SHARED_DONE_KEY = 'jadwal:completedSharedTasks'
+// Kunci lokal disimpan lewat getItem/setItem yang sudah menambah prefiks
+// 'jadwal-kampus:' — jangan ulangi prefiks di nilai kunci.
+const SHARED_DONE_KEY = 'completedSharedTasks'
 
 /**
  * Dual-Layer Task Manager:
@@ -97,10 +99,17 @@ export function useTasks() {
   )
 
   const updateTask = useCallback(
-    (id, changes) => {
+    async (id, changes) => {
+      // Tugas bersama prodi tersimpan di Firestore — jangan edit salinan lokal
+      // yang tidak pernah sinkron (bug: perubahan tampak hilang setelah reload).
+      const isCloudShared = (cloudProdiTasks || []).some((t) => t.id === id)
+      if (isCloudShared && firebaseReady) {
+        return updateDocument('tugasProdi', id, changes)
+      }
       persistLocal(localTasksRef.current.map((t) => (t.id === id ? { ...t, ...changes } : t)))
+      return { ok: true }
     },
-    [persistLocal],
+    [cloudProdiTasks, persistLocal],
   )
 
   const toggleDone = useCallback(

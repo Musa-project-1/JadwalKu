@@ -99,6 +99,11 @@ export function NotificationsProvider({ children }) {
           playNotificationChime()
         }
         urgentReminders.forEach((r) => dispatchedNativeRef.current.add(r.id))
+        // Cegah set tumbuh tanpa batas selama sesi panjang: bersihkan jika
+        // terlalu banyak id terkumpul (dedup hanya butuh jendela pendek).
+        if (dispatchedNativeRef.current.size > 500) {
+          dispatchedNativeRef.current.clear()
+        }
       }
     }
 

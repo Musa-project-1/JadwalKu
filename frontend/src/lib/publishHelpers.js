@@ -32,25 +32,30 @@ export { deriveTahunAjaran }
  * @param {string} actor
  */
 async function archiveReplacedPublished(collectionName, draftDocs, keepIds, actor) {
-  const groups = new Map()
-  draftDocs.forEach((d) => {
-    const data = d.data()
-    const key = `${data.prodi ?? ''}|${Number(data.semester)}`
-    if (!groups.has(key)) groups.set(key, [])
-  })
+  // Hanya butuh himpunan pasangan prodi|semester unik — pakai Set, bukan
+  // Map berisi array kosong yang tidak pernah dipakai. Kueri per kelompok
+  // dijalankan paralel agar tidak serial (N+1).
+  const groupKeys = new Set(
+    draftDocs.map((d) => `${d.data().prodi ?? ''}|${Number(d.data().semester)}`),
+  )
+
+  const results = await Promise.all(
+    Array.from(groupKeys).map(async (key) => {
+      const [prodi, semester] = key.split('|')
+      const snap = await getDocs(
+        query(
+          collection(db, collectionName),
+          where('prodi', '==', prodi),
+          where('semester', '==', Number(semester)),
+          where('status', '==', 'published'),
+        ),
+      )
+      return snap.docs.filter((d) => !keepIds.has(d.id))
+    }),
+  )
 
   let archivedCount = 0
-  for (const key of groups.keys()) {
-    const [prodi, semester] = key.split('|')
-    const snap = await getDocs(
-      query(
-        collection(db, collectionName),
-        where('prodi', '==', prodi),
-        where('semester', '==', Number(semester)),
-        where('status', '==', 'published'),
-      ),
-    )
-    const stale = snap.docs.filter((d) => !keepIds.has(d.id))
+  for (const stale of results) {
     for (let i = 0; i < stale.length; i += 450) {
       const chunk = stale.slice(i, i + 450)
       const batch = writeBatch(db)

@@ -204,7 +204,9 @@ export async function parseUniversalFile(file, onProgress = () => {}) {
           Jam: timeMatch ? `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]} - ${timeMatch[3].padStart(2, '0')}:${timeMatch[4]}` : '',
           'Mata Kuliah': text.replace(/(\d{1,2})[:.](\d{2})\s*(?:-|–|—|s\/d|sd)\s*(\d{1,2})[:.](\d{2})/i, '').trim(),
           Dosen: '',
-          Ruang: 'K1',
+          // Ruangan tidak terdeteksi dari OCR — biarkan kosong agar kolom
+          // ruang diisi lewat pemetaan/default, bukan kode tipe kelas ('K1').
+          Ruang: '',
           'Tipe Kelas': 'K1',
           _confidence: Math.round(line.confidence || 70),
         })

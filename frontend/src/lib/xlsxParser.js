@@ -51,7 +51,14 @@ const EXAM_ALIASES = {
 
 /**
  * @param {ArrayBuffer|Uint8Array} data isi file
- * @returns {{ scheduleEntries: Array<object>, courses: Array<object>, exams: Array<object>, warnings: string[] }}
+ * @returns {{
+ *   scheduleEntries: Array<object>,
+ *   courses: Array<object>,
+ *   exams: Array<object>,
+ *   programs: Array<{ nama: string, semesterMin: number, semesterMax: number }>,
+ *   tahunAjaran: string | null,
+ *   warnings: string[]
+ * }}
  */
 export function parseWorkbook(data) {
   const wb = XLSX.read(data, { type: 'array', cellDates: false })

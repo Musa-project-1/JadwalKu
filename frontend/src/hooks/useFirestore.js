@@ -29,9 +29,11 @@ export function useFirestore(collectionName, constraints = []) {
       return undefined
     }
 
-    // Jangan query jika ada filter bernilai kosong/undefined/0
+    // Jangan query jika ada filter bernilai kosong/undefined/null.
+    // Nilai 0 TIDAK dianggap kosong karena bisa jadi nilai valid (mis. semester 0,
+    // enum status 0) — filter nilai 0 yang sah harus tetap diterapkan.
     const validConstraints = constraints.filter(
-      ([field, , value]) => field && value !== '' && value !== undefined && value !== null && value !== 0,
+      ([field, , value]) => field && value !== '' && value !== undefined && value !== null,
     )
     if (constraints.length > 0 && validConstraints.length !== constraints.length) {
       setLoading(false)
@@ -77,4 +79,3 @@ export function useFirestore(collectionName, constraints = []) {
 
   return { data, loading, error, ready: firebaseReady }
 }
-

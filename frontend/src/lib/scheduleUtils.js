@@ -16,7 +16,9 @@ export function formatLongDate(date = new Date()) {
 }
 
 function toMinutes(hhmm) {
-  const [h, m] = String(hhmm).split(':').map(Number)
+  const parts = String(hhmm ?? '').split(':').map(Number)
+  const [h, m] = parts
+  if (parts.length < 2 || Number.isNaN(h) || Number.isNaN(m)) return NaN
   return h * 60 + m
 }
 
@@ -24,7 +26,15 @@ function toMinutes(hhmm) {
  * Urutkan entri jadwal berdasarkan jam mulai.
  */
 export function sortByTime(entries) {
-  return [...entries].sort((a, b) => toMinutes(a.jamMulai) - toMinutes(b.jamMulai))
+  return [...entries].sort((a, b) => {
+    const ma = toMinutes(a.jamMulai)
+    const mb = toMinutes(b.jamMulai)
+    // Entri dengan jam tidak valid disortir ke akhir agar tidak mengganggu.
+    if (Number.isNaN(ma) && Number.isNaN(mb)) return 0
+    if (Number.isNaN(ma)) return 1
+    if (Number.isNaN(mb)) return -1
+    return ma - mb
+  })
 }
 
 /**
@@ -101,18 +111,20 @@ export function getClassLiveState(todayEntries, now = new Date()) {
  * Negatif jika sudah lewat.
  */
 export function minutesUntil(hhmm, now = new Date()) {
-  const [h, m] = String(hhmm).split(':').map(Number)
-  const target = h * 60 + m
+  const target = toMinutes(hhmm)
+  if (Number.isNaN(target)) return Number.POSITIVE_INFINITY
   const nowMinutes = now.getHours() * 60 + now.getMinutes()
   return target - nowMinutes
 }
 
 /** Format countdown ramah: "30 menit lagi", "1 jam 15 menit lagi". */
 export function formatCountdown(minutes) {
-  if (minutes <= 0) return 'Sedang berlangsung'
-  if (minutes < 60) return `${minutes} menit lagi`
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
+  const safe = Number(minutes)
+  if (!Number.isFinite(safe)) return 'Belum dijadwalkan'
+  if (safe <= 0) return 'Sedang berlangsung'
+  if (safe < 60) return `${safe} menit lagi`
+  const hours = Math.floor(safe / 60)
+  const mins = safe % 60
   return mins > 0 ? `${hours} jam ${mins} menit lagi` : `${hours} jam lagi`
 }
 

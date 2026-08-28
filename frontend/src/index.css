@@ -206,19 +206,23 @@
 }
 
 /*
- * View Transitions API — 100% Synchronized Whole-Page Theme Dissolve.
+ * View Transitions API — Whole-Page Theme Dissolve.
+ * Hanya aktif saat tombol `document.startViewTransition` dipanggil dengan
+ * penanda `html.theme-transition` (dipasang oleh AppContext saat ganti tema).
+ * Tanpa penanda ini, transisi rute memakai slide "Panel Switch" di bawah —
+ * dua aturan `::view-transition-old(root)` tidak boleh saling menimpa.
  */
-::view-transition-group(root) {
+html.theme-transition::view-transition-group(root) {
   animation-duration: 250ms;
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-::view-transition-old(root) {
+html.theme-transition::view-transition-old(root) {
   animation: theme-fade-out 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
   mix-blend-mode: normal;
 }
 
-::view-transition-new(root) {
+html.theme-transition::view-transition-new(root) {
   animation: theme-fade-in 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
   mix-blend-mode: normal;
 }

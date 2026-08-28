@@ -20,9 +20,18 @@ function updatePreferencesWithTransition(prefs) {
     return
   }
 
-  document.startViewTransition(() => {
+  // Tandai `html.theme-transition` agar CSS menerapkan "Whole-Page Theme
+  // Dissolve" (lihat index.css), bukan slide rute default. Penanda dilepas
+  // segera setelah transisi selesai supaya tidak mengganggu navigasi.
+  const root = document.documentElement
+  root.classList.add('theme-transition')
+  const transition = document.startViewTransition(() => {
     applyDocumentPreferences(prefs)
   })
+  // Hapus penanda setelah seluruh animasi selesai (bukan saat `ready`),
+  // supaya selektor `html.theme-transition` tetap aktif selama transisi.
+  const clearMarker = () => root.classList.remove('theme-transition')
+  transition.finished.then(clearMarker).catch(clearMarker)
 }
 
 export function AppProvider({ children }) {
