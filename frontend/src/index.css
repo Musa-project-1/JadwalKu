@@ -200,9 +200,11 @@
 :root {
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-emphasized: cubic-bezier(0.3, 0, 0.2, 1.2);
+  --ease-vanguard: cubic-bezier(0.32, 0.72, 0, 1);
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-emphasized: 350ms;
+  --duration-vanguard: 500ms;
 }
 
 /*
@@ -508,3 +510,15 @@ body::-webkit-scrollbar-track,
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* Vanguard Easing Utilities for High-End Motion */
+.transition-vanguard {
+  transition-property: all;
+  transition-timing-function: var(--ease-vanguard);
+  transition-duration: var(--duration-vanguard);
+}
+
+.ease-vanguard {
+  transition-timing-function: var(--ease-vanguard);
+}
+

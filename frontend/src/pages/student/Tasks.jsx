@@ -390,22 +390,6 @@ export default function Tasks() {
         />
       )}
 
-      {/* Floating Action Button (FAB) on Mobile — Hanya muncul jika sudah ada tugas & berbentuk bulat sempurna */}
-      {tasks.length > 0 && (
-        <button
-          type="button"
-          onClick={() => {
-            setInitialKodeMK('')
-            setShowForm(true)
-          }}
-          className="tablet:hidden fixed right-4 bottom-20 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border border-white/20"
-          title="Tambah Tugas Baru"
-          aria-label="Tambah tugas baru"
-        >
-          <Icon name="add" size={28} />
-        </button>
-      )}
-
       {/* Confirm Delete Dialog */}
       {deleteTarget && (
         <ConfirmDialog

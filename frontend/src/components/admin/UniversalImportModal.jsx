@@ -5,6 +5,7 @@ import { FormSelect } from '../FormSelect'
 import { classTypeLabel, CLASS_TYPE_CODES } from '../../lib/classTypes'
 import { parseUniversalFile, applyColumnMapping } from '../../lib/universalParser'
 import { validateScheduleEntry, findConflicts } from '../../lib/uploadValidator'
+import { useCampus } from '../../context/CampusContext'
 
 const PRESET_STORAGE_KEY = 'jadwalku_import_mapping_preset'
 
@@ -30,6 +31,11 @@ export function UniversalImportModal({
   currentTA = '2025/2026',
   existingTAs = ['2025/2026', '2024/2025'],
 }) {
+  // Konfigurasi kampus aktif (prodi, tipe kelas, preset impor per-kampus).
+  const { prodiNames, campus, classTypeCodes, roomMap } = useCampus()
+  const effectiveProdiOptions = prodiNames.length > 0 ? prodiNames : prodiOptions
+  const effectiveClassTypeCodes = classTypeCodes.length > 0 ? classTypeCodes : CLASS_TYPE_CODES
+
   const fileInputRef = useRef(null)
   const [step, setStep] = useState('upload') // 'upload' | 'mapping' | 'preview'
   const [dragOver, setDragOver] = useState(false)
@@ -48,7 +54,7 @@ export function UniversalImportModal({
   const [rawRows, setRawRows] = useState([])
   const [columnMapping, setColumnMapping] = useState({})
   const [savePreset, setSavePreset] = useState(true)
-  const [prodiDefault, setProdiDefault] = useState(prodiOptions[0] || 'Informatika')
+  const [prodiDefault, setProdiDefault] = useState(effectiveProdiOptions[0] || 'Informatika')
   const [semesterDefault, setSemesterDefault] = useState(2)
 
   // State Step 3 (Preview & Inline Edit)
@@ -142,14 +148,12 @@ export function UniversalImportModal({
   async function handleFileSelect(selectedFile) {
     if (!selectedFile) return
     setErrorMsg('')
-    setFile(selectedFile)
     setFileName(selectedFile.name)
     setLoading(true)
     setProgressState({ stage: 'Memproses berkas...', progress: 10 })
 
     try {
-      const result = await parseUniversalFile(selectedFile, (p) => setProgressState(p))
-      setFileType(result.fileType)
+      const result = await parseUniversalFile(selectedFile, (p) => setProgressState(p), campus)
 
       // KASUS 1: Format resmi kampus (Zero-Click guarantee -> langsung ke Step 3 Preview)
       if (result.isCampusFormat && result.parsed) {
@@ -172,11 +176,12 @@ export function UniversalImportModal({
       setRawHeaders(result.rawHeaders || [])
       setRawRows(result.rawRows || [])
 
-      // Coba load preset pemetaan sebelumnya
-      let savedPreset = {}
+      // Coba load preset pemetaan sebelumnya — prioritaskan preset per-kampus
+      // (dari config Firestore), fallback ke localStorage.
+      let savedPreset = campus?.importPreset || {}
       try {
         const str = localStorage.getItem(PRESET_STORAGE_KEY)
-        if (str) savedPreset = JSON.parse(str)
+        if (str && Object.keys(savedPreset).length === 0) savedPreset = JSON.parse(str)
       } catch {
         // Abaikan jika preset belum tersimpan
       }
@@ -539,7 +544,7 @@ export function UniversalImportModal({
                   <FormSelect
                     value={prodiDefault}
                     onChange={setProdiDefault}
-                    options={prodiOptions.map((p) => ({ value: p, label: p }))}
+                    options={effectiveProdiOptions.map((p) => ({ value: p, label: p }))}
                   />
                 </div>
                 <div>
@@ -819,7 +824,7 @@ export function UniversalImportModal({
                               onChange={(e) => handleUpdateEntry(index, 'tipeKelas', e.target.value)}
                               className="w-full rounded-lg border border-primary bg-surface p-1 text-body-xs font-semibold"
                             >
-                              {CLASS_TYPE_CODES.map((t) => (
+                              {effectiveClassTypeCodes.map((t) => (
                                 <option key={t} value={t}>
                                   {t} — {classTypeLabel(t)}
                                 </option>

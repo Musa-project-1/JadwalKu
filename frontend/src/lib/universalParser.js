@@ -71,9 +71,21 @@ export function normalizeTimeRange(timeRaw) {
   return { jamMulai: str, jamSelesai: '' }
 }
 
-export function normalizeClassType(typeRaw) {
+export function normalizeClassType(typeRaw, campusConfig = {}) {
   if (!typeRaw) return 'K1'
   const str = String(typeRaw).trim().toUpperCase()
+
+  // Baca daftar tipe kelas valid dari config kampus (jika ada).
+  const campusTypes = (campusConfig?.classTypes || [])
+    .map((t) => (typeof t === 'string' ? t : t?.code))
+    .filter(Boolean)
+  if (campusTypes.length > 0) {
+    // Longest-first agar 'HBH'/'HBD' tidak tertangkap 'HB'.
+    const sorted = [...campusTypes].sort((a, b) => b.length - a.length)
+    const match = sorted.find((c) => c === str || c.includes(str) || str.includes(c))
+    if (match) return match
+  }
+
   if (['K1', 'REGULER', 'OFFLINE', 'TATAP MUKA', 'LURING'].includes(str)) return 'K1'
   if (['K2', 'ONLINE', 'DARING', 'ZOOM', 'MEET'].includes(str)) return 'K2'
   if (['GBK1', 'GABUNGAN OFFLINE', 'GABUNGAN REGULER'].includes(str)) return 'GBK1'
@@ -83,15 +95,15 @@ export function normalizeClassType(typeRaw) {
   return str
 }
 
-export async function parseUniversalFile(file, onProgress = () => {}) {
+export async function parseUniversalFile(file, onProgress = () => {}, campusConfig = {}) {
   const ext = file.name.split('.').pop().toLowerCase()
   const arrayBuffer = await file.arrayBuffer()
 
   if (['xlsx', 'xls', 'csv'].includes(ext)) {
     onProgress({ stage: 'Membaca spreadsheet...', progress: 30 })
     const wb = XLSX.read(arrayBuffer, { type: 'array', cellDates: false })
-    const campusParsed = parseWorkbook(arrayBuffer)
-    const hasCampusLayout = campusParsed.scheduleEntries.length > 0 && !campusParsed.warnings.includes('Sheet jadwal tidak ditemukan')
+    const campusParsed = parseWorkbook(arrayBuffer, campusConfig)
+    const hasCampusFormat = campusParsed.detectedFormat === 'campus-matrix'
 
     const firstSheetName = wb.SheetNames[0]
     const sheet = wb.Sheets[firstSheetName]
@@ -100,12 +112,13 @@ export async function parseUniversalFile(file, onProgress = () => {}) {
 
     onProgress({ stage: 'Selesai membaca', progress: 100 })
     return {
-      isCampusFormat: hasCampusLayout,
-      parsed: hasCampusLayout ? campusParsed : null,
+      isCampusFormat: hasCampusFormat,
+      parsed: hasCampusFormat ? campusParsed : null,
       rawHeaders,
       rawRows,
       fileType: ext,
       warnings: campusParsed.warnings || [],
+      detectedFormat: campusParsed.detectedFormat || 'unknown',
     }
   }
 
@@ -136,6 +149,7 @@ export async function parseUniversalFile(file, onProgress = () => {}) {
       rawRows,
       fileType: 'docx',
       warnings: result.messages.map((m) => m.message),
+      detectedFormat: 'docx-table',
     }
   }
 
@@ -175,14 +189,12 @@ export async function parseUniversalFile(file, onProgress = () => {}) {
       return row
     })
     onProgress({ stage: 'Selesai membaca PDF', progress: 100 })
-    return { isCampusFormat: false, parsed: null, rawHeaders, rawRows, fileType: 'pdf', warnings: [] }
+    return { isCampusFormat: false, parsed: null, rawHeaders, rawRows, fileType: 'pdf', warnings: [], detectedFormat: 'pdf' }
   }
 
   if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
     onProgress({ stage: 'Memuat Engine OCR Browser...', progress: 20 })
     const { createWorker } = await getTesseract()
-    // Worker script OCR di-bundle lokal. Data bahasa (lang) & core masih default
-    // dari CDN; untuk offline penuh perlu paket @tesseract.js-data/ind|eng.
     const worker = await createWorker('ind+eng', 1, {
       workerPath: tesseractWorkerUrl,
     })
@@ -204,8 +216,6 @@ export async function parseUniversalFile(file, onProgress = () => {}) {
           Jam: timeMatch ? `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]} - ${timeMatch[3].padStart(2, '0')}:${timeMatch[4]}` : '',
           'Mata Kuliah': text.replace(/(\d{1,2})[:.](\d{2})\s*(?:-|–|—|s\/d|sd)\s*(\d{1,2})[:.](\d{2})/i, '').trim(),
           Dosen: '',
-          // Ruangan tidak terdeteksi dari OCR — biarkan kosong agar kolom
-          // ruang diisi lewat pemetaan/default, bukan kode tipe kelas ('K1').
           Ruang: '',
           'Tipe Kelas': 'K1',
           _confidence: Math.round(line.confidence || 70),
@@ -220,6 +230,7 @@ export async function parseUniversalFile(file, onProgress = () => {}) {
       rawRows: rawRows.length > 0 ? rawRows : [{ 'Teks Terbaca': ret.data.text, _confidence: Math.round(ret.data.confidence || 60) }],
       fileType: ext,
       warnings: ['File diproses menggunakan OCR gambar di browser. Pastikan memeriksa kembali data pada tabel pratinjau.'],
+      detectedFormat: 'ocr',
     }
   }
 

@@ -45,6 +45,7 @@ export const STORAGE_KEYS = {
   notifications: 'notifications',
   tahunAjaran: 'tahunAjaran',
   scheduleMode: 'scheduleMode',
+  kampusId: 'kampusId',
   customScheduleIds: 'customScheduleIds',
   attendance: 'attendance',
   courseLinks: 'courseLinks',

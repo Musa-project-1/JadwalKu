@@ -91,11 +91,11 @@ export default function Settings() {
           <button
             type="button"
             onClick={() => setShowDocsModal(true)}
-            title="Buka Pusat Panduan & Tutorial 19 Fitur Lengkap"
+            title="Buka Pusat Panduan & Tutorial 13 Fitur Mahasiswa"
             className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2.5 text-body-sm font-bold shadow-xs transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
           >
             <Icon name="menu_book" size={19} className="text-primary" />
-            <span>Tutorial 19 Fitur</span>
+            <span>Tutorial 13 Fitur</span>
           </button>
           <button
             type="button"
@@ -149,195 +149,203 @@ export default function Settings() {
       {/* Main 2x2 Symmetrical Grid Layout — Generous & Perfectly Aligned */}
       <div className="grid grid-cols-1 desktop:grid-cols-2 gap-6 items-stretch">
         {/* ROW 1 - LEFT: Setelan Saat Ini */}
-        <section className="flex flex-col justify-between rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 tablet:p-7 shadow-level-1 dark:bg-surface-container-low">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase font-bold text-on-surface-variant tracking-wider">
-                SETELAN SAAT INI
-              </p>
-              <h3 className="mt-1 text-title-lg font-bold text-on-surface leading-snug">
-                {program ?? 'Belum dipilih'} · Semester {semester ?? '-'}
-              </h3>
-              {taLabel && (
-                <span className="inline-block mt-1.5 text-body-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-                  Tahun Ajaran {taLabel}
-                </span>
-              )}
+        <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col">
+          <section className="flex flex-col justify-between rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 tablet:p-7 shadow-xs dark:bg-surface-container-low flex-1">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase font-bold text-on-surface-variant tracking-wider">
+                  SETELAN SAAT INI
+                </p>
+                <h3 className="mt-1 text-title-lg font-bold text-on-surface leading-snug">
+                  {program ?? 'Belum dipilih'} · Semester {semester ?? '-'}
+                </h3>
+                {taLabel && (
+                  <span className="inline-block mt-1.5 text-body-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                    Tahun Ajaran {taLabel}
+                  </span>
+                )}
+              </div>
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/onboarding/prodi')}
+                className="shrink-0 px-4 py-2 text-body-sm font-bold shadow-xs cursor-pointer rounded-2xl"
+              >
+                Ganti
+              </Button>
             </div>
-            <Button
-              variant="secondary"
-              onClick={() => navigate('/onboarding/prodi')}
-              className="shrink-0 px-4 py-2 text-body-sm font-bold shadow-xs cursor-pointer rounded-2xl"
-            >
-              Ganti
-            </Button>
-          </div>
 
-          {/* Subteks Status Terakhir Diperbarui Admin & Badge Offline PWA */}
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-2.5 border-t border-outline-variant/15 pt-4 text-body-xs text-on-surface-variant font-medium">
-            <div className="flex items-center gap-2">
-              <Icon name="history_toggle_off" size={16} className="text-secondary shrink-0" />
-              <span>
-                Update: <strong className="text-on-surface font-semibold">{formatLastUpdated(appSettings)}</strong>
-              </span>
+            {/* Subteks Status Terakhir Diperbarui Admin & Badge Offline PWA */}
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2.5 border-t border-outline-variant/15 pt-4 text-body-xs text-on-surface-variant font-medium">
+              <div className="flex items-center gap-2">
+                <Icon name="history_toggle_off" size={16} className="text-secondary shrink-0" />
+                <span>
+                  Update: <strong className="text-on-surface font-semibold">{formatLastUpdated(appSettings)}</strong>
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 text-body-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 dark:bg-emerald-500/15 px-3 py-0.5 rounded-full border border-emerald-500/20">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Offline PWA Aktif</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-body-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 dark:bg-emerald-500/15 px-3 py-0.5 rounded-full border border-emerald-500/20">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Offline PWA Aktif</span>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
         {/* ROW 1 - RIGHT: Tampilan */}
-        <section className="flex flex-col justify-between rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 tablet:p-7 shadow-level-1 dark:bg-surface-container-low">
-          <h3 className="mb-3 flex items-center gap-2.5 text-title-sm font-bold text-on-surface">
-            <Icon name="dark_mode" size={20} className="text-primary" />
-            Tampilan
-          </h3>
-          <div className="space-y-4 pt-0.5">
-            {/* Mode Gelap */}
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-body-sm font-bold text-on-surface">Mode Gelap</span>
-                <p className="text-body-xs text-on-surface-variant">Pilih tema visual aplikasi</p>
+        <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col">
+          <section className="flex flex-col justify-between rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 tablet:p-7 shadow-xs dark:bg-surface-container-low flex-1">
+            <h3 className="mb-3 flex items-center gap-2.5 text-title-sm font-bold text-on-surface">
+              <Icon name="dark_mode" size={20} className="text-primary" />
+              Tampilan
+            </h3>
+            <div className="space-y-4 pt-0.5">
+              {/* Mode Gelap */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-body-sm font-bold text-on-surface">Mode Gelap</span>
+                  <p className="text-body-xs text-on-surface-variant">Pilih tema visual aplikasi</p>
+                </div>
+                <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-xs">
+                  {[
+                    { value: 'light', icon: 'light_mode', label: 'Terang' },
+                    { value: 'dark', icon: 'dark_mode', label: 'Gelap' },
+                    { value: 'system', icon: 'settings_brightness', label: 'Sistem' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setTheme(opt.value)}
+                      title={`Tema ${opt.label}`}
+                      aria-label={`Tema ${opt.label}`}
+                      className={`flex h-8 w-11 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:scale-95 ${
+                        theme === opt.value
+                          ? 'bg-surface text-primary shadow-xs'
+                          : 'text-on-surface-variant hover:text-on-surface'
+                      }`}
+                    >
+                      <Icon name={opt.icon} size={18} />
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-xs">
-                {[
-                  { value: 'light', icon: 'light_mode', label: 'Terang' },
-                  { value: 'dark', icon: 'dark_mode', label: 'Gelap' },
-                  { value: 'system', icon: 'settings_brightness', label: 'Sistem' },
-                ].map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setTheme(opt.value)}
-                    title={`Tema ${opt.label}`}
-                    aria-label={`Tema ${opt.label}`}
-                    className={`flex h-8 w-11 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:scale-95 ${
-                      theme === opt.value
-                        ? 'bg-surface text-primary shadow-xs'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    <Icon name={opt.icon} size={18} />
-                  </button>
-                ))}
-              </div>
-            </div>
 
-            {/* Ukuran Font */}
-            <div className="border-t border-outline-variant/15 pt-3">
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-body-sm font-bold text-on-surface">Ukuran Font</span>
-                <span className="text-body-xs font-semibold text-primary capitalize">{fontSize}</span>
+              {/* Ukuran Font */}
+              <div className="border-t border-outline-variant/15 pt-3">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="text-body-sm font-bold text-on-surface">Ukuran Font</span>
+                  <span className="text-body-xs font-semibold text-primary capitalize">{fontSize}</span>
+                </div>
+                <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-xs">
+                  {FONT_SIZES.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setFontSize(opt.value)}
+                      className={`flex-1 rounded-full py-1.5 text-body-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 ${
+                        fontSize === opt.value
+                          ? 'bg-surface text-primary shadow-xs'
+                          : 'text-on-surface-variant hover:text-on-surface'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-xs">
-                {FONT_SIZES.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setFontSize(opt.value)}
-                    className={`flex-1 rounded-full py-1.5 text-body-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 ${
-                      fontSize === opt.value
-                        ? 'bg-surface text-primary shadow-xs'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
 
-            {/* Kontras Tinggi */}
-            <div className="flex items-center justify-between border-t border-outline-variant/15 pt-3">
-              <div>
-                <p className="text-body-sm font-bold text-on-surface">Kontras Tinggi</p>
-                <p className="text-body-xs text-on-surface-variant">
-                  Perkuat kontras teks dan garis pembatas
-                </p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={highContrast}
-                onClick={() => setHighContrast(!highContrast)}
-                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
-                  highContrast ? 'bg-primary' : 'bg-surface-variant'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-xs ${
-                    highContrast ? 'left-[22px]' : 'left-0.5'
+              {/* Kontras Tinggi */}
+              <div className="flex items-center justify-between border-t border-outline-variant/15 pt-3">
+                <div>
+                  <p className="text-body-sm font-bold text-on-surface">Kontras Tinggi</p>
+                  <p className="text-body-xs text-on-surface-variant">
+                    Perkuat kontras teks dan garis pembatas
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={highContrast}
+                  onClick={() => setHighContrast(!highContrast)}
+                  className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                    highContrast ? 'bg-primary' : 'bg-surface-variant'
                   }`}
-                />
-              </button>
+                >
+                  <span
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-xs ${
+                      highContrast ? 'left-[22px]' : 'left-0.5'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
         {/* ROW 2 - LEFT: Keterangan Warna Kelas & Sinkronisasi */}
-        <section className="flex flex-col justify-between rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 tablet:p-7 shadow-level-1 dark:bg-surface-container-low">
-          <div>
-            <h3 className="mb-2.5 flex items-center gap-2.5 text-title-sm font-bold text-on-surface">
-              <Icon name="palette" size={20} className="text-primary" />
-              Keterangan Warna Kelas
-            </h3>
-            <p className="text-body-xs text-on-surface-variant font-medium mb-3">
-              Identifikasi jenis format perkuliahan pada jadwal mingguan:
-            </p>
-            <ul className="grid grid-cols-2 gap-3">
-              {LEGEND.map((item) => (
-                <li
-                  key={item.code}
-                  className="flex items-center gap-3 rounded-2xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-3 border border-outline-variant/20 shadow-xs"
-                >
-                  <span className={`h-3 w-3 rounded-full shrink-0 ${item.dot}`} />
-                  <div className="min-w-0">
-                    <span className="block font-bold text-body-sm text-on-surface">{item.code}</span>
-                    <span className="text-body-xs text-on-surface-variant font-medium truncate block">{item.label}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col">
+          <section className="flex flex-col justify-between rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 tablet:p-7 shadow-xs dark:bg-surface-container-low flex-1">
+            <div>
+              <h3 className="mb-2.5 flex items-center gap-2.5 text-title-sm font-bold text-on-surface">
+                <Icon name="palette" size={20} className="text-primary" />
+                Keterangan Warna Kelas
+              </h3>
+              <p className="text-body-xs text-on-surface-variant font-medium mb-3">
+                Identifikasi jenis format perkuliahan pada jadwal mingguan:
+              </p>
+              <ul className="grid grid-cols-2 gap-3">
+                {LEGEND.map((item) => (
+                  <li
+                    key={item.code}
+                    className="flex items-center gap-3 rounded-2xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-3 border border-outline-variant/20 shadow-xs"
+                  >
+                    <span className={`h-3 w-3 rounded-full shrink-0 ${item.dot}`} />
+                    <div className="min-w-0">
+                      <span className="block font-bold text-body-sm text-on-surface">{item.code}</span>
+                      <span className="text-body-xs text-on-surface-variant font-medium truncate block">{item.label}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Quick Sync & Cache Actions */}
-          <div className="border-t border-outline-variant/15 pt-4 mt-4">
-            <div className="flex items-center justify-between text-body-xs text-on-surface-variant mb-2.5">
-              <span>Cloud Firestore:</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                {syncMessage || 'Tersinkronisasi'}
-              </span>
+            {/* Quick Sync & Cache Actions */}
+            <div className="border-t border-outline-variant/15 pt-4 mt-4">
+              <div className="flex items-center justify-between text-body-xs text-on-surface-variant mb-2.5">
+                <span>Cloud Firestore:</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  {syncMessage || 'Tersinkronisasi'}
+                </span>
+              </div>
+              <div className="flex gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleManualSync}
+                  disabled={isSyncing}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary py-2 text-body-sm font-bold transition-all active:scale-95 cursor-pointer border border-primary/20 disabled:opacity-50"
+                >
+                  <Icon name={isSyncing ? "sync" : "refresh"} size={16} className={isSyncing ? "animate-spin" : ""} />
+                  <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan Data"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearCache}
+                  className="flex items-center justify-center gap-1.5 rounded-xl bg-surface-container-high/60 hover:bg-error/10 hover:text-error hover:border-error/20 text-on-surface-variant px-3.5 py-2 text-body-sm font-semibold transition-all active:scale-95 cursor-pointer border border-outline-variant/20"
+                  title="Reset cache lokal aplikasi"
+                >
+                  <Icon name="delete_outline" size={16} />
+                  <span>Reset Cache</span>
+                </button>
+              </div>
             </div>
-            <div className="flex gap-2.5">
-              <button
-                type="button"
-                onClick={handleManualSync}
-                disabled={isSyncing}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary py-2 text-body-sm font-bold transition-all active:scale-95 cursor-pointer border border-primary/20 disabled:opacity-50"
-              >
-                <Icon name={isSyncing ? "sync" : "refresh"} size={16} className={isSyncing ? "animate-spin" : ""} />
-                <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan Data"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleClearCache}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-surface-container-high/60 hover:bg-error/10 hover:text-error hover:border-error/20 text-on-surface-variant px-3.5 py-2 text-body-sm font-semibold transition-all active:scale-95 cursor-pointer border border-outline-variant/20"
-                title="Reset cache lokal aplikasi"
-              >
-                <Icon name="delete_outline" size={16} />
-                <span>Reset Cache</span>
-              </button>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
         {/* ROW 2 - RIGHT: Pengingat & Notifikasi Web Push */}
-        <section className="flex flex-col justify-between rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 tablet:p-7 shadow-level-1 dark:bg-surface-container-low">
-          <NotificationSettingsSection navigate={navigate} />
-        </section>
+        <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col">
+          <section className="flex flex-col justify-between rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 tablet:p-7 shadow-xs dark:bg-surface-container-low flex-1">
+            <NotificationSettingsSection navigate={navigate} />
+          </section>
+        </div>
       </div>
 
       {/* Modals */}

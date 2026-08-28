@@ -79,9 +79,10 @@ export async function sendBrowserNotification(title, options = {}) {
   }
 
   // Base URL tidak boleh diakhiri '/'; VITE base '/JadwalKu/' harus dipakai
-  // agar path ikon benar di GitHub Pages (bukan '/icons/...' yang 404).
+  // agar path ikon benar di GitHub Pages. Gunakan pwa-192.png yang benar-benar
+  // ada di public/ (folder /icons/ tidak pernah ada → 404 untuk notifikasi).
   const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '')
-  const iconPath = `${base}/icons/icon-192.png`
+  const iconPath = `${base}/pwa-192.png`
   const defaultOptions = {
     icon: iconPath,
     badge: iconPath,

@@ -21,6 +21,8 @@ import { appendHistory } from '../../lib/publishHelpers'
 import { validateCourseEntry } from '../../lib/uploadValidator'
 import { PRODIS, SEMESTER_OPTIONS } from '../../constants/academicConstants'
 import { parseLecturers, getLecturerInitial, formatWhatsAppUrl } from '../../lib/lecturerUtils'
+import { useCampus } from '../../context/CampusContext'
+import { getProdiByCodePrefix } from '../../lib/campusConfig'
 
 const EMPTY_FORM = {
   kodeMK: '',
@@ -49,6 +51,7 @@ export default function ManageCourses() {
   const { data: courses, loading } = useFirestore('mataKuliah')
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
+  const { campus } = useCampus()
 
   const [search, setSearch] = useState('')
   const [dosenFilter, setDosenFilter] = useState('')
@@ -89,11 +92,13 @@ export default function ManageCourses() {
       .filter((c) => (dosenFilter ? c.dosen === dosenFilter : true))
       .filter((c) => {
         if (!prodiFilter) return true
-        const p = PRODIS.find((item) => item.value === prodiFilter)
-        if (p && p.prefix) {
-          return String(c.kodeMK || '').toUpperCase().startsWith(p.prefix)
+        // Deteksi prodi dari prefix kode MK via config kampus (fallback PRODIS).
+        const prefix = PRODIS.find((item) => item.value === prodiFilter)?.prefix
+        if (prefix) {
+          return String(c.kodeMK || '').toUpperCase().startsWith(prefix)
         }
-        return true
+        // Bandingkan prodi yang terdeteksi dari kode MK (config kampus).
+        return getProdiByCodePrefix(String(c.kodeMK || ''), campus) === prodiFilter
       })
       .filter((c) => {
         if (!semesterFilter) return true

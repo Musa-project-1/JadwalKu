@@ -30,46 +30,50 @@ function RoleSelection() {
         </header>
         <div className="grid w-full grid-cols-1 gap-lg tablet:grid-cols-2">
           {/* Mahasiswa Card */}
-          <button
-            type="button"
-            onClick={() => navigate('/onboarding/prodi')}
-            className="group relative flex flex-col items-center justify-center rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-8 sm:p-10 text-center shadow-level-1 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-level-2 active:scale-[0.99] dark:bg-surface-container-low dark:border-outline-variant/20 cursor-pointer overflow-hidden"
-          >
-            <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-700 transition-colors duration-300 ease-out group-hover:bg-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-300 dark:group-hover:bg-emerald-500/25">
-              <Icon name="school" size={40} filled className="text-emerald-700 dark:text-emerald-300" />
-            </div>
-            <h2 className="mb-1 text-title-md font-bold text-on-surface transition-colors duration-300 group-hover:text-primary">
-              Masuk sebagai Mahasiswa
-            </h2>
-            <p className="text-body-sm text-on-surface-variant font-medium max-w-[260px]">
-              Akses jadwal kelas, ujian, dan informasi akademik
-            </p>
-            <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0.5">
-              <span>Lanjutkan</span>
-              <Icon name="arrow_forward" size={15} />
-            </div>
-          </button>
+          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.01] hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer group">
+            <button
+              type="button"
+              onClick={() => navigate('/onboarding/prodi')}
+              className="relative flex flex-col items-center justify-center rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-8 sm:p-10 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] dark:bg-surface-container-low w-full h-full focus:outline-none cursor-pointer"
+            >
+              <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-700 transition-colors duration-300 ease-out group-hover:bg-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-300 dark:group-hover:bg-emerald-500/25">
+                <Icon name="school" size={40} filled className="text-emerald-700 dark:text-emerald-300" />
+              </div>
+              <h2 className="mb-1 text-title-md font-bold text-on-surface transition-colors duration-300 group-hover:text-primary">
+                Masuk sebagai Mahasiswa
+              </h2>
+              <p className="text-body-sm text-on-surface-variant font-medium max-w-[260px]">
+                Akses jadwal kelas, ujian, dan informasi akademik
+              </p>
+              <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0.5">
+                <span>Lanjutkan</span>
+                <Icon name="arrow_forward" size={15} />
+              </div>
+            </button>
+          </div>
 
           {/* Admin Card */}
-          <button
-            type="button"
-            onClick={() => navigate('/admin/login')}
-            className="group relative flex flex-col items-center justify-center rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-8 sm:p-10 text-center shadow-level-1 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-level-2 active:scale-[0.99] dark:bg-surface-container-low dark:border-outline-variant/20 cursor-pointer overflow-hidden"
-          >
-            <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors duration-300 ease-out group-hover:bg-primary/20 dark:bg-primary/15 dark:text-primary dark:group-hover:bg-primary/25">
-              <Icon name="admin_panel_settings" size={40} className="text-primary" />
-            </div>
-            <h2 className="mb-1 text-title-md font-bold text-on-surface transition-colors duration-300 group-hover:text-primary">
-              Masuk sebagai Admin
-            </h2>
-            <p className="text-body-sm text-on-surface-variant font-medium max-w-[260px]">
-              Kelola data jadwal, prodi, dan pengaturan kampus
-            </p>
-            <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0.5">
-              <span>Masuk Panel</span>
-              <Icon name="arrow_forward" size={15} />
-            </div>
-          </button>
+          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.01] hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer group">
+            <button
+              type="button"
+              onClick={() => navigate('/admin/login')}
+              className="relative flex flex-col items-center justify-center rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-8 sm:p-10 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] dark:bg-surface-container-low w-full h-full focus:outline-none cursor-pointer"
+            >
+              <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors duration-300 ease-out group-hover:bg-primary/20 dark:bg-primary/15 dark:text-primary dark:group-hover:bg-primary/25">
+                <Icon name="admin_panel_settings" size={40} className="text-primary" />
+              </div>
+              <h2 className="mb-1 text-title-md font-bold text-on-surface transition-colors duration-300 group-hover:text-primary">
+                Masuk sebagai Admin
+              </h2>
+              <p className="text-body-sm text-on-surface-variant font-medium max-w-[260px]">
+                Kelola data jadwal, prodi, dan pengaturan kampus
+              </p>
+              <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0.5">
+                <span>Masuk Panel</span>
+                <Icon name="arrow_forward" size={15} />
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -105,89 +109,91 @@ function ProdiStep() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-transparent p-md sm:p-lg">
-      <div className="w-full max-w-[520px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 sm:p-8 shadow-level-2 dark:bg-surface-container-low dark:border-outline-variant/20 animate-fade-in">
-        {/* Step Indicator Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-label-caps font-bold text-primary tracking-wider">LANGKAH 1 DARI 2</span>
-            <span className="text-body-xs font-semibold text-on-surface-variant">50% Selesai</span>
+      <div className="w-full max-w-[520px] rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 animate-fade-in">
+        <div className="w-full rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 sm:p-8 shadow-xs dark:bg-surface-container-low">
+          {/* Step Indicator Header */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-label-caps font-bold text-primary tracking-wider">LANGKAH 1 DARI 2</span>
+              <span className="text-body-xs font-semibold text-on-surface-variant">50% Selesai</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-container-high">
+              <div className="h-full w-1/2 rounded-full bg-primary transition-all duration-300" />
+            </div>
           </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-container-high">
-            <div className="h-full w-1/2 rounded-full bg-primary transition-all duration-300" />
-          </div>
-        </div>
 
-        <header className="mb-5">
-          <h1 className="text-headline-md font-bold text-on-surface">Pilih Program Studi</h1>
-          <p className="mt-1 text-body-sm text-on-surface-variant font-medium">
-            Jadwal perkuliahan akan disesuaikan otomatis dengan prodi Anda.
-          </p>
-        </header>
+          <header className="mb-5">
+            <h1 className="text-headline-md font-bold text-on-surface">Pilih Program Studi</h1>
+            <p className="mt-1 text-body-sm text-on-surface-variant font-medium">
+              Jadwal perkuliahan akan disesuaikan otomatis dengan prodi Anda.
+            </p>
+          </header>
 
-        {/* Prodi List — zero scrolling, all items fit cleanly */}
-        <div className="space-y-2">
-          {programs.map((p) => {
-            const meta = getProdiMeta(p.nama)
-            const isSelected = prodi === p.nama
-            return (
-              <button
-                key={p.nama}
-                type="button"
-                onClick={() => setProdi(p.nama)}
-                className={`group flex w-full items-center justify-between rounded-2xl border px-3.5 py-2.5 sm:px-4 sm:py-3 text-left transition-all duration-200 cursor-pointer ${
-                  isSelected
-                    ? 'border-primary bg-primary/10 shadow-sm dark:bg-primary/20'
-                    : 'border-outline-variant/30 bg-surface-container-low/50 hover:border-primary/40 hover:bg-surface-container-low dark:bg-surface-container-high/30'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-bold transition-transform duration-200 ${meta.color} ${
-                      isSelected ? 'scale-105 ring-2 ring-primary/30' : 'group-hover:scale-105'
-                    }`}
-                  >
-                    <Icon name={meta.icon} size={18} />
-                  </div>
-                  <div>
-                    <p
-                      className={`text-body-md font-bold leading-snug transition-colors ${
-                        isSelected ? 'text-primary' : 'text-on-surface group-hover:text-primary'
+          {/* Prodi List — zero scrolling, all items fit cleanly */}
+          <div className="space-y-2">
+            {programs.map((p) => {
+              const meta = getProdiMeta(p.nama)
+              const isSelected = prodi === p.nama
+              return (
+                <button
+                  key={p.nama}
+                  type="button"
+                  onClick={() => setProdi(p.nama)}
+                  className={`group flex w-full items-center justify-between rounded-2xl border px-3.5 py-2.5 sm:px-4 sm:py-3 text-left transition-all duration-200 cursor-pointer ${
+                    isSelected
+                      ? 'border-primary bg-primary/10 shadow-sm dark:bg-primary/20'
+                      : 'border-outline-variant/30 bg-surface-container-low/50 hover:border-primary/40 hover:bg-surface-container-low dark:bg-surface-container-high/30'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-bold transition-transform duration-200 ${meta.color} ${
+                        isSelected ? 'scale-105 ring-2 ring-primary/30' : 'group-hover:scale-105'
                       }`}
                     >
-                      {p.nama}
-                    </p>
-                    <p className="text-[11px] font-semibold text-on-surface-variant/80">
-                      Semester {p.semesterMin} – {p.semesterMax}
-                    </p>
+                      <Icon name={meta.icon} size={18} />
+                    </div>
+                    <div>
+                      <p
+                        className={`text-body-md font-bold leading-snug transition-colors ${
+                          isSelected ? 'text-primary' : 'text-on-surface group-hover:text-primary'
+                        }`}
+                      >
+                        {p.nama}
+                      </p>
+                      <p className="text-[11px] font-semibold text-on-surface-variant/80">
+                        Semester {p.semesterMin} - {p.semesterMax}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                {isSelected ? (
-                  <Icon name="check_circle" filled size={20} className="text-primary shrink-0" />
-                ) : (
-                  <div className="h-4 w-4 rounded-full border-2 border-outline-variant/40 group-hover:border-primary/50 shrink-0 transition-colors" />
-                )}
-              </button>
-            )
-          })}
-        </div>
+                  {isSelected ? (
+                    <Icon name="check_circle" filled size={20} className="text-primary shrink-0" />
+                  ) : (
+                    <div className="h-4 w-4 rounded-full border-2 border-outline-variant/40 group-hover:border-primary/50 shrink-0 transition-colors" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
 
-        {/* Action Buttons */}
-        <div className="mt-6 flex items-center gap-3 pt-1">
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/onboarding')}
-            className="rounded-full px-5 py-2.5 font-semibold text-body-sm"
-          >
-            Kembali
-          </Button>
-          <Button
-            className="flex-1 rounded-full py-2.5 font-bold text-body-sm shadow-md"
-            disabled={!prodi}
-            onClick={() => navigate('/onboarding/semester', { state: { prodi } })}
-          >
-            <span>Lanjutkan</span>
-            <Icon name="arrow_forward" size={18} className="ml-1" />
-          </Button>
+          {/* Action Buttons */}
+          <div className="mt-6 flex items-center gap-3 pt-1">
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/onboarding')}
+              className="rounded-full px-5 py-2.5 font-semibold text-body-sm"
+            >
+              Kembali
+            </Button>
+            <Button
+              className="flex-1 rounded-full py-2.5 font-bold text-body-sm shadow-md"
+              disabled={!prodi}
+              onClick={() => navigate('/onboarding/semester', { state: { prodi } })}
+            >
+              <span>Lanjutkan</span>
+              <Icon name="arrow_forward" size={18} className="ml-1" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -228,75 +234,77 @@ function SemesterStep() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-transparent p-md sm:p-lg">
-      <div className="w-full max-w-[520px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 sm:p-8 shadow-level-2 dark:bg-surface-container-low dark:border-outline-variant/20 animate-fade-in">
-        {/* Step Indicator Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-label-caps font-bold text-primary tracking-wider">LANGKAH 2 DARI 2</span>
-            <span className="text-body-xs font-semibold text-emerald-600 dark:text-emerald-400">Langkah Terakhir</span>
+      <div className="w-full max-w-[520px] rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 animate-fade-in">
+        <div className="w-full rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 sm:p-8 shadow-xs dark:bg-surface-container-low">
+          {/* Step Indicator Header */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-label-caps font-bold text-primary tracking-wider">LANGKAH 2 DARI 2</span>
+              <span className="text-body-xs font-semibold text-emerald-600 dark:text-emerald-400">Langkah Terakhir</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-container-high">
+              <div className="h-full w-full rounded-full bg-primary transition-all duration-300" />
+            </div>
           </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-container-high">
-            <div className="h-full w-full rounded-full bg-primary transition-all duration-300" />
-          </div>
-        </div>
 
-        <header className="mb-6">
-          <h1 className="text-headline-md font-bold text-on-surface">Pilih Semester</h1>
-          <p className="mt-1 text-body-sm text-on-surface-variant font-medium">
-            Semester aktif untuk prodi <span className="font-bold text-primary">{prodi ?? 'Anda'}</span>
-          </p>
-        </header>
+          <header className="mb-6">
+            <h1 className="text-headline-md font-bold text-on-surface">Pilih Semester</h1>
+            <p className="mt-1 text-body-sm text-on-surface-variant font-medium">
+              Semester aktif untuk prodi <span className="font-bold text-primary">{prodi ?? 'Anda'}</span>
+            </p>
+          </header>
 
-        {/* Semester Grid */}
-        <div className="grid grid-cols-4 gap-2.5 sm:gap-3">
-          {semesters.map((s) => {
-            const isSelected = semester === s
-            const isGanjil = s % 2 !== 0
-            return (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setSemester(s)}
-                className={`group flex flex-col items-center justify-center rounded-2xl border py-4 transition-all duration-200 cursor-pointer ${
-                  isSelected
-                    ? 'border-primary bg-primary text-on-primary font-bold shadow-md scale-[1.02]'
-                    : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 hover:bg-surface-container-low hover:shadow-sm dark:bg-surface-container-high/30'
-                }`}
-              >
-                <span className="text-headline-sm font-bold leading-none mb-1">{s}</span>
-                <span
-                  className={`text-[10px] font-semibold uppercase tracking-wider ${
-                    isSelected ? 'text-white/80' : 'text-on-surface-variant/70'
+          {/* Semester Grid */}
+          <div className="grid grid-cols-4 gap-2.5 sm:gap-3">
+            {semesters.map((s) => {
+              const isSelected = semester === s
+              const isGanjil = s % 2 !== 0
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSemester(s)}
+                  className={`group flex flex-col items-center justify-center rounded-2xl border py-4 transition-all duration-200 cursor-pointer ${
+                    isSelected
+                      ? 'border-primary bg-primary text-on-primary font-bold shadow-md scale-[1.02]'
+                      : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 hover:bg-surface-container-low hover:shadow-sm dark:bg-surface-container-high/30'
                   }`}
                 >
-                  {isGanjil ? 'Ganjil' : 'Genap'}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+                  <span className="text-headline-sm font-bold leading-none mb-1">{s}</span>
+                  <span
+                    className={`text-[10px] font-semibold uppercase tracking-wider ${
+                      isSelected ? 'text-white/80' : 'text-on-surface-variant/70'
+                    }`}
+                  >
+                    {isGanjil ? 'Ganjil' : 'Genap'}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
 
-        {/* Action Buttons */}
-        <div className="mt-8 flex items-center gap-3 pt-2">
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/onboarding/prodi')}
-            className="rounded-full px-5 py-2.5 font-semibold text-body-sm"
-          >
-            Kembali
-          </Button>
-          <Button
-            className="flex-1 rounded-full py-2.5 font-bold text-body-sm shadow-md"
-            disabled={!semester}
-            onClick={handleSave}
-          >
-            <Icon name="check" size={18} className="mr-1" />
-            <span>Simpan & Mulai</span>
-          </Button>
+          {/* Action Buttons */}
+          <div className="mt-8 flex items-center gap-3 pt-2">
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/onboarding/prodi')}
+              className="rounded-full px-5 py-2.5 font-semibold text-body-sm"
+            >
+              Kembali
+            </Button>
+            <Button
+              className="flex-1 rounded-full py-2.5 font-bold text-body-sm shadow-md"
+              disabled={!semester}
+              onClick={handleSave}
+            >
+              <Icon name="check" size={18} className="mr-1" />
+              <span>Simpan & Mulai</span>
+            </Button>
+          </div>
+          <p className="mt-4 text-center text-body-xs text-on-surface-variant/70">
+            Pilihan prodi & semester dapat diubah kapan saja di menu Pengaturan.
+          </p>
         </div>
-        <p className="mt-4 text-center text-body-xs text-on-surface-variant/70">
-          Pilihan prodi & semester dapat diubah kapan saja di menu Pengaturan.
-        </p>
       </div>
     </div>
   )

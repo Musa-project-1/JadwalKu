@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
 import App from './App.jsx'
 import { AppProvider } from './context/AppContext.jsx'
+import { CampusProvider } from './context/CampusContext.jsx'
 import './index.css'
 import './lib/firebaseClient.js'
 import { registerSW } from 'virtual:pwa-register'
@@ -28,7 +29,9 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AppProvider>
-        <App />
+        <CampusProvider>
+          <App />
+        </CampusProvider>
       </AppProvider>
     </HashRouter>
   </StrictMode>,

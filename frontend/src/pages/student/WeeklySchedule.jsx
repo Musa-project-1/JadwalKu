@@ -62,6 +62,16 @@ function formatWhatsAppUrl(phone) {
   return `https://wa.me/${formatted}`
 }
 
+/** Validasi URL eksternal hanya untuk http/https (cegah javascript:/data: XSS). */
+function safeExternalUrl(url) {
+  try {
+    const u = new URL(String(url || ''))
+    return u.protocol === 'http:' || u.protocol === 'https:' ? u.href : null
+  } catch {
+    return null
+  }
+}
+
 export default function WeeklySchedule() {
   const { program, semester } = useApp()
   const todayName = getTodayName()
@@ -266,7 +276,7 @@ export default function WeeklySchedule() {
     if (mFirst === mLast) {
       return `${mFirst} ${y}`
     }
-    return `${mFirst} – ${mLast} ${y}`
+    return `${mFirst} - ${mLast} ${y}`
   }, [weekDates])
 
   const weekRangeLabel = useMemo(() => {
@@ -420,112 +430,114 @@ export default function WeeklySchedule() {
 
   return (
     <div className="space-y-lg w-full max-w-full overflow-x-hidden">
-      <header className="flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between">
-        <div className="flex items-center gap-3.5">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
-            <Icon name="calendar_month" size={26} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl tablet:text-3xl font-bold tracking-tight text-on-surface">
-                Jadwal Mingguan
-              </h2>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
-                Aktif
-              </span>
+      <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10">
+        <header className="rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+              <Icon name="calendar_month" size={26} />
             </div>
-            <p className="mt-0.5 text-body-sm text-on-surface-variant font-normal">
-              {program} · Semester {semester} · TA {selectedTA}
-              {viewingArchive && ' · Arsip'}
-            </p>
-          </div>
-        </div>
-
-        {/* Controls Desktop (>=600px) */}
-        <div className="hidden tablet:flex items-center gap-2 shrink-0">
-          <div className="hidden desktop:inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-xs shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                setViewDays('5')
-                setItem('jadwal:viewDays', '5')
-              }}
-              className={`rounded-full px-3 py-1 text-[12px] font-bold transition-all ${
-                viewDays === '5'
-                  ? 'bg-surface shadow-xs text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              5 Hari
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setViewDays('6')
-                setItem('jadwal:viewDays', '6')
-              }}
-              className={`rounded-full px-3 py-1 text-[12px] font-bold transition-all ${
-                viewDays === '6'
-                  ? 'bg-surface shadow-xs text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              6 Hari
-            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl tablet:text-3xl font-bold tracking-tight text-on-surface">
+                  Jadwal Mingguan
+                </h2>
+                <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+                  Aktif
+                </span>
+              </div>
+              <p className="mt-0.5 text-body-sm text-on-surface-variant font-normal">
+                {program} · Semester {semester} · TA {selectedTA}
+                {viewingArchive && ' · Arsip'}
+              </p>
+            </div>
           </div>
 
-          {/* Desktop Week Navigator */}
-          <div className="flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-1 py-1 shadow-xs min-w-0">
-            <button
-              type="button"
-              onClick={() => setWeekOffset((prev) => prev - 1)}
-              title="Minggu Sebelumnya"
-              aria-label="Minggu Sebelumnya"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
-            >
-              <Icon name="chevron_left" size={18} />
-            </button>
-            <span className="px-3 text-body-xs font-bold text-on-surface whitespace-nowrap">
-              {weekRangeLabel}
-            </span>
-            <button
-              type="button"
-              onClick={() => setWeekOffset((prev) => prev + 1)}
-              title="Minggu Berikutnya"
-              aria-label="Minggu Berikutnya"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
-            >
-              <Icon name="chevron_right" size={18} />
-            </button>
-            {weekOffset !== 0 && (
+          {/* Controls Desktop (>=600px) */}
+          <div className="hidden tablet:flex items-center gap-2 shrink-0">
+            <div className="hidden desktop:inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-xs shrink-0">
               <button
                 type="button"
-                onClick={() => setWeekOffset(0)}
-                className="ml-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-bold text-primary hover:bg-primary/25 transition-colors shrink-0"
+                onClick={() => {
+                  setViewDays('5')
+                  setItem('jadwal:viewDays', '5')
+                }}
+                className={`rounded-full px-3 py-1 text-[12px] font-bold transition-all ${
+                  viewDays === '5'
+                    ? 'bg-surface shadow-xs text-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
               >
-                Hari Ini
+                5 Hari
               </button>
-            )}
-          </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setViewDays('6')
+                  setItem('jadwal:viewDays', '6')
+                }}
+                className={`rounded-full px-3 py-1 text-[12px] font-bold transition-all ${
+                  viewDays === '6'
+                    ? 'bg-surface shadow-xs text-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                6 Hari
+              </button>
+            </div>
 
-          {/* TA Selector & Share */}
-          <TahunAjaranDropdown
-            selectedTA={selectedTA}
-            onSelect={(ta) => setSelectedTA(ta)}
-            currentTA={currentTA}
-            allTAs={allTAs}
-          />
-          <button
-            type="button"
-            onClick={() => setShareOpen(true)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/20 shadow-xs cursor-pointer"
-            title="Bagikan Jadwal"
-            aria-label="Bagikan jadwal"
-          >
-            <Icon name="ios_share" size={18} />
-          </button>
-        </div>
-      </header>
+            {/* Desktop Week Navigator */}
+            <div className="flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-1 py-1 shadow-xs min-w-0">
+              <button
+                type="button"
+                onClick={() => setWeekOffset((prev) => prev - 1)}
+                title="Minggu Sebelumnya"
+                aria-label="Minggu Sebelumnya"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
+              >
+                <Icon name="chevron_left" size={18} />
+              </button>
+              <span className="px-3 text-body-xs font-bold text-on-surface whitespace-nowrap">
+                {weekRangeLabel}
+              </span>
+              <button
+                type="button"
+                onClick={() => setWeekOffset((prev) => prev + 1)}
+                title="Minggu Berikutnya"
+                aria-label="Minggu Berikutnya"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
+              >
+                <Icon name="chevron_right" size={18} />
+              </button>
+              {weekOffset !== 0 && (
+                <button
+                  type="button"
+                  onClick={() => setWeekOffset(0)}
+                  className="ml-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-bold text-primary hover:bg-primary/25 transition-colors shrink-0"
+                >
+                  Hari Ini
+                </button>
+              )}
+            </div>
+
+            {/* TA Selector & Share */}
+            <TahunAjaranDropdown
+              selectedTA={selectedTA}
+              onSelect={(ta) => setSelectedTA(ta)}
+              currentTA={currentTA}
+              allTAs={allTAs}
+            />
+            <button
+              type="button"
+              onClick={() => setShareOpen(true)}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/20 shadow-xs cursor-pointer"
+              title="Bagikan Jadwal"
+              aria-label="Bagikan jadwal"
+            >
+              <Icon name="ios_share" size={18} />
+            </button>
+          </div>
+        </header>
+      </div>
 
       {/* Broadcast Pengumuman Kampus & Kuliah Pengganti */}
       <AnnouncementBanner currentProgram={program} currentSemester={semester} />
@@ -742,7 +754,7 @@ export default function WeeklySchedule() {
                   }}
                 >
                   <span className="text-[10.5px] font-bold tracking-wider uppercase text-on-surface-variant/40 select-none">
-                    Istirahat / Dzuhur (11:30 – 13:00)
+                    Istirahat / Dzuhur (11:30 - 13:00)
                   </span>
                 </div>
               )}
@@ -1213,9 +1225,9 @@ function CourseDetailPanel({ entry, course, transition, onClose }) {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {/* 1. LMS / Classroom Link */}
-                {links.lmsUrl ? (
+                {safeExternalUrl(links.lmsUrl) ? (
                   <a
-                    href={links.lmsUrl}
+                    href={safeExternalUrl(links.lmsUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-between gap-1.5 p-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-900 dark:text-blue-200 border border-blue-500/25 transition-all shadow-2xs font-bold text-body-xs group cursor-pointer"
@@ -1240,7 +1252,7 @@ function CourseDetailPanel({ entry, course, transition, onClose }) {
                 {/* 2. Zoom / Meet Link */}
                 {links.meetingUrl || isOnlineClass ? (
                   <a
-                    href={links.meetingUrl || 'https://zoom.us/join'}
+                    href={safeExternalUrl(links.meetingUrl) || 'https://zoom.us/join'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-between gap-1.5 p-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-950 dark:text-indigo-200 border border-indigo-500/25 transition-all shadow-2xs font-bold text-body-xs group cursor-pointer"
@@ -1263,9 +1275,9 @@ function CourseDetailPanel({ entry, course, transition, onClose }) {
                 )}
 
                 {/* 3. WhatsApp Group Link */}
-                {links.waGroupUrl ? (
+                {safeExternalUrl(links.waGroupUrl) ? (
                   <a
-                    href={links.waGroupUrl}
+                    href={safeExternalUrl(links.waGroupUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-between gap-1.5 p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-500/25 transition-all shadow-2xs font-bold text-body-xs group cursor-pointer"

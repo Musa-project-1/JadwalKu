@@ -8,6 +8,25 @@ service cloud.firestore {
         && request.auth.token.email == "admin@jadwalkampus.app";
     }
 
+    // Admin/registrar kampus — saat ini dikendalikan admin global.
+    // Untuk multi-tenant penuh, pisahkan per kampus lewat koleksi `adminUsers`.
+    function isCampusStaff(kampusId) {
+      return isAdmin() || (request.auth != null
+        && request.auth.token.kampusId == kampusId);
+    }
+
+    match /kampus/{doc} {
+      // Konfigurasi kampus boleh dibaca publik (diperlukan oleh mahasiswa
+      // untuk memuat prodi/tipe kelas/ruang yang benar).
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /adminUsers/{doc} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
     match /jadwal/{doc} {
       // "archived" ikut boleh dibaca — dipakai fitur arsip TA di sisi mahasiswa
       // (WeeklySchedule: dropdown tahun ajaran lampau).

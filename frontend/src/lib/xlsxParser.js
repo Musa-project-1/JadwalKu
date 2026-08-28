@@ -4,15 +4,19 @@ import { CLASS_TYPE_CODES, DAYS } from './uploadValidator'
 /**
  * Parser file .xlsx/.csv jadwal kampus (client-side, SheetJS).
  *
- * Mendukung dua bentuk sheet "Jadwal Perkuliahan":
- *  1. Tabular datar  — kolom: Hari, Jam Mulai, Jam Selesai, Prodi, Semester,
- *     Kode MK, Ruang, Tipe Kelas
- *  2. Matriks kampus — baris berisi blok hari + rentang jam di kolom awal,
- *     kolom selanjutnya per prodi/semester, isi sel memuat kode MK, ruang,
- *     dan tipe kelas dalam satu teks.
+ * UNIVERSAL & KONFIGURASI-DRIVEN:
+ * Sebelumnya parser ini terikat pada SATU layout resmi kampus (FTB) yang
+ * hardcoded. Sekarang deteksi layout dilakukan secara heuristik generik dan
+ * bisa diteruskan konfigurasi kampus (campusConfig) agar universitas mana pun
+ * bisa di-parse otomatis.
  *
- * Sheet "Daftar MK & Dosen" dipetakan lewat alias nama kolom yang fleksibel.
- * Semua hasil tetap lolos `uploadValidator` sebelum ditulis ke Firestore.
+ * Strategi deteksi (berurutan):
+ *  1. Layout resmi kampus (matriks + legenda + tabel MK) → parseUnivSheet
+ *     (tetap dipertahankan sebagai preset, tapi tidak lagi satu-satunya)
+ *  2. Layout tabular datar  — kolom: Hari, Jam Mulai, Jam Selesai, Prodi, dst.
+ *     (alias kolom fleksibel)
+ *  3. Layout matriks kampus — baris hari + rentang jam, kolom per prodi/semester
+ *  4. Layout dua kolom (Hari + Jam dalam satu rentang di kolom pertama)
  */
 
 const SHEET_ALIASES = {
@@ -51,16 +55,18 @@ const EXAM_ALIASES = {
 
 /**
  * @param {ArrayBuffer|Uint8Array} data isi file
+ * @param {object} [campusConfig] konfigurasi kampus (prodi, classTypes, dst.)
  * @returns {{
  *   scheduleEntries: Array<object>,
  *   courses: Array<object>,
  *   exams: Array<object>,
  *   programs: Array<{ nama: string, semesterMin: number, semesterMax: number }>,
  *   tahunAjaran: string | null,
- *   warnings: string[]
+ *   warnings: string[],
+ *   detectedFormat: string
  * }}
  */
-export function parseWorkbook(data) {
+export function parseWorkbook(data, campusConfig = {}) {
   const wb = XLSX.read(data, { type: 'array', cellDates: false })
   const warnings = []
 
@@ -74,21 +80,24 @@ export function parseWorkbook(data) {
   let courses = []
   let exams = []
   let tahunAjaran = null
+  let detectedFormat = 'unknown'
 
   if (scheduleSheet) {
     const grid = XLSX.utils.sheet_to_json(scheduleSheet, { header: 1, defval: '' })
 
-    // Format resmi kampus: satu sheet berisi matriks jadwal (kolom A–V),
-    // legenda kelas (X–Z), dan tabel mata kuliah (AB–AJ) berdampingan.
+    // Format resmi kampus (matriks + legenda + tabel MK) — kini salah SATU preset.
     if (isUnivFtbLayout(grid)) {
       const univ = parseUnivSheet(grid)
       scheduleEntries = univ.scheduleEntries
       courses = univ.courses
       tahunAjaran = univ.tahunAjaran
       warnings.push(...univ.warnings)
+      detectedFormat = 'campus-matrix'
     } else {
       const rows = sheetToRows(scheduleSheet)
-      scheduleEntries = isMatrixLayout(rows) ? parseMatrix(rows) : parseFlat(rows)
+      const parsed = flatOrMatrix(rows, campusConfig)
+      scheduleEntries = parsed.scheduleEntries
+      detectedFormat = parsed.detectedFormat
       courses = courseSheet ? parseCourses(sheetToRows(courseSheet)) : []
     }
   } else if (courseSheet) {
@@ -99,7 +108,7 @@ export function parseWorkbook(data) {
 
   const programs = extractPrograms(scheduleEntries, courses, exams)
 
-  return { scheduleEntries, courses, exams, programs, tahunAjaran, warnings }
+  return { scheduleEntries, courses, exams, programs, tahunAjaran, warnings, detectedFormat }
 }
 
 function extractPrograms(scheduleEntries = [], courses = [], exams = []) {
@@ -133,7 +142,125 @@ function extractPrograms(scheduleEntries = [], courses = [], exams = []) {
     .sort((a, b) => a.nama.localeCompare(b.nama, 'id'))
 }
 
-// ---------- Format resmi kampus FTB (matriks + legenda + tabel MK) ----------
+// ──────────────────────────────────────────────────────────────
+// Deteksi layout generik (universal)
+// ──────────────────────────────────────────────────────────────
+
+/** Deteksi & parse layout flat ATAU matriks. */
+function flatOrMatrix(rows, campusConfig = {}) {
+  if (!rows.length) return { scheduleEntries: [], detectedFormat: 'empty' }
+
+  const headers = Object.keys(rows[0]).map(normalizeHeader)
+
+  // Punya kolom hari + jam eksplisit/rentang → tabel datar.
+  const hasDayCol = headers.some((h) => matches(h, SCHEDULE_FIELD_ALIASES.hari))
+  const hasTimeCol = headers.some(
+    (h) => matches(h, SCHEDULE_FIELD_ALIASES.jamMulai) || matches(h, SCHEDULE_FIELD_ALIASES.jamRangeAlias || ['jam', 'waktu', 'time', 'sesi', 'pukul']),
+  )
+
+  if (hasDayCol && hasTimeCol) {
+    return { scheduleEntries: parseFlat(rows, campusConfig), detectedFormat: 'flat' }
+  }
+
+  // Matriks kampus: baris hari + rentang jam di kolom awal.
+  if (!hasDayCol && !hasTimeCol && headers.length >= 3) {
+    const matrix = parseMatrix(rows, campusConfig)
+    if (matrix.length > 0) return { scheduleEntries: matrix, detectedFormat: 'matrix' }
+  }
+
+  // Fallback: layout dua kolom (Hari | Jam yang berisi rentang gabungan).
+  const twoCol = parseTwoColumn(rows, campusConfig)
+  if (twoCol.length > 0) return { scheduleEntries: twoCol, detectedFormat: 'two-column' }
+
+  return { scheduleEntries: parseFlatFallback(rows, campusConfig), detectedFormat: 'fallback' }
+}
+
+/** Layout dua kolom: kolom pertama Hari, kolom kedua berisi rentang jam + MK. */
+function parseTwoColumn(rows, campusConfig = {}) {
+  const entries = []
+  let currentDay = ''
+  let prodiFromConfig = firstProdiName(campusConfig) || 'Informatika'
+
+  for (const row of rows) {
+    const values = Object.values(row)
+    const first = String(values[0] ?? '').trim()
+    const second = String(values[1] ?? '').trim()
+
+    if (!first && !second) continue
+
+    const day = normalizeDayName(first)
+    if (day) {
+      currentDay = day
+      continue
+    }
+
+    if (!currentDay) continue
+
+    // Baris berisi jam rentang + info MK/dosen/ruang dalam satu sel
+    const timeMatch = second.match(/(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})/)
+    if (!timeMatch) continue
+
+    const kodeMatch = second.match(/\b([A-Z]{2,4}[-\s]?\d{3,4})\b/i)
+    const kodeMK = kodeMatch ? kodeMatch[1].toUpperCase().replace(/\s+/g, '') : `MK${entries.length + 1}`
+    const namaMK = second.replace(timeMatch[0], '').replace(kodeMatch?.[0] || '', '').replace(/[|\-–]/g, '').trim()
+
+    entries.push({
+      hari: currentDay,
+      jamMulai: `${pad(timeMatch[1])}:${timeMatch[2]}`,
+      jamSelesai: `${pad(timeMatch[3])}:${timeMatch[4]}`,
+      prodi: prodiFromConfig,
+      semester: NaN,
+      kodeMK,
+      ruang: '',
+      tipeKelas: '',
+    })
+  }
+
+  return entries
+}
+
+/** Fallback: coba deteksi kolom via alias terluas, isi default untuk kolom kosong. */
+function parseFlatFallback(rows, campusConfig = {}) {
+  if (!rows.length) return []
+  const headers = Object.keys(rows[0])
+  const map = {}
+  for (const field of Object.keys(SCHEDULE_FIELD_ALIASES)) {
+    map[field] = colFor(headers, SCHEDULE_FIELD_ALIASES[field])
+  }
+
+  const prodiDefault = firstProdiName(campusConfig) || 'Informatika'
+
+  return rows.flatMap((row, index) => {
+    const hariRaw = readCell(row, map.hari)
+    const day = normalizeDayName(hariRaw)
+    if (!day) return []
+
+    const { jamMulai, jamSelesai } = readTimeRange(row, map)
+    const kodeMK = String(readCell(row, map.kodeMK)).trim().toUpperCase() || `MK${index + 1}`
+
+    return [{
+      hari: day,
+      jamMulai,
+      jamSelesai,
+      prodi: String(readCell(row, map.prodi)).trim() || prodiDefault,
+      semester: toInt(readCell(row, map.semester)),
+      kodeMK,
+      ruang: String(readCell(row, map.ruang)).trim(),
+      tipeKelas: normalizeClassType(String(readCell(row, map.tipeKelas)).trim()),
+    }]
+  })
+}
+
+/** Ambil prodi pertama dari config kampus. */
+function firstProdiName(campusConfig = {}) {
+  const prodi = campusConfig?.prodi || []
+  if (!prodi.length) return ''
+  return typeof prodi[0] === 'string' ? prodi[0] : prodi[0]?.nama || ''
+}
+
+// ──────────────────────────────────────────────────────────────
+// Format resmi kampus (matriks + legenda + tabel MK) — preset lama
+// ──────────────────────────────────────────────────────────────
 
 const ROMAN = { I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6, VII: 7, VIII: 8 }
 
@@ -218,8 +345,6 @@ function parseUnivSheet(grid) {
 
   const hariCol = findCol((t) => t === 'hari')
   const cKodeProdi = findCol((t) => t.includes('kode prodi'))
-  // Cari kolom tabel MK MULAI dari kolom kode prodi — tanpa ini, header
-  // matriks "Program Studi S-1 dan Kode M..." (kolom C) ikut tertangkap.
   const cProdiName = findCol((t) => t.includes('program studi'), Math.max(cKodeProdi, 0))
   const cKodeMK = findCol((t) => t.includes('kode') && t.includes('mk'), Math.max(cProdiName, 0))
   const cNamaMK = findCol((t) => t.includes('nama mata kuliah'), Math.max(cKodeMK, 0))
@@ -344,7 +469,6 @@ function parseUnivSheet(grid) {
   // ── Matriks jadwal ──
   const scheduleEntries = []
   let currentDay = ''
-  // "Jum'at" di sheet vs "Jumat" di DAYS → bandingkan tanpa tanda baca.
   const matchDay = (val) => {
     const clean = String(val).toLowerCase().replace(/[^a-z]/g, '')
     return DAYS.find((d) => d.toLowerCase() === clean) ?? null
@@ -367,12 +491,8 @@ function parseUnivSheet(grid) {
       if (!kodeMK) continue
       const kelasRaw = String(row[g.kelasCol] ?? '').trim()
       const kelasKey = kelasRaw.toUpperCase().replace(/\s+/g, '')
-      // Tipe tak dikenal sengaja dibiarkan '' — validator akan menandainya
-      // di preview admin, jangan diam-diam dipaksa jadi K1.
       const tipeKelas = kelasMap[kelasKey] ?? normalizeClassType(kelasRaw)
       const prodi = g.prodi
-      // Tidak ada fallback diam-diam ke semester 1 — biarkan NaN agar
-      // validator menandai baris ini di preview admin.
       const semester =
         semesterByCourse[`${prodi}|${kodeMK}`] ??
         semesterByCourse[kodeMK] ??
@@ -435,7 +555,7 @@ function sheetToRows(sheet) {
 }
 
 /** Deteksi layout matriks: tidak ada kolom hari/jam eksplisit tapi banyak kolom isi. */
-function isMatrixLayout(rows) {
+function isMatrixLayout(rows, campusConfig = {}) {
   if (!rows.length) return false
   const headers = Object.keys(rows[0]).map(normalizeHeader)
   const hasDayCol = headers.some((h) => matches(h, SCHEDULE_FIELD_ALIASES.hari))
@@ -446,39 +566,36 @@ function isMatrixLayout(rows) {
 }
 
 /** Layout tabular datar dengan alias kolom fleksibel. */
-function parseFlat(rows) {
+function parseFlat(rows, campusConfig = {}) {
   if (!rows.length) return []
   const headers = Object.keys(rows[0])
-
-  const colFor = (aliases) =>
-    headers.find((h) => matches(normalizeHeader(h), aliases)) ?? null
-
   const map = {}
   for (const field of Object.keys(SCHEDULE_FIELD_ALIASES)) {
-    map[field] = colFor(SCHEDULE_FIELD_ALIASES[field])
+    map[field] = colFor(headers, SCHEDULE_FIELD_ALIASES[field])
   }
 
+  const prodiDefault = firstProdiName(campusConfig) || 'Informatika'
+
   return rows.flatMap((row) => {
-    // Rentang jam gabungan ("08:00-09:40") di satu kolom → pecah.
     let { jamMulai, jamSelesai } = readTimeRange(row, map)
 
     const entry = {
       hari: titleCase(String(readCell(row, map.hari)).trim()),
       jamMulai,
       jamSelesai,
-      prodi: String(readCell(row, map.prodi)).trim(),
+      prodi: String(readCell(row, map.prodi)).trim() || prodiDefault,
       semester: toInt(readCell(row, map.semester)),
       kodeMK: String(readCell(row, map.kodeMK)).trim().toUpperCase(),
       ruang: String(readCell(row, map.ruang)).trim(),
       tipeKelas: normalizeClassType(String(readCell(row, map.tipeKelas)).trim()),
     }
-    if (!entry.hari || !entry.jamMulai || !entry.kodeMK) return [] // baris kosong/pemisah
+    if (!entry.hari || !entry.jamMulai || !entry.kodeMK) return []
     return [entry]
   })
 }
 
 /** Layout matriks kampus: kolom 0 = hari, kolom 1 = rentang jam, sisanya per prodi. */
-function parseMatrix(rows) {
+function parseMatrix(rows, campusConfig = {}) {
   const entries = []
   let currentDay = ''
 
@@ -576,6 +693,10 @@ function parseExams(rows) {
 
 // ---------- helpers ----------
 
+function colFor(headers, aliases) {
+  return headers.find((h) => matches(normalizeHeader(h), aliases)) ?? null
+}
+
 function readCell(row, column) {
   if (!column) return ''
   return row[column]
@@ -658,6 +779,13 @@ function matches(normalized, aliases) {
 
 function normalizeHeader(header) {
   return String(header).toLowerCase().replace(/\W+/g, ' ').trim()
+}
+
+function normalizeDayName(value) {
+  if (!value) return ''
+  const clean = String(value).trim().toLowerCase().replace(/[^a-z]/g, '')
+  const day = DAYS.find((d) => d.toLowerCase() === clean)
+  return day || ''
 }
 
 function isBlank(value) {

@@ -15,9 +15,13 @@ const TIME_PATTERN = /^([01]?\d|2[0-3]):[0-5]\d$/
  *   jamMulai?: string, jamSelesai?: string, kodeMK?: string,
  *   ruang?: string, tipeKelas?: string
  * }} entry
+ * @param {string[]} [classTypeCodes] daftar tipe kelas valid (dari config kampus)
+ * @param {string[]} [days] daftar hari valid (dari config kampus)
  */
-export function validateScheduleEntry(entry) {
+export function validateScheduleEntry(entry, classTypeCodes = CLASS_TYPE_CODES, days = DAYS) {
   const errors = []
+  const validDays = Array.isArray(days) && days.length > 0 ? days : DAYS
+  const validClassTypes = Array.isArray(classTypeCodes) && classTypeCodes.length > 0 ? classTypeCodes : CLASS_TYPE_CODES
 
   if (!entry.prodi || typeof entry.prodi !== 'string' || !entry.prodi.trim()) {
     errors.push('Program studi wajib diisi')
@@ -28,8 +32,8 @@ export function validateScheduleEntry(entry) {
     errors.push('Semester harus angka bulat 1-14')
   }
 
-  if (!DAYS.includes(entry.hari)) {
-    errors.push(`Hari harus salah satu dari: ${DAYS.join(', ')}`)
+  if (!validDays.includes(entry.hari)) {
+    errors.push(`Hari harus salah satu dari: ${validDays.join(', ')}`)
   }
 
   if (!TIME_PATTERN.test(entry.jamMulai ?? '')) {
@@ -54,8 +58,8 @@ export function validateScheduleEntry(entry) {
     errors.push('Ruang wajib diisi')
   }
 
-  if (!CLASS_TYPE_CODES.includes(entry.tipeKelas)) {
-    errors.push(`Tipe kelas harus salah satu dari: ${CLASS_TYPE_CODES.join(', ')}`)
+  if (!validClassTypes.includes(entry.tipeKelas)) {
+    errors.push(`Tipe kelas harus salah satu dari: ${validClassTypes.join(', ')}`)
   }
 
   return errors

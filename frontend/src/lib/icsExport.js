@@ -24,20 +24,24 @@ const APP_URL = (() => {
  */
 export function downloadIcs(
   entries,
-  { prodi = '', semester = '', tahunAjaran = '', courseMap = new Map() } = {},
+  { prodi = '', semester = '', tahunAjaran = '', courseMap = new Map(), campusName = '' } = {},
 ) {
   if (!entries || entries.length === 0) return
 
   const now = new Date()
   const stamp = formatIcsDate(now)
+  const calName = [campusName ? `${campusName}: ` : '', 'Jadwal Kuliah', prodi, `Semester ${semester}`]
+    .filter(Boolean)
+    .join(' ')
+    .trim()
 
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//JadwalKu Kampus//ID',
+    'PRODID:-//JadwalKu//ID',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    `X-WR-CALNAME:Jadwal Kuliah ${prodi} Semester ${semester}`.trim(),
+    `X-WR-CALNAME:${calName}`,
     'X-WR-TIMEZONE:Asia/Jakarta',
   ]
 
@@ -54,14 +58,14 @@ export function downloadIcs(
     const end = addMinutes(start, Math.max(30, toMinutes(entry.jamSelesai) - toMinutes(entry.jamMulai)))
 
     const description = [
-      `Mata Kuliah: ${course.namaMK || entry.kodeMK}`,
-      `Kode MK: ${entry.kodeMK}`,
-      course.dosen ? `Dosen: ${course.dosen}` : null,
-      entry.ruang ? `Ruangan: ${entry.ruang}` : null,
+      `Mata Kuliah: ${escapeIcsText(course.namaMK || entry.kodeMK)}`,
+      `Kode MK: ${escapeIcsText(entry.kodeMK)}`,
+      course.dosen ? `Dosen: ${escapeIcsText(course.dosen)}` : null,
+      entry.ruang ? `Ruangan: ${escapeIcsText(entry.ruang)}` : null,
       course.sks ? `Beban: ${course.sks} SKS` : null,
-      entry.tipeKelas ? `Tipe Kelas: ${entry.tipeKelas}` : null,
-      tahunAjaran ? `Tahun Ajaran: ${tahunAjaran}` : null,
-      `Aplikasi: JadwalKu (${APP_URL})`,
+      entry.tipeKelas ? `Tipe Kelas: ${escapeIcsText(entry.tipeKelas)}` : null,
+      tahunAjaran ? `Tahun Ajaran: ${escapeIcsText(tahunAjaran)}` : null,
+      `Aplikasi: JadwalKu (${escapeIcsText(APP_URL)})`,
     ]
       .filter(Boolean)
       .join('\\n')
@@ -110,20 +114,24 @@ export function downloadIcs(
  */
 export function downloadExamIcs(
   exams,
-  { prodi = '', semester = '', jenis = 'UTS', courseMap = new Map() } = {},
+  { prodi = '', semester = '', jenis = 'UTS', courseMap = new Map(), campusName = '' } = {},
 ) {
   if (!exams || exams.length === 0) return
 
   const now = new Date()
   const stamp = formatIcsDate(now)
+  const calName = [campusName ? `${campusName}: ` : '', 'Jadwal Ujian', jenis, prodi, `Semester ${semester}`]
+    .filter(Boolean)
+    .join(' ')
+    .trim()
 
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//JadwalKu Kampus//ID',
+    'PRODID:-//JadwalKu//ID',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    `X-WR-CALNAME:Jadwal Ujian ${jenis} ${prodi} Semester ${semester}`.trim(),
+    `X-WR-CALNAME:${calName}`,
     'X-WR-TIMEZONE:Asia/Jakarta',
   ]
 
@@ -147,13 +155,13 @@ export function downloadExamIcs(
     }
 
     const description = [
-      `Mata Uji: ${title}`,
-      `Jenis: ${exam.jenis || jenis}`,
-      `Kode MK: ${exam.kodeMK}`,
-      exam.dosen ? `Pengawas / Dosen: ${exam.dosen}` : null,
-      exam.ruang ? `Ruangan: ${exam.ruang}` : null,
-      exam.mode ? `Mode Ujian: ${exam.mode}` : null,
-      `Aplikasi: JadwalKu (${APP_URL})`,
+      `Mata Uji: ${escapeIcsText(title)}`,
+      `Jenis: ${escapeIcsText(exam.jenis || jenis)}`,
+      `Kode MK: ${escapeIcsText(exam.kodeMK)}`,
+      exam.dosen ? `Pengawas / Dosen: ${escapeIcsText(exam.dosen)}` : null,
+      exam.ruang ? `Ruangan: ${escapeIcsText(exam.ruang)}` : null,
+      exam.mode ? `Mode Ujian: ${escapeIcsText(exam.mode)}` : null,
+      `Aplikasi: JadwalKu (${escapeIcsText(APP_URL)})`,
     ]
       .filter(Boolean)
       .join('\\n')

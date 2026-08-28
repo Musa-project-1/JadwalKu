@@ -17,6 +17,7 @@ import {
 } from '../../components/admin/AdminFilterDropdowns'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
+import { useCampus } from '../../context/CampusContext'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory, publishDocuments, saveSettings } from '../../lib/publishHelpers'
 import { deriveTahunAjaran } from '../../lib/tahunAjaran'
@@ -74,6 +75,7 @@ export default function ManageSchedule() {
   const { data: settingsDocs } = useFirestore('settings')
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
+  const { prodiNames: campusProdiNames } = useCampus()
 
   const academicCalendar = useMemo(
     () => settingsDocs?.find((s) => s.id === 'academicCalendar'),
@@ -90,12 +92,13 @@ export default function ManageSchedule() {
     return map
   }, [courses])
 
-  // List prodi options gabungan
+  // List prodi options gabungan — prioritaskan config kampus, fallback DB + default.
   const prodiOptions = useMemo(() => {
     const fromDb = programs?.map((p) => p.nama || p.id).filter(Boolean) || []
-    const combined = [...new Set(['Informatika', 'Bisnis Digital', 'Arsitektur', 'Teknik Sipil', 'Kewirausahaan', ...fromDb])]
+    const fromCampus = campusProdiNames || []
+    const combined = [...new Set([...fromCampus, 'Informatika', 'Bisnis Digital', 'Arsitektur', 'Teknik Sipil', 'Kewirausahaan', ...fromDb])]
     return combined.sort()
-  }, [programs])
+  }, [programs, campusProdiNames])
 
   // List existing Tahun Ajaran in system
   const existingTAs = useMemo(() => {

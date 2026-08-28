@@ -196,14 +196,19 @@ export const ROOM_NAME_MAP = {
 /**
  * Format nama ruangan agar ramah dibaca dan mendeskripsikan lokasi fisik/daring yang tepat.
  * Memetakan HBH -> Gedung Halimah, HBD -> Gedung Dekanat, K2/GBK2 -> Online / Zoom, K1 -> Ruang Kelas Prodi.
+ *
+ * @param {string} ruang
+ * @param {string} [tipeKelas]
+ * @param {object} [roomMap] peta ruang tambahan dari config kampus (optional)
  */
-export function formatRuang(ruang, tipeKelas = '') {
+export function formatRuang(ruang, tipeKelas = '', roomMap = {}) {
   const cleanRuang = String(ruang || '').trim()
   const cleanTipe = String(tipeKelas || '').trim().toUpperCase()
+  const activeMap = roomMap && Object.keys(roomMap).length > 0 ? roomMap : ROOM_NAME_MAP
 
   // 1. Cek langsung pemetaan kode ruang
-  if (cleanRuang && ROOM_NAME_MAP[cleanRuang.toUpperCase()]) {
-    return ROOM_NAME_MAP[cleanRuang.toUpperCase()]
+  if (cleanRuang && activeMap[cleanRuang.toUpperCase()]) {
+    return activeMap[cleanRuang.toUpperCase()]
   }
 
   // 2. Pola dinamis seperti 2-A, 4-A, 6-A, 8-A -> Ruang Kelas [X-A]
@@ -217,11 +222,11 @@ export function formatRuang(ruang, tipeKelas = '') {
 
   // 3. Jika ruang kosong atau '-' tapi ada tipeKelas
   if (!cleanRuang || cleanRuang === '-') {
-    if (cleanTipe === 'K2' || cleanTipe === 'GBK2') return 'Online / Zoom'
-    if (cleanTipe === 'HBH') return 'Gedung Halimah'
-    if (cleanTipe === 'HBD') return 'Gedung Dekanat'
-    if (cleanTipe === 'GBK1') return 'Ruang Kelas Gabungan'
-    if (cleanTipe === 'K1') return 'Ruang Kelas Prodi'
+    if (cleanTipe === 'K2' || cleanTipe === 'GBK2') return activeMap.K2 || 'Online / Zoom'
+    if (cleanTipe === 'HBH') return activeMap.HBH || 'Gedung Halimah'
+    if (cleanTipe === 'HBD') return activeMap.HBD || 'Gedung Dekanat'
+    if (cleanTipe === 'GBK1') return activeMap.GBK1 || 'Ruang Kelas Gabungan'
+    if (cleanTipe === 'K1') return activeMap.K1 || 'Ruang Kelas Prodi'
     return '-'
   }
 
