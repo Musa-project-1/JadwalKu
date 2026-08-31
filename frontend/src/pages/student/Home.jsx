@@ -5,19 +5,17 @@ import { useFirestore } from '../../hooks/useFirestore'
 import { useTasks } from '../../hooks/useTasks'
 import { Icon } from '../../components/Icon'
 import { NextClassCard } from '../../components/NextClassCard'
-import { ClassTimelineItem } from '../../components/ClassTimelineItem'
 import { EmptyState } from '../../components/EmptyState'
 import { Skeleton } from '../../components/Skeleton'
 import { sampleSchedule, sampleCourses } from '../../data/sampleSchedule'
 import { firebaseReady } from '../../lib/firebaseClient'
 import {
-  detectClassTransitions,
   formatCountdown,
   formatLongDate,
+  formatRuang,
   getClassLiveState,
   getGreetingData,
   getTodayName,
-  minutesUntil,
   sortByTime,
 } from '../../lib/scheduleUtils'
 
@@ -87,12 +85,13 @@ export default function Home() {
     [scheduleSource, tomorrowName],
   )
 
-  // Agenda / Libur terdekat dari kalender akademik
+  // Agenda / Fase kegiatan terdekat dari kalender akademik (settings/academicCalendar.events)
   const upcomingAgenda = useMemo(() => {
-    if (!calDoc?.holidays || !Array.isArray(calDoc.holidays)) return []
+    const events = calDoc?.events || []
+    if (!Array.isArray(events) || events.length === 0) return []
     const todayStr = new Date().toISOString().slice(0, 10)
-    return calDoc.holidays
-      .filter((h) => (h.tanggalSelesai || h.tanggalMulai || '') >= todayStr)
+    return events
+      .filter((e) => (e.tanggalSelesai || e.tanggalMulai || '') >= todayStr)
       .sort((a, b) => (a.tanggalMulai || '').localeCompare(b.tanggalMulai || ''))
       .slice(0, 3)
   }, [calDoc])
@@ -109,9 +108,20 @@ export default function Home() {
     return getClassLiveState(todayEntries, nowMinutes)
   }, [todayEntries, nowMinutes])
 
-  const todayTransitions = useMemo(() => {
-    return detectClassTransitions(todayEntries)
-  }, [todayEntries])
+  const nextEntries = useMemo(() => {
+    // Dinamis: tampilkan maksimal 3 sesi setelah highlight (total max 4 incl. highlight),
+    // agar layout tetap ringkas dan proporsional tanpa hardcode dummy.
+    if (todayEntries.length === 0) return []
+    const sorted = sortByTime(todayEntries)
+    const idx = liveClassState.entry ? sorted.findIndex((e) => e.id === liveClassState.entry.id) : -1
+    if (idx >= 0) return sorted.slice(idx + 1, idx + 4)
+    if (liveClassState.status === 'finished' || liveClassState.status === 'empty') return []
+    if (idx === -1 && sorted.length > 1) return sorted.slice(1, 4)
+    return []
+  }, [todayEntries, liveClassState])
+
+  const displayedCount = todayEntries.length === 0 ? 0 : 1 + nextEntries.length
+  const hasMoreToday = todayEntries.length > displayedCount
 
   // TA ditampilkan = TA di mana semester berjalan berada (via logika
   // tahunAjaran), bukan dari data yang mungkin basi / beragam.
@@ -152,108 +162,107 @@ export default function Home() {
   const greeting = getGreetingData()
 
   return (
-    <div className="flex flex-col gap-3.5 w-full max-w-full min-h-0 animate-fade-in">
-      {/* ── TOP HERO ROW: Dynamic Gradient Greeting (Left) & Vanguard Beveled 3 Stats (Right) ── */}
-      <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10">
-        <header className={`rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 ${greeting.headerBg} bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low flex flex-col desktop:flex-row desktop:items-center justify-between gap-3.5 shrink-0 backdrop-blur-xs`}>
-          {/* Left: Greeting icon, Gradient Title, Prodi & TA Badge */}
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div
-              className={`flex h-11 w-11 tablet:h-12 tablet:w-12 shrink-0 items-center justify-center rounded-2xl ${greeting.iconBg} shadow-xs`}
-              aria-hidden="true"
-            >
-              <Icon name={greeting.icon} size={24} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className={`font-marker font-bold text-[22px] tablet:text-[26px] leading-tight tracking-wide bg-gradient-to-r ${greeting.textGradient} bg-clip-text text-transparent drop-shadow-xs whitespace-nowrap`}>
-                  {greeting.text}!
-                </h2>
+    <div className="flex flex-col gap-3.5 w-full max-w-full overflow-x-hidden min-h-0 animate-fade-in">
+      {/* 1. Header — 1:1 dengan WeeklySchedule / Tasks / Exams / Pengaturan */}
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3.5 w-full">
+        {/* Left: Greeting icon + gradient title + Prodi & TA badge */}
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div
+            className={`flex h-11 w-11 tablet:h-11 shrink-0 items-center justify-center rounded-2xl ${greeting.iconBg} shadow-xs`}
+            aria-hidden="true"
+          >
+            <Icon name={greeting.icon} size={22} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className={`font-bold text-xl tablet:text-2xl leading-tight tracking-tight bg-gradient-to-r ${greeting.textGradient} bg-clip-text text-transparent drop-shadow-xs whitespace-nowrap`}>
+                {greeting.text}!
+              </h2>
                 {isCustomMode ? (
                   <button
                     type="button"
                     onClick={() => navigate('/jadwal')}
-                    className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-label-caps font-bold text-amber-900 dark:text-amber-300 shadow-2xs hover:bg-amber-500/25 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 dark:text-amber-300 shadow-2xs hover:bg-amber-500/25 transition-colors cursor-pointer"
                     title="Klik untuk melihat atau mengatur Jadwal Kustom"
                   >
                     <Icon name="star" size={13} className="text-amber-500" />
                     <span>Jadwal Kustom ({scheduleSource.length} MK)</span>
                   </button>
                 ) : program ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 dark:bg-emerald-500/15 border border-primary/25 dark:border-emerald-500/30 px-3 py-0.5 text-label-caps font-bold text-primary dark:text-emerald-300 shadow-2xs">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 dark:bg-emerald-500/15 border border-primary/25 dark:border-emerald-500/30 px-3 py-0.5 text-[11px] font-bold text-primary dark:text-emerald-300 shadow-2xs">
                     <Icon name="school" size={13} className="text-primary dark:text-emerald-300 shrink-0" />
                     <span>{program} · Sem. {semester}{dataTA ? ` · TA ${dataTA}` : ''}</span>
                   </span>
                 ) : null}
               </div>
-              <p className="text-body-xs font-medium text-on-surface-variant whitespace-nowrap mt-0.5">
+              <p className="text-body-xs font-medium text-on-surface-variant truncate mt-0.5">
                 {formatLongDate()}
               </p>
             </div>
           </div>
 
-          {/* Right: 3 Quick Stat Buttons (SKS, Kelas, Tugas) with Rich Gradients & Tactile Vanguard Spring */}
-          <div className="grid grid-cols-3 gap-2 w-full desktop:w-auto desktop:flex desktop:items-center shrink-0">
+          {/* Right: 3 Quick Stats — pill style selaras dengan toolbar lain (tanpa inset shadow) */}
+          <div className="flex items-center gap-2 shrink-0 w-full tablet:w-auto">
+            <div className="grid grid-cols-3 gap-2 w-full tablet:w-auto tablet:flex tablet:items-center">
             <button
               type="button"
               onClick={() => navigate('/jadwal')}
-              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-teal-500/20 border border-emerald-500/35 px-3 py-1.5 text-center shadow-xs hover:scale-[1.03] active:scale-[0.97] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] cursor-pointer group shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]"
+              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 px-3 py-1.5 shadow-2xs cursor-pointer group"
               title="Total SKS Semester Ini"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold group-hover:bg-emerald-500/30 transition-colors shrink-0">
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold group-hover:bg-emerald-500/30 transition-colors shrink-0">
                 <Icon name="menu_book" size={16} />
               </span>
               <div className="text-left">
                 <p className="text-body-sm font-bold text-emerald-950 dark:text-emerald-100 leading-none">{stats.totalSks}</p>
-                <p className="text-[9.5px] font-bold text-emerald-800/90 dark:text-emerald-300 uppercase tracking-wide leading-none mt-0.5">SKS</p>
+                <p className="text-[9.5px] font-bold text-emerald-800/80 dark:text-emerald-300 uppercase tracking-wide leading-none mt-0.5">SKS</p>
               </div>
             </button>
 
             <button
               type="button"
               onClick={() => navigate('/jadwal')}
-              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-gradient-to-br from-blue-500/15 via-blue-500/10 to-indigo-500/20 border border-blue-500/35 px-3 py-1.5 text-center shadow-xs hover:scale-[1.03] active:scale-[0.97] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] cursor-pointer group shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]"
+              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-blue-500/10 border border-blue-500/25 px-3 py-1.5 shadow-2xs cursor-pointer group"
               title="Total Sesi Kelas Mingguan"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold group-hover:bg-blue-500/30 transition-colors shrink-0">
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-blue-500/15 text-blue-700 dark:text-blue-300 font-bold group-hover:bg-blue-500/30 transition-colors shrink-0">
                 <Icon name="calendar_month" size={16} />
               </span>
               <div className="text-left">
                 <p className="text-body-sm font-bold text-blue-950 dark:text-blue-100 leading-none">{stats.totalKelas}</p>
-                <p className="text-[9.5px] font-bold text-blue-800/90 dark:text-blue-300 uppercase tracking-wide leading-none mt-0.5">Kelas</p>
+                <p className="text-[9.5px] font-bold text-blue-800/80 dark:text-blue-300 uppercase tracking-wide leading-none mt-0.5">Kelas</p>
               </div>
             </button>
 
             <button
               type="button"
               onClick={() => navigate('/tugas')}
-              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-gradient-to-br from-purple-500/15 via-purple-500/10 to-pink-500/20 border border-purple-500/35 px-3 py-1.5 text-center shadow-xs hover:scale-[1.03] active:scale-[0.97] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] cursor-pointer group shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]"
+              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-purple-500/10 border border-purple-500/25 px-3 py-1.5 shadow-2xs cursor-pointer group"
               title="Tugas Tertunda"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold group-hover:bg-purple-500/30 transition-colors shrink-0">
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-500/15 text-purple-700 dark:text-purple-300 font-bold group-hover:bg-purple-500/30 transition-colors shrink-0">
                 <Icon name="assignment_late" size={16} />
               </span>
               <div className="text-left">
                 <p className="text-body-sm font-bold text-purple-950 dark:text-purple-100 leading-none">{stats.tugasOpen}</p>
-                <p className="text-[9.5px] font-bold text-purple-800/90 dark:text-purple-300 uppercase tracking-wide leading-none mt-0.5">Tugas</p>
+                <p className="text-[9.5px] font-bold text-purple-800/80 dark:text-purple-300 uppercase tracking-wide leading-none mt-0.5">Tugas</p>
               </div>
             </button>
           </div>
-        </header>
-      </div>
+        </div>
+      </header>
 
       {/* Broadcast Pengumuman Kampus & Kuliah Pengganti */}
       <AnnouncementBanner currentProgram={program} currentSemester={semester} />
 
-      {/* ── MAIN SECTION: 2 EQUAL-HEIGHT COLUMNS ON DESKTOP ── */}
+      {/* 3. Main Grid — parent grid stretch agar kedua kolom sama tinggi mengikuti kolom terpanjang; konten tetap top-aligned */}
       <div className="grid grid-cols-1 desktop:grid-cols-12 gap-3.5 desktop:items-stretch">
-        {/* ── LEFT COLUMN (7 COLS): JADWAL KULIAH CARD (Today's Timeline + Tomorrow Footer) ── */}
-        <div className="desktop:col-span-7 rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col">
-          <section className="rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low flex flex-col justify-between min-h-[460px] tablet:min-h-[480px] flex-1">
-            <div>
-              {/* Header: Title + Session count */}
+        {/* LEFT COLUMN (7 COLS): JADWAL KULIAH CARD */}
+        <section className="desktop:col-span-7 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col flex-1 self-stretch min-h-0">
+            <div className="flex flex-col flex-1 min-h-0">
+              {/* Header: Title + Session count — neutral */}
               <div className="flex items-center justify-between pb-3 border-b border-outline-variant/15 mb-3 gap-2">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/20">
                     <Icon name="event_available" size={18} />
                   </span>
@@ -261,14 +270,26 @@ export default function Home() {
                     Jadwal Kuliah Hari Ini (<span className="text-primary">{todayName}</span>)
                   </h3>
                 </div>
-                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 shrink-0">
+                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 border border-primary/20 shrink-0">
                   {todayEntries.length} Sesi
                 </span>
               </div>
 
-              {/* Status Kelas Live / Kelas Berikutnya / Selesai Hari Ini Callout */}
-              {liveClassState.status !== 'empty' && (
-                <div className="mb-3">
+              {/* Highlight: Kelas Berikutnya / Sedang Berlangsung / Selesai — hijau (var(--bg-success)) hanya di box ini */}
+              {loading ? (
+                <div className="mt-3 space-y-2">
+                  <Skeleton className="h-32 rounded-3xl" />
+                </div>
+              ) : todayEntries.length === 0 ? (
+                <div className="mt-3 flex flex-col items-center justify-center py-10">
+                  <EmptyState
+                    icon="beach_access"
+                    title="Tidak ada perkuliahan hari ini"
+                    description="Nikmati harimu atau cek materi untuk perkuliahan besok."
+                  />
+                </div>
+              ) : (
+                <div className="mt-3 space-y-3 flex-1">
                   <NextClassCard
                     liveState={liveClassState}
                     course={activeCourse}
@@ -281,80 +302,65 @@ export default function Home() {
                     onLocation={(entry, course) => setRoomModalTarget({ entry, course })}
                     onViewSchedule={() => navigate('/jadwal')}
                   />
-                </div>
-              )}
-
-              {/* Timeline List */}
-              {loading ? (
-                <div className="space-y-2 py-2">
-                  <Skeleton className="h-16 rounded-2xl" />
-                  <Skeleton className="h-16 rounded-2xl" />
-                </div>
-              ) : todayEntries.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center py-8">
-                  <EmptyState
-                    icon="beach_access"
-                    title="Tidak ada perkuliahan hari ini"
-                    description="Nikmati harimu atau cek materi untuk perkuliahan besok."
-                  />
-                </div>
-              ) : (
-                <div className="relative pl-6 py-1">
-                  <div className="absolute left-[11px] top-4 bottom-4 w-0.5 bg-outline-variant/30" />
-                  {todayEntries.map((entry, i) => {
-                    const startM = minutesUntil(entry.jamMulai)
-                    const prevEnded = i === 0 || minutesUntil(todayEntries[i - 1].jamSelesai) <= 0
-                    const showNow = startM > 0 && prevEnded
+                  {/* Sesi berikut — compact neutral, hierarki sekunder (max 3 setelah highlight, total max 4) */}
+                  {nextEntries.map((entry, i) => {
+                    const c = courseMap.get(entry.kodeMK)
                     return (
-                      <ClassTimelineItem
+                      <button
                         key={entry.id}
-                        entry={entry}
-                        course={courseMap.get(entry.kodeMK)}
-                        index={i}
-                        isPast={minutesUntil(entry.jamSelesai) <= 0}
-                        showNowBefore={showNow}
-                        nowLabel={`${String(Math.floor(nowMinutes / 60)).padStart(2, '0')}:${String(nowMinutes % 60).padStart(2, '0')}`}
-                        note={getItem(`${STORAGE_KEYS.courseNotes}:${entry.kodeMK}`, '')}
-                        transition={todayTransitions.get(entry.id)}
-                        links={getItem(`${STORAGE_KEYS.courseLinks}:${entry.kodeMK}`, null)}
-                        onLocationClick={(entry, course) => setRoomModalTarget({ entry, course })}
-                        onNoteClick={() => navigate('/jadwal', { state: { openKodeMK: entry.kodeMK } })}
-                      />
+                        type="button"
+                        onClick={() => navigate('/jadwal', { state: { openKodeMK: entry.kodeMK } })}
+                        className="w-full text-left rounded-2xl border border-outline-variant/20 bg-surface-container-low/40 dark:bg-surface-container-high/20 hover:bg-surface-container-low dark:hover:bg-surface-container-high/40 p-3 flex items-center justify-between gap-3 transition-colors"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[11px] font-bold tracking-wide uppercase text-on-surface-variant">{i === 0 ? 'Selanjutnya' : i === 1 ? 'Setelah itu' : 'Berikutnya'}</p>
+                          <p className="text-body-sm font-bold text-on-surface truncate">{c?.namaMK ?? entry.kodeMK}</p>
+                          <p className="text-[11px] text-on-surface-variant flex items-center gap-1 truncate">
+                            <Icon name="schedule" size={12} className="shrink-0 opacity-70" />
+                            {entry.jamMulai} - {entry.jamSelesai} · {formatRuang(entry.ruang, entry.tipeKelas)}
+                          </p>
+                        </div>
+                        <span className="shrink-0 inline-flex items-center rounded-lg bg-surface-container dark:bg-surface-container-high border border-outline-variant/20 px-2 py-1 font-mono text-[11px] font-bold text-on-surface-variant">
+                          {entry.kodeMK}
+                        </span>
+                      </button>
                     )
                   })}
                 </div>
               )}
             </div>
 
-            {/* Footer Sub-Bar: Clean navigation to weekly schedule */}
-            <div className="pt-2.5 mt-3 border-t border-outline-variant/15 flex items-center justify-between gap-2 flex-wrap text-body-xs bg-surface-container-low/50 dark:bg-surface-container-high/30 p-2.5 rounded-2xl border border-outline-variant/15">
-              <div className="flex items-center gap-2 text-on-surface font-semibold min-w-0">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                  <Icon name="calendar_month" size={15} />
-                </span>
-                <span className="truncate text-body-xs text-on-surface-variant font-medium">
-                  {todayEntries.length > 0
-                    ? <span>{todayEntries.length} sesi perkuliahan aktif hari ini ({todayName})</span>
-                    : <span>Tidak ada sesi perkuliahan aktif hari ini ({todayName})</span>}
-                </span>
+            {/* Footer: Lihat semua jadwal hari ini — netral, mt-auto pin ke bawah bila card stretch */}
+            {!loading && hasMoreToday && (
+              <div className="mt-auto pt-4 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => navigate('/jadwal')}
+                  className="inline-flex items-center gap-1.5 text-body-sm font-bold text-primary hover:underline underline-offset-4 cursor-pointer"
+                >
+                  <span>Lihat semua jadwal hari ini</span>
+                  <Icon name="arrow_forward" size={16} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => navigate('/jadwal')}
-                className="font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer shrink-0 ml-auto"
-              >
-                <span>Jadwal Mingguan Lengkap</span>
-                <Icon name="arrow_forward" size={14} />
-              </button>
-            </div>
+            )}
+            {!loading && todayEntries.length === 0 && (
+              <div className="mt-auto pt-4 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => navigate('/jadwal')}
+                  className="inline-flex items-center gap-1.5 text-body-sm font-semibold text-on-surface-variant hover:text-primary hover:underline underline-offset-4 cursor-pointer"
+                >
+                  <span>Lihat jadwal mingguan</span>
+                  <Icon name="arrow_forward" size={16} />
+                </button>
+              </div>
+            )}
           </section>
-        </div>
 
-        {/* ── RIGHT COLUMN (5 COLS): CATATAN, COMPACT TUGAS & JADWAL BESOK ── */}
-        <aside className="desktop:col-span-5 flex flex-col justify-between gap-3.5 min-h-[460px] tablet:min-h-[480px]">
-          {/* 1. Catatan Hari Ini — Warm Accent Sticky Note in double-bezel */}
-          <div className="rounded-[2rem] p-1 bg-amber-500/10 border border-amber-500/20 shadow-2xs dark:bg-amber-950/20">
-            <section className="rounded-[calc(2rem-0.25rem)] bg-gradient-to-br from-amber-500/15 via-[#FFF4E5] to-amber-500/10 dark:from-amber-950/30 dark:via-warning-container/20 dark:to-amber-900/15 border-l-4 border-amber-500 p-3 tablet:p-3.5 shadow-xs flex flex-col border-t border-r border-b border-amber-500/20">
+        {/* RIGHT COLUMN (5 COLS): CATATAN, COMPACT TUGAS & JADWAL BESOK */}
+        <aside className="desktop:col-span-5 flex flex-col gap-3.5 h-full min-h-0">
+          {/* 1. Catatan Hari Ini — Warm Accent Sticky Note */}
+          <section className="rounded-3xl border border-amber-500/25 dark:border-amber-500/20 bg-gradient-to-br from-amber-500/15 via-[#FFF4E5] to-amber-500/10 dark:from-amber-950/30 dark:via-warning-container/20 dark:to-amber-900/15 border-l-4 border-l-amber-500 p-3 tablet:p-3.5 shadow-xs flex flex-col">
               <h3 className="mb-1 flex items-center gap-2 text-body-sm font-bold text-[#92400E] dark:text-warning">
                 <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-amber-500/20 text-[#D97706]">
                   <Icon name="edit_note" size={15} />
@@ -371,11 +377,9 @@ export default function Home() {
                 className="h-12 w-full resize-none bg-transparent p-0 text-body-xs text-[#92400E] dark:text-warning placeholder:text-[#92400E]/60 dark:placeholder:text-warning/60 focus:outline-none"
               />
             </section>
-          </div>
 
-          {/* 2. Tugas Terdekat (Kotak Ringkas / Compact in double-bezel) */}
-          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10">
-            <section className="rounded-[calc(2rem-0.25rem)] bg-surface-container-lowest p-3 tablet:p-3.5 shadow-xs border border-outline-variant/20 dark:bg-surface-container-low flex flex-col">
+          {/* 2. Tugas Terdekat — compact card */}
+          <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:p-3.5 shadow-xs flex flex-col">
               <div className="flex items-center justify-between pb-1.5 border-b border-outline-variant/15 mb-2">
                 <h3 className="flex items-center gap-1.5 text-body-sm font-bold text-on-surface">
                   <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-300">
@@ -401,7 +405,7 @@ export default function Home() {
                     className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/20 text-[10.5px] font-bold transition-colors cursor-pointer"
                   >
                     <Icon name="add" size={13} />
-                    <span>+ Tugas</span>
+                    <span>Tugas</span>
                   </button>
                 </div>
               ) : (
@@ -429,11 +433,9 @@ export default function Home() {
                 </ul>
               )}
             </section>
-          </div>
 
-          {/* 3. Jadwal Besok (Pengganti Pintasan Cepat in double-bezel) */}
-          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex-1 flex flex-col">
-            <section className="rounded-[calc(2rem-0.25rem)] bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs border border-outline-variant/20 dark:bg-surface-container-low flex flex-col flex-1 justify-between">
+          {/* 3. Jadwal Besok */}
+          <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 tablet:p-4 shadow-xs flex flex-col">
               <div>
                 <div className="flex items-center justify-between pb-2 border-b border-outline-variant/15 mb-2.5">
                   <div className="flex items-center gap-2">
@@ -457,7 +459,7 @@ export default function Home() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {tomorrowEntries.slice(0, 2).map((item) => {
+                    {tomorrowEntries.map((item) => {
                       const course = courseMap.get(item.kodeMK)
                       return (
                         <div
@@ -500,7 +502,6 @@ export default function Home() {
                 </div>
               )}
             </section>
-          </div>
         </aside>
       </div>
 
