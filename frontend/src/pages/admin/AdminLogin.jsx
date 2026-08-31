@@ -60,7 +60,7 @@ export default function AdminLogin() {
           viewTransition
           className="flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-lowest/80 dark:bg-surface-container-low/80 backdrop-blur-md px-3.5 py-1.5 text-body-xs font-bold text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all shadow-xs group"
         >
-          <Icon name="arrow_back" size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+          <Icon name="arrow_back" size={16} className="text-on-surface-variant group-hover:text-primary transition-colors" />
           <span>Mode Mahasiswa</span>
         </Link>
 
@@ -80,7 +80,7 @@ export default function AdminLogin() {
         {/* Brand Header */}
         <div className="mb-6 text-center">
           <div className="relative inline-flex items-center justify-center p-3 rounded-3xl bg-surface-container-lowest/90 dark:bg-surface-container-high/60 border border-outline-variant/30 shadow-md mb-3.5 group">
-            <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo JadwalKu" className="h-12 w-12 shrink-0 group-hover:scale-105 transition-transform" />
+            <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo JadwalKu" className="h-12 w-12 shrink-0 group-hover:opacity-90 transition-opacity" />
           </div>
           <h1 className="text-display-sm tablet:text-display-md font-bold font-brand tracking-tight text-on-surface">
             <span>Jadwal</span>
@@ -167,7 +167,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={submitting}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary via-primary to-teal-600 py-3 text-body-sm font-bold text-on-primary shadow-md hover:shadow-lg hover:brightness-105 active:scale-[0.99] disabled:opacity-60 transition-all cursor-pointer"
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary via-primary to-teal-600 py-3 text-body-sm font-bold text-on-primary shadow-md hover:shadow-lg hover:brightness-105 active:opacity-80 disabled:opacity-60 transition-all cursor-pointer"
             >
               {submitting ? (
                 <>

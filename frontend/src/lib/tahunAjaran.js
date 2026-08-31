@@ -10,7 +10,13 @@
  * Tahun ajaran X/(X+1) dimulai saat ganjil dimulai (akhir Sep tahun X).
  * Jadi pada 25 Agu 2026 kita masih berada dalam TA 2025/2026 (libur),
  * sedangkan TA 2026/2027 (ganjil) dimulai akhir Sep 2026.
+ *
+ * Sejak adanya fitur "Import Kalender Akademik", dokumen settings/academicCalendar
+ * juga dapat membawa `events` (daftar fase kegiatan). Jika `events` tersedia,
+ * batas ganjil/genap START & END otomatis DITURUNKAN dari event paling awal /
+ * paling akhir per semester — bukan lagi angka mati.
  */
+import { deriveBoundsFromEvents } from './academicCalendarParser'
 
 // Batas term default (bulan 0-index: Jan = 0 ... Sep = 8).
 export const ACADEMIC_CALENDAR = {
@@ -26,12 +32,28 @@ function toDate(year, { month, day }) {
 
 export function parseCalendarBounds(config) {
   if (!config) return ACADEMIC_CALENDAR
-  return {
+
+  const base = {
     ganjilStart: config.ganjilStart ?? ACADEMIC_CALENDAR.ganjilStart,
     ganjilEnd: config.ganjilEnd ?? ACADEMIC_CALENDAR.ganjilEnd,
     genapStart: config.genapStart ?? ACADEMIC_CALENDAR.genapStart,
     genapEnd: config.genapEnd ?? ACADEMIC_CALENDAR.genapEnd,
   }
+
+  // Jika events tersedia, batas otomatis diturunkan dari event (sumber kebenaran utama).
+  if (Array.isArray(config.events) && config.events.length > 0) {
+    const derived = deriveBoundsFromEvents(config.events)
+    if (derived) {
+      return {
+        ganjilStart: derived.ganjilStart ?? base.ganjilStart,
+        ganjilEnd: derived.ganjilEnd ?? base.ganjilEnd,
+        genapStart: derived.genapStart ?? base.genapStart,
+        genapEnd: derived.genapEnd ?? base.genapEnd,
+      }
+    }
+  }
+
+  return base
 }
 
 /**

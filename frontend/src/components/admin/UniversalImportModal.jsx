@@ -412,7 +412,7 @@ export function UniversalImportModal({
               onClick={() => fileInputRef.current?.click()}
               className={`group flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-7 text-center transition-all cursor-pointer ${
                 dragOver
-                  ? 'border-primary bg-primary/10 scale-[1.01]'
+                  ? 'border-primary bg-primary/10 shadow-md'
                   : 'border-outline-variant/40 bg-surface-container-low/40 hover:border-primary/60 hover:bg-surface-container-low'
               }`}
             >
@@ -427,7 +427,7 @@ export function UniversalImportModal({
                 }}
               />
 
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform shadow-xs">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors shadow-xs">
                 <Icon name="cloud_upload" size={30} />
               </div>
 

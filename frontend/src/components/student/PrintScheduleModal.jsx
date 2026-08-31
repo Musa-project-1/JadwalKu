@@ -84,77 +84,100 @@ export function PrintScheduleModal({
     year: 'numeric',
   }).format(new Date())
 
+  const activeOptionsCount = [showLecturer, showRoom, showSks, showNotes, showMemoSpace].filter(Boolean).length
+
   return (
     <>
-      {/* 1. Modal Interaktif di Layar */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-3 sm:p-5 animate-fade-in print:hidden">
+      {/* 1. Interactive Centered Modal on Screen */}
+      <div
+        onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="print-schedule-title"
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-6 bg-black/65 backdrop-blur-xs animate-fade-in print:hidden"
+      >
         <div
           ref={modalRef}
-          className="flex flex-col w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up"
+          onClick={(e) => e.stopPropagation()}
+          className="flex flex-col w-full max-w-5xl max-h-[92vh] tablet:max-h-[88vh] overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up"
         >
-          {/* Header Modal */}
-          <div className="flex items-center justify-between border-b border-outline-variant/20 px-5 py-4 shrink-0 bg-surface-container-low/40">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary dark:bg-primary/20">
-                <Icon name="print" size={22} />
+          {/* Header Banner - Rich Full-Width Teal/Emerald Gradient matching the design system */}
+          <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                  <Icon name="print" size={22} />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                    <h2 id="print-schedule-title" className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
+                      Cetak Jadwal Kuliah
+                    </h2>
+                    <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                      A4 Ready
+                    </span>
+                  </div>
+                  <p className="text-body-xs text-white/80 font-medium truncate">
+                    Format hemat tinta untuk dinding kamar kos / meja belajar / saku dompet
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-title-md font-bold text-on-surface">Cetak Jadwal Kuliah</h2>
-                <p className="text-body-xs text-on-surface-variant font-medium">
-                  Format hemat tinta untuk dinding kamar kos / meja belajar / saku dompet
-                </p>
-              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Tutup modal"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+              >
+                <Icon name="close" size={20} />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
-            >
-              <Icon name="close" size={20} />
-            </button>
           </div>
 
-          {/* Body: Side-by-Side Flex Layout (Left: Slim Controls, Right: Live Sheet Preview) */}
-          <div className="flex-1 overflow-y-auto flex flex-col desktop:flex-row items-stretch gap-5 p-5">
-            {/* Kolom Pengaturan Kiri (Slim Sidebar Controls) */}
-            <div className="w-full desktop:w-[340px] shrink-0 space-y-3.5">
-              {/* Pilihan Format */}
+          {/* 2-Column Split Body (Left: Slim Controls, Right: Live Sheet Preview) */}
+          <div className="grid grid-cols-1 tablet:grid-cols-12 flex-1 min-h-0 overflow-y-auto tablet:overflow-hidden">
+            {/* LEFT COLUMN: Configuration Controls */}
+            <div className="tablet:col-span-5 tablet:overflow-y-auto p-4 tablet:p-5 space-y-3.5 border-b tablet:border-b-0 tablet:border-r border-outline-variant/20 bg-surface-container-low/40 dark:bg-surface-container-high/20 custom-scrollbar">
+              {/* Pilihan Format Desain */}
               <div>
-                <label className="block text-label-caps uppercase tracking-wider text-on-surface-variant mb-1.5 font-bold">
+                <label className="block text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5 font-extrabold">
                   Format Desain
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setLayoutFormat('wall')}
-                    className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all cursor-pointer ${
                       layoutFormat === 'wall'
-                        ? 'border-primary bg-primary/10 text-primary font-bold shadow-xs'
-                        : 'border-outline-variant/25 bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
+                        ? 'border-teal-600 bg-teal-500/15 text-teal-900 dark:text-teal-200 font-bold shadow-xs ring-1 ring-teal-500/30'
+                        : 'border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
                     }`}
                   >
-                    <Icon name="table_chart" size={22} className="mb-1" />
-                    <span className="text-[11.5px] leading-tight font-semibold">Meja / Dinding (A4)</span>
+                    <Icon name="table_chart" size={22} className="mb-1 text-teal-700 dark:text-teal-400" />
+                    <span className="text-[11.5px] leading-tight font-extrabold">Meja / Dinding (A4)</span>
+                    <span className="text-[9.5px] opacity-75 font-medium mt-0.5">Tabel Lengkap</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setLayoutFormat('pocket')}
-                    className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all cursor-pointer ${
                       layoutFormat === 'pocket'
-                        ? 'border-primary bg-primary/10 text-primary font-bold shadow-xs'
-                        : 'border-outline-variant/25 bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
+                        ? 'border-teal-600 bg-teal-500/15 text-teal-900 dark:text-teal-200 font-bold shadow-xs ring-1 ring-teal-500/30'
+                        : 'border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
                     }`}
                   >
-                    <Icon name="badge" size={22} className="mb-1" />
-                    <span className="text-[11.5px] leading-tight font-semibold">Kartu Saku Lipat</span>
+                    <Icon name="badge" size={22} className="mb-1 text-teal-700 dark:text-teal-400" />
+                    <span className="text-[11.5px] leading-tight font-extrabold">Kartu Saku Lipat</span>
+                    <span className="text-[9.5px] opacity-75 font-medium mt-0.5">Ringkas & Praktis</span>
                   </button>
                 </div>
               </div>
 
-              {/* Judul Kustom */}
-              <div>
-                <label className="block text-label-caps uppercase tracking-wider text-on-surface-variant mb-1.5 font-bold">
+              {/* Judul Kustom Card */}
+              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 space-y-1.5 shadow-2xs">
+                <label className="block text-[11px] uppercase tracking-wider text-on-surface-variant font-extrabold">
                   Nama / Catatan Header (Opsional)
                 </label>
                 <input
@@ -162,130 +185,136 @@ export function PrintScheduleModal({
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
                   placeholder="Misal: Musa (NIM. 220101001)"
-                  className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
+                  className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 text-body-xs text-on-surface focus:outline-none focus:border-teal-600 dark:bg-surface-container-high/60 shadow-2xs"
                 />
               </div>
 
-              {/* Elemen yang Disertakan — Compact 2-Column Tile Grid */}
-              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container-high/30 p-3 space-y-2">
+              {/* Elemen yang Disertakan Card */}
+              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 space-y-2.5 shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <label className="block text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                  <label className="block text-[11px] uppercase tracking-wider text-on-surface-variant font-extrabold">
                     Informasi Disertakan
                   </label>
-                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                    {[showLecturer, showRoom, showSks, showNotes, showMemoSpace].filter(Boolean).length}/5 Aktif
+                  <span className="text-[10px] font-extrabold text-teal-800 dark:text-teal-300 bg-teal-500/15 border border-teal-500/25 px-2 py-0.5 rounded-full">
+                    {activeOptionsCount}/5 Aktif
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-1.5">
                   <label className={`flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer select-none group ${
                     showLecturer
-                      ? 'border-primary/40 bg-primary/10 text-primary font-bold shadow-2xs dark:bg-primary/15'
-                      : 'border-outline-variant/20 bg-surface-container-lowest/80 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-low'
+                      ? 'border-teal-600/40 bg-teal-500/15 text-teal-900 dark:text-teal-200 font-bold shadow-2xs'
+                      : 'border-outline-variant/20 bg-surface-container-low/50 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-high/30'
                   }`}>
                     <input
                       type="checkbox"
                       checked={showLecturer}
                       onChange={(e) => setShowLecturer(e.target.checked)}
-                      className="h-3.5 w-3.5 rounded text-primary focus:ring-primary cursor-pointer accent-primary shrink-0"
+                      className="h-3.5 w-3.5 rounded text-teal-600 focus:ring-teal-600 cursor-pointer accent-teal-600 shrink-0"
                     />
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <Icon name="person" size={15} className={showLecturer ? 'text-primary' : 'text-on-surface-variant'} />
+                      <Icon name="person" size={15} className={showLecturer ? 'text-teal-700 dark:text-teal-400' : 'text-on-surface-variant'} />
                       <span className="text-[11.5px] truncate">Dosen</span>
                     </div>
                   </label>
 
                   <label className={`flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer select-none group ${
                     showRoom
-                      ? 'border-primary/40 bg-primary/10 text-primary font-bold shadow-2xs dark:bg-primary/15'
-                      : 'border-outline-variant/20 bg-surface-container-lowest/80 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-low'
+                      ? 'border-teal-600/40 bg-teal-500/15 text-teal-900 dark:text-teal-200 font-bold shadow-2xs'
+                      : 'border-outline-variant/20 bg-surface-container-low/50 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-high/30'
                   }`}>
                     <input
                       type="checkbox"
                       checked={showRoom}
                       onChange={(e) => setShowRoom(e.target.checked)}
-                      className="h-3.5 w-3.5 rounded text-primary focus:ring-primary cursor-pointer accent-primary shrink-0"
+                      className="h-3.5 w-3.5 rounded text-teal-600 focus:ring-teal-600 cursor-pointer accent-teal-600 shrink-0"
                     />
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <Icon name="meeting_room" size={15} className={showRoom ? 'text-primary' : 'text-on-surface-variant'} />
+                      <Icon name="meeting_room" size={15} className={showRoom ? 'text-teal-700 dark:text-teal-400' : 'text-on-surface-variant'} />
                       <span className="text-[11.5px] truncate">Ruangan</span>
                     </div>
                   </label>
 
                   <label className={`flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer select-none group ${
                     showSks
-                      ? 'border-primary/40 bg-primary/10 text-primary font-bold shadow-2xs dark:bg-primary/15'
-                      : 'border-outline-variant/20 bg-surface-container-lowest/80 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-low'
+                      ? 'border-teal-600/40 bg-teal-500/15 text-teal-900 dark:text-teal-200 font-bold shadow-2xs'
+                      : 'border-outline-variant/20 bg-surface-container-low/50 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-high/30'
                   }`}>
                     <input
                       type="checkbox"
                       checked={showSks}
                       onChange={(e) => setShowSks(e.target.checked)}
-                      className="h-3.5 w-3.5 rounded text-primary focus:ring-primary cursor-pointer accent-primary shrink-0"
+                      className="h-3.5 w-3.5 rounded text-teal-600 focus:ring-teal-600 cursor-pointer accent-teal-600 shrink-0"
                     />
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <Icon name="menu_book" size={15} className={showSks ? 'text-primary' : 'text-on-surface-variant'} />
+                      <Icon name="menu_book" size={15} className={showSks ? 'text-teal-700 dark:text-teal-400' : 'text-on-surface-variant'} />
                       <span className="text-[11.5px] truncate">Beban SKS</span>
                     </div>
                   </label>
 
                   <label className={`flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer select-none group ${
                     showNotes
-                      ? 'border-primary/40 bg-primary/10 text-primary font-bold shadow-2xs dark:bg-primary/15'
-                      : 'border-outline-variant/20 bg-surface-container-lowest/80 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-low'
+                      ? 'border-teal-600/40 bg-teal-500/15 text-teal-900 dark:text-teal-200 font-bold shadow-2xs'
+                      : 'border-outline-variant/20 bg-surface-container-low/50 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-high/30'
                   }`}>
                     <input
                       type="checkbox"
                       checked={showNotes}
                       onChange={(e) => setShowNotes(e.target.checked)}
-                      className="h-3.5 w-3.5 rounded text-primary focus:ring-primary cursor-pointer accent-primary shrink-0"
+                      className="h-3.5 w-3.5 rounded text-teal-600 focus:ring-teal-600 cursor-pointer accent-teal-600 shrink-0"
                     />
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <Icon name="sticky_note_2" size={15} className={showNotes ? 'text-primary' : 'text-on-surface-variant'} />
+                      <Icon name="sticky_note_2" size={15} className={showNotes ? 'text-teal-700 dark:text-teal-400' : 'text-on-surface-variant'} />
                       <span className="text-[11.5px] truncate">Catatan Sesi</span>
                     </div>
                   </label>
 
                   <label className={`col-span-2 flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer select-none group ${
                     showMemoSpace
-                      ? 'border-primary/40 bg-primary/10 text-primary font-bold shadow-2xs dark:bg-primary/15'
-                      : 'border-outline-variant/20 bg-surface-container-lowest/80 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-low'
+                      ? 'border-teal-600/40 bg-teal-500/15 text-teal-900 dark:text-teal-200 font-bold shadow-2xs'
+                      : 'border-outline-variant/20 bg-surface-container-low/50 text-on-surface-variant hover:border-outline-variant/40 dark:bg-surface-container-high/30'
                   }`}>
                     <input
                       type="checkbox"
                       checked={showMemoSpace}
                       onChange={(e) => setShowMemoSpace(e.target.checked)}
-                      className="h-3.5 w-3.5 rounded text-primary focus:ring-primary cursor-pointer accent-primary shrink-0"
+                      className="h-3.5 w-3.5 rounded text-teal-600 focus:ring-teal-600 cursor-pointer accent-teal-600 shrink-0"
                     />
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <Icon name="draw" size={15} className={showMemoSpace ? 'text-primary' : 'text-on-surface-variant'} />
-                      <span className="text-[11.5px] truncate">Kolom Memo & Target Belajar</span>
+                      <Icon name="draw" size={15} className={showMemoSpace ? 'text-teal-700 dark:text-teal-400' : 'text-on-surface-variant'} />
+                      <span className="text-[11.5px] truncate font-semibold">Kolom Memo & Target Belajar</span>
                     </div>
                   </label>
                 </div>
               </div>
 
-              {/* Tips Cetak */}
-              <div className="rounded-2xl bg-amber-500/10 border border-amber-500/25 p-3 text-[11px] text-amber-950 dark:text-amber-200 leading-relaxed space-y-1">
-                <p className="font-bold flex items-center gap-1">
-                  <Icon name="lightbulb" size={14} className="text-amber-600" />
+              {/* Tips Cetak Card */}
+              <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-3 text-[11px] text-amber-950 dark:text-amber-200 leading-relaxed space-y-1 shadow-2xs">
+                <p className="font-bold flex items-center gap-1 text-amber-900 dark:text-amber-300">
+                  <Icon name="lightbulb" size={15} className="text-amber-600 dark:text-amber-400" />
                   Tips Hemat Tinta:
                 </p>
-                <p>
-                  Pilih opsi cetak <strong>"Save as PDF"</strong> atau atur warna printer ke <strong>"Monochrome / Grayscale"</strong> untuk hasil paling hemat tinta.
+                <p className="font-medium">
+                  Pilih opsi cetak <strong>&quot;Save as PDF&quot;</strong> atau atur printer ke <strong>&quot;Monochrome / Grayscale&quot;</strong> untuk hasil paling bersih dan hemat tinta.
                 </p>
               </div>
             </div>
 
-            {/* Kolom Kanan: Pratinjau Lembar Cetak (Live Paper Preview) */}
-            <div className="flex-1 min-w-0 flex flex-col items-center">
-              <p className="text-label-caps uppercase tracking-wider text-on-surface-variant self-start mb-2 font-bold">
-                Pratinjau Lembar Cetak
-              </p>
-              <div className="w-full max-h-[540px] overflow-y-auto rounded-2xl border border-outline-variant/35 bg-neutral-300/80 dark:bg-neutral-900/90 p-3 sm:p-5 shadow-inner">
-                {/* Simulated Sheet — 100% Solid White Paper Container */}
+            {/* RIGHT COLUMN: Live Sheet Preview */}
+            <div className="tablet:col-span-7 tablet:overflow-y-auto p-4 tablet:p-5 flex flex-col items-center bg-surface-container-lowest dark:bg-surface-container-low custom-scrollbar">
+              <div className="flex items-center justify-between w-full mb-2.5">
+                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant font-extrabold">
+                  Pratinjau Lembar Cetak ({layoutFormat === 'wall' ? 'Tabel A4' : 'Kartu Saku'})
+                </p>
+                <span className="text-[10.5px] font-extrabold text-teal-800 dark:text-teal-300 bg-teal-500/15 border border-teal-500/25 px-2.5 py-0.5 rounded-full shadow-2xs">
+                  {scheduleEntries.length} Kelas Terjadwal
+                </span>
+              </div>
+
+              <div className="w-full flex-1 max-h-[560px] overflow-y-auto rounded-2xl border border-outline-variant/35 bg-neutral-200/80 dark:bg-neutral-900/90 p-3 tablet:p-5 shadow-inner custom-scrollbar">
+                {/* Simulated Sheet — 100% Solid White Paper Container with Real Shadow */}
                 <div
-                  className="w-full max-w-[595px] mx-auto bg-white text-neutral-900 p-5 rounded-lg shadow-md font-sans text-[11px] leading-normal border border-neutral-300 isolate"
+                  className="w-full max-w-[595px] mx-auto bg-white text-neutral-900 p-5 rounded-lg shadow-xl font-sans text-[11px] leading-normal border border-neutral-300 isolate"
                   style={{ backgroundColor: '#ffffff', color: '#171717' }}
                 >
                   {/* Paper Header */}
@@ -426,7 +455,7 @@ export function PrintScheduleModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-between border-t border-outline-variant/20 px-5 py-3.5 bg-surface-container-low/40 shrink-0">
+          <div className="flex items-center justify-between border-t border-outline-variant/20 px-4 tablet:px-6 py-3.5 bg-surface-container-low/40 shrink-0">
             <span className="text-[11px] text-on-surface-variant font-medium">
               Siap dicetak pada ukuran kertas A4
             </span>
@@ -441,7 +470,7 @@ export function PrintScheduleModal({
               <button
                 type="button"
                 onClick={handleTriggerPrint}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-on-primary text-body-xs font-bold shadow-sm hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-800 hover:bg-teal-700 text-white text-body-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer"
               >
                 <Icon name="print" size={16} />
                 <span>Cetak / Simpan PDF</span>
@@ -539,17 +568,17 @@ export function PrintScheduleModal({
                               )}
                             </td>
                             {showRoom && (
-                              <td className="py-1.5 px-2.5 text-neutral-800 whitespace-nowrap">
+                              <td className="py-1.5 px-2.5 text-neutral-800 whitespace-nowrap font-medium">
                                 {formatRuang(e.ruang, e.tipeKelas)}
                               </td>
                             )}
                             {showLecturer && (
-                              <td className="py-1.5 px-2.5 text-neutral-800">
+                              <td className="py-1.5 px-2.5 text-neutral-800 truncate max-w-[140px]">
                                 {c?.dosen || '-'}
                               </td>
                             )}
                             {showSks && (
-                              <td className="py-1.5 px-2.5 text-center text-neutral-800 font-semibold">
+                              <td className="py-1.5 px-2.5 text-center text-neutral-900 font-bold">
                                 {c?.sks || 2}
                               </td>
                             )}
@@ -563,31 +592,26 @@ export function PrintScheduleModal({
             })}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {activeDays.map((day) => {
               const entries = groupedByDay.get(day) || []
               return (
-                <div key={day} className="border border-neutral-500 rounded p-2 bg-white">
-                  <div className="font-extrabold text-xs uppercase border-b-2 border-neutral-400 pb-0.5 mb-1.5 text-neutral-900">
+                <div key={day} className="border border-neutral-500 rounded p-2 text-xs">
+                  <div className="font-extrabold uppercase border-b border-neutral-300 pb-0.5 mb-1.5">
                     {day}
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {entries.map((e, idx) => {
                       const c = courseMap.get(e.kodeMK)
                       return (
-                        <div key={e.id || idx} className="text-[10.5px] leading-tight border-b border-neutral-200 pb-1 last:border-0">
+                        <div key={e.id || idx} className="text-[11px] leading-tight">
                           <div className="font-bold text-neutral-900">
                             {c?.namaMK || e.kodeMK}
                           </div>
-                          <div className="text-neutral-700 flex items-center justify-between text-[9.5px] mt-0.5">
-                            <span className="font-semibold">{e.jamMulai} - {e.jamSelesai}</span>
+                          <div className="text-neutral-700 flex items-center justify-between text-[10px] mt-0.5 font-medium">
+                            <span>{e.jamMulai} - {e.jamSelesai}</span>
                             {showRoom && <span>{formatRuang(e.ruang, e.tipeKelas)}</span>}
                           </div>
-                          {showLecturer && c?.dosen && (
-                            <div className="text-[9px] text-neutral-600 truncate mt-0.5">
-                              {c.dosen}
-                            </div>
-                          )}
                         </div>
                       )
                     })}
@@ -598,25 +622,24 @@ export function PrintScheduleModal({
           </div>
         )}
 
-        {/* Memo Space */}
+        {/* Memo Space Box */}
         {showMemoSpace && (
-          <div className="mt-4 pt-2 border-t-2 border-neutral-300">
+          <div className="mt-3 pt-2 border-t border-neutral-400">
             <div className="flex items-center justify-between text-[10px] text-neutral-800 font-bold mb-1">
-              <span>MEMO / TARGET PERKULIAHAN:</span>
-              <span>TARGET IPK: [______]</span>
+              <span>MEMO / CATATAN TARGET KULIAH:</span>
+              <span>TARGET IPK: [_______]</span>
             </div>
-            <div className="border border-dashed border-neutral-400 rounded h-14 bg-neutral-50/50 p-2 text-[9px] text-neutral-400">
-              (Gunakan ruang ini untuk mencatat tugas penting, jadwal UTS/UAS, atau target semester ini)
+            <div className="border border-dashed border-neutral-400 rounded h-14 p-2 text-[10px] text-neutral-500">
+              (Ruang catatan tangan / tugas penting semester ini)
             </div>
           </div>
         )}
 
-        {/* Footer */}
-        <div className="mt-4 text-center text-[9px] text-neutral-500">
-          JadwalKu · Solusi Cerdas Manajemen Jadwal Kuliah Mahasiswa
+        {/* Footer App */}
+        <div className="mt-3 text-center text-[10px] text-neutral-600 font-medium">
+          JadwalKu · Solusi Manajemen Jadwal Perkuliahan Mahasiswa
         </div>
       </div>
     </>
   )
 }
-

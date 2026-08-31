@@ -456,7 +456,7 @@ export function DatabaseBackupRestoreModal({
                     onChange={handleFileSelected}
                     className="hidden"
                   />
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 mb-3 group-hover:scale-105 transition-transform">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 mb-3 group-hover:bg-teal-500/20 transition-colors">
                     <Icon name="upload_file" size={28} />
                   </div>
                   <h4 className="text-body-sm font-bold text-on-surface">
@@ -674,7 +674,7 @@ export function DatabaseBackupRestoreModal({
                 type="button"
                 onClick={handleExportBackup}
                 disabled={exporting || selectedBackupCols.size === 0}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-600 text-white text-body-xs font-bold shadow-sm hover:bg-teal-700 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-600 text-white text-body-xs font-bold shadow-sm hover:bg-teal-700 active:opacity-80 transition-all disabled:opacity-50 cursor-pointer"
               >
                 <Icon name={exporting ? 'sync' : 'download'} size={16} className={exporting ? 'animate-spin' : ''} />
                 <span>{exporting ? 'Mengekspor JSON...' : 'Unduh Cadangan Database (.json)'}</span>
@@ -684,7 +684,7 @@ export function DatabaseBackupRestoreModal({
                 type="button"
                 onClick={handleExecuteRestore}
                 disabled={restoring || !restoreData || selectedRestoreCols.size === 0}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-600 text-white text-body-xs font-bold shadow-sm hover:bg-teal-700 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-600 text-white text-body-xs font-bold shadow-sm hover:bg-teal-700 active:opacity-80 transition-all disabled:opacity-50 cursor-pointer"
               >
                 <Icon name={restoring ? 'sync' : 'restore'} size={16} className={restoring ? 'animate-spin' : ''} />
                 <span>{restoring ? 'Memulihkan Data...' : 'Mulai Pulihkan Data'}</span>

@@ -1651,7 +1651,7 @@ export default function ManageSchedule() {
             <button
               type="button"
               onClick={() => handleBulkStatusChange('published')}
-              className="flex items-center gap-1 rounded-xl bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 px-2.5 py-1.5 text-body-xs font-bold hover:bg-emerald-500/25 active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-1 rounded-xl bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 px-2.5 py-1.5 text-body-xs font-bold hover:bg-emerald-500/25 active:opacity-80 transition-all cursor-pointer"
             >
               <Icon name="check_circle" size={15} />
               <span>Publish</span>
@@ -1660,7 +1660,7 @@ export default function ManageSchedule() {
             <button
               type="button"
               onClick={() => handleBulkStatusChange('draft')}
-              className="flex items-center gap-1 rounded-xl bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 px-2.5 py-1.5 text-body-xs font-bold hover:bg-amber-500/25 active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-1 rounded-xl bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 px-2.5 py-1.5 text-body-xs font-bold hover:bg-amber-500/25 active:opacity-80 transition-all cursor-pointer"
             >
               <Icon name="pause_circle" size={15} />
               <span>Draft</span>
@@ -1669,7 +1669,7 @@ export default function ManageSchedule() {
             <button
               type="button"
               onClick={() => setBulkDeleteOpen(true)}
-              className="flex items-center gap-1 rounded-xl bg-error/15 text-error border border-error/25 px-2.5 py-1.5 text-body-xs font-bold hover:bg-error/25 active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-1 rounded-xl bg-error/15 text-error border border-error/25 px-2.5 py-1.5 text-body-xs font-bold hover:bg-error/25 active:opacity-80 transition-all cursor-pointer"
             >
               <Icon name="delete" size={15} />
               <span>Hapus</span>

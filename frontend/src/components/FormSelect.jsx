@@ -95,7 +95,7 @@ export function FormSelect({
 
       {/* Floating Popover Options Menu */}
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1.5 w-full min-w-[160px] max-h-56 overflow-y-auto rounded-2xl border border-outline-variant/25 bg-surface-container-lowest/98 p-1.5 shadow-2xl backdrop-blur-md dark:bg-surface-container-low/98 custom-scrollbar animate-scale-in">
+        <div className="absolute left-0 top-full z-50 mt-1.5 w-full min-w-[160px] max-h-56 overflow-y-auto rounded-2xl border border-outline-variant/25 bg-surface-container-lowest/98 p-1.5 shadow-2xl backdrop-blur-md dark:bg-surface-container-low/98 custom-scrollbar animate-fade-up">
           {normalizedOptions.length === 0 ? (
             <div className="px-3 py-2 text-center text-body-xs text-on-surface-variant/60">
               Tidak ada pilihan

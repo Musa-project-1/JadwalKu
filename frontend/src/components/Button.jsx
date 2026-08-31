@@ -49,7 +49,7 @@ export function Button({
     <button
       type={type}
       onPointerDown={handlePointerDown}
-      className={`relative inline-flex min-h-10 items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-2 text-body-lg font-medium transition-all duration-200 active:scale-[0.98] ${VARIANTS[variant]} ${className}`}
+      className={`relative inline-flex min-h-10 items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-2 text-body-lg font-medium transition-all duration-200 active:opacity-85 ${VARIANTS[variant]} ${className}`}
       {...props}
     >
       {children}

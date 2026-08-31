@@ -553,7 +553,7 @@ export function FeatureDocsModal({ isOpen, onClose, mode = 'student' }) {
                   >
                     <div className="flex items-start tablet:items-center gap-3.5 min-w-0">
                       <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br border ${feat.color} shadow-2xs group-hover:scale-105 transition-transform`}
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br border ${feat.color} shadow-2xs group-hover:brightness-105 transition-all duration-200`}
                       >
                         <Icon name={feat.icon} size={20} />
                       </div>
@@ -627,7 +627,7 @@ export function FeatureDocsModal({ isOpen, onClose, mode = 'student' }) {
                         <button
                           type="button"
                           onClick={() => handleNavigate(feat.route)}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-on-primary hover:brightness-105 active:scale-95 text-body-xs font-bold shadow-xs transition-all cursor-pointer shrink-0 ml-auto sm:ml-0"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-on-primary hover:brightness-105 active:opacity-80 text-body-xs font-bold shadow-xs transition-all cursor-pointer shrink-0 ml-auto sm:ml-0"
                         >
                           <span>{feat.routeLabel}</span>
                           <Icon name="arrow_forward" size={14} />

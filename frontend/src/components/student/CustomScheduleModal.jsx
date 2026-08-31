@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
 import { FormSelect } from '../FormSelect'
@@ -19,6 +19,17 @@ export function CustomScheduleModal({
   const [search, setSearch] = useState('')
   const [prodiFilter, setProdiFilter] = useState(currentProgram || '')
   const [semesterFilter, setSemesterFilter] = useState('')
+
+  // Support ESC key to close modal
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape' && isOpen) onClose?.()
+    }
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown)
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
 
   // Map courses for lookup
   const courseMap = useMemo(() => {
@@ -140,65 +151,73 @@ export function CustomScheduleModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:justify-stretch max-[599px]:p-0"
+      aria-labelledby="custom-schedule-title"
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-6 bg-black/65 backdrop-blur-xs animate-fade-in"
     >
+      {/* Modal Container */}
       <div
-        onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
-      />
-
-      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:max-h-[95vh] overflow-hidden">
-        {/* Drag handle for mobile */}
-        <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1">
-          <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
-        </div>
-
-        {/* Header */}
-        <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-xs">
-              <Icon name="star" size={24} />
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-5xl max-h-[92vh] tablet:max-h-[88vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up overflow-hidden"
+      >
+        {/* Header - Golden Amber Gradient Hero Header */}
+        <header className="sticky top-0 z-20 bg-gradient-to-r from-amber-900/95 via-amber-800 to-orange-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                <Icon name="star" size={24} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                  <h3 id="custom-schedule-title" className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
+                    Atur Jadwal Kustom Saya
+                  </h3>
+                  <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                    KRS Mandiri
+                  </span>
+                </div>
+                <p className="text-body-xs text-white/80 font-medium truncate">
+                  Pilih mata kuliah & kelas dari berbagai semester (KRS Mandiri / Mengulang / Semester Pendek)
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-title-lg font-bold text-on-surface">Atur Jadwal Kustom Saya</h3>
-              <p className="text-body-xs text-on-surface-variant">
-                Pilih mata kuliah & kelas dari berbagai semester (KRS Mandiri / Mengulang)
-              </p>
-            </div>
+
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Tutup modal"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+            >
+              <Icon name="close" size={20} />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full p-2 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer"
-          >
-            <Icon name="close" size={20} />
-          </button>
         </header>
 
         {/* Sticky Stats & Quick Actions Bar */}
-        <div className="bg-surface-container/40 px-5 py-3 border-b border-outline-variant/15 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div className="bg-surface-container-low/60 dark:bg-surface-container-high/30 px-4 tablet:px-6 py-3 border-b border-outline-variant/15 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-2xs">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-3 py-1 text-body-xs font-bold border border-primary/20">
-              <Icon name="check_circle" size={14} />
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 px-3 py-1 text-body-xs font-extrabold border border-emerald-500/30 shadow-2xs">
+              <Icon name="check_circle" size={15} className="text-emerald-600 dark:text-emerald-400" />
               <span>{selectedIds.size} Kelas Terpilih</span>
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 px-3 py-1 text-body-xs font-bold border border-indigo-500/20">
-              <Icon name="school" size={14} />
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-500/15 text-indigo-900 dark:text-indigo-200 px-3 py-1 text-body-xs font-extrabold border border-indigo-500/30 shadow-2xs">
+              <Icon name="school" size={15} className="text-indigo-600 dark:text-indigo-400" />
               <span>Total Beban: {totalSks} SKS</span>
             </span>
             {selectedClashMap.size > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-error/10 text-error px-3 py-1 text-body-xs font-bold border border-error/20">
-                <Icon name="warning" size={14} />
-                <span>Ada Bentrok Waktu</span>
+              <span className="inline-flex items-center gap-1.5 rounded-xl bg-error/15 text-error px-3 py-1 text-body-xs font-extrabold border border-error/30 animate-pulse shadow-2xs">
+                <Icon name="warning" size={15} />
+                <span>Ada Bentrok Waktu ({selectedClashMap.size / 2 || selectedClashMap.size} sesi)</span>
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={handleCopyFromCurrentPackage}
-              className="inline-flex items-center gap-1 text-body-xs font-bold text-primary hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-900 dark:text-amber-200 text-body-xs font-extrabold border border-amber-500/30 transition-all cursor-pointer shadow-2xs"
               title="Pilih seluruh jadwal sesuai semester dan prodi Anda saat ini"
             >
               <Icon name="content_copy" size={14} />
@@ -208,7 +227,7 @@ export function CustomScheduleModal({
             <button
               type="button"
               onClick={handleClearAll}
-              className="inline-flex items-center gap-1 text-body-xs font-bold text-on-surface-variant hover:text-error cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl hover:bg-surface-container text-on-surface-variant hover:text-error text-body-xs font-bold transition-colors cursor-pointer"
             >
               <span>Bersihkan</span>
             </button>
@@ -216,123 +235,145 @@ export function CustomScheduleModal({
         </div>
 
         {/* Search & Filters */}
-        <div className="p-4 border-b border-outline-variant/15 grid grid-cols-1 sm:grid-cols-3 gap-2.5 shrink-0 bg-surface-container-lowest dark:bg-surface-container-low">
-          <div className="relative sm:col-span-1">
+        <div className="p-4 border-b border-outline-variant/15 grid grid-cols-1 tablet:grid-cols-12 gap-2.5 shrink-0 bg-surface-container-lowest dark:bg-surface-container-low">
+          <div className="relative tablet:col-span-6">
             <Icon
               name="search"
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
+              size={17}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
             />
             <input
               type="text"
-              placeholder="Cari MK, kode, dosen..."
+              placeholder="Cari mata kuliah, kode MK, nama dosen, atau ruangan..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 py-1.5 pl-8 pr-3 text-body-xs font-medium text-on-surface focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 py-2 pl-10 pr-3 text-body-xs font-medium text-on-surface focus:border-amber-600 focus:outline-none dark:bg-surface-container-high/40 shadow-2xs"
             />
           </div>
 
-          <FormSelect
-            value={prodiFilter}
-            onChange={setProdiFilter}
-            options={prodiOptions}
-          />
+          <div className="tablet:col-span-3">
+            <FormSelect
+              value={prodiFilter}
+              onChange={setProdiFilter}
+              options={prodiOptions}
+            />
+          </div>
 
-          <FormSelect
-            value={semesterFilter}
-            onChange={setSemesterFilter}
-            options={semesterOptions}
-          />
+          <div className="tablet:col-span-3">
+            <FormSelect
+              value={semesterFilter}
+              onChange={setSemesterFilter}
+              options={semesterOptions}
+            />
+          </div>
         </div>
 
-        {/* List of Schedules */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2.5 divide-y divide-outline-variant/10">
+        {/* List of Schedules - 2-Column Responsive Card Grid */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 tablet:p-5 custom-scrollbar">
           {filtered.length === 0 ? (
-            <div className="py-12 text-center text-on-surface-variant space-y-2">
-              <Icon name="search_off" size={36} className="mx-auto text-outline-variant" />
-              <p className="text-body-sm font-semibold">Tidak ada jadwal yang cocok dengan filter</p>
-              <p className="text-body-xs">Coba ubah kata kunci pencarian atau filter program studi.</p>
+            <div className="py-16 text-center text-on-surface-variant space-y-3 max-w-md mx-auto">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-surface-container text-on-surface-variant mx-auto shadow-2xs">
+                <Icon name="search_off" size={36} />
+              </div>
+              <h4 className="text-body-md font-bold text-on-surface">Tidak ada jadwal yang cocok</h4>
+              <p className="text-body-xs text-on-surface-variant leading-relaxed">
+                Coba ubah kata kunci pencarian atau ganti filter program studi dan semester.
+              </p>
             </div>
           ) : (
-            filtered.map((item) => {
-              const isChecked = selectedIds.has(item.id)
-              const course = courseMap.get(item.kodeMK)
-              const clashWarning = selectedClashMap.get(item.id)
-              const ct = getClassType(item.tipeKelas)
+            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3.5">
+              {filtered.map((item) => {
+                const isChecked = selectedIds.has(item.id)
+                const course = courseMap.get(item.kodeMK)
+                const clashWarning = selectedClashMap.get(item.id)
+                const ct = getClassType(item.tipeKelas)
 
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => toggleOne(item.id)}
-                  className={`pt-2.5 first:pt-0 flex items-start gap-3 p-3 rounded-2xl border transition-all cursor-pointer select-none ${
-                    isChecked
-                      ? 'border-primary/50 bg-primary/5 dark:bg-primary/10 shadow-xs'
-                      : 'border-transparent hover:bg-surface-container-low/60'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => {}} // Handled by parent div
-                    className="mt-1 h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary cursor-pointer shrink-0"
-                  />
-
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-mono text-label-caps font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md">
-                          {item.kodeMK}
-                        </span>
-                        <span className="font-bold text-body-sm text-on-surface">
-                          {course?.namaMK || item.kodeMK}
-                        </span>
-                      </div>
-                      <span className="shrink-0 text-label-caps font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md">
-                        {course?.sks || 2} SKS
-                      </span>
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => toggleOne(item.id)}
+                    className={`flex items-start gap-3 p-4 rounded-2xl border transition-all cursor-pointer select-none ${
+                      isChecked
+                        ? clashWarning
+                          ? 'border-error/40 bg-error/10 dark:bg-error/15 ring-2 ring-error/30 shadow-xs'
+                          : 'border-amber-600/50 bg-amber-500/10 dark:bg-amber-950/30 ring-2 ring-amber-500/30 shadow-xs'
+                        : 'border-outline-variant/25 bg-surface-container-lowest hover:bg-surface-container-low/70 dark:bg-surface-container-low'
+                    }`}
+                  >
+                    {/* Custom Styled Checkbox */}
+                    <div
+                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border-2 transition-all ${
+                        isChecked
+                          ? clashWarning
+                            ? 'border-error bg-error text-white'
+                            : 'border-amber-600 bg-amber-600 text-white shadow-2xs'
+                          : 'border-outline-variant bg-surface-container'
+                      }`}
+                    >
+                      {isChecked && <Icon name="check" size={14} />}
                     </div>
 
-                    <p className="text-body-xs text-on-surface-variant flex items-center gap-1">
-                      <Icon name="person" size={13} className="text-secondary shrink-0" />
-                      <span>{course?.dosen || 'Dosen belum ditentukan'}</span>
-                    </p>
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                            <span className="font-mono text-[10px] font-extrabold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md">
+                              {item.kodeMK}
+                            </span>
+                            <span className={`inline-flex items-center gap-1 rounded px-2 py-0.2 text-[10px] font-bold ${TONE_CLASSES[ct.tone] || ''}`}>
+                              <span className={`h-1.5 w-1.5 rounded-full ${TONE_DOT_CLASSES[ct.tone] || ''}`} />
+                              {ct.label}
+                            </span>
+                            <span className="text-[10.5px] font-bold text-on-surface-variant">
+                              {item.prodi} · Sem {item.semester}
+                            </span>
+                          </div>
+                          <h4 className="font-extrabold text-body-sm text-on-surface leading-snug truncate">
+                            {course?.namaMK || item.kodeMK}
+                          </h4>
+                        </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-body-xs text-on-surface-variant pt-0.5">
-                      <span className="inline-flex items-center gap-1 font-semibold text-on-surface">
-                        <Icon name="schedule" size={13} className="text-primary" />
-                        <span>{item.hari}, {item.jamMulai} - {item.jamSelesai}</span>
-                      </span>
-                      <span>·</span>
-                      <span className="inline-flex items-center gap-1">
-                        <Icon name="meeting_room" size={13} />
-                        <span>{formatRuang(item.ruang, item.tipeKelas)}</span>
-                      </span>
-                      <span>·</span>
-                      <span>{item.prodi} (Sem. {item.semester})</span>
-                      <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.2 text-[10px] font-bold ${TONE_CLASSES[ct.tone] || ''}`}>
-                        <span className={`h-1 w-1 rounded-full ${TONE_DOT_CLASSES[ct.tone] || ''}`} />
-                        {ct.label}
-                      </span>
-                    </div>
-
-                    {isChecked && clashWarning && (
-                      <div className="flex items-center gap-1.5 rounded-lg bg-error/10 border border-error/20 p-1.5 text-[11px] font-semibold text-error mt-1 animate-fade-in">
-                        <Icon name="warning" size={13} className="shrink-0" />
-                        <span>{clashWarning}</span>
+                        <span className="shrink-0 text-[11px] font-extrabold text-indigo-700 dark:text-indigo-300 bg-indigo-500/15 border border-indigo-500/25 px-2.5 py-1 rounded-xl shadow-2xs">
+                          {course?.sks || 2} SKS
+                        </span>
                       </div>
-                    )}
+
+                      <p className="text-[11px] text-on-surface-variant font-medium flex items-center gap-1.5 truncate">
+                        <Icon name="person" size={14} className="text-secondary shrink-0" />
+                        <span>{course?.dosen || 'Dosen belum ditentukan'}</span>
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-on-surface-variant pt-1 border-t border-outline-variant/15">
+                        <span className="inline-flex items-center gap-1 font-bold text-on-surface">
+                          <Icon name="schedule" size={14} className="text-primary shrink-0" />
+                          <span>{item.hari}, {item.jamMulai} - {item.jamSelesai}</span>
+                        </span>
+                        <span>·</span>
+                        <span className="inline-flex items-center gap-1 font-medium">
+                          <Icon name="meeting_room" size={14} className="shrink-0" />
+                          <span>{formatRuang(item.ruang, item.tipeKelas)}</span>
+                        </span>
+                      </div>
+
+                      {isChecked && clashWarning && (
+                        <div className="flex items-center gap-1.5 rounded-xl bg-error/15 border border-error/30 p-2 text-[11px] font-bold text-error mt-1.5 animate-pulse">
+                          <Icon name="warning" size={14} className="shrink-0" />
+                          <span className="truncate">{clashWarning}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )
-            })
+                )
+              })}
+            </div>
           )}
         </div>
 
         {/* Footer */}
-        <footer className="flex items-center justify-between p-4 border-t border-outline-variant/15 bg-surface-container/20 shrink-0">
-          <div className="text-body-xs text-on-surface-variant">
+        <footer className="flex items-center justify-between p-4 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0">
+          <div className="text-body-xs text-on-surface-variant font-medium">
             {selectedIds.size > 0 ? (
-              <span><strong>{selectedIds.size}</strong> kelas terpilih ({totalSks} SKS)</span>
+              <span><strong>{selectedIds.size}</strong> kelas terpilih (<strong className="text-on-surface">{totalSks} SKS</strong>)</span>
             ) : (
               <span>Belum ada kelas yang dipilih</span>
             )}
@@ -351,4 +392,3 @@ export function CustomScheduleModal({
     </div>
   )
 }
-

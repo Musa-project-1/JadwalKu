@@ -42,10 +42,8 @@ export default function Settings() {
   const [isSyncing, setIsSyncing] = useState(false)
   const [syncMessage, setSyncMessage] = useState('')
 
-  // TA sesuai kalender kampus (tahunAjaran.js)
   const taLabel = semester ? expectedTahunAjaranForSemester(semester) : null
 
-  // Metadata global settings
   const { data: settingsDocs } = useFirestore('settings', [])
   const appSettings = useMemo(
     () => settingsDocs.find((d) => d.id === 'app') ?? null,
@@ -69,64 +67,117 @@ export default function Settings() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      {/* Header Halaman — Bold Title + Top Right Action Buttons */}
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
-            <Icon name="settings" size={26} />
+    <div className="flex flex-col gap-3.5 w-full max-w-full overflow-x-hidden animate-fade-in">
+      {/* 1. Header Halaman — 1:1 with WeeklySchedule / Tasks / Exams */}
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+            <Icon name="settings" size={24} />
           </div>
-          <div>
-            <h2 className="text-2xl tablet:text-3xl font-bold tracking-tight text-on-surface">
-              Pengaturan
-            </h2>
-            <p className="mt-0.5 text-body-sm text-on-surface-variant font-normal">
-              Kelola preferensi program studi, tema visual, dan integrasi kalender.
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+                Pengaturan
+              </h2>
+              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+                V1.3.0 PWA
+              </span>
+            </div>
+            <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
+              {program || 'Belum dipilih'} · Semester {semester || '-'} {taLabel ? `· TA ${taLabel}` : ''} · Preferensi & integrasi
             </p>
           </div>
         </div>
 
-        {/* Action Buttons in Header: Tutorial, Riwayat & Bantuan */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+        {/* Controls — matches Tasks/Exams header controls */}
+        <div className="flex items-center gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
           <button
             type="button"
             onClick={() => setShowDocsModal(true)}
             title="Buka Pusat Panduan & Tutorial 13 Fitur Mahasiswa"
-            className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2.5 text-body-sm font-bold shadow-xs transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-primary text-on-primary text-body-xs font-bold shadow-xs hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
           >
-            <Icon name="menu_book" size={19} className="text-primary" />
-            <span>Tutorial 13 Fitur</span>
+            <Icon name="menu_book" size={16} />
+            <span>Tutorial</span>
           </button>
           <button
             type="button"
             onClick={() => setShowHistoryModal(true)}
             title="Buka Riwayat Perubahan Jadwal"
-            className="flex items-center gap-2 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest px-4 py-2.5 text-body-sm font-bold text-on-surface shadow-level-1 transition-all hover:bg-surface-container-high hover:scale-[1.02] cursor-pointer dark:bg-surface-container-low"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-2xs transition-all cursor-pointer"
           >
-            <Icon name="history" size={19} className="text-primary" />
+            <Icon name="history" size={16} className="text-primary" />
             <span>Riwayat</span>
           </button>
           <button
             type="button"
             onClick={() => setShowAboutModal(true)}
             title="Buka Tentang & Bantuan (FAQ)"
-            className="flex items-center gap-2 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest px-4 py-2.5 text-body-sm font-bold text-on-surface shadow-level-1 transition-all hover:bg-surface-container-high hover:scale-[1.02] cursor-pointer dark:bg-surface-container-low"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-2xs transition-all cursor-pointer"
           >
-            <Icon name="help_outline" size={19} className="text-secondary" />
+            <Icon name="help_outline" size={16} className="text-secondary" />
             <span>Tentang & FAQ</span>
           </button>
         </div>
       </header>
 
-      {/* ── HERO BANNER: PUSAT PANDUAN & DOKUMENTASI 19 FITUR ── */}
-      <div className="rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 dark:from-primary/15 dark:to-surface-container-high p-5 tablet:p-6 shadow-level-1 flex flex-col desktop:flex-row items-start desktop:items-center justify-between gap-4">
+      {/* 2. Secondary Toolbar — 1:1 with Tasks.jsx / Exams.jsx */}
+      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-2.5 shadow-xs flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3">
+        {/* Left: Status chips */}
+        <div className="flex items-center gap-2.5 tablet:gap-3 shrink-0 text-[11px] font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-3 py-1 rounded-xl border border-outline-variant/20 overflow-x-auto no-scrollbar">
+          <span className="text-[10px] uppercase font-bold text-on-surface-variant/70 tracking-wider shrink-0">Status:</span>
+          <span className="flex items-center gap-1.5 shrink-0" title="Progressive Web App — tersedia offline">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-2xs shrink-0" />
+            <span className="text-emerald-700 dark:text-emerald-300 whitespace-nowrap">Offline PWA Aktif</span>
+          </span>
+          <span className="flex items-center gap-1.5 shrink-0">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-2xs shrink-0" />
+            <span className={`whitespace-nowrap ${syncMessage ? 'text-primary' : ''}`}>{syncMessage || 'Tersinkronisasi'}</span>
+          </span>
+          <span className="hidden tablet:inline h-4 w-px bg-outline-variant/30 shrink-0" />
+          <span className="hidden tablet:inline whitespace-nowrap text-on-surface-variant/80">
+            Update: {formatLastUpdated(appSettings)}
+          </span>
+        </div>
+
+        {/* Right: Quick actions */}
+        <div className="flex items-center gap-2 shrink-0 justify-between tablet:justify-end w-full tablet:w-auto">
+          <span className="tablet:hidden text-body-xs font-medium text-on-surface-variant truncate">
+            Update: {formatLastUpdated(appSettings)}
+          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={handleManualSync}
+              disabled={isSyncing}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary text-body-xs font-bold border border-primary/20 transition-all shadow-2xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            >
+              <Icon name={isSyncing ? 'sync' : 'refresh'} size={14} className={isSyncing ? 'animate-spin' : ''} />
+              <span className="hidden tablet:inline">{isSyncing ? 'Menyinkronkan...' : 'Sinkronkan'}</span>
+              <span className="tablet:hidden">Sync</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleClearCache}
+              title="Reset cache lokal aplikasi"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-high/60 hover:bg-error/10 hover:text-error hover:border-error/20 text-on-surface-variant text-body-xs font-bold border border-outline-variant/20 transition-all cursor-pointer shrink-0"
+            >
+              <Icon name="delete_outline" size={14} />
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Hero Banner — Pusat Panduan & Dokumentasi */}
+      <div className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 dark:from-primary/15 dark:via-primary/10 dark:to-surface-container-high p-5 tablet:p-6 shadow-xs flex flex-col desktop:flex-row items-start desktop:items-center justify-between gap-4">
         <div className="flex items-start gap-4 min-w-0">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-xs">
             <Icon name="auto_stories" size={26} />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-title-md font-bold text-on-surface">Pusat Panduan & Tutorial Seluruh Fitur</h3>
+              <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface">Pusat Panduan & Tutorial Seluruh Fitur</h3>
               <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-extrabold text-primary uppercase tracking-wide border border-primary/30">
                 13 Fitur Mahasiswa
               </span>
@@ -139,28 +190,28 @@ export default function Settings() {
         <button
           type="button"
           onClick={() => setShowDocsModal(true)}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary hover:brightness-105 active:scale-95 text-body-sm font-bold shadow-xs transition-all cursor-pointer shrink-0 whitespace-nowrap w-full desktop:w-auto ml-auto desktop:ml-0"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary hover:brightness-105 active:opacity-80 text-body-sm font-bold shadow-xs transition-all cursor-pointer shrink-0 whitespace-nowrap w-full desktop:w-auto"
         >
           <Icon name="explore" size={18} />
           <span>Buka Panduan Tutorial</span>
         </button>
       </div>
 
-      {/* Main 2x2 Symmetrical Grid Layout — Generous & Perfectly Aligned */}
-      <div className="grid grid-cols-1 desktop:grid-cols-2 gap-6 items-stretch">
+      {/* 4. Main Grid — 1:1 with Tasks/Exams card grid (rounded-3xl, shadow-xs) */}
+      <div className="grid grid-cols-1 desktop:grid-cols-2 gap-3.5 items-stretch">
         {/* ROW 1 - LEFT: Setelan Saat Ini */}
-        <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col">
-          <section className="flex flex-col justify-between rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 tablet:p-7 shadow-xs dark:bg-surface-container-low flex-1">
+        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col justify-between">
+          <div>
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase font-bold text-on-surface-variant tracking-wider">
-                  SETELAN SAAT INI
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase font-extrabold tracking-wider text-on-surface-variant">
+                  Setelan Saat Ini
                 </p>
-                <h3 className="mt-1 text-title-lg font-bold text-on-surface leading-snug">
+                <h3 className="mt-1 text-title-md font-bold text-on-surface leading-snug truncate">
                   {program ?? 'Belum dipilih'} · Semester {semester ?? '-'}
                 </h3>
                 {taLabel && (
-                  <span className="inline-block mt-1.5 text-body-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                  <span className="inline-block mt-2 text-body-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
                     Tahun Ajaran {taLabel}
                   </span>
                 )}
@@ -168,184 +219,145 @@ export default function Settings() {
               <Button
                 variant="secondary"
                 onClick={() => navigate('/onboarding/prodi')}
-                className="shrink-0 px-4 py-2 text-body-sm font-bold shadow-xs cursor-pointer rounded-2xl"
+                className="shrink-0 px-4 py-2 text-body-xs font-bold shadow-xs cursor-pointer rounded-2xl"
               >
                 Ganti
               </Button>
             </div>
+          </div>
 
-            {/* Subteks Status Terakhir Diperbarui Admin & Badge Offline PWA */}
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-2.5 border-t border-outline-variant/15 pt-4 text-body-xs text-on-surface-variant font-medium">
-              <div className="flex items-center gap-2">
-                <Icon name="history_toggle_off" size={16} className="text-secondary shrink-0" />
-                <span>
-                  Update: <strong className="text-on-surface font-semibold">{formatLastUpdated(appSettings)}</strong>
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 text-body-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 dark:bg-emerald-500/15 px-3 py-0.5 rounded-full border border-emerald-500/20">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Offline PWA Aktif</span>
-              </div>
-            </div>
-          </section>
-        </div>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-2.5 border-t border-outline-variant/15 pt-4 text-body-xs text-on-surface-variant font-medium">
+            <span className="flex items-center gap-1.5">
+              <Icon name="history_toggle_off" size={16} className="text-secondary shrink-0" />
+              <span>
+                Update: <strong className="text-on-surface font-semibold">{formatLastUpdated(appSettings)}</strong>
+              </span>
+            </span>
+            <span className="flex items-center gap-1.5 text-body-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 dark:bg-emerald-500/15 px-3 py-0.5 rounded-full border border-emerald-500/20">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Offline PWA</span>
+            </span>
+          </div>
+        </section>
 
         {/* ROW 1 - RIGHT: Tampilan */}
-        <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col">
-          <section className="flex flex-col justify-between rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 tablet:p-7 shadow-xs dark:bg-surface-container-low flex-1">
-            <h3 className="mb-3 flex items-center gap-2.5 text-title-sm font-bold text-on-surface">
-              <Icon name="dark_mode" size={20} className="text-primary" />
-              Tampilan
-            </h3>
-            <div className="space-y-4 pt-0.5">
-              {/* Mode Gelap */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-body-sm font-bold text-on-surface">Mode Gelap</span>
-                  <p className="text-body-xs text-on-surface-variant">Pilih tema visual aplikasi</p>
-                </div>
-                <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-xs">
-                  {[
-                    { value: 'light', icon: 'light_mode', label: 'Terang' },
-                    { value: 'dark', icon: 'dark_mode', label: 'Gelap' },
-                    { value: 'system', icon: 'settings_brightness', label: 'Sistem' },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setTheme(opt.value)}
-                      title={`Tema ${opt.label}`}
-                      aria-label={`Tema ${opt.label}`}
-                      className={`flex h-8 w-11 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:scale-95 ${
-                        theme === opt.value
-                          ? 'bg-surface text-primary shadow-xs'
-                          : 'text-on-surface-variant hover:text-on-surface'
-                      }`}
-                    >
-                      <Icon name={opt.icon} size={18} />
-                    </button>
-                  ))}
-                </div>
+        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col">
+          <h3 className="mb-3 flex items-center gap-2 text-title-sm font-bold text-on-surface">
+            <Icon name="dark_mode" size={18} className="text-primary" />
+            Tampilan
+          </h3>
+          <div className="space-y-4">
+            {/* Mode Gelap */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <span className="text-body-sm font-bold text-on-surface">Mode Gelap</span>
+                <p className="text-body-xs text-on-surface-variant">Pilih tema visual aplikasi</p>
               </div>
-
-              {/* Ukuran Font */}
-              <div className="border-t border-outline-variant/15 pt-3">
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-body-sm font-bold text-on-surface">Ukuran Font</span>
-                  <span className="text-body-xs font-semibold text-primary capitalize">{fontSize}</span>
-                </div>
-                <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-xs">
-                  {FONT_SIZES.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setFontSize(opt.value)}
-                      className={`flex-1 rounded-full py-1.5 text-body-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 ${
-                        fontSize === opt.value
-                          ? 'bg-surface text-primary shadow-xs'
-                          : 'text-on-surface-variant hover:text-on-surface'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Kontras Tinggi */}
-              <div className="flex items-center justify-between border-t border-outline-variant/15 pt-3">
-                <div>
-                  <p className="text-body-sm font-bold text-on-surface">Kontras Tinggi</p>
-                  <p className="text-body-xs text-on-surface-variant">
-                    Perkuat kontras teks dan garis pembatas
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={highContrast}
-                  onClick={() => setHighContrast(!highContrast)}
-                  className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
-                    highContrast ? 'bg-primary' : 'bg-surface-variant'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-xs ${
-                      highContrast ? 'left-[22px]' : 'left-0.5'
+              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-2xs shrink-0">
+                {[
+                  { value: 'light', icon: 'light_mode', label: 'Terang' },
+                  { value: 'dark', icon: 'dark_mode', label: 'Gelap' },
+                  { value: 'system', icon: 'settings_brightness', label: 'Sistem' },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setTheme(opt.value)}
+                    title={`Tema ${opt.label}`}
+                    aria-label={`Tema ${opt.label}`}
+                    className={`flex h-8 w-11 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:opacity-80 ${
+                      theme === opt.value
+                        ? 'bg-surface text-primary shadow-xs'
+                        : 'text-on-surface-variant hover:text-on-surface'
                     }`}
-                  />
-                </button>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        {/* ROW 2 - LEFT: Keterangan Warna Kelas & Sinkronisasi */}
-        <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col">
-          <section className="flex flex-col justify-between rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 tablet:p-7 shadow-xs dark:bg-surface-container-low flex-1">
-            <div>
-              <h3 className="mb-2.5 flex items-center gap-2.5 text-title-sm font-bold text-on-surface">
-                <Icon name="palette" size={20} className="text-primary" />
-                Keterangan Warna Kelas
-              </h3>
-              <p className="text-body-xs text-on-surface-variant font-medium mb-3">
-                Identifikasi jenis format perkuliahan pada jadwal mingguan:
-              </p>
-              <ul className="grid grid-cols-2 gap-3">
-                {LEGEND.map((item) => (
-                  <li
-                    key={item.code}
-                    className="flex items-center gap-3 rounded-2xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-3 border border-outline-variant/20 shadow-xs"
                   >
-                    <span className={`h-3 w-3 rounded-full shrink-0 ${item.dot}`} />
-                    <div className="min-w-0">
-                      <span className="block font-bold text-body-sm text-on-surface">{item.code}</span>
-                      <span className="text-body-xs text-on-surface-variant font-medium truncate block">{item.label}</span>
-                    </div>
-                  </li>
+                    <Icon name={opt.icon} size={18} />
+                  </button>
                 ))}
-              </ul>
+              </div>
             </div>
 
-            {/* Quick Sync & Cache Actions */}
-            <div className="border-t border-outline-variant/15 pt-4 mt-4">
-              <div className="flex items-center justify-between text-body-xs text-on-surface-variant mb-2.5">
-                <span>Cloud Firestore:</span>
-                <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  {syncMessage || 'Tersinkronisasi'}
-                </span>
+            {/* Ukuran Font */}
+            <div className="border-t border-outline-variant/15 pt-3">
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-body-sm font-bold text-on-surface">Ukuran Font</span>
+                <span className="text-body-xs font-semibold text-primary capitalize">{fontSize}</span>
               </div>
-              <div className="flex gap-2.5">
-                <button
-                  type="button"
-                  onClick={handleManualSync}
-                  disabled={isSyncing}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary py-2 text-body-sm font-bold transition-all active:scale-95 cursor-pointer border border-primary/20 disabled:opacity-50"
-                >
-                  <Icon name={isSyncing ? "sync" : "refresh"} size={16} className={isSyncing ? "animate-spin" : ""} />
-                  <span>{isSyncing ? "Menyinkronkan..." : "Sinkronkan Data"}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClearCache}
-                  className="flex items-center justify-center gap-1.5 rounded-xl bg-surface-container-high/60 hover:bg-error/10 hover:text-error hover:border-error/20 text-on-surface-variant px-3.5 py-2 text-body-sm font-semibold transition-all active:scale-95 cursor-pointer border border-outline-variant/20"
-                  title="Reset cache lokal aplikasi"
-                >
-                  <Icon name="delete_outline" size={16} />
-                  <span>Reset Cache</span>
-                </button>
+              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-2xs">
+                {FONT_SIZES.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setFontSize(opt.value)}
+                    className={`flex-1 rounded-full py-1.5 text-body-xs font-bold transition-all duration-200 cursor-pointer active:opacity-80 ${
+                      fontSize === opt.value
+                        ? 'bg-surface text-primary shadow-xs'
+                        : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
             </div>
-          </section>
-        </div>
+
+            {/* Kontras Tinggi */}
+            <div className="flex items-center justify-between border-t border-outline-variant/15 pt-3 gap-3">
+              <div className="min-w-0">
+                <p className="text-body-sm font-bold text-on-surface">Kontras Tinggi</p>
+                <p className="text-body-xs text-on-surface-variant">Perkuat kontras teks dan garis</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={highContrast}
+                onClick={() => setHighContrast(!highContrast)}
+                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                  highContrast ? 'bg-primary' : 'bg-surface-variant'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-xs ${
+                    highContrast ? 'left-[22px]' : 'left-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ROW 2 - LEFT: Keterangan Warna Kelas */}
+        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col">
+          <h3 className="mb-2.5 flex items-center gap-2 text-title-sm font-bold text-on-surface">
+            <Icon name="palette" size={18} className="text-primary" />
+            Keterangan Warna Kelas
+          </h3>
+          <p className="text-body-xs text-on-surface-variant font-medium mb-3">
+            Identifikasi jenis format perkuliahan pada jadwal mingguan:
+          </p>
+          <ul className="grid grid-cols-2 gap-2.5">
+            {LEGEND.map((item) => (
+              <li
+                key={item.code}
+                className="flex items-center gap-3 rounded-2xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-3 border border-outline-variant/20 shadow-2xs"
+              >
+                <span className={`h-3 w-3 rounded-full shrink-0 ${item.dot}`} />
+                <div className="min-w-0">
+                  <span className="block font-bold text-body-sm text-on-surface">{item.code}</span>
+                  <span className="text-body-xs text-on-surface-variant font-medium truncate block">{item.label}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-[11px] text-on-surface-variant/70 font-medium border-t border-outline-variant/15 pt-3">
+            K1 Emerald = Offline · K2 Blue = Online · HB Violet = Hybrid · GBK Amber = Gabungan lintas prodi
+          </p>
+        </section>
 
         {/* ROW 2 - RIGHT: Pengingat & Notifikasi Web Push */}
-        <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col">
-          <section className="flex flex-col justify-between rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-6 tablet:p-7 shadow-xs dark:bg-surface-container-low flex-1">
-            <NotificationSettingsSection navigate={navigate} />
-          </section>
-        </div>
+        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col">
+          <NotificationSettingsSection navigate={navigate} />
+        </section>
       </div>
 
       {/* Modals */}
@@ -432,12 +444,11 @@ function NotificationSettingsSection({ navigate }) {
     <div className="space-y-4">
       <div>
         <div className="flex items-center justify-between gap-2 mb-2.5">
-          <h3 className="flex items-center gap-2.5 text-title-sm font-bold text-on-surface">
-            <Icon name="notifications_active" size={20} className="text-primary" />
+          <h3 className="flex items-center gap-2 text-title-sm font-bold text-on-surface">
+            <Icon name="notifications_active" size={18} className="text-primary" />
             <span>Pengingat & Web Push</span>
           </h3>
 
-          {/* Browser Permission Badge */}
           {permission === 'granted' ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 px-2.5 py-0.5 text-[10.5px] font-bold">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -456,7 +467,6 @@ function NotificationSettingsSection({ navigate }) {
           )}
         </div>
 
-        {/* Browser Permission Request Strip */}
         {permission !== 'granted' && permission !== 'unsupported' && (
           <div className="mb-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 p-3 flex flex-wrap items-center justify-between gap-2">
             <div className="min-w-0 flex-1">
@@ -470,14 +480,13 @@ function NotificationSettingsSection({ navigate }) {
             <button
               type="button"
               onClick={requestNotificationPermission}
-              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-[11px] font-bold shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-[11px] font-bold shadow-xs transition-all active:opacity-80 cursor-pointer shrink-0"
             >
               Izinkan Notifikasi
             </button>
           </div>
         )}
 
-        {/* Waktu Pengingat Kelas Selector */}
         <div className="rounded-2xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-3 border border-outline-variant/20 mb-3 space-y-2">
           <div className="flex items-center justify-between text-body-xs">
             <span className="font-bold text-on-surface flex items-center gap-1.5">
@@ -505,9 +514,7 @@ function NotificationSettingsSection({ navigate }) {
           </div>
         </div>
 
-        {/* Reminder Module Toggles */}
         <ul className="divide-y divide-outline-variant/15 text-body-sm">
-          {/* Kelas Toggle */}
           <li className="flex items-center justify-between gap-3 py-2.5">
             <div>
               <p className="font-bold text-on-surface">Pengingat Jadwal Kuliah</p>
@@ -516,7 +523,6 @@ function NotificationSettingsSection({ navigate }) {
             <ToggleSwitch checked={prefs.kelas} onChange={(v) => updatePref('kelas', v)} />
           </li>
 
-          {/* Tugas Toggle */}
           <li className="flex items-center justify-between gap-3 py-2.5">
             <div>
               <p className="font-bold text-on-surface">Pengingat Deadline Tugas</p>
@@ -525,7 +531,6 @@ function NotificationSettingsSection({ navigate }) {
             <ToggleSwitch checked={prefs.tugas} onChange={(v) => updatePref('tugas', v)} />
           </li>
 
-          {/* Ujian Toggle */}
           <li className="flex items-center justify-between gap-3 py-2.5">
             <div>
               <p className="font-bold text-on-surface">Pengingat Ujian Semester</p>
@@ -534,7 +539,6 @@ function NotificationSettingsSection({ navigate }) {
             <ToggleSwitch checked={prefs.ujian} onChange={(v) => updatePref('ujian', v)} />
           </li>
 
-          {/* Sound Alarm Toggle */}
           <li className="flex items-center justify-between gap-3 py-2.5">
             <div>
               <p className="font-bold text-on-surface flex items-center gap-1.5">
@@ -548,7 +552,6 @@ function NotificationSettingsSection({ navigate }) {
         </ul>
       </div>
 
-      {/* Test Notification & Calendar CTA */}
       <div className="border-t border-outline-variant/15 pt-3.5 space-y-3">
         {permission === 'granted' && (
           <button
@@ -638,7 +641,6 @@ function HistoryModal({ onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} role="presentation" />
       <div className="relative z-10 w-full max-w-2xl max-h-[85vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-level-3 dark:bg-surface-container-low animate-fade-up overflow-hidden">
-        {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-outline-variant/15 p-5 tablet:p-6 bg-surface-container-lowest/90 dark:bg-surface-container-low/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
@@ -658,7 +660,6 @@ function HistoryModal({ onClose }) {
           </button>
         </div>
 
-        {/* Filter Toolbar */}
         <div className="flex items-center gap-1.5 overflow-x-auto p-4 border-b border-outline-variant/10 bg-surface-container-low/30 no-scrollbar">
           {HISTORY_FILTERS.map((f) => (
             <button
@@ -676,7 +677,6 @@ function HistoryModal({ onClose }) {
           ))}
         </div>
 
-        {/* Modal Body */}
         <div className="flex-1 overflow-y-auto p-5 tablet:p-6 space-y-5">
           {loading ? (
             <div className="space-y-3">
@@ -745,7 +745,6 @@ function HistoryModal({ onClose }) {
           )}
         </div>
 
-        {/* Modal Footer */}
         <div className="border-t border-outline-variant/15 p-4 flex justify-end bg-surface-container-lowest/90 dark:bg-surface-container-low/90">
           <Button onClick={onClose} className="px-5 py-2 text-body-sm font-bold rounded-full">
             Tutup
@@ -791,7 +790,6 @@ function AboutModal({ onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} role="presentation" />
       <div className="relative z-10 w-full max-w-2xl max-h-[85vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-level-3 dark:bg-surface-container-low animate-fade-up overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-outline-variant/15 p-5 tablet:p-6 bg-surface-container-lowest/90 dark:bg-surface-container-low/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/15 text-secondary border border-secondary/20">
@@ -811,9 +809,7 @@ function AboutModal({ onClose }) {
           </button>
         </div>
 
-        {/* Modal Body */}
         <div className="flex-1 overflow-y-auto p-5 tablet:p-6 space-y-6">
-          {/* Brand Card */}
           <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-low/50 dark:bg-surface-container-high/40 p-6 text-center">
             <h4 className="text-2xl font-bold font-brand tracking-[-0.025em] text-on-surface">
               <span>Jadwal</span>
@@ -832,7 +828,6 @@ function AboutModal({ onClose }) {
             </div>
           </div>
 
-          {/* Accordion FAQ */}
           <div>
             <h4 className="text-title-sm font-bold text-on-surface mb-3 flex items-center gap-2">
               <Icon name="help" size={18} className="text-primary" />
@@ -873,7 +868,6 @@ function AboutModal({ onClose }) {
           </div>
         </div>
 
-        {/* Modal Footer */}
         <div className="border-t border-outline-variant/15 p-4 flex justify-end bg-surface-container-lowest/90 dark:bg-surface-container-low/90">
           <Button onClick={onClose} className="px-5 py-2 text-body-sm font-bold rounded-full">
             Tutup
@@ -883,7 +877,4 @@ function AboutModal({ onClose }) {
     </div>
   )
 }
-
-
-
 

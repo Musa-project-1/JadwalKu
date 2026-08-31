@@ -194,7 +194,7 @@ export default function Search() {
             key={f.value}
             type="button"
             onClick={() => setFilter(f.value)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-body-sm font-medium transition-all duration-150 active:scale-95 ${
+            className={`shrink-0 rounded-full px-4 py-1.5 text-body-sm font-medium transition-all duration-150 active:opacity-80 ${
               filter === f.value
                 ? 'bg-primary text-on-primary shadow-sm'
                 : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high dark:bg-surface-container-high'
@@ -341,7 +341,7 @@ function LecturerCard({ lecturer, onClick }) {
       <Icon
         name="chevron_right"
         size={18}
-        className="text-on-surface-variant group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0"
+        className="text-on-surface-variant group-hover:text-primary transition-colors shrink-0"
       />
     </div>
   )
@@ -361,7 +361,7 @@ function ResultSection({ title, icon, children }) {
 
 function ResultRow({ icon, title, subtitle, tintClass = 'bg-surface-container text-primary' }) {
   return (
-    <div className="flex items-center gap-md rounded-2xl bg-surface-container-lowest p-3 border border-outline-variant/10 transition-all duration-200 hover:scale-[1.002] hover:bg-surface-container-low dark:bg-surface-container-low">
+    <div className="flex items-center gap-md rounded-2xl bg-surface-container-lowest p-3 border border-outline-variant/10 transition-all duration-200 hover:shadow-md hover:bg-surface-container-low dark:bg-surface-container-low">
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tintClass}`}>
         <Icon name={icon} size={18} />
       </div>

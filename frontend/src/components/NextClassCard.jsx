@@ -73,16 +73,17 @@ export function NextClassCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl p-6 shadow-level-2 transition-all duration-300 hover:shadow-level-3 border ${
+      className={`relative overflow-hidden rounded-3xl p-5 tablet:p-6 shadow-level-2 transition-all duration-300 hover:shadow-level-3 border ${
         isOngoing
           ? 'bg-gradient-to-br from-teal-900 via-primary to-emerald-950 text-white border-emerald-500/30'
-          : 'bg-gradient-to-br from-primary to-primary-container dark:from-primary-container dark:to-surface-container-high text-on-primary dark:text-on-primary-container border-white/10 dark:border-primary/20'
+          : 'bg-surface-container-lowest dark:bg-[#132823] text-on-surface dark:text-white border-teal-500/20 dark:border-teal-500/30'
       }`}
     >
-      {/* Decorative Blur Effect */}
-      <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-white/10 dark:bg-primary/15 blur-2xl pointer-events-none" />
+      {/* Decorative Blur — only for ongoing */}
+      {isOngoing && <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-white/10 blur-2xl pointer-events-none" />}
+      {!isOngoing && <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-teal-500/[0.06] dark:bg-teal-500/[0.08] blur-2xl pointer-events-none" />}
 
-      <div className="relative z-10 flex justify-between items-start gap-3 mb-4">
+      <div className="relative z-10 flex justify-between items-start gap-3 mb-3.5">
         <div className="min-w-0 flex-1">
           {/* Status Label Header */}
           <div className="flex items-center gap-2 mb-1.5">
@@ -95,23 +96,23 @@ export function NextClassCard({
                 Sedang Berlangsung
               </span>
             ) : (
-              <span className="text-label-caps text-on-primary/80 dark:text-on-primary-container/80 uppercase tracking-wider block">
+              <span className="text-[11px] font-bold tracking-[0.12em] text-teal-600 dark:text-teal-300 uppercase">
                 Kelas Berikutnya
               </span>
             )}
           </div>
 
           {/* Nama Mata Kuliah */}
-          <h3 className="text-[20px] tablet:text-[22px] font-bold leading-tight mb-2.5 text-white dark:text-on-primary-container truncate">
+          <h3 className={`text-[18px] tablet:text-[20px] font-bold leading-tight mb-2.5 truncate ${isOngoing ? 'text-white' : 'text-on-surface dark:text-white'}`}>
             {course?.namaMK ?? entry.kodeMK}
           </h3>
 
-          {/* Dosen & Ruangan Badges */}
+          {/* Dosen & Ruangan Badges — teal pills like mockup */}
           <div className="flex flex-wrap gap-2">
             {course?.dosen && (
               <span
                 title={course.dosen}
-                className="bg-white/20 dark:bg-primary/15 dark:border dark:border-primary/20 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 backdrop-blur-sm text-white dark:text-primary max-w-[220px] truncate"
+                className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 max-w-[220px] truncate border ${isOngoing ? 'bg-white/15 text-white border-white/20 backdrop-blur-sm' : 'bg-teal-500/10 dark:bg-teal-500/15 text-teal-800 dark:text-teal-200 border-teal-500/20 dark:border-teal-500/25'}`}
               >
                 <Icon name="person" size={14} className="shrink-0" />
                 <span className="truncate">{course.dosen}</span>
@@ -124,7 +125,7 @@ export function NextClassCard({
                 if (onLocation) onLocation(entry, course)
                 else if (onDetail) onDetail()
               }}
-              className="bg-white/20 hover:bg-white/30 dark:bg-primary/15 dark:hover:bg-primary/25 dark:border dark:border-primary/20 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 backdrop-blur-sm text-white dark:text-primary transition-colors cursor-pointer"
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 border transition-colors cursor-pointer ${isOngoing ? 'bg-white/15 hover:bg-white/25 text-white border-white/20 backdrop-blur-sm' : 'bg-teal-500/10 hover:bg-teal-500/15 dark:bg-teal-500/15 text-teal-800 dark:text-teal-200 border-teal-500/20 dark:border-teal-500/25'}`}
               title="Lihat Panduan Lokasi Ruangan & Denah Lantai"
             >
               <Icon name="location_on" size={14} />
@@ -133,7 +134,7 @@ export function NextClassCard({
           </div>
         </div>
 
-        {/* Live Badge / Countdown Pill */}
+        {/* Live Badge / Countdown Pill — MULAI DALAM like mockup */}
         {isOngoing ? (
           <div className="px-3 py-1.5 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 flex flex-col items-center justify-center shrink-0 whitespace-nowrap shadow-sm">
             <span className="text-[9px] font-bold uppercase tracking-wide text-emerald-200">
@@ -145,16 +146,16 @@ export function NextClassCard({
           </div>
         ) : countdownText ? (
           <div
-            className={`px-3 py-1.5 rounded-2xl flex flex-col items-center justify-center shadow-sm shrink-0 whitespace-nowrap ${
+            className={`px-3.5 py-2 rounded-2xl flex flex-col items-center justify-center shrink-0 whitespace-nowrap text-center min-w-[92px] ${
               urgent
-                ? 'animate-[soft-pulse_1.6s_ease-in-out_infinite] bg-error text-white'
-                : 'bg-primary-container/80 dark:bg-primary/20 border border-white/10 dark:border-primary/30'
+                ? 'animate-[soft-pulse_1.6s_ease-in-out_infinite] bg-error text-white shadow-sm'
+                : 'bg-teal-500/10 dark:bg-teal-500/15 border border-teal-500/20 dark:border-teal-500/25'
             }`}
           >
-            <span className="text-[9px] font-bold uppercase tracking-wide text-white/80 dark:text-teal-200">
+            <span className={`text-[9px] font-bold uppercase tracking-[0.10em] ${urgent ? 'text-white/90' : 'text-teal-600 dark:text-teal-300'}`}>
               Mulai Dalam
             </span>
-            <span className="font-bold text-xs tablet:text-sm text-white dark:text-teal-100">
+            <span className={`font-bold text-xs tablet:text-[13px] leading-tight ${urgent ? 'text-white' : 'text-teal-800 dark:text-white'}`}>
               {countdownText}
             </span>
           </div>
@@ -177,17 +178,17 @@ export function NextClassCard({
         </div>
       )}
 
-      {/* Footer Info & Detail Button */}
-      <div className="flex items-center justify-between bg-black/20 dark:bg-surface-container-lowest/50 rounded-2xl p-3 backdrop-blur-md relative z-10 border border-white/10 dark:border-outline-variant/15 mt-3">
+      {/* Footer Info & Detail Button — clock pill + Detail teal like mockup */}
+      <div className={`flex items-center justify-between rounded-2xl p-3 relative z-10 mt-3 border ${isOngoing ? 'bg-black/20 backdrop-blur-md border-white/10' : 'bg-surface-container dark:bg-black/25 border-outline-variant/15 dark:border-white/10'}`}>
         <div className="flex items-center gap-3">
-          <div className="bg-white/20 dark:bg-primary/20 p-2 rounded-xl text-white dark:text-primary">
+          <div className={`p-2 rounded-xl ${isOngoing ? 'bg-white/20 text-white' : 'bg-teal-500/15 text-teal-700 dark:bg-teal-500/20 dark:text-teal-300'}`}>
             <Icon name="schedule" size={20} />
           </div>
           <div>
-            <span className="block text-sm font-semibold text-white dark:text-on-surface">
+            <span className={`block text-sm font-semibold ${isOngoing ? 'text-white' : 'text-on-surface dark:text-white'}`}>
               {entry.jamMulai} - {entry.jamSelesai} WIB
             </span>
-            <span className="block text-xs text-on-primary/70 dark:text-on-surface-variant">
+            <span className={`block text-xs ${isOngoing ? 'text-white/70' : 'text-on-surface-variant dark:text-white/70'}`}>
               {course?.sks ?? 2} SKS · {entry.kodeMK}
             </span>
           </div>
@@ -196,7 +197,7 @@ export function NextClassCard({
           <button
             type="button"
             onClick={onDetail}
-            className="bg-white text-primary dark:bg-primary dark:text-on-primary px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:brightness-105 hover:shadow-md active:scale-95 transition-all duration-200 cursor-pointer"
+            className={`px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:brightness-105 hover:shadow-md active:opacity-80 transition-all duration-200 cursor-pointer ${isOngoing ? 'bg-white text-teal-800' : 'bg-teal-600 dark:bg-teal-500 text-white hover:bg-teal-700 dark:hover:bg-teal-400'}`}
           >
             Detail
           </button>

@@ -216,7 +216,7 @@ export function LecturerTimetableModal({
                   href={formatWhatsAppUrl(lecturerContact)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-body-xs font-bold transition-all shadow-xs cursor-pointer"
+                  className="flex items-center gap-1 px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:opacity-80 text-white text-body-xs font-bold transition-all shadow-xs cursor-pointer"
                 >
                   <Icon name="open_in_new" size={13} />
                   <span>Chat WA</span>

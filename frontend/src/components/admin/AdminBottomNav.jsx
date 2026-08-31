@@ -32,7 +32,7 @@ export function AdminBottomNav() {
             <NavLink to={item.to} end={item.to === '/admin/dashboard'} viewTransition>
               {({ isActive }) => (
                 <span
-                  className={`flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1 text-[10px] tracking-tight transition-all duration-200 active:scale-95 ${
+                  className={`flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1 text-[10px] tracking-tight transition-all duration-200 active:opacity-80 ${
                     isActive
                       ? 'font-bold text-primary'
                       : 'font-normal text-on-surface-variant'

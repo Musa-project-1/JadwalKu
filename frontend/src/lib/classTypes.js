@@ -10,6 +10,7 @@ export const CLASS_TYPES = {
   HB: { label: 'Hybrid', shortLabel: 'Hybrid', tone: 'hybrid' },
   HBH: { label: 'Hybrid Halimah', shortLabel: 'Hybrid Halimah', tone: 'hybrid' },
   HBD: { label: 'Hybrid Dekanat', shortLabel: 'Hybrid Dekanat', tone: 'hybrid' },
+  GBK: { label: 'Kelas Gabungan', shortLabel: 'GBK', tone: 'combined' },
   GBK1: { label: 'Gabungan Offline', shortLabel: 'GBK Offline', tone: 'combined' },
   GBK2: { label: 'Gabungan Online', shortLabel: 'GBK Online', tone: 'combined' },
 }
@@ -102,6 +103,33 @@ export const TONE_BORDER_CLASSES = {
   hybrid: 'border-l-[4px] border-violet-500',
   combined: 'border-l-[4px] border-amber-500',
   neutral: 'border-l-[4px] border-outline-variant',
+}
+
+/** Border keliling 2px per tone untuk kartu jadwal baru. */
+export const TONE_CARD_BORDER_CLASSES = {
+  offline: 'border-2 border-emerald-500/40 dark:border-emerald-500/50',
+  online: 'border-2 border-blue-500/40 dark:border-blue-500/50',
+  hybrid: 'border-2 border-violet-500/40 dark:border-violet-500/50',
+  combined: 'border-2 border-amber-500/40 dark:border-amber-500/50',
+  neutral: 'border-2 border-outline-variant/30',
+}
+
+/** Background solid badge pill jam per tone. */
+export const TONE_TIME_PILL_CLASSES = {
+  offline: 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-emerald-950 font-bold',
+  online: 'bg-blue-600 text-white dark:bg-blue-500 dark:text-blue-950 font-bold',
+  hybrid: 'bg-violet-600 text-white dark:bg-violet-500 dark:text-violet-950 font-bold',
+  combined: 'bg-amber-600 text-white dark:bg-amber-500 dark:text-amber-950 font-bold',
+  neutral: 'bg-slate-600 text-white dark:bg-slate-400 dark:text-slate-950 font-bold',
+}
+
+/** Warna ikon tipe kelas. */
+export const TONE_ICON_COLOR_CLASSES = {
+  offline: 'text-emerald-600 dark:text-emerald-400',
+  online: 'text-blue-600 dark:text-blue-400',
+  hybrid: 'text-violet-600 dark:text-violet-400',
+  combined: 'text-amber-600 dark:text-amber-400',
+  neutral: 'text-on-surface-variant',
 }
 
 export function getClassType(code) {

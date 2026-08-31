@@ -195,16 +195,16 @@
 }
 
 /*
- * Motion tokens — M3 Expressive (UIUX_MODERNIZATION.md Phase A).
+ * Motion tokens — M3 Clean & Responsive.
  */
 :root {
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-emphasized: cubic-bezier(0.3, 0, 0.2, 1.2);
-  --ease-vanguard: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-vanguard: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 150ms;
-  --duration-normal: 250ms;
-  --duration-emphasized: 350ms;
-  --duration-vanguard: 500ms;
+  --duration-normal: 200ms;
+  --duration-emphasized: 250ms;
+  --duration-vanguard: 300ms;
 }
 
 /*
@@ -402,14 +402,9 @@ html.theme-transition::view-transition-new(root) {
   );
 }
 
-/* Spring Easing timing function (Material 3 Snappy Bounce) */
-:root {
-  --spring-easing: linear(0, 0.016 0.5%, 0.06 1%, 0.226 2%, 1.116 5.4%, 1.375 6.6%, 1.527 7.7%, 1.565 8.2%, 1.585 8.8%, 1.581 9.3%, 1.559 9.8%, 1.458 10.9%, 0.937 14.3%, 0.784 15.5%, 0.693 16.6%, 0.67 17.1%, 0.657 17.7%, 0.671 18.7%, 0.729 19.8%, 1.042 23.3%, 1.13 24.5%, 1.182 25.6%, 1.201 26.7%, 1.192 27.7%, 1.156 28.8%, 0.977 32.2%, 0.925 33.4%, 0.894 34.5%, 0.882 35.6%, 0.887 36.6%, 0.907 37.7%, 1.045 42.4%, 1.069 44.5%, 1.059 46.3%, 0.979 50.9%, 0.96 53.4%, 0.966 55.3%, 1.013 59.9%, 1.024 62.3%, 0.986 71.2%, 1.008 79.9%, 0.995 88.9%, 1);
-}
-
-/* Physics-based springs transition fallback */
+/* Standard smooth transition timing function */
 button, a, .transition-all, .transition-transform {
-  transition-timing-function: var(--spring-easing);
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
 
 /* Typographic legibility */
@@ -482,24 +477,24 @@ body::-webkit-scrollbar-track,
 
 /*
  * Default slide for all viewTransition navigations.
- * Pages slide in from the right and exit to the left — like switching workspaces.
+ * Pages slide in from the right and exit to the left — without scale distortion.
  */
 @keyframes vt-slide-out {
-  from { opacity: 1; transform: translateX(0) scale(1); }
-  to   { opacity: 0; transform: translateX(-24px) scale(0.98); }
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-20px); }
 }
 
 @keyframes vt-slide-in {
-  from { opacity: 0; transform: translateX(24px) scale(0.98); }
-  to   { opacity: 1; transform: translateX(0) scale(1); }
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 ::view-transition-old(root) {
-  animation: 280ms cubic-bezier(0.4, 0, 0.2, 1) both vt-slide-out;
+  animation: 200ms cubic-bezier(0.2, 0, 0, 1) both vt-slide-out;
 }
 
 ::view-transition-new(root) {
-  animation: 320ms cubic-bezier(0.4, 0, 0.2, 1) 20ms both vt-slide-in;
+  animation: 220ms cubic-bezier(0.2, 0, 0, 1) both vt-slide-in;
 }
 
 /*

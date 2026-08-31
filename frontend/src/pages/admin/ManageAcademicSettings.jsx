@@ -18,6 +18,7 @@ import { appendHistory, syncProdiFromExistingData } from '../../lib/publishHelpe
 import { ACADEMIC_CALENDAR, deriveTahunAjaran, deriveTerm, getTermLabel } from '../../lib/tahunAjaran'
 import { MONTH_NAMES, NATIONAL_HOLIDAYS_PRESET } from '../../constants/academicConstants'
 import { DatabaseBackupRestoreModal } from '../../components/admin/DatabaseBackupRestoreModal'
+import { AcademicCalendarImportModal } from '../../components/admin/AcademicCalendarImportModal'
 
 const SEMESTER_OPTIONS = Array.from({ length: 14 }, (_, i) => i + 1)
 
@@ -58,6 +59,8 @@ export default function ManageAcademicSettings() {
   }))
   const [savingCal, setSavingCal] = useState(false)
   const [calendarModalOpen, setCalendarModalOpen] = useState(false)
+  const [kaldikImportOpen, setKaldikImportOpen] = useState(false)
+  const [savingKaldik, setSavingKaldik] = useState(false)
 
   // ── Minggu Efektif Kuliah (MEK) Computation ──
   const mekStats = useMemo(() => {
@@ -120,6 +123,39 @@ export default function ManageAcademicSettings() {
       })
       setBanner({ ok: true, message: '✓ Perubahan kalender akademik berhasil disimpan.' })
       setCalendarModalOpen(false)
+    } else {
+      setBanner({ ok: false, message: result.error })
+    }
+  }
+
+  // ── Import Kalender Akademik (Kaldik) ──
+  async function handleImportCalendar({ events, bounds }) {
+    setSavingKaldik(true)
+    const payload = {
+      // Batas otomatis diturunkan dari events (jika ada), fallback ke nilai existing.
+      ganjilStart: bounds?.ganjilStart ?? calDoc?.ganjilStart ?? ACADEMIC_CALENDAR.ganjilStart,
+      ganjilEnd: bounds?.ganjilEnd ?? calDoc?.ganjilEnd ?? ACADEMIC_CALENDAR.ganjilEnd,
+      genapStart: bounds?.genapStart ?? calDoc?.genapStart ?? ACADEMIC_CALENDAR.genapStart,
+      genapEnd: bounds?.genapEnd ?? calDoc?.genapEnd ?? ACADEMIC_CALENDAR.genapEnd,
+      events,
+      updatedAt: new Date().toISOString(),
+    }
+    const result = await setDocument('settings', 'academicCalendar', payload, actor)
+    setSavingKaldik(false)
+    if (result.ok) {
+      await appendHistory({
+        entitas: 'settings',
+        field: 'academicCalendar',
+        nilaiLama: calDoc ?? null,
+        nilaiBaru: payload,
+        aktor: actor,
+        detail: `Impor Kalender Akademik: ${events.length} event`,
+      })
+      setBanner({
+        ok: true,
+        message: `✓ Berhasil mengimpor ${events.length} event Kalender Akademik. Batas ganjil/genap diperbarui otomatis.`,
+      })
+      setKaldikImportOpen(false)
     } else {
       setBanner({ ok: false, message: result.error })
     }
@@ -478,6 +514,16 @@ export default function ManageAcademicSettings() {
             <Icon name="tune" size={16} className="mr-1" />
             <span>Atur Kalender</span>
           </Button>
+
+          <button
+            type="button"
+            onClick={() => setKaldikImportOpen(true)}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl border border-primary/30 bg-primary/10 px-3 py-2 text-body-xs font-semibold text-primary shadow-2xs hover:bg-primary/20 cursor-pointer transition-colors"
+            title="Import Kalender Akademik (Kaldik) dari PDF / Gambar / Excel / JSON"
+          >
+            <Icon name="upload_file" size={15} className="text-primary" />
+            <span>Import Kaldik</span>
+          </button>
 
           <button
             type="button"
@@ -1252,6 +1298,16 @@ export default function ManageAcademicSettings() {
         onCancel={() => setDeleteHolidayTarget(null)}
       />
 
+      {/* ── Modal: Import Kalender Akademik (Kaldik) ── */}
+      <AcademicCalendarImportModal
+        open={kaldikImportOpen}
+        onClose={() => setKaldikImportOpen(false)}
+        onImport={handleImportCalendar}
+        existingEvents={calDoc?.events || []}
+        actor={actor}
+        busySaving={savingKaldik}
+      />
+
       {/* ── Modal: Backup & Restore Database ── */}
       <DatabaseBackupRestoreModal
         isOpen={backupRestoreOpen}
@@ -1262,4 +1318,3 @@ export default function ManageAcademicSettings() {
     </div>
   )
 }
-

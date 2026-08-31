@@ -453,7 +453,7 @@ export function OfficialNoticeboardModal({
               <button
                 type="button"
                 onClick={handleTriggerPrint}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 text-white text-body-xs font-bold shadow-sm hover:bg-indigo-700 active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 text-white text-body-xs font-bold shadow-sm hover:bg-indigo-700 active:opacity-80 transition-all cursor-pointer"
               >
                 <Icon name="print" size={16} />
                 <span>Cetak Dokumen Mading / Simpan PDF</span>

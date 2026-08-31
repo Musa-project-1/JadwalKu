@@ -18,7 +18,7 @@ function RoleSelection() {
           <img
             src={`${import.meta.env.BASE_URL}logo.svg`}
             alt="Logo JadwalKu"
-            className="mb-4 h-16 w-16 drop-shadow-md transition-transform duration-300 hover:scale-105"
+            className="mb-4 h-16 w-16 drop-shadow-md transition-opacity duration-300 hover:opacity-90"
           />
           <h1 className="text-display font-bold font-sans tracking-[-0.02em] mb-1">
             <span className="text-on-surface">Jadwal</span>
@@ -30,7 +30,7 @@ function RoleSelection() {
         </header>
         <div className="grid w-full grid-cols-1 gap-lg tablet:grid-cols-2">
           {/* Mahasiswa Card */}
-          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.01] hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer group">
+          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-200 hover:shadow-md active:opacity-85 cursor-pointer group">
             <button
               type="button"
               onClick={() => navigate('/onboarding/prodi')}
@@ -45,7 +45,7 @@ function RoleSelection() {
               <p className="text-body-sm text-on-surface-variant font-medium max-w-[260px]">
                 Akses jadwal kelas, ujian, dan informasi akademik
               </p>
-              <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0.5">
+              <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100">
                 <span>Lanjutkan</span>
                 <Icon name="arrow_forward" size={15} />
               </div>
@@ -53,7 +53,7 @@ function RoleSelection() {
           </div>
 
           {/* Admin Card */}
-          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.01] hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer group">
+          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-200 hover:shadow-md active:opacity-85 cursor-pointer group">
             <button
               type="button"
               onClick={() => navigate('/admin/login')}
@@ -68,7 +68,7 @@ function RoleSelection() {
               <p className="text-body-sm text-on-surface-variant font-medium max-w-[260px]">
                 Kelola data jadwal, prodi, dan pengaturan kampus
               </p>
-              <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0.5">
+              <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100">
                 <span>Masuk Panel</span>
                 <Icon name="arrow_forward" size={15} />
               </div>
@@ -147,8 +147,8 @@ function ProdiStep() {
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-bold transition-transform duration-200 ${meta.color} ${
-                        isSelected ? 'scale-105 ring-2 ring-primary/30' : 'group-hover:scale-105'
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-bold transition-all duration-200 ${meta.color} ${
+                        isSelected ? 'ring-2 ring-primary/30' : 'group-hover:brightness-105'
                       }`}
                     >
                       <Icon name={meta.icon} size={18} />
@@ -266,7 +266,7 @@ function SemesterStep() {
                   onClick={() => setSemester(s)}
                   className={`group flex flex-col items-center justify-center rounded-2xl border py-4 transition-all duration-200 cursor-pointer ${
                     isSelected
-                      ? 'border-primary bg-primary text-on-primary font-bold shadow-md scale-[1.02]'
+                      ? 'border-primary bg-primary text-on-primary font-bold shadow-md ring-2 ring-primary/40'
                       : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 hover:bg-surface-container-low hover:shadow-sm dark:bg-surface-container-high/30'
                   }`}
                 >

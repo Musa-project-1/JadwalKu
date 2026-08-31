@@ -40,14 +40,14 @@ export function ClassTimelineItem({
     <>
       {showNowBefore && (
         <div className="relative my-3 flex items-center gap-2 -ml-6 z-20" aria-hidden="true">
-          {/* Pulsing Live Dot */}
+          {/* Pulsing Live Dot — pink like mockup */}
           <span className="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
-            <span className="absolute inline-flex h-full w-full animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite] rounded-full bg-error/30" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-error shadow-xs" />
+            <span className="absolute inline-flex h-full w-full animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite] rounded-full bg-pink-500/30" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-pink-500 shadow-xs" />
           </span>
-          <span className="h-0.5 flex-grow bg-error/40" />
+          <span className="h-0.5 flex-grow bg-teal-500/25 dark:bg-teal-500/20" />
           {nowLabel && (
-            <span className="bg-error/15 dark:bg-error/20 border border-error/50 text-red-700 dark:text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full ml-2 backdrop-blur-xs shadow-xs">
+            <span className="bg-pink-500/10 dark:bg-pink-500/15 border border-pink-500/25 dark:border-pink-400/25 text-pink-700 dark:text-pink-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full ml-2 backdrop-blur-xs shadow-xs tracking-wide">
               SEKARANG {nowLabel}
             </span>
           )}
@@ -58,18 +58,18 @@ export function ClassTimelineItem({
         className="relative mb-6 animate-[fade-up_250ms_var(--ease-standard)_both]"
         style={{ animationDelay: `${Math.min(index, 5) * 40}ms` }}
       >
-        {/* Timeline Dot (Kecil, di luar kartu, memotong garis vertikal) */}
+        {/* Timeline Dot — square teal like mockup */}
         <div
-          className={`absolute -left-3 top-4 flex h-6 w-6 items-center justify-center rounded-full border-2 border-surface shadow-sm z-10 ${
-            isPast ? 'bg-surface-variant text-on-surface-variant' : dotBg
+          className={`absolute -left-3 top-4 flex h-7 w-7 items-center justify-center rounded-xl border shadow-sm z-10 ${
+            isPast ? 'bg-surface-variant text-on-surface-variant border-surface' : 'bg-teal-600 dark:bg-teal-500 text-white border-teal-600 dark:border-teal-500'
           }`}
         >
-          <Icon name={dotIcon} size={14} />
+          <Icon name={dotIcon} size={15} />
         </div>
 
         {/* Kartu Jadwal Utama */}
         <div
-          className={`relative ml-4 rounded-2xl bg-surface-container-lowest p-3.5 tablet:p-4 shadow-level-1 border border-outline-variant/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-level-2 ${borderClass} ${
+          className={`relative ml-4 rounded-2xl bg-surface-container-lowest p-3.5 tablet:p-4 shadow-level-1 border border-outline-variant/20 transition-shadow duration-200 hover:shadow-md ${borderClass} ${
             isPast ? 'opacity-60 grayscale-[30%]' : ''
           }`}
         >
@@ -77,7 +77,7 @@ export function ClassTimelineItem({
           <div className="flex items-start justify-between gap-2.5 mb-2">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="inline-flex items-center rounded-lg bg-teal-500/15 text-teal-900 dark:bg-teal-400/20 dark:text-teal-200 px-2.5 py-0.5 font-mono text-[11px] font-extrabold tracking-wider border border-teal-500/30 dark:border-teal-400/40 shadow-2xs">
+                <span className="inline-flex items-center rounded-lg bg-teal-600 dark:bg-teal-500 text-white px-2 py-0.5 font-mono text-[11px] font-extrabold tracking-wider shadow-2xs">
                   {entry.kodeMK}
                 </span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-on-surface-variant">
@@ -91,8 +91,8 @@ export function ClassTimelineItem({
             </div>
             
             <div className="flex items-center gap-1.5 shrink-0">
-              <span className="inline-flex items-center gap-1 rounded-xl bg-primary/10 text-primary dark:bg-primary/20 px-2.5 py-1 text-label-caps font-bold whitespace-nowrap border border-primary/20">
-                <Icon name="schedule" size={13} />
+              <span className="inline-flex items-center gap-1 rounded-xl bg-surface-container dark:bg-surface-container-high px-2.5 py-1 text-[11px] font-bold whitespace-nowrap border border-outline-variant/20 text-on-surface-variant">
+                <Icon name="schedule" size={13} className="text-on-surface-variant/70" />
                 <span>{entry.jamMulai} - {entry.jamSelesai}</span>
               </span>
               <button

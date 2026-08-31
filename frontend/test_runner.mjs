@@ -19,6 +19,15 @@ import {
   expectedTahunAjaranForSemester,
   getTermLabel,
 } from './src/lib/tahunAjaran.js'
+import {
+  extractKaldikDateRange,
+  parseKaldikLines,
+  deriveBoundsFromEvents,
+  normalizeDate,
+  normalizeCategory,
+  detectSemester,
+} from './src/lib/academicCalendarParser.js'
+import { MADANI_CALENDAR_PRESET } from './src/constants/academicCalendarPreset.js'
 import { parseLecturers, getLecturerInitials, formatWhatsAppUrl } from './src/lib/lecturerUtils.js'
 import { validateScheduleEntry, findConflicts } from './src/lib/uploadValidator.js'
 
@@ -450,6 +459,94 @@ test('Mengakui ruang virtual (Online / Zoom) tanpa bentrok fisik', () => {
   assert.equal(conflicts.length, 0)
 })
 
+// ── TEST GROUP 7: academicCalendarParser.js ──
+console.log('\n📆 [7/7] Menguji Modul Parser Kalender Akademik (academicCalendarParser)...')
+
+test('Mengekstrak rentang tanggal Kaldik: DD – DD MMM YYYY (satu bulan)', () => {
+  const res = extractKaldikDateRange('10 – 12 Sep 2026')
+  assert.deepEqual(res, { start: '2026-09-10', end: '2026-09-12', raw: '10 – 12 Sep 2026' })
+})
+
+test('Mengekstrak rentang tanggal Kaldik: DD MMM – DD MMM YYYY (beda bulan)', () => {
+  const res = extractKaldikDateRange('21 Sep – 07 Nov 2026')
+  assert.deepEqual(res, { start: '2026-09-21', end: '2026-11-07', raw: '21 Sep – 07 Nov 2026' })
+})
+
+test('Mengekstrak rentang tanggal Kaldik: DD MMM YYYY – DD MMM YYYY (beda tahun)', () => {
+  const res = extractKaldikDateRange('16 Nov 2026 – 02 Jan 2027')
+  assert.deepEqual(res, { start: '2026-11-16', end: '2027-01-02', raw: '16 Nov 2026 – 02 Jan 2027' })
+})
+
+test('Mengekstrak tanggal tunggal Kaldik: DD MMM YYYY', () => {
+  const res = extractKaldikDateRange('28 Jan 2027')
+  assert.deepEqual(res, { start: '2027-01-28', end: '2027-01-28', raw: '28 Jan 2027' })
+})
+
+test('Menormalkan berbagai format tanggal ke ISO', () => {
+  assert.equal(normalizeDate('2026-09-10'), '2026-09-10')
+  assert.equal(normalizeDate('10/09/2026'), '2026-09-10')
+  assert.equal(normalizeDate('10 Sep 2026'), '2026-09-10')
+  assert.equal(normalizeDate('10-09-2026'), '2026-09-10')
+})
+
+test('Mendeteksi kategori dari nama event Kaldik', () => {
+  assert.equal(normalizeCategory('Registrasi, KRS & Bimbingan Akademik I'), 'registrasi')
+  assert.equal(normalizeCategory('Perkuliahan Termin 1'), 'perkuliahan')
+  assert.equal(normalizeCategory('Ujian Tengah Semester (UTS)'), 'uts')
+  assert.equal(normalizeCategory('Ujian Akhir Semester (UAS)'), 'uas')
+  assert.equal(normalizeCategory('Ujian Remidial'), 'ujian')
+  assert.equal(normalizeCategory('Yudisium Semester Ganjil'), 'yudisium')
+  assert.equal(normalizeCategory('Libur Idul Fitri'), 'libur')
+  assert.equal(normalizeCategory('Minggu Tenang'), 'minggu_tenang')
+  assert.equal(normalizeCategory('PKKMB T.A. 2026/2027'), 'kegiatan')
+})
+
+test('Mendeteksi semester dari string eksplisit maupun fallback tanggal', () => {
+  assert.equal(detectSemester('ganjil'), 'ganjil')
+  assert.equal(detectSemester('genap'), 'genap')
+  assert.equal(detectSemester('antar'), 'antar')
+  assert.equal(detectSemester('', '2026-10-01'), 'ganjil')
+  assert.equal(detectSemester('', '2027-04-01'), 'genap')
+})
+
+test('Menurunkan batas kalender otomatis dari event preset Madani', () => {
+  const bounds = deriveBoundsFromEvents(MADANI_CALENDAR_PRESET.events)
+  assert.ok(bounds, 'Bounds harus dihasilkan')
+  assert.deepEqual(bounds.ganjilStart, { month: 8, day: 10 }) // 10 Sep
+  assert.deepEqual(bounds.ganjilEnd, { month: 1, day: 20 }) // 20 Feb
+  assert.deepEqual(bounds.genapStart, { month: 1, day: 17 }) // 17 Feb
+  assert.deepEqual(bounds.genapEnd, { month: 6, day: 24 }) // 24 Jul
+})
+
+test('Mem-parse baris hasil OCR/PDF Kaldik menjadi daftar event', () => {
+  const lines = [
+    'SEMESTER GANJIL',
+    '10 – 12 Sep 2026 Kegiatan Mahasiswa Baru & Lama Ke Asrama',
+    '14 – 19 Sep 2026 Registrasi, KRS & Bimbingan Akademik I',
+    'SEMESTER GENAP',
+    '17 – 20 Feb 2027 Registrasi, KRS & Bimbingan Akademik I',
+    'KETERANGAN DAN HARI LIBUR',
+    '07 – 27 Mar 2027 Libur Idul Fitri (Hari Raya Idul Fitri diperkirakan tanggal 10 Mar 2027)',
+  ]
+  const events = parseKaldikLines(lines)
+  assert.equal(events.length, 4)
+
+  const ganjil1 = events[0]
+  assert.equal(ganjil1.semester, 'ganjil')
+  assert.equal(ganjil1.tanggalMulai, '2026-09-10')
+  assert.equal(ganjil1.tanggalSelesai, '2026-09-12')
+  assert.equal(ganjil1.nama, 'Kegiatan Mahasiswa Baru & Lama Ke Asrama')
+  assert.equal(ganjil1.kategori, 'kegiatan')
+
+  const genap1 = events[2]
+  assert.equal(genap1.semester, 'genap')
+  assert.equal(genap1.tanggalMulai, '2027-02-17')
+
+  const libur1 = events[3]
+  assert.equal(libur1.semester, 'antar')
+  assert.equal(libur1.kategori, 'libur')
+})
+
 // ── RINGKASAN HASIL ──
 console.log('\n========================================================')
 console.log(`🏁 HASIL TEST: ${passedTests} LULUS, ${failedTests} GAGAL`)
@@ -460,4 +557,3 @@ if (failedTests > 0) {
 } else {
   console.log('✨ SEMUA TES OTOMATIS BERHASIL DENGAN NILAI SEMPURNA 100%! ✨\n')
 }
-

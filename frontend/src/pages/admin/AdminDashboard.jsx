@@ -294,7 +294,7 @@ export default function AdminDashboard() {
         >
           <div className="flex items-center justify-between gap-1">
             <p className="text-[11px] uppercase font-bold text-on-surface-variant tracking-wider truncate">Prodi Aktif</p>
-            <div className="flex h-7 w-7 tablet:h-8 tablet:w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform">
+            <div className="flex h-7 w-7 tablet:h-8 tablet:w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:brightness-105 transition-colors">
               <Icon name="school" size={17} />
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function AdminDashboard() {
         >
           <div className="flex items-center justify-between gap-1">
             <p className="text-[11px] uppercase font-bold text-on-surface-variant tracking-wider truncate">Mata Kuliah</p>
-            <div className="flex h-7 w-7 tablet:h-8 tablet:w-8 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform">
+            <div className="flex h-7 w-7 tablet:h-8 tablet:w-8 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:brightness-105 transition-colors">
               <Icon name="menu_book" size={17} />
             </div>
           </div>
@@ -328,7 +328,7 @@ export default function AdminDashboard() {
         >
           <div className="flex items-center justify-between gap-1">
             <p className="text-[11px] uppercase font-bold text-on-surface-variant tracking-wider truncate">Sesi Jadwal</p>
-            <div className="flex h-7 w-7 tablet:h-8 tablet:w-8 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:scale-105 transition-transform">
+            <div className="flex h-7 w-7 tablet:h-8 tablet:w-8 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:brightness-105 transition-colors">
               <Icon name="calendar_month" size={17} />
             </div>
           </div>
@@ -345,7 +345,7 @@ export default function AdminDashboard() {
         >
           <div className="flex items-center justify-between gap-1">
             <p className="text-[11px] uppercase font-bold text-on-surface-variant tracking-wider truncate">Jadwal Ujian</p>
-            <div className="flex h-7 w-7 tablet:h-8 tablet:w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform">
+            <div className="flex h-7 w-7 tablet:h-8 tablet:w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:brightness-105 transition-colors">
               <Icon name="event_note" size={17} />
             </div>
           </div>
@@ -403,7 +403,7 @@ export default function AdminDashboard() {
                                 : 'border-primary bg-primary/20'
                             }`}
                           />
-                          <div className="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 p-2.5 tablet:p-3 transition-all duration-200 hover:scale-[1.005] hover:shadow-2xs dark:bg-surface-container-high/30">
+                          <div className="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 p-2.5 tablet:p-3 transition-all duration-200 hover:shadow-xs dark:bg-surface-container-high/30">
                             <div className="flex items-center justify-between gap-2 mb-1">
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <span
@@ -447,7 +447,7 @@ export default function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowAllHistoryModal(true)}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-surface-container-high/50 hover:bg-primary/10 hover:text-primary text-on-surface py-2.5 text-body-xs font-bold transition-all active:scale-[0.99] cursor-pointer border border-outline-variant/25 shadow-2xs"
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-surface-container-high/50 hover:bg-primary/10 hover:text-primary text-on-surface py-2.5 text-body-xs font-bold transition-all active:opacity-80 cursor-pointer border border-outline-variant/25 shadow-2xs"
                 >
                   <Icon name="read_more" size={16} />
                   <span>Lihat Semua Log Aktivitas ({sortedHistory.length}) →</span>
@@ -471,7 +471,7 @@ export default function AdminDashboard() {
                   <Link
                     key={action.to}
                     to={action.to}
-                    className="flex items-center gap-3 p-2.5 tablet:p-3 bg-surface-container-low/50 hover:bg-surface-container-high/60 rounded-xl border border-outline-variant/20 transition-all group hover:scale-[1.01] hover:border-primary/30 cursor-pointer shadow-2xs"
+                    className="flex items-center gap-3 p-2.5 tablet:p-3 bg-surface-container-low/50 hover:bg-surface-container-high/60 rounded-xl border border-outline-variant/20 transition-all group hover:border-primary/30 hover:shadow-xs cursor-pointer shadow-2xs"
                   >
                     <span
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${action.tone}`}
@@ -520,7 +520,7 @@ export default function AdminDashboard() {
                 type="button"
                 onClick={() => setArchiveOpen(true)}
                 disabled={busy}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 py-2 px-2.5 text-body-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98] disabled:opacity-50"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 py-2 px-2.5 text-body-xs font-bold transition-all shadow-2xs cursor-pointer active:opacity-80 disabled:opacity-50"
               >
                 <Icon name="sync_alt" size={14} />
                 <span>Semester Baru</span>
@@ -530,7 +530,7 @@ export default function AdminDashboard() {
                 type="button"
                 onClick={() => setBackupRestoreOpen(true)}
                 disabled={busy}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300 hover:bg-teal-500/20 py-2 px-2.5 text-body-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98] disabled:opacity-50"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300 hover:bg-teal-500/20 py-2 px-2.5 text-body-xs font-bold transition-all shadow-2xs cursor-pointer active:opacity-80 disabled:opacity-50"
               >
                 <Icon name="cloud_sync" size={14} />
                 <span>Backup / Restore</span>

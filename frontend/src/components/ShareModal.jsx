@@ -57,21 +57,12 @@ export function ShareModal({ open, onClose }) {
   // Close on Escape or click outside
   useEffect(() => {
     function handleKeyDown(e) {
-      if (e.key === 'Escape' && open) onClose()
-    }
-    function handleClickOutside(e) {
-      if (open && modalRef.current && !modalRef.current.contains(e.target)) {
-        onClose()
-      }
+      if (e.key === 'Escape' && open) onClose?.()
     }
     if (open) {
       window.addEventListener('keydown', handleKeyDown)
-      document.addEventListener('mousedown', handleClickOutside)
     }
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
+    return () => window.removeEventListener('keydown', handleKeyDown)
   }, [open, onClose])
 
   if (!open) return null
@@ -107,183 +98,206 @@ export function ShareModal({ open, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+    <>
       <div
-        ref={modalRef}
-        className="w-full max-w-lg overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest/95 backdrop-blur-2xl dark:bg-surface-container-low/95 shadow-level-3 animate-fade-up"
+        onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="share-modal-title"
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-6 bg-black/65 backdrop-blur-xs animate-fade-in"
       >
-        {/* Header Modal */}
-        <div className="flex items-center justify-between border-b border-outline-variant/20 p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary dark:bg-primary/20">
-              <Icon name="ios_share" size={22} />
-            </div>
-            <div>
-              <h2 className="text-title-md font-bold text-on-surface">Bagikan Jadwal</h2>
-              <p className="text-body-sm text-on-surface-variant font-medium">
-                {program} · Semester {semester} · TA {ta}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Tutup modal"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
-          >
-            <Icon name="close" size={20} />
-          </button>
-        </div>
+        <div
+          ref={modalRef}
+          onClick={(e) => e.stopPropagation()}
+          className="w-full max-w-2xl max-h-[92vh] tablet:max-h-[88vh] overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up flex flex-col"
+        >
+          {/* Header Modal - Gradient Teal/Indigo Hero */}
+          <header className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-indigo-950 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                  <Icon name="ios_share" size={22} />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                    <h2 id="share-modal-title" className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
+                      Bagikan Jadwal
+                    </h2>
+                    <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                      Export & Sync
+                    </span>
+                  </div>
+                  <p className="text-body-xs text-white/80 font-medium truncate">
+                    {program} · Semester {semester} · TA {ta}
+                  </p>
+                </div>
+              </div>
 
-        <div className="p-5 space-y-5">
-          {/* Pilihan Cakupan */}
-          <div>
-            <p className="text-label-caps uppercase tracking-wider text-on-surface-variant mb-2.5">
-              Pilih Cakupan
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {SCOPE_OPTIONS.map((opt) => {
-                const isSelected = scope === opt.value
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setScope(opt.value)}
-                    className={`flex items-start gap-3 rounded-2xl p-3.5 text-left transition-all border ${
-                      isSelected
-                        ? 'border-primary bg-primary/5 dark:bg-primary/10 shadow-sm'
-                        : 'border-outline-variant/20 bg-surface-container-low/50 hover:bg-surface-container-low dark:bg-surface-container/40'
-                    }`}
-                  >
-                    <span
-                      className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${
-                        isSelected ? 'border-primary' : 'border-outline-variant'
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Tutup modal"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+              >
+                <Icon name="close" size={20} />
+              </button>
+            </div>
+          </header>
+
+          <div className="p-4 tablet:p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
+            {/* Pilihan Cakupan */}
+            <div>
+              <p className="text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant mb-2.5">
+                Pilih Cakupan
+              </p>
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2.5">
+                {SCOPE_OPTIONS.map((opt) => {
+                  const isSelected = scope === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setScope(opt.value)}
+                      className={`flex items-start gap-3 rounded-2xl p-3.5 text-left transition-all border cursor-pointer select-none ${
+                        isSelected
+                          ? 'border-teal-600 bg-teal-500/10 dark:bg-teal-950/30 ring-1 ring-teal-500/30 shadow-xs'
+                          : 'border-outline-variant/20 bg-surface-container-low/50 hover:bg-surface-container-low hover:border-outline-variant/40 dark:bg-surface-container/30'
                       }`}
                     >
-                      {isSelected && <span className="h-2 w-2 rounded-full bg-primary" />}
+                      <span
+                        className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                          isSelected ? 'border-teal-600' : 'border-outline-variant'
+                        }`}
+                      >
+                        {isSelected && <span className="h-2 w-2 rounded-full bg-teal-600" />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-body-sm font-extrabold text-on-surface leading-tight">
+                          {opt.label}
+                        </p>
+                        <p className="text-[11px] text-on-surface-variant mt-0.5 leading-snug">
+                          {opt.description}
+                        </p>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Opsi Ekspor - 2-Column Responsive Card Grid */}
+            <div>
+              <p className="text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant mb-2.5">
+                Opsi Ekspor & Integrasi
+              </p>
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3">
+                {/* Google Calendar */}
+                <button
+                  type="button"
+                  onClick={() => downloadIcs(source, { prodi: program, semester, tahunAjaran: ta })}
+                  className="group flex items-start gap-3.5 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 text-left transition-all hover:border-emerald-500/40 hover:bg-emerald-500/5 hover:shadow-xs cursor-pointer"
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs group-hover:scale-105 transition-transform">
+                    <Icon name="event" size={22} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-body-sm font-extrabold text-on-surface group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors">
+                      Google Calendar / HP
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-body-sm font-bold text-on-surface leading-tight">
-                        {opt.label}
-                      </p>
-                      <p className="text-[11px] text-on-surface-variant mt-0.5 leading-snug">
-                        {opt.description}
-                      </p>
-                    </div>
-                  </button>
-                )
-              })}
+                    <span className="block text-[11px] text-on-surface-variant mt-0.5 leading-snug">
+                      Sinkron otomatis via file kalender .ics
+                    </span>
+                  </div>
+                </button>
+
+                {/* Salin Teks */}
+                <button
+                  type="button"
+                  onClick={handleShareText}
+                  className="group flex items-start gap-3.5 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 text-left transition-all hover:border-blue-500/40 hover:bg-blue-500/5 hover:shadow-xs cursor-pointer"
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/25 shadow-2xs group-hover:scale-105 transition-transform">
+                    <Icon name="share" size={22} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-body-sm font-extrabold text-on-surface group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                      Bagikan Teks
+                    </span>
+                    <span className="block text-[11px] text-on-surface-variant mt-0.5 leading-snug">
+                      Salin ringkasan untuk WhatsApp / Telegram
+                    </span>
+                  </div>
+                  {copied && (
+                    <span className="shrink-0 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-extrabold">
+                      Tersalin!
+                    </span>
+                  )}
+                </button>
+
+                {/* Bagikan Gambar */}
+                <button
+                  type="button"
+                  onClick={handleShareImage}
+                  className="group flex items-start gap-3.5 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 text-left transition-all hover:border-purple-500/40 hover:bg-purple-500/5 hover:shadow-xs cursor-pointer"
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/25 shadow-2xs group-hover:scale-105 transition-transform">
+                    <Icon name="image" size={22} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-body-sm font-extrabold text-on-surface group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors">
+                      Bagikan Gambar (PNG)
+                    </span>
+                    <span className="block text-[11px] text-on-surface-variant mt-0.5 leading-snug">
+                      Simpan / kirim kartu grafis visual jadwal
+                    </span>
+                  </div>
+                  {imageStatus && (
+                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold ${
+                      imageStatus.ok
+                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                        : 'bg-error/15 text-error border border-error/30'
+                    }`}>
+                      {imageStatus.text}
+                    </span>
+                  )}
+                </button>
+
+                {/* Cetak PDF / Kartu Saku */}
+                <button
+                  type="button"
+                  onClick={() => setPrintModalOpen(true)}
+                  className="group flex items-start gap-3.5 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 text-left transition-all hover:border-sky-500/40 hover:bg-sky-500/5 hover:shadow-xs cursor-pointer"
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/25 shadow-2xs group-hover:scale-105 transition-transform">
+                    <Icon name="print" size={22} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-body-sm font-extrabold text-on-surface group-hover:text-sky-700 dark:group-hover:text-sky-300 transition-colors">
+                      Cetak PDF / Kartu Saku
+                    </span>
+                    <span className="block text-[11px] text-on-surface-variant mt-0.5 leading-snug">
+                      Format A4 meja belajar atau kartu saku hemat tinta
+                    </span>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Opsi Ekspor */}
-          <div>
-            <p className="text-label-caps uppercase tracking-wider text-on-surface-variant mb-2.5">
-              Opsi Ekspor
-            </p>
-            <div className="space-y-2.5">
-              {/* Google Calendar */}
-              <button
-                type="button"
-                onClick={() => downloadIcs(source, { prodi: program, semester, tahunAjaran: ta })}
-                className="group flex w-full items-center gap-3.5 rounded-2xl border border-outline-variant/20 bg-surface-container-low/50 p-3.5 text-left transition-all hover:border-primary/40 hover:bg-surface-container-low hover:shadow-sm dark:bg-surface-container/40"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300">
-                  <Icon name="event" size={22} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="block text-body-sm font-bold text-on-surface group-hover:text-primary transition-colors">
-                    Google Calendar / Kalender HP
-                  </span>
-                  <span className="block text-[11px] text-on-surface-variant">
-                    Sinkron otomatis ke kalender HP via file .ics
-                  </span>
-                </div>
-                <Icon name="chevron_right" size={20} className="shrink-0 text-on-surface-variant group-hover:text-primary transition-colors" />
-              </button>
-
-              {/* Salin Teks */}
-              <button
-                type="button"
-                onClick={handleShareText}
-                className="group flex w-full items-center gap-3.5 rounded-2xl border border-outline-variant/20 bg-surface-container-low/50 p-3.5 text-left transition-all hover:border-primary/40 hover:bg-surface-container-low hover:shadow-sm dark:bg-surface-container/40"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-300">
-                  <Icon name="share" size={22} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="block text-body-sm font-bold text-on-surface group-hover:text-primary transition-colors">
-                    Bagikan Teks
-                  </span>
-                  <span className="block text-[11px] text-on-surface-variant">
-                    Salin ringkasan jadwal untuk WhatsApp / Telegram
-                  </span>
-                </div>
-                {copied ? (
-                  <span className="shrink-0 rounded-full bg-success/15 px-2.5 py-1 text-[11px] font-bold text-success">
-                    Tersalin!
-                  </span>
-                ) : (
-                  <Icon name="chevron_right" size={20} className="shrink-0 text-on-surface-variant group-hover:text-primary transition-colors" />
-                )}
-              </button>
-
-              {/* Bagikan Gambar */}
-              <button
-                type="button"
-                onClick={handleShareImage}
-                className="group flex w-full items-center gap-3.5 rounded-2xl border border-outline-variant/20 bg-surface-container-low/50 p-3.5 text-left transition-all hover:border-primary/40 hover:bg-surface-container-low hover:shadow-sm dark:bg-surface-container/40"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300">
-                  <Icon name="image" size={22} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="block text-body-sm font-bold text-on-surface group-hover:text-primary transition-colors">
-                    Bagikan Gambar (PNG)
-                  </span>
-                  <span className="block text-[11px] text-on-surface-variant">
-                    Simpan / kirim kartu grafis jadwal sebagai PNG
-                  </span>
-                </div>
-                {imageStatus ? (
-                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                    imageStatus.ok ? 'bg-success/15 text-success' : 'bg-error/15 text-error'
-                  }`}>
-                    {imageStatus.text}
-                  </span>
-                ) : (
-                  <Icon name="chevron_right" size={20} className="shrink-0 text-on-surface-variant group-hover:text-primary transition-colors" />
-                )}
-              </button>
-
-              {/* Cetak PDF / Kartu Saku */}
-              <button
-                type="button"
-                onClick={() => setPrintModalOpen(true)}
-                className="group flex w-full items-center gap-3.5 rounded-2xl border border-outline-variant/20 bg-surface-container-low/50 p-3.5 text-left transition-all hover:border-primary/40 hover:bg-surface-container-low hover:shadow-sm dark:bg-surface-container/40"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:bg-sky-500/20 dark:text-sky-300">
-                  <Icon name="print" size={22} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="block text-body-sm font-bold text-on-surface group-hover:text-primary transition-colors">
-                    Cetak PDF / Kartu Saku
-                  </span>
-                  <span className="block text-[11px] text-on-surface-variant">
-                    Format A4 meja belajar atau kartu saku hemat tinta
-                  </span>
-                </div>
-                <Icon name="chevron_right" size={20} className="shrink-0 text-on-surface-variant group-hover:text-primary transition-colors" />
-              </button>
-            </div>
-          </div>
-
-          {/* Footer Info */}
-          <div className="flex items-center justify-center pt-1">
-            <span className="rounded-full bg-surface-container px-3.5 py-1 text-label-caps font-semibold text-on-surface-variant border border-outline-variant/15">
+          {/* Footer Bar */}
+          <footer className="flex items-center justify-between p-4 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0">
+            <span className="text-[11px] font-extrabold text-teal-800 dark:text-teal-300 bg-teal-500/15 border border-teal-500/25 px-2.5 py-1 rounded-xl shadow-2xs">
               {source.length} kelas akan diekspor
             </span>
-          </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-1.5 rounded-xl text-body-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer"
+            >
+              Tutup
+            </button>
+          </footer>
         </div>
       </div>
 
@@ -296,7 +310,6 @@ export function ShareModal({ open, onClose }) {
         semester={semester}
         tahunAjaran={ta}
       />
-    </div>
+    </>
   )
 }
-

@@ -36,14 +36,14 @@ export function NotificationItem({ item, onMarkRead }) {
     <button
       type="button"
       onClick={() => onMarkRead?.(item.id)}
-      className={`group relative w-full overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-4 text-left transition-all duration-200 hover:scale-[1.002] hover:bg-surface-bright dark:bg-surface-container-low ${accent.border} ${
-        isRead ? 'opacity-65 cursor-default hover:scale-[1.001]' : 'cursor-pointer hover:shadow-level-2'
+      className={`group relative w-full overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-4 text-left transition-all duration-200 hover:bg-surface-bright dark:bg-surface-container-low ${accent.border} ${
+        isRead ? 'opacity-65 cursor-default' : 'cursor-pointer hover:shadow-md'
       }`}
       aria-label={isRead ? item.title : `Tandai sudah dibaca: ${item.title}`}
     >
       <div className="flex items-start gap-md">
         <span
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-105 active:scale-95 ${accent.iconBg}`}
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-colors duration-200 group-hover:brightness-105 active:opacity-80 ${accent.iconBg}`}
         >
           <Icon name={item.icon} filled={!isRead} />
         </span>
