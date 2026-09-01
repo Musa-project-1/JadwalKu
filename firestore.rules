@@ -88,5 +88,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    match /rooms/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }
