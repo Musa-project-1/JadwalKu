@@ -74,6 +74,25 @@ export function getRoomMap(campus = DEFAULT_CAMPUS) {
     : DEFAULT_CAMPUS.roomMap
 }
 
+/** Turunkan prefix kode MK dari nama prodi (mis. \"Bisnis Digital\" -> \"BD\", \"Teknik Sipil\" -> \"TS\"). */
+export function deriveProdiPrefix(nama = '') {
+  const words = String(nama).trim().split(/\s+/).filter(Boolean)
+  if (words.length === 0) return ''
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+  return words.map((w) => w[0].toUpperCase()).join('').slice(0, 4)
+}
+
+/** Ambil prefix untuk satu prodi dari config kampus (fallback derive). */
+export function getProdiPrefix(prodiName = '', campus = DEFAULT_CAMPUS) {
+  const list = campus?.prodi || DEFAULT_CAMPUS.prodi
+  const found = list.find((p) => {
+    const nama = typeof p === 'string' ? p : p?.nama
+    return String(nama).toLowerCase() === String(prodiName).toLowerCase()
+  })
+  if (found && typeof found === 'object' && found.prefix) return String(found.prefix).toUpperCase()
+  return deriveProdiPrefix(prodiName)
+}
+
 /** Normalisasi config Firestore -> objek dengan nilai default terisi. */
 export function normalizeCampus(raw = {}) {
   return {

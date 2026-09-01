@@ -1,5 +1,4 @@
-import { PRODIS } from '../constants/academicConstants'
-import { getProdiByCodePrefix } from './campusConfig'
+import { getProdiByCodePrefix, getProdiPrefix } from './campusConfig'
 
 export const EMPTY_COURSE_FORM = {
   kodeMK: '',
@@ -42,8 +41,8 @@ export function filterCourses(courses, filters, campus) {
     .filter((c) => (dosenFilter ? c.dosen === dosenFilter : true))
     .filter((c) => {
       if (!prodiFilter) return true
-      // Deteksi prodi dari prefix kode MK via config kampus (fallback PRODIS).
-      const prefix = PRODIS.find((item) => item.value === prodiFilter)?.prefix
+      // Deteksi prodi dari prefix kode MK via config kampus (derive fallback).
+      const prefix = getProdiPrefix(prodiFilter, campus)
       if (prefix) {
         return String(c.kodeMK || '').toUpperCase().startsWith(prefix)
       }

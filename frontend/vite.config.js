@@ -7,6 +7,7 @@ export default defineConfig({
   // Jika repo di-rename / pakai custom domain, ubah nilai base di sini.
   base: '/JadwalKu/',
   build: {
+    chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -14,6 +15,8 @@ export default defineConfig({
           if (!nid.includes('node_modules')) return undefined
           // Heavy, rarely-needed spreadsheet parser → own chunk
           if (nid.includes('xlsx') || nid.includes('cpexcel')) return 'xlsx'
+          // Heavy PDF parser (pdfjs-dist) → own chunk
+          if (nid.includes('pdfjs-dist')) return 'pdf'
           // Firebase SDKs split so no single chunk exceeds the 500 kB budget
           if (nid.includes('/firebase/firestore') || nid.includes('@firebase/firestore')) return 'firebase-firestore'
           if (nid.includes('/firebase/auth') || nid.includes('@firebase/auth')) return 'firebase-auth'

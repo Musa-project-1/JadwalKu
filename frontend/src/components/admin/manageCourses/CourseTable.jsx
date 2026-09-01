@@ -1,5 +1,5 @@
 import { Icon } from '../../Icon'
-import { formatWhatsAppUrl, parseLecturers, getLecturerInitial } from '../../../lib/lecturerUtils'
+import { formatWhatsAppUrl, parseLecturers } from '../../../lib/lecturerUtils'
 import { getCourseSemester } from '../../../lib/courseUtils'
 
 export default function CourseTable({ courses, onEdit, onDelete }) {
@@ -67,19 +67,14 @@ export default function CourseTable({ courses, onEdit, onDelete }) {
                   )}
                 </td>
 
-                {/* Dosen Pengampu (Avatar initial + Truncate name) */}
+                {/* Dosen Pengampu (Clean Name Truncate without Avatar Circle) */}
                 <td className="w-64 px-3 py-2 align-middle overflow-hidden">
                   {lecturerList.length === 0 ? (
                     <span className="text-on-surface-variant/50 text-body-xs">-</span>
                   ) : (
-                    <div className="flex items-center gap-2 min-w-0 max-w-full">
-                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-[10px] shadow-2xs">
-                        {getLecturerInitial(lecturerList[0])}
-                      </div>
-                      <span className="text-[11.5px] font-semibold text-on-surface truncate block min-w-0 flex-1" title={course.dosen}>
-                        {course.dosen}
-                      </span>
-                    </div>
+                    <span className="text-[11.5px] font-semibold text-on-surface truncate block min-w-0" title={course.dosen}>
+                      {course.dosen}
+                    </span>
                   )}
                 </td>
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { collection, getDocs } from 'firebase/firestore'
 import { db, firebaseReady } from '../lib/firebaseClient'
-import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
+import { getItem, setItem, removeItem, STORAGE_KEYS } from '../lib/storage'
 import { AppContext } from '../hooks/useApp'
 
 function applyDocumentPreferences({ theme, fontSize, highContrast }) {
@@ -96,8 +96,7 @@ export function AppProvider({ children }) {
           setSemesterState(null)
           try {
             // use PREFIX-aware helper (storage.js) so semester key is cleared correctly
-            const { removeItem, STORAGE_KEYS: SK } = await import('../lib/storage')
-            removeItem(SK.semester)
+            removeItem(STORAGE_KEYS.semester)
           } catch {}
         }
       } catch {}

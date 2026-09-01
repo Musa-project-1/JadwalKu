@@ -19,6 +19,7 @@ import { ExamFormModal } from '../../components/admin/manageExams/ExamFormModal'
 // Hooks & Libs
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
+import { useCampus } from '../../context/CampusContext'
 import { addDocument, deleteDocument, updateDocument } from '../../lib/adminData'
 import { publishDocuments, appendHistory } from '../../lib/publishHelpers'
 import { parseWorkbook } from '../../lib/xlsxParser'
@@ -43,6 +44,7 @@ const BASE_SEMESTER_GROUPS = [
 export default function ManageExams() {
   const { data: exams, loading } = useFirestore('ujian')
   const { data: courses } = useFirestore('mataKuliah')
+  const { prodiNames } = useCampus()
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
 
@@ -521,6 +523,7 @@ export default function ManageExams() {
           stats={stats}
           availableSemesterOptions={availableSemesterOptions}
           hasActiveFilters={hasActiveFilters}
+          prodiOptions={prodiNames}
           onResetFilters={resetAllFilters}
           onDownloadTemplate={downloadExamTemplate}
           onExportExcel={exportExamsToExcel}

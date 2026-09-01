@@ -236,8 +236,7 @@ export function ScheduleTable({
                       {course?.namaMK || item.kodeMK}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 min-w-0 max-w-full mt-0.5">
-                    <Icon name="person" size={12} className="text-secondary shrink-0 opacity-70" />
+                  <div className="flex items-center min-w-0 max-w-full mt-0.5">
                     <span
                       className="text-[11px] font-medium text-on-surface-variant truncate block min-w-0 flex-1"
                       title={course?.dosen || item.dosen || 'Dosen belum ditentukan'}

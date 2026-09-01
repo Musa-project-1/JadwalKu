@@ -47,9 +47,9 @@ export function ScheduleToolbar({
   )
 
   return (
-    <div className="relative z-30 flex flex-col gap-1.5 shrink-0">
+    <div className="relative flex flex-col gap-1.5 shrink-0 overflow-visible">
       {/* 1-Row Integrated Search & Dropdowns Toolbar */}
-      <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5">
+      <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5 overflow-visible">
         {/* Compact Search Bar */}
         <div className="relative flex-1 min-w-[200px] max-w-sm shrink-0 tablet:shrink">
           <Icon

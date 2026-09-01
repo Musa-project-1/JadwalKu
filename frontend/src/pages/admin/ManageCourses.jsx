@@ -36,7 +36,7 @@ export default function ManageCourses() {
   const { data: courses, loading } = useFirestore('mataKuliah')
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
-  const { campus } = useCampus()
+  const { campus, prodiNames } = useCampus()
 
   const [search, setSearch] = useState('')
   const [dosenFilter, setDosenFilter] = useState('')
@@ -317,13 +317,14 @@ export default function ManageCourses() {
 
       {/* ── 2. Live Database Course Management (Unified Card Container) ── */}
       <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
-        {/* Unified Search & Filters — 2 rows ke bawah biar muat */}
-        <div className="relative z-30 flex flex-col gap-2">
-          <div className="relative w-full">
+        {/* 1-Row Integrated Search & Dropdowns Toolbar (Matching Kelola Jadwal layout) */}
+        <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5 overflow-visible">
+          {/* Compact Search Bar */}
+          <div className="relative flex-1 min-w-[200px] max-w-sm shrink-0 tablet:shrink">
             <Icon
               name="search"
-              size={17}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
+              size={16}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
             />
             <input
               type="text"
@@ -331,25 +332,26 @@ export default function ManageCourses() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari kode MK, nama mata kuliah, dosen…"
               aria-label="Cari mata kuliah"
-              className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low/50 py-1.5 tablet:py-2 pl-9 pr-8 text-body-xs tablet:text-body-sm font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-2xs"
+              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 py-1.5 pl-8 pr-7 text-[12px] font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-2xs"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-on-surface-variant hover:bg-surface-container cursor-pointer"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:bg-surface-container rounded-full p-0.5 cursor-pointer"
                 aria-label="Hapus pencarian"
               >
-                <Icon name="close" size={13} />
+                <Icon name="close" size={12} />
               </button>
             )}
           </div>
 
-          {/* Baris 2: Chips — wrap */}
-          <div className="flex flex-wrap items-center gap-1.5 relative z-30">
+          {/* Filters Group */}
+          <div className="flex items-center gap-1.5 shrink-0">
             <ProdiFilterDropdown
               selected={prodiFilter}
               onSelect={setProdiFilter}
+              prodiOptions={prodiNames}
             />
 
             {availableTaOptions.length > 2 && (
@@ -377,26 +379,26 @@ export default function ManageCourses() {
               onSelect={setSksFilter}
             />
 
-            <button
-              type="button"
-              onClick={exportCoursesToExcel}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-[11.5px] font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
-              title="Ekspor Kurikulum Mata Kuliah ke Excel"
-            >
-              <Icon name="file_download" size={14} className="text-secondary" />
-              <span>Ekspor</span>
-            </button>
-
             {hasActiveFilters && (
               <button
                 type="button"
                 onClick={resetAllFilters}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-error/30 bg-error/10 px-3 py-1.5 text-[11.5px] font-bold text-error hover:bg-error/20 cursor-pointer transition-colors shadow-2xs"
+                className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-error/30 bg-error/10 px-2 py-1 text-[11px] font-bold text-error hover:bg-error/20 cursor-pointer transition-colors shadow-2xs"
               >
-                <Icon name="refresh" size={13} />
+                <Icon name="refresh" size={12} />
                 <span>Reset</span>
               </button>
             )}
+
+            <button
+              type="button"
+              onClick={exportCoursesToExcel}
+              className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1 text-[11px] font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
+              title="Ekspor Kurikulum Mata Kuliah ke Excel"
+            >
+              <Icon name="file_download" size={13} className="text-secondary" />
+              <span>Ekspor</span>
+            </button>
           </div>
         </div>
 

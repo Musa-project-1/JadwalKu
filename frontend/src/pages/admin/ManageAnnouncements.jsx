@@ -8,7 +8,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { EmptyState } from '../../components/EmptyState'
 import { useFirestore } from '../../hooks/useFirestore'
 import { addDocument, updateDocument, deleteDocument } from '../../lib/adminData'
-import { PRODIS } from '../../constants/academicConstants'
+import { useCampus } from '../../context/CampusContext'
 
 const CATEGORY_OPTIONS = [
   { value: 'info', label: '🔵 Info Umum (Akademik/KRS/Umum)' },
@@ -38,13 +38,15 @@ export default function ManageAnnouncements() {
   const [formBerlakuHingga, setFormBerlakuHingga] = useState('')
   const [formAktif, setFormAktif] = useState(true)
 
+  const { prodiNames } = useCampus()
+
   const availableProdis = useMemo(() => {
     const appDoc = settingsDocs.find((d) => d.id === 'app')
     if (Array.isArray(appDoc?.prodis) && appDoc.prodis.length > 0) {
       return appDoc.prodis
     }
-    return PRODIS.map((p) => p.value).filter(Boolean)
-  }, [settingsDocs])
+    return prodiNames.filter(Boolean)
+  }, [settingsDocs, prodiNames])
 
   const filteredAnnouncements = useMemo(() => {
     let list = Array.isArray(announcements) ? [...announcements] : []

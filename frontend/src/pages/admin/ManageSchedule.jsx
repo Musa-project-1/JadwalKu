@@ -810,7 +810,7 @@ export default function ManageSchedule() {
       )}
 
       {/* ── 2. Live Database Schedule Management ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-visible">
         <ScheduleToolbar
           search={search}
           setSearch={setSearch}

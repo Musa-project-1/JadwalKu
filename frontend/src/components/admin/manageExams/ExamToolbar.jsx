@@ -23,6 +23,7 @@ export function ExamToolbar({
   onDownloadTemplate,
   onExportExcel,
   onOpenImport,
+  prodiOptions,
 }) {
   return (
     <div className="relative z-30 flex flex-col gap-1.5 shrink-0">
@@ -91,6 +92,7 @@ export function ExamToolbar({
           <ProdiFilterDropdown
             selected={prodiFilter}
             onSelect={setProdiFilter}
+            prodiOptions={prodiOptions}
           />
 
           <SemesterFilterDropdown

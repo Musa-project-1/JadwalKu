@@ -1,5 +1,63 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Icon } from '../Icon'
+
+/* ── Portal helper: render dropdown menu in body to escape overflow:hidden parents ── */
+function usePortalPosition(open, triggerRef) {
+  const [pos, setPos] = useState(null)
+  const update = () => {
+    const el = triggerRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const gap = 6
+    const vw = window.innerWidth
+    const vh = window.innerHeight
+    // prefer left align, flip to right if overflow
+    let left = r.left
+    // menu width up to 224 (w-56) or 288; clamp
+    const menuW = 224
+    if (left + menuW > vw - 8) left = Math.max(8, vw - menuW - 8)
+    // vertical: below trigger; flip above if near bottom
+    let top = r.bottom + gap
+    // estimate menu height ~240; if overflow, show above trigger
+    const estH = 260
+    if (top + estH > vh - 8) top = Math.max(8, r.top - estH - gap)
+    setPos({ top, left, width: menuW, triggerWidth: r.width })
+  }
+  useLayoutEffect(() => {
+    if (!open) return
+    update()
+    window.addEventListener('scroll', update, true)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update, true)
+      window.removeEventListener('resize', update)
+    }
+  }, [open])
+  return pos
+}
+
+function PortalMenu({ open, triggerRef, widthClass = 'w-56', align = 'left', children }) {
+  const pos = usePortalPosition(open, triggerRef)
+  if (!open || !pos) return null
+  // widthClass maps to px via Tailwind but portal uses inline width for clamping
+  const wMap = { 'w-56': 224, 'w-48': 192, 'w-44': 176, 'w-72': 288, 'w-80': 320 }
+  const w = wMap[widthClass] || 224
+  const left = align === 'right'
+    ? Math.max(8, (triggerRef.current?.getBoundingClientRect().right || pos.left + w) - w)
+    : pos.left
+  return createPortal(
+    <div
+      data-portal-menu
+      style={{ position: 'fixed', top: pos.top, left, width: w, zIndex: 9999 }}
+      className={`rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up ${widthClass.includes('w-72') || widthClass.includes('w-80') ? 'rounded-3xl p-3' : ''}`}
+    >
+      {children}
+    </div>,
+    document.body,
+  )
+}
+
 import { PRODIS, SEMESTER_OPTIONS, STATUS_OPTIONS, MONTH_NAMES } from '../../constants/academicConstants'
 
 /**
@@ -11,6 +69,7 @@ export function ProdiFilterDropdown({ selected, onSelect, prodis, prodiOptions }
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (e.target.closest('[data-portal-menu]')) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -55,7 +114,7 @@ export function ProdiFilterDropdown({ selected, onSelect, prodis, prodiOptions }
     (selected || 'Semua Prodi')
 
   return (
-    <div ref={dropdownRef} className="relative shrink-0 z-30">
+    <div ref={dropdownRef} className="relative shrink-0 z-[70]">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
@@ -76,8 +135,7 @@ export function ProdiFilterDropdown({ selected, onSelect, prodis, prodiOptions }
         />
       </button>
 
-      {open && (
-        <div className="absolute left-0 top-full z-50 mt-1.5 w-56 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-56" align="left">
           <div className="max-h-60 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
             {normalizedList.map((p, idx) => {
               const isSelected = String(selected || '').toLowerCase() === String(p.value).toLowerCase()
@@ -101,8 +159,7 @@ export function ProdiFilterDropdown({ selected, onSelect, prodis, prodiOptions }
               )
             })}
           </div>
-        </div>
-      )}
+        </PortalMenu>
     </div>
   )
 }
@@ -116,6 +173,7 @@ export function SemesterFilterDropdown({ selected, onSelect, semesterOptions = S
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (e.target.closest('[data-portal-menu]')) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -150,8 +208,7 @@ export function SemesterFilterDropdown({ selected, onSelect, semesterOptions = S
         />
       </button>
 
-      {open && (
-        <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-48" align="left">
           <div className="max-h-56 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
             {semesterOptions.map((s) => {
               const isSelected = String(selected) === String(s.value)
@@ -175,8 +232,7 @@ export function SemesterFilterDropdown({ selected, onSelect, semesterOptions = S
               )
             })}
           </div>
-        </div>
-      )}
+        </PortalMenu>
     </div>
   )
 }
@@ -191,6 +247,7 @@ export function TaFilterDropdown({ selected, onSelect, taOptions = [] }) {
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (e.target.closest('[data-portal-menu]')) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -217,8 +274,7 @@ export function TaFilterDropdown({ selected, onSelect, taOptions = [] }) {
         <span>{selectedLabel}</span>
         <Icon name="expand_more" size={16} className={`text-on-surface-variant transition-transform duration-200 ${open ? 'rotate-180 text-primary' : ''}`} />
       </button>
-      {open && (
-        <div className="absolute left-0 top-full z-40 mt-2 w-44 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-44" align="left">
           <div className="max-h-56 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
             {normalized.map((t) => {
               const isSelected = String(selected ?? '') === String(t.value)
@@ -235,8 +291,7 @@ export function TaFilterDropdown({ selected, onSelect, taOptions = [] }) {
               )
             })}
           </div>
-        </div>
-      )}
+        </PortalMenu>
     </div>
   )
 }
@@ -250,6 +305,7 @@ export function StatusFilterDropdown({ selected, onSelect, options = STATUS_OPTI
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (e.target.closest('[data-portal-menu]')) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -282,8 +338,7 @@ export function StatusFilterDropdown({ selected, onSelect, options = STATUS_OPTI
         />
       </button>
 
-      {open && (
-        <div className="absolute left-0 top-full z-40 mt-2 w-44 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-44" align="left">
           <div className="space-y-1">
             {options.map((s) => {
               const isSelected = selected === s.value
@@ -307,8 +362,7 @@ export function StatusFilterDropdown({ selected, onSelect, options = STATUS_OPTI
               )
             })}
           </div>
-        </div>
-      )}
+        </PortalMenu>
     </div>
   )
 }
@@ -323,6 +377,7 @@ export function DosenFilterDropdown({ lecturers = [], selected, onSelect }) {
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (e.target.closest('[data-portal-menu]')) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -361,8 +416,7 @@ export function DosenFilterDropdown({ lecturers = [], selected, onSelect }) {
         />
       </button>
 
-      {open && (
-        <div className="absolute right-0 top-full z-40 mt-2 w-72 sm:w-80 rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-3 shadow-2xl dark:bg-surface-container-high animate-fade-up">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-72" align="right">
           <div className="relative mb-2">
             <Icon
               name="search"
@@ -429,8 +483,7 @@ export function DosenFilterDropdown({ lecturers = [], selected, onSelect }) {
               </p>
             )}
           </div>
-        </div>
-      )}
+        </PortalMenu>
     </div>
   )
 }
@@ -444,6 +497,7 @@ export function HolidayProdiFilterDropdown({ programs = [], selected, onSelect }
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (e.target.closest('[data-portal-menu]')) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -478,8 +532,7 @@ export function HolidayProdiFilterDropdown({ programs = [], selected, onSelect }
         />
       </button>
 
-      {open && (
-        <div className="absolute right-0 top-full z-40 mt-2 w-52 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-44" align="right">
           <div className="max-h-56 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
             <button
               type="button"
@@ -535,8 +588,7 @@ export function HolidayProdiFilterDropdown({ programs = [], selected, onSelect }
               )
             })}
           </div>
-        </div>
-      )}
+        </PortalMenu>
     </div>
   )
 }
@@ -550,6 +602,7 @@ export function MonthSelectDropdown({ value, onChange, months = MONTH_NAMES }) {
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (e.target.closest('[data-portal-menu]')) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -577,8 +630,7 @@ export function MonthSelectDropdown({ value, onChange, months = MONTH_NAMES }) {
         />
       </button>
 
-      {open && (
-        <div className="absolute left-0 top-full z-50 mt-1.5 w-full min-w-[140px] rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-44" align="left">
           <div className="max-h-48 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
             {months.map((m, idx) => {
               const isSelected = value === idx
@@ -602,8 +654,7 @@ export function MonthSelectDropdown({ value, onChange, months = MONTH_NAMES }) {
               )
             })}
           </div>
-        </div>
-      )}
+        </PortalMenu>
     </div>
   )
 }
@@ -619,6 +670,7 @@ export function HariFilterDropdown({ selected, onSelect, days = DEFAULT_DAYS }) 
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (e.target.closest('[data-portal-menu]')) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -649,8 +701,8 @@ export function HariFilterDropdown({ selected, onSelect, days = DEFAULT_DAYS }) 
         />
       </button>
 
-      {open && (
-        <div className="absolute left-0 top-full z-50 mt-1.5 w-48 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up space-y-0.5">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-48" align="left">
+          <div className="space-y-0.5">
           <button
             type="button"
             onClick={() => {
@@ -687,8 +739,8 @@ export function HariFilterDropdown({ selected, onSelect, days = DEFAULT_DAYS }) 
               </button>
             )
           })}
-        </div>
-      )}
+          </div>
+        </PortalMenu>
     </div>
   )
 }
@@ -710,6 +762,7 @@ export function SksFilterDropdown({ selected, onSelect, options = DEFAULT_SKS })
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (e.target.closest('[data-portal-menu]')) return
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -744,8 +797,8 @@ export function SksFilterDropdown({ selected, onSelect, options = DEFAULT_SKS })
         />
       </button>
 
-      {open && (
-        <div className="absolute left-0 top-full z-50 mt-1.5 w-44 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up space-y-0.5">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-44" align="left">
+          <div className="space-y-0.5">
           {options.map((s) => {
             const isSelected = String(selected || '') === String(s.value || '')
             return (
@@ -767,8 +820,8 @@ export function SksFilterDropdown({ selected, onSelect, options = DEFAULT_SKS })
               </button>
             )
           })}
-        </div>
-      )}
+          </div>
+        </PortalMenu>
     </div>
   )
 }
@@ -796,8 +849,7 @@ export function FakultasFilterDropdown({ selected, onSelect, fakultasOptions = [
         <span>{selectedLabel}</span>
         <Icon name="expand_more" size={16} className={`text-on-surface-variant transition-transform duration-200 ${open ? 'rotate-180 text-primary' : ''}`} />
       </button>
-      {open && (
-        <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up">
+      <PortalMenu open={open} triggerRef={dropdownRef} widthClass="w-48" align="left">
           <div className="max-h-56 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
             {normalized.map((f) => {
               const isSelected = String(selected ?? '') === String(f.value)
@@ -809,8 +861,7 @@ export function FakultasFilterDropdown({ selected, onSelect, fakultasOptions = [
               )
             })}
           </div>
-        </div>
-      )}
+        </PortalMenu>
     </div>
   )
 }

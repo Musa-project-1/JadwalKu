@@ -1,9 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Icon } from '../../Icon'
 import { Button } from '../../Button'
 import { FormSelect } from '../../FormSelect'
 import { CustomDatePicker } from '../../CustomDatePicker'
-import { PRODIS } from '../../../constants/academicConstants'
+import { useCampus } from '../../../context/CampusContext'
 
 export function ExamFormModal({
   open,
@@ -16,6 +16,11 @@ export function ExamFormModal({
   courseMap,
   errors = [],
 }) {
+  const { prodiNames } = useCampus()
+  const prodiOptions = useMemo(
+    () => prodiNames.filter(Boolean).map((nama) => ({ value: nama, label: nama })),
+    [prodiNames],
+  )
   useEffect(() => {
     if (!open) return
     function handleKeyDown(e) {
@@ -145,10 +150,7 @@ export function ExamFormModal({
                     value={form.prodi}
                     onChange={(val) => setForm((f) => ({ ...f, prodi: val }))}
                     placeholder="Pilih Prodi"
-                    options={PRODIS.filter((p) => p.value).map((p) => ({
-                      value: p.value,
-                      label: p.label,
-                    }))}
+                    options={prodiOptions}
                   />
                 </div>
 
