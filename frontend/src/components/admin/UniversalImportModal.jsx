@@ -89,6 +89,18 @@ export function UniversalImportModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
+  // Escape key handler to close modal
+  useEffect(() => {
+    if (!open) return
+    function handleKeyDown(e) {
+      if (e.key === 'Escape' && !busySaving && !loading) {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [open, busySaving, loading, onClose])
+
   const effectiveTA = useMemo(() => {
     if (isCustomTA && customTAInput.trim()) return customTAInput.trim()
     return selectedTA || currentTA || '2025/2026'
@@ -319,34 +331,46 @@ export function UniversalImportModal({
 
         {/* ── MODAL 1: UPLOAD (DROPZONE) ── */}
         {step === 'upload' && (
-          <div className="flex flex-col h-full p-5 tablet:p-6 overflow-y-auto space-y-4">
-            <header className="flex items-center justify-between pb-3 border-b border-outline-variant/15 shrink-0">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xs">
-                  <Icon name="upload_file" size={22} />
-                </span>
-                <div>
-                  <h3 className="text-title-md font-bold text-on-surface leading-tight">
-                    Impor Jadwal Kuliah Universal
-                  </h3>
-                  <p className="text-body-xs font-medium text-on-surface-variant">
-                    Unggah berkas spreadsheet, dokumen, atau foto jadwal
-                  </p>
+          <div className="flex flex-col h-full overflow-y-auto">
+            {/* Header Banner - Rich Full-Width Teal/Emerald Gradient matching the student design system */}
+            <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                    <Icon name="upload_file" size={22} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <h3 className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
+                        Impor Jadwal Kuliah Universal
+                      </h3>
+                      <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                        Multi-Format & OCR
+                      </span>
+                    </div>
+                    <p className="text-body-xs text-white/80 font-medium truncate">
+                      Unggah berkas spreadsheet, dokumen, atau foto jadwal
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-full p-1.5 text-on-surface-variant hover:bg-surface-container cursor-pointer transition-colors"
-              >
-                <Icon name="close" size={20} />
-              </button>
-            </header>
 
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Tutup modal"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Icon name="close" size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-5 tablet:p-6 space-y-4">
             {/* Global Tahun Ajaran Selector (Top of Modal 1) */}
             <div className="rounded-2xl bg-surface-container-high/50 border border-outline-variant/25 p-3.5 flex flex-col tablet:flex-row tablet:items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-primary shrink-0 font-bold">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25 shrink-0 font-bold">
                   <Icon name="calendar_month" size={17} />
                 </span>
                 <div>
@@ -381,7 +405,7 @@ export function UniversalImportModal({
                       placeholder="mis. 2026/2027"
                       value={customTAInput}
                       onChange={(e) => setCustomTAInput(e.target.value)}
-                      className="w-36 rounded-xl border border-primary bg-surface-container-lowest p-2 text-body-xs font-bold text-on-surface focus:outline-none dark:bg-surface-container-low shadow-2xs"
+                      className="w-36 rounded-xl border border-teal-600 bg-surface-container-lowest p-2 text-body-xs font-bold text-on-surface focus:outline-none dark:bg-surface-container-low shadow-2xs"
                     />
                     <button
                       type="button"
@@ -492,35 +516,48 @@ export function UniversalImportModal({
                 <li>Untuk <strong>foto kertas jadwal</strong>, gunakan resolusi yang tajam dan pencahayaan terang untuk hasil OCR optimal.</li>
               </ul>
             </div>
+            </div>
           </div>
         )}
 
         {/* ── MODAL 2: COLUMN MAPPING ── */}
         {step === 'mapping' && (
-          <div className="flex flex-col h-full p-5 tablet:p-6 overflow-y-auto space-y-4">
-            <header className="flex items-center justify-between pb-3 border-b border-outline-variant/15 shrink-0">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/10 text-secondary shadow-xs">
-                  <Icon name="tune" size={22} />
-                </span>
-                <div>
-                  <h3 className="text-title-md font-bold text-on-surface leading-tight">
-                    Petakan Kolom Berkas ke Sistem
-                  </h3>
-                  <p className="text-body-xs font-medium text-on-surface-variant truncate max-w-md">
-                    Berkas: {fileName} • Status: <span className="text-primary font-bold">{autoMatchedCount} kolom cocok</span>
-                  </p>
+          <div className="flex flex-col h-full overflow-y-auto">
+            {/* Header Banner - Gradient */}
+            <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                    <Icon name="tune" size={22} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <h3 className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
+                        Petakan Kolom Berkas
+                      </h3>
+                      <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                        {autoMatchedCount} Kolom Cocok
+                      </span>
+                    </div>
+                    <p className="text-body-xs text-white/80 font-medium truncate">
+                      Berkas: {fileName}
+                    </p>
+                  </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => setStep('upload')}
+                  aria-label="Kembali"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+                  title="Kembali ke Upload"
+                >
+                  <Icon name="close" size={20} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setStep('upload')}
-                className="rounded-full p-1.5 text-on-surface-variant hover:bg-surface-container cursor-pointer transition-colors"
-                title="Kembali ke Upload"
-              >
-                <Icon name="close" size={20} />
-              </button>
-            </header>
+            </div>
+
+            <div className="p-5 tablet:p-6 space-y-4">
 
             {/* Global File Settings Badge (Tahun Ajaran, Prodi, Semester) */}
             <div className="p-3 rounded-2xl bg-surface-container-high/40 border border-outline-variant/20 space-y-2.5">
@@ -630,39 +667,47 @@ export function UniversalImportModal({
                 <Icon name="arrow_forward" size={16} className="ml-1" />
               </Button>
             </div>
+            </div>
           </div>
         )}
 
         {/* ── MODAL 3: LIVE PREVIEW & VALIDATION ── */}
         {step === 'preview' && (
-          <div className="flex flex-col h-full p-5 tablet:p-6 overflow-hidden space-y-3.5">
-            <header className="flex items-center justify-between pb-3 border-b border-outline-variant/15 shrink-0">
-              <div className="flex items-center gap-3 min-w-0">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xs shrink-0">
-                  <Icon name="fact_check" size={22} />
-                </span>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-title-md font-bold text-on-surface leading-tight">
-                      Pratinjau & Validasi Data Jadwal ({parsedData.scheduleEntries.length} Sesi)
-                    </h3>
-                    <span className="font-mono text-label-caps font-bold text-primary bg-primary/10 border border-primary/25 px-2 py-0.5 rounded-full">
-                      TA {effectiveTA}
-                    </span>
+          <div className="flex flex-col h-full overflow-hidden">
+            {/* Header Banner - Gradient */}
+            <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                    <Icon name="fact_check" size={22} />
                   </div>
-                  <p className="text-body-xs font-medium text-on-surface-variant">
-                    Periksa ejaan dan perbaiki langsung di tabel sebelum disimpan
-                  </p>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <h3 className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
+                        Pratinjau & Validasi Data Jadwal ({parsedData.scheduleEntries.length} Sesi)
+                      </h3>
+                      <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                        TA {effectiveTA}
+                      </span>
+                    </div>
+                    <p className="text-body-xs text-white/80 font-medium truncate">
+                      Periksa ejaan dan perbaiki langsung di tabel sebelum disimpan
+                    </p>
+                  </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Tutup modal"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Icon name="close" size={20} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-full p-1.5 text-on-surface-variant hover:bg-surface-container cursor-pointer transition-colors shrink-0"
-              >
-                <Icon name="close" size={20} />
-              </button>
-            </header>
+            </div>
+
+            <div className="flex-1 flex flex-col min-h-0 p-5 tablet:p-6 space-y-3.5 overflow-hidden">
 
             {/* Metrics Chips */}
             <div className="flex items-center gap-2 flex-wrap shrink-0">
@@ -895,6 +940,7 @@ export function UniversalImportModal({
                 <Icon name="check_circle" size={18} className="mr-1.5" />
                 {busySaving ? 'Menyimpan ke Database...' : 'Simpan Jadwal ke Database'}
               </Button>
+            </div>
             </div>
           </div>
         )}

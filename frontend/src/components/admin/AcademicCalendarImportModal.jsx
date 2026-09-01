@@ -1,42 +1,29 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
 import { FormSelect } from '../FormSelect'
-import {
-  parseAcademicCalendarFile,
-  deriveBoundsFromEvents,
-  formatEventDateRange,
-  semesterLabel,
-  kategoriLabel,
-} from '../../lib/academicCalendarParser'
-import { MADANI_CALENDAR_PRESET, KATEGORI_OPTIONS } from '../../constants/academicCalendarPreset'
+import { CustomDatePicker } from '../CustomDatePicker'
+import { parseAcademicCalendarFile, deriveBoundsFromEvents } from '../../lib/academicCalendarParser'
+import { MADANI_CALENDAR_PRESET } from '../../constants/academicCalendarPreset'
 
-/**
- * Modal Import Kalender Akademik (Kaldik).
- *
- * Mendukung:
- *  - Upload file .pdf, .png, .jpg, .jpeg, .webp, .xlsx, .xls, .csv, .json
- *  - Muat Preset Madani (contoh terstruktur)
- *  - Pratinjau & edit inline event sebelum disimpan
- *  - Simpan ke settings/academicCalendar (+ turunkan batas ganjil/genap otomatis)
- */
 export function AcademicCalendarImportModal({
   open,
   onClose,
-  onImport,
   existingEvents = [],
-  actor = '',
+  onSaveCalendarEvents,
   busySaving = false,
 }) {
   const fileInputRef = useRef(null)
   const [dragOver, setDragOver] = useState(false)
-  const [fileName, setFileName] = useState('')
   const [loading, setLoading] = useState(false)
   const [progressState, setProgressState] = useState({ stage: '', progress: 0 })
   const [errorMsg, setErrorMsg] = useState('')
-  const [events, setEvents] = useState([])
   const [warnings, setWarnings] = useState([])
+  const [fileName, setFileName] = useState('')
   const [detectedFormat, setDetectedFormat] = useState('')
+
+  // List events hasil parsing yang bisa diedit sebelum disimpan
+  const [events, setEvents] = useState([])
   const [editingIdx, setEditingIdx] = useState(null)
   const [editDraft, setEditDraft] = useState(null)
 
@@ -58,7 +45,19 @@ export function AcademicCalendarImportModal({
   // Pratinjau ringkasan derived bounds dari events saat ini.
   const derivedBounds = useMemo(() => deriveBoundsFromEvents(events), [events])
 
-  const stats = useMemo(() => {
+  // Escape key handler to close modal
+  useEffect(() => {
+    if (!open) return
+    function handleKeyDown(e) {
+      if (e.key === 'Escape' && !busySaving && !loading) {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [open, busySaving, loading, onClose])
+
+  const totalEventsCount = useMemo(() => {
     const ganjil = events.filter((e) => e.semester === 'ganjil').length
     const genap = events.filter((e) => e.semester === 'genap').length
     const antar = events.filter((e) => e.semester === 'antar').length
@@ -126,49 +125,34 @@ export function AcademicCalendarImportModal({
 
   function handleDelete(idx) {
     setEvents((prev) => prev.filter((_, i) => i !== idx))
+    if (editingIdx === idx) {
+      setEditingIdx(null)
+      setEditDraft(null)
+    }
   }
 
   function handleAddManual() {
     const newEvent = {
-      nama: 'Event Baru',
-      tanggalMulai: '',
-      tanggalSelesai: '',
+      name: 'Kegiatan Baru',
+      startDate: new Date().toISOString().slice(0, 10),
+      endDate: new Date().toISOString().slice(0, 10),
       semester: 'ganjil',
-      kategori: 'kegiatan',
+      category: 'kegiatan',
     }
-    // Tambahkan ke daftar, lalu mulai edit baris terakhir.
-    setEvents((prev) => {
-      const next = [...prev, newEvent]
-      setEditingIdx(next.length - 1)
-      setEditDraft({ ...newEvent })
-      return next
-    })
+    setEvents((prev) => [newEvent, ...prev])
+    setEditingIdx(0)
+    setEditDraft(newEvent)
   }
 
-  // ── Simpan ke database ──
   async function handleImport() {
-    if (events.length === 0) {
-      setErrorMsg('Tidak ada event untuk diimpor. Silakan pilih file atau muat preset.')
-      return
+    if (events.length === 0) return
+    if (onSaveCalendarEvents) {
+      await onSaveCalendarEvents(events, {
+        sourceFileName: fileName,
+        detectedFormat,
+        derivedBounds,
+      })
     }
-    const validEvents = events.filter((e) => e.nama && e.tanggalMulai)
-    if (validEvents.length === 0) {
-      setErrorMsg('Semua event belum lengkap. Pastikan Nama dan Tanggal Mulai terisi.')
-      return
-    }
-    if (validEvents.length !== events.length) {
-      setErrorMsg(`${events.length - validEvents.length} event belum lengkap dan akan dilewati.`)
-    }
-
-    const bounds = deriveBoundsFromEvents(validEvents)
-    setErrorMsg('')
-    await onImport({
-      events: validEvents,
-      bounds,
-      fileName,
-      detectedFormat,
-      existingCount: existingEvents.length,
-    })
   }
 
   if (!open) return null
@@ -177,389 +161,365 @@ export function AcademicCalendarImportModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-6 bg-black/65 backdrop-blur-xs animate-fade-in print:hidden"
     >
-      {/* Backdrop */}
-      <div onClick={() => !busySaving && onClose()} className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity" />
+      <div
+        onClick={onClose}
+        className="absolute inset-0 bg-transparent"
+      />
 
-      {/* Modal Container */}
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 overflow-hidden">
-        {/* Mobile Drag Handle */}
-        <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
-          <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
-        </div>
-
-        <div className="flex flex-col h-full p-5 tablet:p-6 overflow-y-auto space-y-4">
-          {/* Header */}
-          <header className="flex items-center justify-between pb-3 border-b border-outline-variant/15 shrink-0">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xs">
-                <Icon name="calendar_month" size={22} />
-              </span>
-              <div>
-                <h3 className="text-title-md font-bold text-on-surface leading-tight">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative flex flex-col w-full max-w-5xl max-h-[92vh] tablet:max-h-[88vh] overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up z-10"
+      >
+        {/* Header Banner - Rich Full-Width Teal/Emerald Gradient matching the student design system */}
+        <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white flex items-center justify-between border-b border-white/10 shrink-0 shadow-level-1">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs backdrop-blur-md">
+              <Icon name="calendar_month" size={22} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base tablet:text-lg font-bold text-white tracking-tight truncate">
                   Import Kalender Akademik
                 </h3>
-                <p className="text-body-xs font-medium text-on-surface-variant">
-                  Unggah file Kaldik (PDF / Gambar / Excel / CSV / JSON) atau muat preset
-                </p>
+                <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide border border-white/25 shadow-2xs backdrop-blur-md">
+                  Universal Kaldik OCR
+                </span>
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full p-1.5 text-on-surface-variant hover:bg-surface-container cursor-pointer transition-colors"
-              title="Tutup"
-            >
-              <Icon name="close" size={20} />
-            </button>
-          </header>
-
-          {/* Source Tabs / Actions */}
-          <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 shrink-0">
-            {/* Dropzone */}
-            <div
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={(e) => {
-                e.preventDefault()
-                setDragOver(false)
-                const f = e.dataTransfer.files?.[0]
-                if (f) handleFileSelect(f)
-              }}
-              onClick={() => fileInputRef.current?.click()}
-              className={`group flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-5 text-center transition-all cursor-pointer ${
-                dragOver
-                  ? 'border-primary bg-primary/10 shadow-md'
-                  : 'border-outline-variant/40 bg-surface-container-low/40 hover:border-primary/60 hover:bg-surface-container-low'
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.png,.jpg,.jpeg,.webp,.xlsx,.xls,.csv,.json"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0]
-                  if (f) handleFileSelect(f)
-                }}
-              />
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors shadow-xs">
-                <Icon name="cloud_upload" size={26} />
-              </div>
-              <p className="mt-2.5 text-body-sm font-bold text-on-surface">
-                {fileName || 'Tarik & lepas file Kaldik, atau '}
-                <span className="text-primary underline ml-1">Telusuri File</span>
+              <p className="text-[11.5px] text-white/80 font-medium truncate mt-0.5">
+                Unggah berkas Kaldik kampus (PDF / Foto OCR / Excel / CSV / JSON) atau muat preset resmi
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2">
-                <span className="inline-flex items-center gap-1 rounded-xl bg-red-500/10 border border-red-500/25 px-2 py-0.5 text-[10px] font-bold text-red-800 dark:text-red-300">
-                  <Icon name="picture_as_pdf" size={12} /> PDF
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-xl bg-purple-500/10 border border-purple-500/25 px-2 py-0.5 text-[10px] font-bold text-purple-800 dark:text-purple-300">
-                  <Icon name="image" size={12} /> PNG/JPG
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:text-emerald-300">
-                  <Icon name="table_view" size={12} /> Excel/CSV
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-xl bg-teal-500/10 border border-teal-500/25 px-2 py-0.5 text-[10px] font-bold text-teal-800 dark:text-teal-300">
-                  <Icon name="data_object" size={12} /> JSON
-                </span>
-              </div>
-            </div>
-
-            {/* Preset Quick Load */}
-            <div className="flex flex-col justify-center gap-2.5 rounded-3xl border border-outline-variant/20 bg-surface-container-low/40 p-5 text-center">
-              <div className="flex h-12 w-12 mx-auto items-center justify-center rounded-2xl bg-secondary/10 text-secondary shadow-xs">
-                <Icon name="auto_awesome" size={26} />
-              </div>
-              <p className="text-body-sm font-bold text-on-surface">Muat Preset Contoh Madani</p>
-              <p className="text-[11px] text-on-surface-variant font-medium leading-relaxed">
-                Contoh lengkap Kalender Pendidikan Universitas Madani T.A. 2026/2027.
-              </p>
-              <Button
-                type="button"
-                variant="tonal"
-                onClick={loadMadaniPreset}
-                className="justify-center font-bold"
-              >
-                <Icon name="download" size={16} className="mr-1" />
-                Muat Preset
-              </Button>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup modal"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all border border-white/20 cursor-pointer"
+          >
+            <Icon name="close" size={18} />
+          </button>
+        </div>
 
-          {/* Parsing Progress */}
-          {loading && (
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-2 animate-fade-in shrink-0">
-              <div className="flex items-center justify-between text-body-xs font-bold text-primary">
-                <span>{progressState.stage || 'Memproses...'}</span>
-                <span>{progressState.progress}%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-primary/15 overflow-hidden">
-                <div className="h-full bg-primary rounded-full transition-all duration-300" style={{ width: `${progressState.progress}%` }} />
+        {/* 2-Column Split Body (Left: Slim Upload & Settings, Right: Live Event Table & Bounds Preview) */}
+        <div className="grid grid-cols-1 tablet:grid-cols-12 flex-1 min-h-0 overflow-y-auto tablet:overflow-hidden">
+          {/* LEFT COLUMN: Source Configuration & Upload (5-Cols) */}
+          <div className="tablet:col-span-5 tablet:overflow-y-auto p-4 tablet:p-5 space-y-4 border-b tablet:border-b-0 tablet:border-r border-outline-variant/20 bg-surface-container-low/40 dark:bg-surface-container-high/20 custom-scrollbar">
+            {/* Card 1: File Dropzone */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] uppercase tracking-wider text-on-surface-variant font-extrabold">
+                Berkas Kaldik Kampus
+              </label>
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setDragOver(false)
+                  const f = e.dataTransfer.files?.[0]
+                  if (f) handleFileSelect(f)
+                }}
+                onClick={() => fileInputRef.current?.click()}
+                className={`group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-4 text-center transition-all cursor-pointer ${
+                  dragOver
+                    ? 'border-primary bg-primary/10 shadow-md'
+                    : 'border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low hover:border-primary/60 hover:bg-surface-container-low'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg,.webp,.xlsx,.xls,.csv,.json"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    if (f) handleFileSelect(f)
+                  }}
+                />
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20 group-hover:scale-105 transition-all shadow-2xs">
+                  <Icon name="cloud_upload" size={24} />
+                </div>
+                <p className="mt-2 text-body-xs font-bold text-on-surface leading-snug">
+                  {fileName || 'Tarik & lepas file Kaldik, atau '}
+                  <span className="text-teal-700 dark:text-teal-400 underline ml-1">Telusuri File</span>
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 border border-red-500/25 px-2 py-0.2 text-[9.5px] font-extrabold text-red-800 dark:text-red-300">
+                    <Icon name="picture_as_pdf" size={11} /> PDF
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/25 px-2 py-0.2 text-[9.5px] font-extrabold text-purple-800 dark:text-purple-300">
+                    <Icon name="image" size={11} /> OCR/Foto
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.2 text-[9.5px] font-extrabold text-emerald-800 dark:text-emerald-300">
+                    <Icon name="table_view" size={11} /> Excel/CSV
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 border border-teal-500/25 px-2 py-0.2 text-[9.5px] font-extrabold text-teal-800 dark:text-teal-300">
+                    <Icon name="data_object" size={11} /> JSON
+                  </span>
+                </div>
               </div>
             </div>
-          )}
 
-          {/* Error / Warnings */}
-          {errorMsg && (
-            <div className="rounded-2xl bg-error/10 border border-error/25 p-3.5 text-body-xs font-semibold text-error flex items-start gap-2 animate-fade-in shrink-0">
-              <Icon name="error" size={18} className="shrink-0 mt-0.5" />
-              <p>{errorMsg}</p>
-            </div>
-          )}
-          {!errorMsg && warnings.length > 0 && (
-            <div className="rounded-2xl bg-amber-500/10 border border-amber-500/25 p-3.5 text-body-xs font-semibold text-amber-800 dark:text-amber-300 flex items-start gap-2 animate-fade-in shrink-0">
-              <Icon name="warning" size={18} className="shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
-                {warnings.map((w, i) => (
-                  <p key={i}>{w}</p>
-                ))}
+            {/* Card 2: Preset Contoh Madani */}
+            <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 space-y-2 shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/25">
+                  <Icon name="auto_awesome" size={16} />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-body-xs font-bold text-on-surface leading-tight">Preset Contoh Kampus</h4>
+                  <p className="text-[10.5px] text-on-surface-variant font-medium">Kalender Universitas Madani T.A. 2026/2027</p>
+                </div>
               </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={loadMadaniPreset}
+                className="w-full justify-center rounded-full py-1.5 text-body-xs font-bold border border-outline-variant/30 hover:border-primary cursor-pointer shadow-2xs"
+              >
+                <Icon name="download" size={14} className="mr-1 text-primary" />
+                Muat Preset Madani
+              </Button>
             </div>
-          )}
 
-          {/* Stats + Add Manual */}
-          {events.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap shrink-0">
-              <div className="inline-flex items-center gap-1.5 rounded-xl bg-primary/15 border border-primary/25 px-2.5 py-1 text-body-xs font-bold text-primary">
-                <Icon name="event" size={14} />
-                <span>{stats.total} Event</span>
+            {/* Parsing Progress */}
+            {loading && (
+              <div className="rounded-2xl border border-teal-500/25 bg-teal-500/10 p-3.5 space-y-2 animate-fade-in shadow-2xs">
+                <div className="flex items-center justify-between text-body-xs font-bold text-teal-900 dark:text-teal-200">
+                  <span>{progressState.stage || 'Menganalisis berkas Kaldik...'}</span>
+                  <span>{progressState.progress}%</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-teal-500/20 overflow-hidden">
+                  <div className="h-full bg-teal-700 dark:bg-teal-400 rounded-full transition-all duration-300" style={{ width: `${progressState.progress}%` }} />
+                </div>
               </div>
-              <div className="inline-flex items-center gap-1.5 rounded-xl bg-blue-500/15 border border-blue-500/25 px-2.5 py-1 text-body-xs font-bold text-blue-700 dark:text-blue-300">
-                <Icon name="looks_one" size={14} />
-                <span>{stats.ganjil} Ganjil</span>
+            )}
+
+            {/* Error / Warnings */}
+            {errorMsg && (
+              <div className="rounded-2xl bg-error/10 border border-error/25 p-3 text-body-xs font-semibold text-error flex items-start gap-2 animate-fade-in shadow-2xs">
+                <Icon name="error" size={16} className="shrink-0 mt-0.5" />
+                <p>{errorMsg}</p>
               </div>
-              <div className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-1 text-body-xs font-bold text-emerald-700 dark:text-emerald-300">
-                <Icon name="looks_two" size={14} />
-                <span>{stats.genap} Genap</span>
+            )}
+
+            {/* Derived Bounds Preview Card */}
+            {derivedBounds && (
+              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 space-y-2 shadow-2xs">
+                <span className="block text-[10.5px] font-extrabold uppercase tracking-wider text-on-surface-variant">
+                  Kalkulasi TA & Semester Otomatis
+                </span>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="p-2 rounded-xl bg-surface-container-low border border-outline-variant/15">
+                    <p className="text-on-surface-variant font-bold text-[10px]">T.A. AKTIF</p>
+                    <p className="font-extrabold text-primary">{derivedBounds.tahunAjaran || '-'}</p>
+                  </div>
+                  <div className="p-2 rounded-xl bg-surface-container-low border border-outline-variant/15">
+                    <p className="text-on-surface-variant font-bold text-[10px]">SEMESTER</p>
+                    <p className="font-extrabold text-on-surface uppercase">{derivedBounds.activeSemester || '-'}</p>
+                  </div>
+                </div>
               </div>
-              <div className="inline-flex items-center gap-1.5 rounded-xl bg-slate-500/15 border border-slate-500/25 px-2.5 py-1 text-body-xs font-bold text-slate-700 dark:text-slate-300">
-                <Icon name="schedule" size={14} />
-                <span>{stats.antar} Antar/Umum</span>
+            )}
+          </div>
+
+          {/* RIGHT COLUMN: Event Table & Inline Editor (7-Cols) */}
+          <div className="tablet:col-span-7 flex flex-col flex-1 min-h-0 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 overflow-hidden">
+            {/* Top Table Control Bar */}
+            <div className="flex items-center justify-between gap-2 pb-3 border-b border-outline-variant/15 shrink-0 flex-wrap">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="rounded-full bg-teal-500/10 text-teal-800 dark:text-teal-300 border border-teal-500/20 px-2.5 py-0.5 text-[10.5px] font-extrabold shadow-2xs">
+                  {totalEventsCount.total} Event Terdeteksi
+                </span>
+                <span className="rounded-full bg-blue-500/10 text-blue-800 dark:text-blue-300 border border-blue-500/20 px-2.5 py-0.5 text-[10px] font-bold">
+                  {totalEventsCount.ganjil} Ganjil
+                </span>
+                <span className="rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold">
+                  {totalEventsCount.genap} Genap
+                </span>
               </div>
               <button
                 type="button"
                 onClick={handleAddManual}
-                className="ml-auto inline-flex items-center gap-1 rounded-xl border border-primary/30 bg-primary/10 px-2.5 py-1 text-body-xs font-bold text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 rounded-full border border-teal-600/30 bg-teal-500/10 px-3 py-1 text-[11px] font-bold text-teal-800 dark:text-teal-300 hover:bg-teal-500/20 transition-colors cursor-pointer shadow-2xs"
               >
-                <Icon name="add" size={14} />
-                Tambah Manual
+                <Icon name="add" size={13} />
+                <span>Tambah Event</span>
               </button>
             </div>
-          )}
 
-          {/* Derived Bounds Preview */}
-          {derivedBounds && (
-            <div className="rounded-2xl border border-secondary/20 bg-secondary/5 p-3 text-body-xs font-medium text-on-surface-variant shrink-0">
-              <p className="font-bold text-secondary mb-1.5 flex items-center gap-1.5">
-                <Icon name="tune" size={14} />
-                Batas Otomatis (diturunkan dari event):
-              </p>
-              <div className="grid grid-cols-2 tablet:grid-cols-4 gap-2">
-                {derivedBounds.ganjilStart && (
-                  <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 px-2 py-1">
-                    <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase">Ganjil Mulai</span>
-                    <p className="font-mono text-[11px] font-bold text-on-surface">{derivedBounds.ganjilStart.day}/{derivedBounds.ganjilStart.month + 1}</p>
-                  </div>
-                )}
-                {derivedBounds.ganjilEnd && (
-                  <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 px-2 py-1">
-                    <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase">Ganjil Selesai</span>
-                    <p className="font-mono text-[11px] font-bold text-on-surface">{derivedBounds.ganjilEnd.day}/{derivedBounds.ganjilEnd.month + 1}</p>
-                  </div>
-                )}
-                {derivedBounds.genapStart && (
-                  <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-1">
-                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Genap Mulai</span>
-                    <p className="font-mono text-[11px] font-bold text-on-surface">{derivedBounds.genapStart.day}/{derivedBounds.genapStart.month + 1}</p>
-                  </div>
-                )}
-                {derivedBounds.genapEnd && (
-                  <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-1">
-                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Genap Selesai</span>
-                    <p className="font-mono text-[11px] font-bold text-on-surface">{derivedBounds.genapEnd.day}/{derivedBounds.genapEnd.month + 1}</p>
-                  </div>
-                )}
+            {/* Event List Table */}
+            {events.length > 0 ? (
+              <div className="flex-1 overflow-x-auto overflow-y-auto min-h-0 border border-outline-variant/15 rounded-2xl my-3 custom-scrollbar">
+                <table className="w-full table-fixed text-left border-collapse">
+                  <thead className="sticky top-0 z-10 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
+                    <tr className="border-b border-outline-variant/15">
+                      <th className="px-3 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold">
+                        Nama Agenda / Event
+                      </th>
+                      <th className="w-36 px-2.5 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold">
+                        Rentang Waktu
+                      </th>
+                      <th className="w-24 px-2 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold text-center">
+                        Semester
+                      </th>
+                      <th className="w-16 px-2 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold text-right">
+                        Aksi
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/10">
+                    {events.map((event, idx) => {
+                      const isEditing = editingIdx === idx
+
+                      if (isEditing && editDraft) {
+                        return (
+                          <tr key={idx} className="bg-primary/5 dark:bg-primary/10">
+                            <td className="px-3 py-2" colSpan={4}>
+                              <div className="space-y-2 p-1">
+                                <input
+                                  type="text"
+                                  value={editDraft.name}
+                                  onChange={(e) => handleEditField('name', e.target.value)}
+                                  className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-3 py-1.5 text-body-xs font-bold text-on-surface"
+                                  placeholder="Nama Agenda"
+                                />
+                                <div className="grid grid-cols-3 gap-2">
+                                  <input
+                                    type="date"
+                                    value={editDraft.startDate}
+                                    onChange={(e) => handleEditField('startDate', e.target.value)}
+                                    className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-2 py-1 text-[11px] font-semibold"
+                                  />
+                                  <input
+                                    type="date"
+                                    value={editDraft.endDate}
+                                    onChange={(e) => handleEditField('endDate', e.target.value)}
+                                    className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-2 py-1 text-[11px] font-semibold"
+                                  />
+                                  <select
+                                    value={editDraft.semester}
+                                    onChange={(e) => handleEditField('semester', e.target.value)}
+                                    className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-2 py-1 text-[11px] font-bold"
+                                  >
+                                    <option value="ganjil">Ganjil</option>
+                                    <option value="genap">Genap</option>
+                                    <option value="antar">Antar / Umum</option>
+                                  </select>
+                                </div>
+                                <div className="flex justify-end gap-2 pt-1">
+                                  <button
+                                    type="button"
+                                    onClick={cancelEdit}
+                                    className="px-2.5 py-1 text-[11px] rounded-lg text-on-surface-variant hover:bg-surface-container cursor-pointer"
+                                  >
+                                    Batal
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={saveEdit}
+                                    className="px-3 py-1 text-[11px] font-bold rounded-lg bg-teal-800 text-white hover:bg-teal-900 cursor-pointer shadow-2xs"
+                                  >
+                                    Simpan
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      }
+
+                      return (
+                        <tr key={idx} className="hover:bg-surface-container-low/60 transition-colors">
+                          <td className="px-3 py-2 align-middle overflow-hidden">
+                            <p className="font-bold text-body-xs text-on-surface truncate" title={event.name}>
+                              {event.name}
+                            </p>
+                          </td>
+                          <td className="w-36 px-2.5 py-2 align-middle font-mono text-[10.5px] text-on-surface-variant truncate">
+                            {event.startDate} s.d {event.endDate}
+                          </td>
+                          <td className="w-24 px-2 py-2 align-middle text-center">
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.2 text-[9.5px] font-extrabold uppercase ${
+                              event.semester === 'ganjil'
+                                ? 'bg-blue-500/10 text-blue-800 dark:text-blue-300 border border-blue-500/20'
+                                : event.semester === 'genap'
+                                ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20'
+                                : 'bg-slate-500/10 text-slate-800 dark:text-slate-300 border border-slate-500/20'
+                            }`}>
+                              {event.semester}
+                            </span>
+                          </td>
+                          <td className="w-16 px-2 py-2 align-middle text-right shrink-0">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                type="button"
+                                onClick={() => startEdit(idx)}
+                                className="flex h-6 w-6 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer border border-outline-variant/15"
+                                title="Edit"
+                              >
+                                <Icon name="edit" size={12} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(idx)}
+                                className="flex h-6 w-6 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer border border-outline-variant/15"
+                                title="Hapus"
+                              >
+                                <Icon name="delete" size={12} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center py-12 text-center my-3 rounded-2xl border border-dashed border-outline-variant/30 bg-surface-container-low/20">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20 shadow-2xs">
+                  <Icon name="event_note" size={24} />
+                </div>
+                <p className="mt-2.5 text-body-xs font-bold text-on-surface">Belum ada agenda terdeteksi</p>
+                <p className="text-[11px] text-on-surface-variant max-w-xs mt-0.5">
+                  Unggah berkas PDF/Foto atau klik muat preset di sebelah kiri untuk meninjau data.
+                </p>
+              </div>
+            )}
 
-          {/* Preview Table */}
-          {events.length > 0 && (
-            <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xs">
-              <table className="w-full table-fixed text-left border-collapse text-body-xs min-w-[720px]">
-                <thead className="sticky top-0 z-10 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md border-b border-outline-variant/15 shadow-2xs">
-                  <tr>
-                    <th className="w-[30%] px-3 py-2 text-label-caps uppercase font-bold text-on-surface-variant">Nama Event</th>
-                    <th className="w-[17%] px-3 py-2 text-label-caps uppercase font-bold text-on-surface-variant">Tanggal</th>
-                    <th className="w-[11%] px-3 py-2 text-label-caps uppercase font-bold text-on-surface-variant">Semester</th>
-                    <th className="w-[14%] px-3 py-2 text-label-caps uppercase font-bold text-on-surface-variant">Kategori</th>
-                    <th className="w-[6%] px-2 py-2 text-label-caps uppercase font-bold text-on-surface-variant text-right"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant/10 font-medium text-on-surface">
-                  {events.map((event, idx) => {
-                    const isEditing = editingIdx === idx
-                    return (
-                      <tr key={idx} className="group hover:bg-surface-container-low/60 transition-colors">
-                        {/* Nama */}
-                        <td className="px-3 py-2">
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              value={editDraft?.nama || ''}
-                              onChange={(e) => handleEditField('nama', e.target.value)}
-                              className="w-full rounded-lg border border-primary bg-surface p-1 text-body-xs font-semibold"
-                            />
-                          ) : (
-                            <span
-                              onClick={() => startEdit(idx)}
-                              className="font-semibold text-on-surface cursor-text hover:underline line-clamp-2"
-                              title="Klik untuk edit"
-                            >
-                              {event.nama}
-                            </span>
-                          )}
-                        </td>
-
-                        {/* Tanggal */}
-                        <td className="px-3 py-2 font-mono text-[11px] whitespace-nowrap">
-                          {isEditing ? (
-                            <div className="space-y-1">
-                              <input
-                                type="date"
-                                value={editDraft?.tanggalMulai || ''}
-                                onChange={(e) => handleEditField('tanggalMulai', e.target.value)}
-                                className="w-full rounded-lg border border-primary bg-surface p-1 text-body-xs font-mono font-semibold"
-                              />
-                              <input
-                                type="date"
-                                value={editDraft?.tanggalSelesai || ''}
-                                onChange={(e) => handleEditField('tanggalSelesai', e.target.value)}
-                                className="w-full rounded-lg border border-primary bg-surface p-1 text-body-xs font-mono font-semibold"
-                              />
-                            </div>
-                          ) : (
-                            <span onClick={() => startEdit(idx)} className="cursor-text hover:underline font-semibold">
-                              {formatEventDateRange(event)}
-                            </span>
-                          )}
-                        </td>
-
-                        {/* Semester */}
-                        <td className="px-3 py-2">
-                          {isEditing ? (
-                            <FormSelect
-                              value={editDraft?.semester || 'antar'}
-                              onChange={(val) => handleEditField('semester', val)}
-                              options={[
-                                { value: 'ganjil', label: 'Ganjil' },
-                                { value: 'genap', label: 'Genap' },
-                                { value: 'antar', label: 'Antar / Libur' },
-                              ]}
-                            />
-                          ) : (
-                            <span
-                              onClick={() => startEdit(idx)}
-                              className={`inline-flex items-center rounded-lg px-2 py-0.5 text-[10px] font-bold cursor-pointer hover:underline ${
-                                event.semester === 'ganjil'
-                                  ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20'
-                                  : event.semester === 'genap'
-                                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
-                                  : 'bg-slate-500/10 text-slate-700 dark:text-slate-300 border border-slate-500/20'
-                              }`}
-                            >
-                              {semesterLabel(event.semester)}
-                            </span>
-                          )}
-                        </td>
-
-                        {/* Kategori */}
-                        <td className="px-3 py-2">
-                          {isEditing ? (
-                            <FormSelect
-                              value={editDraft?.kategori || 'kegiatan'}
-                              onChange={(val) => handleEditField('kategori', val)}
-                              options={KATEGORI_OPTIONS}
-                            />
-                          ) : (
-                            <span
-                              onClick={() => startEdit(idx)}
-                              className="inline-flex items-center rounded-lg bg-surface-container-high px-2 py-0.5 text-[10px] font-bold text-on-surface cursor-pointer hover:underline"
-                            >
-                              {kategoriLabel(event.kategori)}
-                            </span>
-                          )}
-                        </td>
-
-                        {/* Aksi */}
-                        <td className="px-2 py-2 text-right">
-                          {isEditing ? (
-                            <div className="flex items-center gap-1 justify-end">
-                              <button type="button" onClick={saveEdit} className="rounded-lg p-1 text-primary hover:bg-primary/10 cursor-pointer" title="Simpan">
-                                <Icon name="check" size={16} />
-                              </button>
-                              <button type="button" onClick={cancelEdit} className="rounded-lg p-1 text-on-surface-variant hover:bg-surface-container cursor-pointer" title="Batal">
-                                <Icon name="close" size={16} />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1 justify-end">
-                              <button type="button" onClick={() => startEdit(idx)} className="rounded-lg p-1 text-on-surface-variant hover:bg-primary/10 hover:text-primary cursor-pointer" title="Edit">
-                                <Icon name="edit" size={15} />
-                              </button>
-                              <button type="button" onClick={() => handleDelete(idx)} className="rounded-lg p-1 text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer" title="Hapus">
-                                <Icon name="delete" size={15} />
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Empty State */}
-          {events.length === 0 && !loading && !errorMsg && (
-            <div className="flex-1 flex flex-col items-center justify-center py-8 text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Icon name="event_note" size={30} />
-              </span>
-              <p className="mt-3 text-body-sm font-bold text-on-surface">Belum ada event</p>
-              <p className="text-body-xs font-medium text-on-surface-variant max-w-md mt-1">
-                Unggah file Kaldik (PDF/Gambar) atau muat preset untuk mulai mengimpor kalender akademik.
-              </p>
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-3 border-t border-outline-variant/15 shrink-0">
-            <Button type="button" variant="secondary" onClick={onClose} disabled={busySaving}>
-              Batal
-            </Button>
-            <div className="flex items-center gap-2">
-              {existingEvents.length > 0 && (
-                <span className="text-[11px] font-medium text-on-surface-variant hidden tablet:inline">
-                  Akan menggantikan {existingEvents.length} event lama
-                </span>
-              )}
+            {/* Bottom Footer Actions inside Right Panel */}
+            <div className="flex items-center justify-between pt-3 border-t border-outline-variant/15 shrink-0 mt-auto">
               <Button
                 type="button"
-                onClick={handleImport}
-                disabled={busySaving || events.length === 0}
-                className="font-bold"
+                variant="secondary"
+                onClick={onClose}
+                disabled={busySaving}
+                className="rounded-full px-4 py-1.5 text-body-xs font-semibold cursor-pointer"
               >
-                {busySaving ? (
-                  <Icon name="progress_activity" size={16} className="mr-1.5 animate-spin" />
-                ) : (
-                  <Icon name="save" size={16} className="mr-1.5" />
-                )}
-                {busySaving ? 'Menyimpan...' : 'Import ke Database'}
+                Batal
               </Button>
+              <div className="flex items-center gap-2">
+                {existingEvents.length > 0 && (
+                  <span className="text-[10.5px] font-medium text-on-surface-variant hidden tablet:inline">
+                    Gantikan {existingEvents.length} event lama
+                  </span>
+                )}
+                <Button
+                  type="button"
+                  onClick={handleImport}
+                  disabled={busySaving || events.length === 0}
+                  className="rounded-full px-5 py-1.5 font-bold shadow-xs text-body-xs bg-teal-800 hover:bg-teal-900 text-white cursor-pointer active:scale-98 transition-all"
+                >
+                  {busySaving ? (
+                    <Icon name="progress_activity" size={15} className="mr-1.5 animate-spin" />
+                  ) : (
+                    <Icon name="save" size={15} className="mr-1.5" />
+                  )}
+                  {busySaving ? 'Menyimpan...' : 'Import ke Database'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

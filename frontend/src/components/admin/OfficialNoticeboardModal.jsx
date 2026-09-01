@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from '../Icon'
+import { FormSelect } from '../FormSelect'
 import { DAYS } from '../../lib/uploadValidator'
 import { formatRuang } from '../../lib/scheduleUtils'
 
@@ -113,54 +114,65 @@ export function OfficialNoticeboardModal({
           ref={modalRef}
           className="flex flex-col w-full max-w-6xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0"
         >
-          {/* Header Modal */}
-          <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
-          <div className="flex items-center justify-between border-b border-outline-variant/20 px-5 py-4 shrink-0 bg-surface-container-low/40">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                <Icon name="table_chart" size={22} />
+          {/* Header Banner - Rich Full-Width Teal/Emerald Gradient matching the student design system */}
+          <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                  <Icon name="table_chart" size={22} />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                    <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
+                      Cetak Mading A4 Landscape Resmi
+                    </h2>
+                    <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                      A4 Landscape
+                    </span>
+                  </div>
+                  <p className="text-body-xs text-white/80 font-medium truncate">
+                    Format tabel formal A4 horizontal siap pasang di mading kampus atau dibagikan ke dosen
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-title-md font-bold text-on-surface">Cetak Mading A4 Landscape Resmi</h2>
-                <p className="text-body-xs text-on-surface-variant font-medium">
-                  Format tabel formal A4 horizontal siap pasang di mading kampus atau dibagikan ke dosen
-                </p>
-              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Tutup modal"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+              >
+                <Icon name="close" size={20} />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
-            >
-              <Icon name="close" size={20} />
-            </button>
           </div>
 
           {/* Body: Sidebar Pengaturan Kiri & Preview Dokumen Kanan */}
-          <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-5 p-5">
-            {/* Sidebar Kontrol (Kiri: 4 Kolom) */}
-            <div className="lg:col-span-4 space-y-4">
+          <div className="flex-1 overflow-y-auto grid grid-cols-1 tablet:grid-cols-12 gap-4 tablet:gap-5 p-4 tablet:p-5">
+            {/* Sidebar Kontrol (Kiri: 5 Kolom pada tablet, 4 pada desktop) */}
+            <div className="tablet:col-span-5 desktop:col-span-4 space-y-3.5">
               {/* Filter Lingkup Cetak */}
               <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-3.5 space-y-2.5">
-                <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                  Lingkup Jadwal
-                </p>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
+                    <Icon name="tune" size={16} />
+                  </span>
+                  <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                    Lingkup Jadwal
+                  </p>
+                </div>
 
                 <div>
                   <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
                     Program Studi
                   </label>
-                  <select
+                  <FormSelect
                     value={prodiFilter}
-                    onChange={(e) => setProdiFilter(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface font-semibold focus:outline-none focus:border-primary dark:bg-surface-container-high"
-                  >
-                    {prodiOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setProdiFilter(val)}
+                    placeholder="Semua Program Studi"
+                    options={prodiOptions}
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -168,36 +180,33 @@ export function OfficialNoticeboardModal({
                     <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
                       Semester
                     </label>
-                    <select
+                    <FormSelect
                       value={semesterFilter}
-                      onChange={(e) => setSemesterFilter(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface font-semibold focus:outline-none focus:border-primary dark:bg-surface-container-high"
-                    >
-                      <option value="">Semua Sem</option>
-                      {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                        <option key={s} value={s}>
-                          Semester {s}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setSemesterFilter(val)}
+                      placeholder="Semua Sem"
+                      options={[
+                        { value: '', label: 'Semua Sem' },
+                        ...[1, 2, 3, 4, 5, 6, 7, 8].map((s) => ({
+                          value: s,
+                          label: `Semester ${s}`,
+                        })),
+                      ]}
+                    />
                   </div>
 
                   <div>
                     <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
                       Hari
                     </label>
-                    <select
+                    <FormSelect
                       value={hariFilter}
-                      onChange={(e) => setHariFilter(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface font-semibold focus:outline-none focus:border-primary dark:bg-surface-container-high"
-                    >
-                      <option value="">Semua Hari</option>
-                      {DAYS.map((d) => (
-                        <option key={d} value={d}>
-                          {d}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setHariFilter(val)}
+                      placeholder="Semua Hari"
+                      options={[
+                        { value: '', label: 'Semua Hari' },
+                        ...DAYS.map((d) => ({ value: d, label: d })),
+                      ]}
+                    />
                   </div>
                 </div>
 
@@ -205,25 +214,25 @@ export function OfficialNoticeboardModal({
                   <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
                     Dosen Pengampu
                   </label>
-                  <select
+                  <FormSelect
                     value={dosenFilter}
-                    onChange={(e) => setDosenFilter(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface font-semibold focus:outline-none focus:border-primary dark:bg-surface-container-high"
-                  >
-                    {lecturerOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setDosenFilter(val)}
+                    placeholder="Semua Dosen Pengampu"
+                    options={lecturerOptions}
+                  />
                 </div>
               </div>
 
               {/* Kop Surat & Institusi */}
               <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-3.5 space-y-2.5">
-                <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                  Kop Surat Institusi
-                </p>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
+                    <Icon name="corporate_fare" size={16} />
+                  </span>
+                  <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                    Kop Surat Institusi
+                  </p>
+                </div>
 
                 <div>
                   <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
@@ -264,9 +273,14 @@ export function OfficialNoticeboardModal({
 
               {/* Pengesahan Tanda Tangan */}
               <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-3.5 space-y-2.5">
-                <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                  Pengesahan Dokumen
-                </p>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
+                    <Icon name="verified_user" size={16} />
+                  </span>
+                  <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+                    Pengesahan Dokumen
+                  </p>
+                </div>
 
                 <div>
                   <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
@@ -320,8 +334,8 @@ export function OfficialNoticeboardModal({
               </div>
             </div>
 
-            {/* Preview Dokumen Landscape (Kanan: 8 Kolom) */}
-            <div className="lg:col-span-8 flex flex-col items-center">
+            {/* Preview Dokumen Landscape (Kanan: 7 Kolom pada tablet, 8 pada desktop) */}
+            <div className="tablet:col-span-7 desktop:col-span-8 flex flex-col items-center">
               <div className="flex items-center justify-between w-full mb-2">
                 <p className="text-label-caps uppercase tracking-wider text-on-surface-variant">
                   Pratinjau Lembar Mading (A4 Landscape)
@@ -439,10 +453,11 @@ export function OfficialNoticeboardModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-between border-t border-outline-variant/20 px-5 py-3.5 bg-surface-container-low/40 shrink-0">
-            <span className="text-[11px] text-on-surface-variant font-medium">
-              Format cetak otomatis berorientasi A4 Landscape
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/20 px-5 py-3.5 bg-surface-container-low/40 dark:bg-surface-container-high/30 shrink-0">
+            <div className="flex items-center gap-1.5 text-[11px] text-on-surface-variant font-medium">
+              <Icon name="info" size={14} className="text-teal-700 dark:text-teal-400" />
+              <span>Format cetak otomatis berorientasi A4 Landscape</span>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -454,7 +469,7 @@ export function OfficialNoticeboardModal({
               <button
                 type="button"
                 onClick={handleTriggerPrint}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 text-white text-body-xs font-bold shadow-sm hover:bg-indigo-700 active:opacity-80 transition-all cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white text-body-xs font-bold shadow-sm active:scale-98 transition-all cursor-pointer"
               >
                 <Icon name="print" size={16} />
                 <span>Cetak Dokumen Mading / Simpan PDF</span>

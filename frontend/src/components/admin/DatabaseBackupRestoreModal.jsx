@@ -303,19 +303,22 @@ export function DatabaseBackupRestoreModal({
       <div className="w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up overflow-hidden max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
         {/* Header Modal */}
         <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
-        <header className="flex items-center justify-between border-b border-outline-variant/20 px-5 py-4 shrink-0 bg-surface-container-low/40">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+        {/* Header Banner - Rich Full-Width Teal/Emerald Gradient matching the student design system */}
+        <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white flex items-center justify-between border-b border-white/10 shrink-0 shadow-level-1">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs backdrop-blur-md">
               <Icon name="cloud_sync" size={22} />
             </div>
-            <div>
-              <h2 className="text-title-md font-bold text-on-surface flex items-center gap-2">
-                <span>Pusat Backup & Restore Database</span>
-                <span className="rounded-full bg-teal-500/15 text-teal-800 dark:text-teal-300 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-teal-500/25">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base tablet:text-lg font-bold text-white tracking-tight truncate">
+                  Pusat Backup & Restore Database
+                </h3>
+                <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide border border-white/25 shadow-2xs backdrop-blur-md">
                   JSON Safe
                 </span>
-              </h2>
-              <p className="text-body-xs text-on-surface-variant font-medium">
+              </div>
+              <p className="text-[11.5px] text-white/80 font-medium truncate mt-0.5">
                 Amankan seluruh data perkuliahan atau pulihkan data dari berkas cadangan JSON
               </p>
             </div>
@@ -324,20 +327,21 @@ export function DatabaseBackupRestoreModal({
             type="button"
             onClick={onClose}
             disabled={restoring || exporting}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer disabled:opacity-50"
+            aria-label="Tutup modal"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all border border-white/20 cursor-pointer disabled:opacity-50"
           >
-            <Icon name="close" size={20} />
+            <Icon name="close" size={18} />
           </button>
-        </header>
+        </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center border-b border-outline-variant/15 px-5 bg-surface-container/30 shrink-0">
+        <div className="flex items-center border-b border-outline-variant/15 px-5 bg-surface-container-low/40 shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('backup')}
             className={`flex items-center gap-2 py-3 px-4 text-body-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'backup'
-                ? 'border-teal-600 text-teal-700 dark:text-teal-300'
+                ? 'border-teal-700 text-teal-800 dark:text-teal-300'
                 : 'border-transparent text-on-surface-variant hover:text-on-surface'
             }`}
           >
@@ -350,7 +354,7 @@ export function DatabaseBackupRestoreModal({
             onClick={() => setActiveTab('restore')}
             className={`flex items-center gap-2 py-3 px-4 text-body-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'restore'
-                ? 'border-teal-600 text-teal-700 dark:text-teal-300'
+                ? 'border-teal-700 text-teal-800 dark:text-teal-300'
                 : 'border-transparent text-on-surface-variant hover:text-on-surface'
             }`}
           >
@@ -652,7 +656,7 @@ export function DatabaseBackupRestoreModal({
 
         {/* Footer Actions */}
         <footer className="flex items-center justify-between border-t border-outline-variant/20 px-5 py-3.5 bg-surface-container-low/40 shrink-0">
-          <span className="text-[11px] text-on-surface-variant font-medium">
+          <span className="text-[11px] text-on-surface-variant font-bold">
             {activeTab === 'backup'
               ? `${selectedBackupCols.size} dari ${COLLECTIONS_CONFIG.length} koleksi dipilih`
               : restoreData
@@ -660,12 +664,12 @@ export function DatabaseBackupRestoreModal({
               : 'Pilih file JSON untuk memulai restore'}
           </span>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={onClose}
               disabled={restoring || exporting}
-              className="px-4 py-2 rounded-xl text-body-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer disabled:opacity-50"
+              className="px-4 py-1.5 rounded-full text-body-xs font-semibold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer disabled:opacity-50"
             >
               Tutup
             </button>
@@ -675,7 +679,7 @@ export function DatabaseBackupRestoreModal({
                 type="button"
                 onClick={handleExportBackup}
                 disabled={exporting || selectedBackupCols.size === 0}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-600 text-white text-body-xs font-bold shadow-sm hover:bg-teal-700 active:opacity-80 transition-all disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-teal-800 text-white text-body-xs font-bold shadow-xs hover:bg-teal-900 active:scale-98 transition-all disabled:opacity-50 cursor-pointer"
               >
                 <Icon name={exporting ? 'sync' : 'download'} size={16} className={exporting ? 'animate-spin' : ''} />
                 <span>{exporting ? 'Mengekspor JSON...' : 'Unduh Cadangan Database (.json)'}</span>
@@ -685,7 +689,7 @@ export function DatabaseBackupRestoreModal({
                 type="button"
                 onClick={handleExecuteRestore}
                 disabled={restoring || !restoreData || selectedRestoreCols.size === 0}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-600 text-white text-body-xs font-bold shadow-sm hover:bg-teal-700 active:opacity-80 transition-all disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-teal-800 text-white text-body-xs font-bold shadow-xs hover:bg-teal-900 active:scale-98 transition-all disabled:opacity-50 cursor-pointer"
               >
                 <Icon name={restoring ? 'sync' : 'restore'} size={16} className={restoring ? 'animate-spin' : ''} />
                 <span>{restoring ? 'Memulihkan Data...' : 'Mulai Pulihkan Data'}</span>

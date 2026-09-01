@@ -7,18 +7,21 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Skeleton } from '../../components/Skeleton'
 import { EmptyState } from '../../components/EmptyState'
 import { Pagination } from '../../components/Pagination'
-import { FormSelect } from '../../components/FormSelect'
-import {
-  ProdiFilterDropdown,
-  SemesterFilterDropdown,
-  StatusFilterDropdown,
-} from '../../components/admin/AdminFilterDropdowns'
+import { BulkActionBar } from '../../components/admin/BulkActionBar'
+
+// Sub-components
+import { ExamHeader } from '../../components/admin/manageExams/ExamHeader'
+import { ExamToolbar } from '../../components/admin/manageExams/ExamToolbar'
+import { ExamTable } from '../../components/admin/manageExams/ExamTable'
+import { ExamCards } from '../../components/admin/manageExams/ExamCards'
+import { ExamFormModal } from '../../components/admin/manageExams/ExamFormModal'
+
+// Hooks & Libs
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { addDocument, deleteDocument, updateDocument } from '../../lib/adminData'
 import { publishDocuments, appendHistory } from '../../lib/publishHelpers'
 import { parseWorkbook } from '../../lib/xlsxParser'
-import { PRODIS } from '../../constants/academicConstants'
 
 const EMPTY_FORM = {
   jenis: 'UTS',
@@ -30,13 +33,6 @@ const EMPTY_FORM = {
   ruang: '',
   mode: 'Offline',
 }
-
-const dateFormatter = new Intl.DateTimeFormat('id-ID', {
-  weekday: 'short',
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-})
 
 const BASE_SEMESTER_GROUPS = [
   { label: 'Semua Semester', value: '' },
@@ -57,15 +53,23 @@ export default function ManageExams() {
   const [semesterFilter, setSemesterFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 
-  // Opsi B: semester hanya yang ada data (support >8: 9,10,14 dst — dari exams.semester)
+  // Opsi B: semester hanya yang ada data
   const availableSemesterOptions = useMemo(() => {
-    const nums = [...new Set(exams.map((e) => Number(e.semester)).filter((n) => Number.isInteger(n) && n > 0))].sort((a, b) => a - b)
-    return [...BASE_SEMESTER_GROUPS, ...nums.map((n) => ({ label: `Semester ${n}`, value: String(n) }))]
+    const nums = [
+      ...new Set(exams.map((e) => Number(e.semester)).filter((n) => Number.isInteger(n) && n > 0)),
+    ].sort((a, b) => a - b)
+    return [
+      ...BASE_SEMESTER_GROUPS,
+      ...nums.map((n) => ({ label: `Semester ${n}`, value: String(n) })),
+    ]
   }, [exams])
+
   useEffect(() => {
     if (!semesterFilter) return
     if (semesterFilter === 'ganjil' || semesterFilter === 'genap') return
-    if (!availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))) setSemesterFilter('')
+    if (!availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))) {
+      setSemesterFilter('')
+    }
   }, [availableSemesterOptions, semesterFilter])
 
   // Pagination States
@@ -111,7 +115,16 @@ export default function ManageExams() {
       .filter((e) => {
         if (jenisFilter !== 'Semua' && e.jenis !== jenisFilter) return false
         if (prodiFilter && e.prodi !== prodiFilter) return false
-        if (semesterFilter && String(e.semester) !== semesterFilter) return false
+        if (semesterFilter) {
+          const sem = Number(e.semester)
+          if (semesterFilter === 'ganjil') {
+            if (sem % 2 !== 1) return false
+          } else if (semesterFilter === 'genap') {
+            if (sem % 2 !== 0) return false
+          } else if (String(e.semester) !== semesterFilter) {
+            return false
+          }
+        }
         if (statusFilter && (e.status || 'published') !== statusFilter) return false
         if (q) {
           const course = courseMap.get(String(e.kodeMK).toUpperCase())
@@ -128,7 +141,11 @@ export default function ManageExams() {
         }
         return true
       })
-      .sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)) || String(a.jam).localeCompare(String(b.jam)))
+      .sort(
+        (a, b) =>
+          String(a.tanggal).localeCompare(String(b.tanggal)) ||
+          String(a.jam).localeCompare(String(b.jam)),
+      )
   }, [exams, jenisFilter, prodiFilter, semesterFilter, statusFilter, search, courseMap])
 
   // Dynamic Pagination
@@ -155,7 +172,13 @@ export default function ManageExams() {
   // Keyboard shortcut: Esc to clear selection
   useEffect(() => {
     function handleKeyDown(e) {
-      if (e.key === 'Escape' && selectedIds.size > 0 && !modalOpen && !deleteTarget && !bulkDeleteOpen) {
+      if (
+        e.key === 'Escape' &&
+        selectedIds.size > 0 &&
+        !modalOpen &&
+        !deleteTarget &&
+        !bulkDeleteOpen
+      ) {
         setSelectedIds(new Set())
       }
     }
@@ -186,7 +209,11 @@ export default function ManageExams() {
     const errors = []
     if (!values.kodeMK.trim()) errors.push('Kode MK wajib diisi')
     if (!values.prodi.trim()) errors.push('Program studi wajib diisi')
-    if (!Number.isInteger(Number(values.semester)) || values.semester < 1 || values.semester > 14) {
+    if (
+      !Number.isInteger(Number(values.semester)) ||
+      values.semester < 1 ||
+      values.semester > 14
+    ) {
       errors.push('Semester harus angka bulat 1-14')
     }
     if (!values.tanggal) errors.push('Tanggal ujian wajib dipilih')
@@ -258,7 +285,10 @@ export default function ManageExams() {
           aktor: actor,
           detail: `Tambah jadwal ujian ${kodeMK} (${data.jenis} - Draft)`,
         })
-        setBanner({ ok: true, message: `Jadwal ujian ${kodeMK} berhasil ditambahkan sebagai draft.` })
+        setBanner({
+          ok: true,
+          message: `Jadwal ujian ${kodeMK} berhasil ditambahkan sebagai draft.`,
+        })
         setModalOpen(false)
       } else {
         setBanner({ ok: false, message: result.error })
@@ -323,7 +353,10 @@ export default function ManageExams() {
       const buffer = await file.arrayBuffer()
       const parsed = parseWorkbook(buffer)
       if (parsed.exams.length === 0) {
-        setBanner({ ok: false, message: 'Tidak ada baris ujian terbaca dari file spreadsheet tersebut.' })
+        setBanner({
+          ok: false,
+          message: 'Tidak ada baris ujian terbaca dari file spreadsheet tersebut.',
+        })
         return
       }
       setImported(parsed.exams)
@@ -351,7 +384,6 @@ export default function ManageExams() {
     )
   }
 
-  // Excel Template Download
   function downloadExamTemplate() {
     const templateData = [
       {
@@ -381,7 +413,6 @@ export default function ManageExams() {
     XLSX.writeFile(wb, 'Template_Jadwal_Ujian.xlsx')
   }
 
-  // Export Exams to Excel
   function exportExamsToExcel() {
     if (filtered.length === 0) {
       setBanner({ ok: false, message: 'Tidak ada data jadwal ujian untuk diekspor.' })
@@ -406,7 +437,10 @@ export default function ManageExams() {
     const ws = XLSX.utils.json_to_sheet(exportData)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Jadwal_Ujian')
-    XLSX.writeFile(wb, `Jadwal_Ujian_${jenisFilter}_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    XLSX.writeFile(
+      wb,
+      `Jadwal_Ujian_${jenisFilter}_${new Date().toISOString().slice(0, 10)}.xlsx`,
+    )
   }
 
   return (
@@ -420,61 +454,11 @@ export default function ManageExams() {
         onChange={handleFileChange}
       />
 
-      {/* ── 1. Page Header (Icon, Title, Stat Chips, Action Button) — 1 Horizontal Row on Desktop ── */}
-      <header className="flex flex-col gap-2.5 desktop:flex-row desktop:items-center desktop:justify-between shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-600 shadow-xs dark:bg-amber-500/25 dark:text-amber-400">
-            <Icon name="event_note" size={22} />
-          </span>
-          <div className="min-w-0">
-            <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
-              Kelola Jadwal Ujian
-            </h1>
-            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">
-              Jadwal pelaksanaan UTS & UAS per semester, prodi & ruang
-            </p>
-          </div>
-        </div>
-
-        {/* Right side: 3 Stat Chips + Tambah Ujian Button */}
-        <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 flex-wrap tablet:flex-nowrap">
-          <div className="grid grid-cols-3 gap-1.5 w-full tablet:flex tablet:w-auto tablet:gap-2">
-            <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-1.5 tablet:px-3 tablet:py-1.5 shadow-2xs dark:bg-surface-container-low min-w-0">
-              <Icon name="calendar_month" size={16} className="text-primary shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase font-bold text-on-surface-variant leading-none">Total</p>
-                <p className="text-body-sm font-bold text-on-surface leading-tight mt-0.5">{stats.total}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-1.5 tablet:px-3 tablet:py-1.5 shadow-2xs dark:bg-surface-container-low min-w-0">
-              <Icon name="quiz" size={16} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase font-bold text-on-surface-variant leading-none">Sesi UTS</p>
-                <p className="text-body-sm font-bold text-on-surface leading-tight mt-0.5">{stats.uts}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-1.5 tablet:px-3 tablet:py-1.5 shadow-2xs dark:bg-surface-container-low min-w-0">
-              <Icon name="workspace_premium" size={16} className="text-amber-600 dark:text-amber-400 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase font-bold text-on-surface-variant leading-none">Sesi UAS</p>
-                <p className="text-body-sm font-bold text-on-surface leading-tight mt-0.5">{stats.uas}</p>
-              </div>
-            </div>
-          </div>
-
-          <Button
-            onClick={openAdd}
-            className="rounded-2xl px-3.5 py-2 font-bold shadow-xs cursor-pointer text-body-xs shrink-0"
-            title="Tambah Jadwal Ujian"
-            aria-label="Tambah Ujian"
-          >
-            <Icon name="add" size={16} className="mr-1" />
-            <span>Tambah Ujian</span>
-          </Button>
-        </div>
-      </header>
+      {/* ── 1. Page Header ── */}
+      <ExamHeader
+        stats={stats}
+        onOpenAdd={openAdd}
+      />
 
       {/* Banner */}
       {banner && (
@@ -502,224 +486,46 @@ export default function ManageExams() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={confirmImport} disabled={busy} className="rounded-xl px-4 py-2 font-bold text-body-xs">
+            <Button
+              onClick={confirmImport}
+              disabled={busy}
+              className="rounded-xl px-4 py-2 font-bold text-body-xs"
+            >
               <Icon name="save" size={16} className="mr-1" />
               Ya, Impor Sebagai Draft
             </Button>
-            <Button variant="secondary" onClick={() => setImported(null)} className="rounded-xl px-4 py-2 text-body-xs">
+            <Button
+              variant="secondary"
+              onClick={() => setImported(null)}
+              className="rounded-xl px-4 py-2 text-body-xs"
+            >
               Batal
             </Button>
           </div>
         </div>
       )}
 
-      {/* ── 2. Master Exams Management (Unified Single Card Container) ── */}
+      {/* ── 2. Master Exams Management ── */}
       <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
-        {/* Unified Search & Filters in 1 Row on Desktop */}
-        <div className="relative z-30 flex flex-col gap-2 tablet:flex-row tablet:items-center">
-          <div className="relative flex-1 min-w-[200px]">
-            <Icon
-              name="search"
-              size={17}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
-            />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari kode MK, prodi, ruang, tanggal, mata kuliah…"
-              aria-label="Cari jadwal ujian"
-              className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low/50 py-1.5 tablet:py-2 pl-9 pr-8 text-body-xs tablet:text-body-sm font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-2xs"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-on-surface-variant hover:bg-surface-container cursor-pointer"
-                aria-label="Hapus pencarian"
-              >
-                <Icon name="close" size={13} />
-              </button>
-            )}
-          </div>
-
-          {/* Filter Dropdowns & Actions */}
-          <div className="flex items-center gap-1.5 overflow-x-auto tablet:overflow-visible no-scrollbar w-full tablet:w-auto shrink-0 pb-0.5 tablet:pb-0 relative z-30">
-            {/* Segmented Jenis Ujian Tabs */}
-            <div className="flex items-center rounded-2xl border border-outline-variant/25 bg-surface-container-low/60 p-0.5 dark:bg-surface-container-high/30 shrink-0">
-              {['Semua', 'UTS', 'UAS'].map((tab) => {
-                const active = jenisFilter === tab
-                const count = tab === 'Semua' ? stats.total : tab === 'UTS' ? stats.uts : stats.uas
-                return (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setJenisFilter(tab)}
-                    className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-body-xs font-bold transition-all cursor-pointer ${
-                      active
-                        ? 'bg-primary text-on-primary shadow-xs'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    <span>{tab}</span>
-                    <span
-                      className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                        active
-                          ? 'bg-on-primary/20 text-on-primary'
-                          : 'bg-surface-container-high text-on-surface-variant'
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-
-            <ProdiFilterDropdown
-              selected={prodiFilter}
-              onSelect={setProdiFilter}
-            />
-
-            <SemesterFilterDropdown
-              selected={semesterFilter}
-              onSelect={setSemesterFilter}
-              semesterOptions={availableSemesterOptions}
-            />
-
-            <StatusFilterDropdown
-              selected={statusFilter}
-              onSelect={setStatusFilter}
-            />
-
-            <button
-              type="button"
-              onClick={downloadExamTemplate}
-              className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1.5 text-body-xs font-semibold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
-              title="Unduh Template Excel Ujian (.xlsx)"
-            >
-              <Icon name="download" size={14} className="text-primary" />
-              <span className="hidden desktop:inline">Template</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={exportExamsToExcel}
-              className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1.5 text-body-xs font-semibold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
-              title="Ekspor Jadwal Ujian ke Excel"
-            >
-              <Icon name="file_download" size={14} className="text-secondary" />
-              <span>Ekspor</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1.5 text-body-xs font-semibold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
-              title="Impor Jadwal Ujian dari CSV/XLSX"
-            >
-              <Icon name="upload_file" size={14} className="text-primary" />
-              <span>Impor</span>
-            </button>
-
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch('')
-                  setJenisFilter('Semua')
-                  setProdiFilter('')
-                  setSemesterFilter('')
-                  setStatusFilter('')
-                }}
-                className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-error/30 bg-error/10 px-2.5 py-1.5 text-body-xs font-bold text-error hover:bg-error/20 cursor-pointer transition-colors"
-              >
-                <Icon name="refresh" size={13} />
-                <span>Reset</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Active Filter Chips */}
-        {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-outline-variant/15 text-label-caps uppercase font-semibold text-on-surface-variant">
-            <span>Filter Aktif:</span>
-
-            {search && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-2.5 py-0.5 text-body-xs font-semibold text-on-surface">
-                <span>Keyword: "{search}"</span>
-                <button
-                  type="button"
-                  onClick={() => setSearch('')}
-                  className="rounded-full p-0.5 hover:bg-surface-container-highest cursor-pointer"
-                >
-                  <Icon name="close" size={12} />
-                </button>
-              </span>
-            )}
-
-            {jenisFilter !== 'Semua' && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-body-xs font-semibold text-primary">
-                <span>Jenis: {jenisFilter}</span>
-                <button
-                  type="button"
-                  onClick={() => setJenisFilter('Semua')}
-                  className="rounded-full p-0.5 hover:bg-primary/20 cursor-pointer"
-                >
-                  <Icon name="close" size={12} />
-                </button>
-              </span>
-            )}
-
-            {prodiFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-body-xs font-semibold text-primary">
-                <span>Prodi: {prodiFilter}</span>
-                <button
-                  type="button"
-                  onClick={() => setProdiFilter('')}
-                  className="rounded-full p-0.5 hover:bg-primary/20 cursor-pointer"
-                >
-                  <Icon name="close" size={12} />
-                </button>
-              </span>
-            )}
-
-            {semesterFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-body-xs font-semibold text-indigo-700 dark:text-indigo-300">
-                <span>Semester: {availableSemesterOptions.find((s) => s.value === semesterFilter)?.label}</span>
-                <button
-                  type="button"
-                  onClick={() => setSemesterFilter('')}
-                  className="rounded-full p-0.5 hover:bg-indigo-500/20 cursor-pointer"
-                >
-                  <Icon name="close" size={12} />
-                </button>
-              </span>
-            )}
-
-            {statusFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-2.5 py-0.5 text-body-xs font-semibold text-on-surface">
-                <span>Status: {statusFilter}</span>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter('')}
-                  className="rounded-full p-0.5 hover:bg-surface-container-highest cursor-pointer"
-                >
-                  <Icon name="close" size={12} />
-                </button>
-              </span>
-            )}
-
-            <button
-              type="button"
-              onClick={resetAllFilters}
-              className="text-label-caps font-bold text-error hover:underline cursor-pointer ml-auto"
-            >
-              Reset Semua Filter
-            </button>
-          </div>
-        )}
+        <ExamToolbar
+          search={search}
+          setSearch={setSearch}
+          jenisFilter={jenisFilter}
+          setJenisFilter={setJenisFilter}
+          prodiFilter={prodiFilter}
+          setProdiFilter={setProdiFilter}
+          semesterFilter={semesterFilter}
+          setSemesterFilter={setSemesterFilter}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          stats={stats}
+          availableSemesterOptions={availableSemesterOptions}
+          hasActiveFilters={hasActiveFilters}
+          onResetFilters={resetAllFilters}
+          onDownloadTemplate={downloadExamTemplate}
+          onExportExcel={exportExamsToExcel}
+          onOpenImport={() => fileInputRef.current?.click()}
+        />
 
         {/* Main Content Area */}
         {loading ? (
@@ -730,7 +536,6 @@ export default function ManageExams() {
           </div>
         ) : filtered.length === 0 ? (
           hasActiveFilters ? (
-            /* Empty Filter State */
             <div className="py-8 text-center">
               <EmptyState
                 icon="search_off"
@@ -738,14 +543,17 @@ export default function ManageExams() {
                 description="Coba sesuaikan kata kunci pencarian atau reset filter aktif Anda."
               />
               <div className="flex justify-center mt-4">
-                <Button variant="secondary" onClick={resetAllFilters} className="cursor-pointer">
+                <Button
+                  variant="secondary"
+                  onClick={resetAllFilters}
+                  className="cursor-pointer"
+                >
                   <Icon name="refresh" size={18} className="mr-1" />
                   Reset Semua Filter
                 </Button>
               </div>
             </div>
           ) : (
-            /* Empty State when no exams exist */
             <div className="flex-1 flex flex-col items-center justify-center py-10 space-y-3">
               <EmptyState
                 icon="quiz"
@@ -758,7 +566,7 @@ export default function ManageExams() {
                   className="rounded-2xl px-3.5 py-2 font-bold shadow-xs cursor-pointer text-body-xs"
                 >
                   <Icon name="add" size={16} className="mr-1.5" />
-                  <span>+ Tambah Ujian Manual</span>
+                  <span>Tambah Ujian Manual</span>
                 </Button>
                 <Button
                   variant="secondary"
@@ -773,258 +581,26 @@ export default function ManageExams() {
           )
         ) : (
           <>
-            {/* Table — Desktop & Tablet with Sticky Header & Dynamic Viewport Height */}
-            <div className="hidden overflow-x-auto overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
-              <table className="w-full min-w-[780px] text-left border-collapse">
-                <thead className="sticky top-0 z-20 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
-                  <tr className="border-b border-outline-variant/15">
-                    <th className="w-[4%] px-3 py-2.5 text-center">
-                      <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={toggleSelectAll}
-                        className="rounded cursor-pointer"
-                        aria-label="Pilih semua ujian"
-                      />
-                    </th>
-                    <th className="w-[12%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Kode MK
-                    </th>
-                    <th className="w-[24%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Mata Kuliah & Dosen
-                    </th>
-                    <th className="w-[14%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Prodi & Sem
-                    </th>
-                    <th className="w-[20%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Tanggal & Jam
-                    </th>
-                    <th className="w-[10%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                      Ruang
-                    </th>
-                    <th className="w-[8%] px-2 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-center">
-                      Status
-                    </th>
-                    <th className="w-[8%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-right">
-                      Aksi
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant/10">
-                  {paginatedExams.map((exam) => {
-                    const course = courseMap.get(String(exam.kodeMK).toUpperCase())
-                    const isSelected = selectedIds.has(exam.id)
-                    const isPublished = (exam.status || 'published') === 'published'
+            <ExamTable
+              paginatedExams={paginatedExams}
+              courseMap={courseMap}
+              selectedIds={selectedIds}
+              filteredCount={filtered.length}
+              onToggleSelectAll={toggleSelectAll}
+              onToggleSelectOne={toggleSelectOne}
+              onPublish={handlePublish}
+              onOpenEdit={openEdit}
+              onDeleteTarget={(exam) => setDeleteTarget(exam)}
+            />
 
-                    return (
-                      <tr
-                        key={exam.id}
-                        className={`group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20 ${
-                          isSelected ? 'bg-primary/5 dark:bg-primary/10' : ''
-                        }`}
-                      >
-                        {/* Checkbox */}
-                        <td className="px-3 py-2.5 text-center">
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleSelectOne(exam.id)}
-                            className="rounded cursor-pointer"
-                            aria-label={`Pilih ${exam.kodeMK}`}
-                          />
-                        </td>
+            <ExamCards
+              paginatedExams={paginatedExams}
+              courseMap={courseMap}
+              onOpenEdit={openEdit}
+              onDeleteTarget={(exam) => setDeleteTarget(exam)}
+            />
 
-                        {/* Kode MK + Jenis Badge */}
-                        <td className="px-3.5 py-2.5">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-mono text-body-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg shrink-0 border border-primary/20">
-                              {exam.kodeMK}
-                            </span>
-                            <span
-                              className={`rounded-md px-1.5 py-0.2 text-[10px] font-bold ${
-                                exam.jenis === 'UTS'
-                                  ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20'
-                                  : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20'
-                              }`}
-                            >
-                              {exam.jenis}
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* Mata Kuliah & Dosen */}
-                        <td className="px-3.5 py-2.5">
-                          <p className="font-bold text-body-sm text-on-surface truncate">
-                            {course?.namaMK || exam.kodeMK}
-                          </p>
-                          <p className="text-body-xs font-medium text-on-surface-variant truncate mt-0.5">
-                            {course?.dosen || 'Dosen pengampu'}
-                          </p>
-                        </td>
-
-                        {/* Prodi & Semester */}
-                        <td className="px-3 py-2.5">
-                          <p className="font-semibold text-body-xs text-on-surface truncate">{exam.prodi}</p>
-                          <span className="inline-flex items-center rounded-md bg-surface-container px-1.5 py-0.2 text-[10px] font-bold text-on-surface-variant mt-0.5">
-                            Sem. {exam.semester}
-                          </span>
-                        </td>
-
-                        {/* Tanggal & Jam */}
-                        <td className="px-3.5 py-2.5">
-                          <p className="font-semibold text-body-xs text-on-surface">
-                            {exam.tanggal ? dateFormatter.format(new Date(`${exam.tanggal}T00:00:00`)) : '-'}
-                          </p>
-                          <p className="font-mono text-body-xs text-on-surface-variant mt-0.5">
-                            {exam.jam}
-                          </p>
-                        </td>
-
-                        {/* Ruang */}
-                        <td className="px-3 py-2.5">
-                          <span className="inline-flex items-center gap-1 rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface truncate max-w-full">
-                            <Icon name="meeting_room" size={12} className="text-on-surface-variant shrink-0" />
-                            <span className="truncate">{exam.ruang || 'TBA'}</span>
-                          </span>
-                        </td>
-
-                        {/* Status */}
-                        <td className="px-2 py-2.5 text-center">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] uppercase font-bold ${
-                              isPublished
-                                ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300'
-                                : 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
-                            }`}
-                          >
-                            {isPublished ? 'Published' : 'Draft'}
-                          </span>
-                        </td>
-
-                        {/* Aksi */}
-                        <td className="px-3 py-2.5 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            {!isPublished && (
-                              <button
-                                type="button"
-                                onClick={() => handlePublish([exam.id])}
-                                className="flex h-7 w-7 items-center justify-center rounded-xl text-primary hover:bg-primary/15 transition-colors cursor-pointer border border-outline-variant/15"
-                                title="Publikasikan Ujian"
-                              >
-                                <Icon name="publish" size={15} />
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => openEdit(exam)}
-                              className="flex h-7 w-7 items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer border border-outline-variant/15"
-                              title={`Edit ${exam.kodeMK}`}
-                            >
-                              <Icon name="edit" size={15} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setDeleteTarget(exam)}
-                              className="flex h-7 w-7 items-center justify-center rounded-xl text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer border border-outline-variant/15"
-                              title={`Hapus ${exam.kodeMK}`}
-                            >
-                              <Icon name="delete" size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Cards — Mobile */}
-            <div className="space-y-3 tablet:hidden overflow-y-auto flex-1 min-h-0">
-              {paginatedExams.map((exam) => {
-                const course = courseMap.get(String(exam.kodeMK).toUpperCase())
-                const isPublished = (exam.status || 'published') === 'published'
-
-                return (
-                  <div
-                    key={exam.id}
-                    className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-2xs dark:bg-surface-container-low space-y-2.5"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-label-caps font-bold text-primary border border-primary/20">
-                            {exam.kodeMK}
-                          </span>
-                          <span
-                            className={`inline-flex items-center rounded-lg px-2 py-0.5 text-label-caps font-bold ${
-                              exam.jenis === 'UTS'
-                                ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300'
-                                : 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
-                            }`}
-                          >
-                            {exam.jenis}
-                          </span>
-                          <span className="rounded-md bg-surface-container px-2 py-0.5 text-[10px] font-bold text-on-surface-variant">
-                            Sem. {exam.semester}
-                          </span>
-                        </div>
-                        <h3 className="text-body-md font-bold text-on-surface mt-1.5 leading-snug">
-                          {course?.namaMK || exam.kodeMK}
-                        </h3>
-                        <p className="text-body-xs text-on-surface-variant mt-0.5">
-                          {exam.prodi} • {course?.dosen || 'Dosen pengampu'}
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(exam)}
-                          className="flex h-8 w-8 items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary cursor-pointer border border-outline-variant/15"
-                          aria-label="Edit"
-                        >
-                          <Icon name="edit" size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteTarget(exam)}
-                          className="flex h-8 w-8 items-center justify-center rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer border border-outline-variant/15"
-                          aria-label="Hapus"
-                        >
-                          <Icon name="delete" size={16} />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-outline-variant/10 text-body-xs text-on-surface-variant">
-                      <div className="flex items-center gap-2">
-                        <Icon name="schedule" size={14} className="text-primary" />
-                        <span>
-                          {exam.tanggal ? dateFormatter.format(new Date(`${exam.tanggal}T00:00:00`)) : '-'} • {exam.jam}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <span className="rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-semibold text-on-surface">
-                          {exam.ruang || 'TBA'}
-                        </span>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[10px] uppercase font-bold ${
-                            isPublished
-                              ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300'
-                              : 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
-                          }`}
-                        >
-                          {isPublished ? 'Published' : 'Draft'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Shared Pagination Controls inside bottom with border-t */}
+            {/* Shared Pagination Controls */}
             <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
               <Pagination
                 currentPage={safeCurrentPage}
@@ -1039,300 +615,30 @@ export default function ManageExams() {
         )}
       </div>
 
-      {/* Floating Bulk Actions Bar */}
-      {selectedIds.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-primary/30 bg-surface-container-highest/95 px-5 py-3 shadow-2xl backdrop-blur-md dark:bg-surface-container-high/95 animate-fade-up">
-          <div className="flex items-center gap-2 border-r border-outline-variant/30 pr-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-on-primary text-[11px] font-bold">
-              {selectedIds.size}
-            </span>
-            <span className="text-body-xs font-bold text-on-surface">Ujian Terpilih</span>
-          </div>
+      {/* ── Floating Bulk Actions Bar ── */}
+      <BulkActionBar
+        selectedCount={selectedIds.size}
+        onPublish={() => handlePublish([...selectedIds])}
+        onDelete={() => setBulkDeleteOpen(true)}
+        onClear={() => setSelectedIds(new Set())}
+        isBusy={busy}
+        itemLabel="Ujian"
+      />
 
-          <button
-            type="button"
-            onClick={() => handlePublish([...selectedIds])}
-            disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-body-xs font-bold text-on-primary shadow-xs hover:bg-primary/90 transition-all cursor-pointer"
-          >
-            <Icon name="publish" size={16} />
-            <span>Publikasikan</span>
-          </button>
+      {/* ── Modal Dialog Form (Tambah / Edit) ── */}
+      <ExamFormModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        editingTarget={editingTarget}
+        form={form}
+        setForm={setForm}
+        onSubmit={handleSubmit}
+        busy={busy}
+        courseMap={courseMap}
+        errors={formErrors}
+      />
 
-          <button
-            type="button"
-            onClick={() => setBulkDeleteOpen(true)}
-            disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-error/10 px-3 py-1.5 text-body-xs font-bold text-error hover:bg-error/20 transition-all cursor-pointer"
-          >
-            <Icon name="delete" size={16} />
-            <span>Hapus Terpilih</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSelectedIds(new Set())}
-            className="rounded-full p-1 text-on-surface-variant hover:bg-surface-container cursor-pointer ml-1"
-            title="Batalkan Pilihan (Esc)"
-          >
-            <Icon name="close" size={16} />
-          </button>
-        </div>
-      )}
-
-      {/* Modal Dialog Form (Tambah / Edit) */}
-      {modalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0"
-        >
-          <div
-            onClick={() => setModalOpen(false)}
-            className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
-          />
-
-          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low dark:border-outline-variant/15 overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
-            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
-              <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
-            </div>
-            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold">
-                  <Icon name={editingTarget ? 'edit_calendar' : 'add_circle'} size={22} />
-                </span>
-                <div>
-                  <h3 className="text-title-lg font-bold text-on-surface">
-                    {editingTarget ? `Edit Jadwal Ujian (${editingTarget.kodeMK})` : 'Tambah Jadwal Ujian'}
-                  </h3>
-                  <p className="text-body-xs text-on-surface-variant">
-                    {editingTarget ? 'Perbarui informasi sesi ujian' : 'Daftarkan jadwal UTS / UAS baru'}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="rounded-full p-2 text-on-surface-variant hover:bg-surface-container cursor-pointer shrink-0"
-              >
-                <Icon name="close" size={20} />
-              </button>
-            </header>
-
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
-              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
-                {/* KIRI — Identitas ujian */}
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-body-xs font-bold text-on-surface mb-1">
-                    Jenis Ujian *
-                  </label>
-                  <FormSelect
-                    value={form.jenis}
-                    onChange={(val) => setForm((f) => ({ ...f, jenis: val }))}
-                    options={[
-                      { value: 'UTS', label: 'UTS (Tengah Semester)' },
-                      { value: 'UAS', label: 'UAS (Akhir Semester)' },
-                    ]}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-body-xs font-bold text-on-surface mb-1">
-                    Mode Pelaksanaan *
-                  </label>
-                  <FormSelect
-                    value={form.mode}
-                    onChange={(val) => setForm((f) => ({ ...f, mode: val }))}
-                    options={[
-                      { value: 'Offline', label: 'Offline (Tatap Muka)' },
-                      { value: 'Online', label: 'Online (Daring)' },
-                    ]}
-                  />
-                </div>
-              </div>
-
-              {/* Kode MK */}
-              <div>
-                <label className="block text-body-xs font-bold text-on-surface mb-1">
-                  Kode Mata Kuliah *
-                </label>
-                <input
-                  type="text"
-                  value={form.kodeMK}
-                  onChange={(e) => {
-                    const code = e.target.value.toUpperCase()
-                    const matched = courseMap.get(code)
-                    setForm((f) => ({
-                      ...f,
-                      kodeMK: code,
-                      prodi: matched?.prodi || f.prodi,
-                      semester: matched?.semester || f.semester,
-                    }))
-                  }}
-                  placeholder="mis. IF301"
-                  className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-3.5 py-2 font-mono text-body-sm font-bold text-on-surface uppercase focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
-                  required
-                />
-                {form.kodeMK && courseMap.get(form.kodeMK) && (
-                  <p className="text-[11px] font-semibold text-primary mt-1">
-                    ✓ {courseMap.get(form.kodeMK).namaMK} ({courseMap.get(form.kodeMK).dosen || 'Dosen'})
-                  </p>
-                )}
-              </div>
-
-              {/* Prodi & Semester */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-body-xs font-bold text-on-surface mb-1">
-                    Program Studi *
-                  </label>
-                  <FormSelect
-                    value={form.prodi}
-                    onChange={(val) => setForm((f) => ({ ...f, prodi: val }))}
-                    placeholder="Pilih Prodi"
-                    options={PRODIS.filter((p) => p.value).map((p) => ({
-                      value: p.value,
-                      label: p.label,
-                    }))}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-body-xs font-bold text-on-surface mb-1">
-                    Semester *
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="14"
-                    value={form.semester}
-                    onChange={(e) => setForm((f) => ({ ...f, semester: Number(e.target.value) }))}
-                    className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-3.5 py-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
-                    required
-                  />
-                </div>
-              </div>
-
-                </div>
-                {/* KANAN — Waktu & tempat */}
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-3">
-                    <div>
-                      <label className="block text-body-xs font-bold text-on-surface mb-1">
-                        Tanggal *
-                      </label>
-                      <input
-                        type="date"
-                        value={form.tanggal}
-                        onChange={(e) => setForm((f) => ({ ...f, tanggal: e.target.value }))}
-                        className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-3.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-body-xs font-bold text-on-surface mb-1">
-                        Waktu / Jam *
-                      </label>
-                      <input
-                        type="text"
-                        value={form.jam}
-                        onChange={(e) => setForm((f) => ({ ...f, jam: e.target.value }))}
-                        placeholder="08:00 - 10:00"
-                        className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-3.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-body-xs font-bold text-on-surface mb-1">
-                        Ruang
-                      </label>
-                      <input
-                        type="text"
-                        value={form.ruang}
-                        onChange={(e) => setForm((f) => ({ ...f, ruang: e.target.value }))}
-                        placeholder="R. 301 / Lab"
-                        className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-3.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
-                      />
-                    </div>
-                  </div>
-                <div>
-                  <label className="block text-body-xs font-bold text-on-surface mb-1">
-                    Tanggal *
-                  </label>
-                  <input
-                    type="date"
-                    value={form.tanggal}
-                    onChange={(e) => setForm((f) => ({ ...f, tanggal: e.target.value }))}
-                    className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-2.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-body-xs font-bold text-on-surface mb-1">
-                    Waktu / Jam *
-                  </label>
-                  <input
-                    type="text"
-                    value={form.jam}
-                    onChange={(e) => setForm((f) => ({ ...f, jam: e.target.value }))}
-                    placeholder="08:00 - 10:00"
-                    className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-2.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-body-xs font-bold text-on-surface mb-1">
-                    Ruang
-                  </label>
-                  <input
-                    type="text"
-                    value={form.ruang}
-                    onChange={(e) => setForm((f) => ({ ...f, ruang: e.target.value }))}
-                    placeholder="R. 301 / Lab"
-                    className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-2.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
-                  />
-                </div>
-              </div>
-              {/* Error + footer span full width below 2-col */}
-              {formErrors.length > 0 && (
-                <div className="rounded-xl border border-error/30 bg-error/10 p-3 text-body-xs text-error">
-                  {formErrors.map((err, i) => (
-                    <p key={i}>• {err}</p>
-                  ))}
-                </div>
-              )}
-
-              </div>
-
-              {/* Action Buttons — full width below grid */}
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-outline-variant/15 mt-4 col-span-full">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setModalOpen(false)}
-                  className="rounded-xl text-body-xs"
-                >
-                  Batal
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={busy}
-                  className="rounded-xl px-5 py-2.5 font-bold shadow-sm text-body-xs"
-                >
-                  <Icon name="save" size={18} className="mr-1.5" />
-                  {editingTarget ? 'Simpan Perubahan' : 'Tambah sebagai Draft'}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Single Delete Confirm Dialog */}
+      {/* ── Single Delete Confirm Dialog ── */}
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Hapus Jadwal Ujian?"
@@ -1342,7 +648,7 @@ export default function ManageExams() {
         onCancel={() => setDeleteTarget(null)}
       />
 
-      {/* Bulk Delete Confirm Dialog */}
+      {/* ── Bulk Delete Confirm Dialog ── */}
       <ConfirmDialog
         open={bulkDeleteOpen}
         title="Hapus Semua Ujian Terpilih?"

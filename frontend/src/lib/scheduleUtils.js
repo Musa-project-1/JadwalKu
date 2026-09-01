@@ -1,5 +1,109 @@
 export const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
 
+/** Urutan hari untuk sorting jadwal (Senin = 1, dst). */
+export const DAY_ORDER = { Senin: 1, Selasa: 2, Rabu: 3, Kamis: 4, Jumat: 5, Sabtu: 6, Minggu: 7 }
+
+export const BASE_SEMESTER_GROUPS = [
+  { label: 'Semua Semester', value: '' },
+  { label: 'Semester Ganjil', value: 'ganjil' },
+  { label: 'Semester Genap', value: 'genap' },
+]
+
+/** Susun opsi Tahun Ajaran unik dari daftar jadwal (desc), selalu diawali "Semua TA". */
+export function buildTaOptions(rawSchedule) {
+  const tas = [...new Set(rawSchedule.map((s) => String(s.tahunAjaran || '').trim()).filter(Boolean))].sort((a, b) => b.localeCompare(a))
+  return [{ label: 'Semua TA', value: '' }, ...tas.map((ta) => ({ label: `TA ${ta}`, value: ta }))]
+}
+
+/** Susun opsi semester: cascade mengikuti TA terpilih, plus grup Ganjil/Genap. */
+export function buildSemesterOptions(rawSchedule, taFilter) {
+  const pool = taFilter ? rawSchedule.filter((s) => String(s.tahunAjaran || '').trim() === String(taFilter)) : rawSchedule
+  const nums = [...new Set(pool.map((s) => Number(s.semester)).filter((n) => Number.isInteger(n) && n > 0))].sort((a, b) => a - b)
+  const numeric = nums.map((n) => ({ label: `Semester ${n}`, value: String(n) }))
+  return [...BASE_SEMESTER_GROUPS, ...numeric]
+}
+
+/** Terapkan seluruh filter jadwal (fakultas/prodi/semester/TA/hari/status/bentrok/search) lalu sortir. */
+export function filterSchedule(rawSchedule, filters, context) {
+  const { fakultasFilter, prodiFilter, semesterFilter, taFilter, hariFilter, statusFilter, onlyShowConflicts, search } = filters
+  const { courseMap, prodiFakultasMap, conflictMap } = context
+  const q = search.trim().toLowerCase()
+
+  return rawSchedule
+    .filter((item) => (fakultasFilter ? String(item.fakultasId || prodiFakultasMap.get(String(item.prodi || '')) || '') === String(fakultasFilter) : true))
+    .filter((item) => (prodiFilter ? item.prodi === prodiFilter : true))
+    .filter((item) => {
+      if (!semesterFilter) return true
+      const sem = Number(item.semester)
+      if (semesterFilter === 'ganjil') return sem % 2 === 1
+      if (semesterFilter === 'genap') return sem % 2 === 0
+      return sem === Number(semesterFilter)
+    })
+    .filter((item) => (taFilter ? String(item.tahunAjaran || '') === String(taFilter) : true))
+    .filter((item) => (hariFilter ? item.hari === hariFilter : true))
+    .filter((item) => (statusFilter ? (item.status || 'published') === statusFilter : true))
+    .filter((item) => (onlyShowConflicts ? conflictMap.has(item.id) : true))
+    .filter((item) => {
+      if (!q) return true
+      const course = courseMap.get(item.kodeMK)
+      const matchStr = `${item.kodeMK} ${course?.namaMK ?? ''} ${course?.dosen ?? ''} ${item.prodi} ${item.ruang ?? ''} ${item.hari}`.toLowerCase()
+      return matchStr.includes(q)
+    })
+    .sort((a, b) => {
+      const dayDiff = (DAY_ORDER[a.hari] || 99) - (DAY_ORDER[b.hari] || 99)
+      if (dayDiff !== 0) return dayDiff
+      return String(a.jamMulai).localeCompare(String(b.jamMulai))
+    })
+}
+
+/**
+ * Kelompokkan sesi jadwal (MK umum lintas prodi) berdasarkan kombinasi unik:
+ * kodeMK + hari + jamMulai + jamSelesai + dosen + ruang.
+ */
+export function groupSchedule(filteredSchedule, courseMap) {
+  const groups = new Map()
+  for (const item of filteredSchedule) {
+    const course = courseMap.get(item.kodeMK)
+    const dosenKey = String(course?.dosen ?? item.dosen ?? '').trim().toLowerCase()
+    const ruangKey = String(item.ruang ?? '').trim().toLowerCase()
+    const key = [
+      String(item.kodeMK ?? '').trim().toUpperCase(),
+      String(item.hari ?? ''),
+      String(item.jamMulai ?? ''),
+      String(item.jamSelesai ?? ''),
+      dosenKey,
+      ruangKey,
+    ].join('|')
+    if (!groups.has(key)) groups.set(key, { key, items: [], course })
+    groups.get(key).items.push(item)
+  }
+  const arr = [...groups.values()]
+  arr.sort((a, b) => {
+    const ra = a.items[0]
+    const rb = b.items[0]
+    const da = (DAY_ORDER[ra.hari] || 99) - (DAY_ORDER[rb.hari] || 99)
+    if (da !== 0) return da
+    return String(ra.jamMulai).localeCompare(String(rb.jamMulai))
+  })
+  return arr
+}
+
+/** Bangun ID dokumen jadwal dari entri + tahun ajaran (aman untuk Firestore path). */
+export function jadwalDocId(entry, ta) {
+  const taStr = String(ta || entry.tahunAjaran || '').trim().replace(/[/#?[\]]/g, '-')
+  return [
+    entry.prodi,
+    Number(entry.semester),
+    entry.hari,
+    entry.jamMulai,
+    entry.kodeMK,
+    entry.tipeKelas,
+    taStr || 'tanpaTA',
+  ]
+    .join('|')
+    .replace(/[/#?[\]]/g, '-')
+}
+
 /** Nama hari ini dalam Bahasa Indonesia, misal "Senin". */
 export function getTodayName(date = new Date()) {
   return DAY_NAMES[date.getDay()]

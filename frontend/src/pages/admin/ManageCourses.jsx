@@ -3,7 +3,6 @@ import * as XLSX from 'xlsx'
 import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
 import { Button } from '../../components/Button'
-import { Input } from '../../components/Input'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Skeleton } from '../../components/Skeleton'
 import { EmptyState } from '../../components/EmptyState'
@@ -15,46 +14,22 @@ import {
   DosenFilterDropdown,
   SksFilterDropdown,
 } from '../../components/admin/AdminFilterDropdowns'
+import { CourseTable, CourseCards, CourseFormModal } from '../../components/admin/manageCourses'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory } from '../../lib/publishHelpers'
 import { validateCourseEntry } from '../../lib/uploadValidator'
-import { PRODIS, SEMESTER_OPTIONS } from '../../constants/academicConstants'
-import { parseLecturers, getLecturerInitial, formatWhatsAppUrl } from '../../lib/lecturerUtils'
 import { useCampus } from '../../context/CampusContext'
-import { getProdiByCodePrefix } from '../../lib/campusConfig'
+import { filterCourses, getCourseSemester, BASE_SEMESTER_GROUPS, EMPTY_COURSE_FORM } from '../../lib/courseUtils'
 
-const EMPTY_FORM = {
-  kodeMK: '',
-  namaMK: '',
-  dosen: '',
-  kontakDosen: '',
-  sks: 2,
-  durasi: 100,
-  semester: 1,
-}
-
-/** Helper: Dapatkan nomor semester dari field atau auto-ekstrak dari digit pertama kode MK (support >8: 9,10,12,14) */
-function getCourseSemester(course) {
-  if (course?.semester != null && !isNaN(Number(course.semester)) && Number(course.semester) > 0) {
-    return Number(course.semester)
-  }
-  // extract angka semester dari kodeMK: ambil angka terakhir/terpanjang (mis BD6405 -> 4? tapi fallback angka >0)
-  // prioritas: digit 1-2 angka setelah prefix huruf
-  const m = String(course?.kodeMK || '').match(/\d+/)
-  if (m) {
-    // ambil digit pertama sebagai semester legacy, tapi kalau angka 9-14 tetap valid
-    const d = Number(m[0][0])
-    if (d >= 1) return d
-  }
-  return null
-}
-
-const BASE_SEMESTER_GROUPS = [
-  { label: 'Semua Semester', value: '' },
-  { label: 'Semester Ganjil', value: 'ganjil' },
-  { label: 'Semester Genap', value: 'genap' },
+// Match the SksFilterDropdown's DEFAULT_SKS values (numeric). The filter logic and the
+// active-filter chip label both rely on these exact values.
+const SKS_OPTIONS = [
+  { label: '2 SKS', value: 2 },
+  { label: '3 SKS', value: 3 },
+  { label: '4 SKS', value: 4 },
+  { label: '6 SKS', value: 6 },
 ]
 
 export default function ManageCourses() {
@@ -75,7 +50,8 @@ export default function ManageCourses() {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add') // 'add' | 'edit'
-  const [form, setForm] = useState(EMPTY_FORM)
+  const [modalKey, setModalKey] = useState(0)
+  const [form, setForm] = useState(EMPTY_COURSE_FORM)
   const [formErrors, setFormErrors] = useState([])
   const [editingTarget, setEditingTarget] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -119,46 +95,10 @@ export default function ManageCourses() {
     }
   }, [courses, lecturers])
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    return courses
-      .filter((c) => (dosenFilter ? c.dosen === dosenFilter : true))
-      .filter((c) => {
-        if (!prodiFilter) return true
-        // Deteksi prodi dari prefix kode MK via config kampus (fallback PRODIS).
-        const prefix = PRODIS.find((item) => item.value === prodiFilter)?.prefix
-        if (prefix) {
-          return String(c.kodeMK || '').toUpperCase().startsWith(prefix)
-        }
-        // Bandingkan prodi yang terdeteksi dari kode MK (config kampus).
-        return getProdiByCodePrefix(String(c.kodeMK || ''), campus) === prodiFilter
-      })
-      .filter((c) => {
-        if (!semesterFilter) return true
-        const sem = getCourseSemester(c)
-        if (!sem) return false
-        if (semesterFilter === 'ganjil') return sem % 2 === 1
-        if (semesterFilter === 'genap') return sem % 2 === 0
-        return sem === Number(semesterFilter)
-      })
-      .filter((c) => {
-        if (!sksFilter) return true
-        const s = Number(c.sks) || 0
-        if (sksFilter === '1-2') return s <= 2
-        if (sksFilter === '3') return s === 3
-        if (sksFilter === '4+') return s >= 4
-        return true
-      })
-      .filter((c) => (taFilter ? String(c.tahunAjaran || '').trim() === String(taFilter) : true))
-      .filter((c) =>
-        q
-          ? [c.kodeMK, c.namaMK, c.dosen, c.kontakDosen].some((v) =>
-              String(v).toLowerCase().includes(q),
-            )
-          : true,
-      )
-      .sort((a, b) => String(a.kodeMK).localeCompare(String(b.kodeMK)))
-  }, [courses, search, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter])
+  const filtered = useMemo(
+    () => filterCourses(courses, { search, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter }, campus),
+    [courses, search, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter, campus],
+  )
 
   // ── Paginasi Data Mata Kuliah ──
   const totalPages = pageSize === 0 ? 1 : Math.ceil(filtered.length / pageSize) || 1
@@ -206,8 +146,9 @@ export default function ManageCourses() {
   function openAddModal() {
     setModalMode('add')
     setEditingTarget(null)
-    setForm(EMPTY_FORM)
+    setForm(EMPTY_COURSE_FORM)
     setFormErrors([])
+    setModalKey((k) => k + 1)
     setModalOpen(true)
   }
 
@@ -224,57 +165,66 @@ export default function ManageCourses() {
       semester: getCourseSemester(course) ?? 1,
     })
     setFormErrors([])
+    setModalKey((k) => k + 1)
     setModalOpen(true)
   }
 
-  async function handleFormSubmit(e) {
-    e.preventDefault()
+  async function submitAdd(form) {
+    const kodeMK = form.kodeMK.trim().toUpperCase()
+    if (courses.some((c) => c.kodeMK === kodeMK)) {
+      setFormErrors([`Kode MK ${kodeMK} sudah terdaftar. Gunakan tombol Edit untuk mengubahnya.`])
+      return
+    }
+    const result = await setDocument('mataKuliah', kodeMK, { ...form, kodeMK }, actor)
+    if (result.ok) {
+      await appendHistory({
+        entitas: 'mataKuliah',
+        field: 'tambah',
+        nilaiLama: null,
+        nilaiBaru: form,
+        aktor: actor,
+        detail: `Tambah mata kuliah ${kodeMK} (${form.namaMK})`,
+      })
+      setBanner({ ok: true, message: `Mata kuliah ${kodeMK} berhasil ditambahkan.` })
+      setModalOpen(false)
+    } else {
+      setBanner({ ok: false, message: result.error })
+    }
+  }
+
+  async function submitEdit(form) {
+    const result = await updateDocument('mataKuliah', editingTarget.id, form, actor)
+    if (result.ok) {
+      await appendHistory({
+        entitas: 'mataKuliah',
+        field: 'edit',
+        nilaiLama: editingTarget,
+        nilaiBaru: form,
+        aktor: actor,
+        detail: `Update mata kuliah ${editingTarget.kodeMK}`,
+      })
+      setBanner({ ok: true, message: `Mata kuliah ${editingTarget.kodeMK} berhasil diperbarui.` })
+      setModalOpen(false)
+    } else {
+      setBanner({ ok: false, message: result.error })
+    }
+  }
+
+  async function handleFormSubmit(form) {
     const errors = validateCourseEntry(form)
     setFormErrors(errors)
     if (errors.length > 0) return
 
     setSaving(true)
-    const kodeMK = form.kodeMK.trim().toUpperCase()
-
-    if (modalMode === 'add') {
-      if (courses.some((c) => c.kodeMK === kodeMK)) {
-        setSaving(false)
-        setFormErrors([`Kode MK ${kodeMK} sudah terdaftar. Gunakan tombol Edit untuk mengubahnya.`])
-        return
-      }
-      const result = await setDocument('mataKuliah', kodeMK, { ...form, kodeMK }, actor)
-      if (result.ok) {
-        await appendHistory({
-          entitas: 'mataKuliah',
-          field: 'tambah',
-          nilaiLama: null,
-          nilaiBaru: form,
-          aktor: actor,
-          detail: `Tambah mata kuliah ${kodeMK} (${form.namaMK})`,
-        })
-        setBanner({ ok: true, message: `Mata kuliah ${kodeMK} berhasil ditambahkan.` })
-        setModalOpen(false)
+    try {
+      if (modalMode === 'add') {
+        await submitAdd(form)
       } else {
-        setBanner({ ok: false, message: result.error })
+        await submitEdit(form)
       }
-    } else {
-      const result = await updateDocument('mataKuliah', editingTarget.id, form, actor)
-      if (result.ok) {
-        await appendHistory({
-          entitas: 'mataKuliah',
-          field: 'edit',
-          nilaiLama: editingTarget,
-          nilaiBaru: form,
-          aktor: actor,
-          detail: `Update mata kuliah ${editingTarget.kodeMK}`,
-        })
-        setBanner({ ok: true, message: `Mata kuliah ${editingTarget.kodeMK} berhasil diperbarui.` })
-        setModalOpen(false)
-      } else {
-        setBanner({ ok: false, message: result.error })
-      }
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   async function handleDelete() {
@@ -299,17 +249,22 @@ export default function ManageCourses() {
 
   return (
     <div className="h-full flex flex-col space-y-2.5 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
-      {/* ── 1. Page Header (Icon, Title, Stat Chips, Action Buttons) — 1 Horizontal Row on Desktop ── */}
-      <header className="flex flex-col gap-2.5 desktop:flex-row desktop:items-center desktop:justify-between shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-xs dark:bg-secondary-container/30">
-            <Icon name="menu_book" size={22} />
-          </span>
+      {/* ── 1. Page Header ── */}
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+            <Icon name="menu_book" size={24} />
+          </div>
           <div className="min-w-0">
-            <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
-              Kelola MK & Dosen
-            </h1>
-            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+                Kelola MK & Dosen
+              </h1>
+              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+                Master Kurikulum
+              </span>
+            </div>
+            <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
               Master mata kuliah, SKS, semester & dosen pengampu
             </p>
           </div>
@@ -318,21 +273,21 @@ export default function ManageCourses() {
         {/* Right side: Live Quick Stat Chips + Primary Action Button */}
         <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 flex-wrap tablet:flex-nowrap">
           <div className="grid grid-cols-3 tablet:flex tablet:w-auto gap-1.5 tablet:gap-2">
-            <div className="flex items-center gap-1.5 rounded-2xl border border-primary/20 bg-primary/10 px-2.5 py-1.5 shadow-2xs min-w-0">
-              <Icon name="library_books" size={14} className="text-primary shrink-0" />
-              <span className="text-body-xs font-bold text-primary truncate">
+            <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 shadow-2xs min-w-0">
+              <Icon name="library_books" size={14} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <span className="text-[11.5px] font-bold text-emerald-700 dark:text-emerald-300 truncate">
                 {stats.totalCourses} MK
               </span>
             </div>
-            <div className="flex items-center gap-1.5 rounded-2xl border border-secondary/20 bg-secondary/10 px-2.5 py-1.5 shadow-2xs min-w-0">
-              <Icon name="person" size={14} className="text-secondary shrink-0" />
-              <span className="text-body-xs font-bold text-secondary truncate">
+            <div className="flex items-center gap-1.5 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 shadow-2xs min-w-0">
+              <Icon name="person" size={14} className="text-blue-700 dark:text-blue-400 shrink-0" />
+              <span className="text-[11.5px] font-bold text-blue-700 dark:text-blue-300 truncate">
                 {stats.totalLecturers} Dosen
               </span>
             </div>
-            <div className="flex items-center gap-1.5 rounded-2xl border border-tertiary/20 bg-tertiary/10 px-2.5 py-1.5 shadow-2xs min-w-0">
-              <Icon name="workspace_premium" size={14} className="text-tertiary shrink-0" />
-              <span className="text-body-xs font-bold text-tertiary truncate">
+            <div className="flex items-center gap-1.5 rounded-full border border-purple-500/25 bg-purple-500/10 px-3 py-1 shadow-2xs min-w-0">
+              <Icon name="workspace_premium" size={14} className="text-purple-700 dark:text-purple-400 shrink-0" />
+              <span className="text-[11.5px] font-bold text-purple-700 dark:text-purple-300 truncate">
                 {stats.totalSks} SKS
               </span>
             </div>
@@ -340,7 +295,7 @@ export default function ManageCourses() {
 
           <Button
             onClick={openAddModal}
-            className="rounded-2xl px-3.5 py-2 font-bold shadow-xs cursor-pointer text-body-xs shrink-0"
+            className="rounded-full px-4 py-1.5 font-bold shadow-xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
             title="Tambah Mata Kuliah"
             aria-label="Tambah MK"
           >
@@ -425,7 +380,7 @@ export default function ManageCourses() {
             <button
               type="button"
               onClick={exportCoursesToExcel}
-              className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1.5 text-body-xs font-semibold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-[11.5px] font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
               title="Ekspor Kurikulum Mata Kuliah ke Excel"
             >
               <Icon name="file_download" size={14} className="text-secondary" />
@@ -435,15 +390,8 @@ export default function ManageCourses() {
             {hasActiveFilters && (
               <button
                 type="button"
-                onClick={() => {
-                  setSearch('')
-                  setProdiFilter('')
-                  setSemesterFilter('')
-                  setTaFilter('')
-                  setDosenFilter('')
-                  setSksFilter('')
-                }}
-                className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-error/30 bg-error/10 px-2.5 py-1.5 text-body-xs font-bold text-error hover:bg-error/20 cursor-pointer transition-colors"
+                onClick={resetAllFilters}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-error/30 bg-error/10 px-3 py-1.5 text-[11.5px] font-bold text-error hover:bg-error/20 cursor-pointer transition-colors shadow-2xs"
               >
                 <Icon name="refresh" size={13} />
                 <span>Reset</span>
@@ -524,7 +472,7 @@ export default function ManageCourses() {
 
             {sksFilter && (
               <span className="inline-flex items-center gap-1 rounded-full bg-tertiary/10 px-2.5 py-1 text-tertiary">
-                <span>SKS: {SKS_OPTIONS.find((s) => s.value === sksFilter)?.label}</span>
+                <span>SKS: {SKS_OPTIONS.find((s) => String(s.value) === String(sksFilter))?.label || `${sksFilter} SKS`}</span>
                 <button
                   type="button"
                   onClick={() => setSksFilter('')}
@@ -574,428 +522,46 @@ export default function ManageCourses() {
           </div>
         ) : (
           <>
-            {/* Table — Desktop & Tablet with Sticky Header */}
-            <div className="hidden overflow-x-auto overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low dark:border-outline-variant/15 w-full">
-            <table className="w-full min-w-[720px] text-left border-collapse">
-              <thead className="sticky top-0 z-20 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
-                <tr className="border-b border-outline-variant/15">
-                  <th className="w-[12%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Kode MK
-                  </th>
-                  <th className="w-[27%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Nama Mata Kuliah
-                  </th>
-                  <th className="w-[10%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Semester
-                  </th>
-                  <th className="w-[24%] px-3.5 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Dosen Pengampu
-                  </th>
-                  <th className="w-[12%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
-                    Kontak
-                  </th>
-                  <th className="w-[9%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-center">
-                    Bobot
-                  </th>
-                  <th className="w-[6%] px-3 py-2.5 text-label-caps uppercase tracking-wider text-on-surface-variant font-bold text-right">
-                    Aksi
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/10">
-                {paginatedCourses.map((course) => {
-                  const waUrl = formatWhatsAppUrl(course.kontakDosen)
-                  const semester = getCourseSemester(course)
-                  const lecturerList = parseLecturers(course.dosen)
-
-                  return (
-                    <tr
-                      key={course.id}
-                      className="group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20"
-                    >
-                      {/* Kode MK */}
-                      <td className="px-3.5 py-2.5">
-                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-2 py-0.5 font-mono text-body-xs font-bold text-primary border border-primary/20 dark:bg-primary/20">
-                          {course.kodeMK}
-                        </span>
-                      </td>
-
-                      {/* Nama MK */}
-                      <td className="px-4 py-3.5">
-                        <p className="font-bold text-body-md text-on-surface leading-snug break-words">
-                          {course.namaMK}
-                        </p>
-                      </td>
-
-                      {/* Semester */}
-                      <td className="px-3 py-3.5">
-                        {semester ? (
-                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
-                            Sem. {semester}
-                          </span>
-                        ) : (
-                          <span className="text-on-surface-variant/40 text-body-sm">-</span>
-                        )}
-                      </td>
-
-                      {/* Dosen Pengampu (Smart Multi-Lecturer Formatter) */}
-                      <td className="px-4 py-3.5">
-                        {lecturerList.length === 0 ? (
-                          <span className="text-on-surface-variant/50 text-body-xs">-</span>
-                        ) : lecturerList.length === 1 ? (
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-label-caps shadow-2xs">
-                              {getLecturerInitial(lecturerList[0])}
-                            </div>
-                            <span className="text-body-xs font-semibold text-on-surface truncate">
-                              {lecturerList[0]}
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="space-y-1 min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              {/* Avatar stack */}
-                              <div className="flex -space-x-1.5 shrink-0">
-                                {lecturerList.slice(0, 3).map((docName, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container font-bold text-[10px] ring-2 ring-surface-container-lowest dark:ring-surface-container-low shadow-2xs"
-                                    title={docName}
-                                  >
-                                    {getLecturerInitial(docName)}
-                                  </div>
-                                ))}
-                              </div>
-                              <span className="inline-flex items-center gap-0.5 rounded-md bg-secondary/10 px-1.5 py-0.5 text-[10px] uppercase font-bold text-secondary border border-secondary/20">
-                                {lecturerList.length} Dosen
-                              </span>
-                            </div>
-                            <div className="text-body-xs text-on-surface-variant space-y-0.5">
-                              {lecturerList.map((docName, idx) => (
-                                <p key={idx} className="font-semibold text-on-surface leading-tight truncate">
-                                  {idx + 1}. {docName}
-                                </p>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Kontak WhatsApp */}
-                      <td className="px-3 py-3.5">
-                        {course.kontakDosen ? (
-                          <a
-                            href={waUrl || `tel:${course.kontakDosen}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors cursor-pointer max-w-full truncate"
-                            title={`Buka WhatsApp ${course.kontakDosen}`}
-                          >
-                            <Icon name="chat" size={12} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
-                            <span className="truncate">{course.kontakDosen}</span>
-                          </a>
-                        ) : (
-                          <span className="text-on-surface-variant/40 text-body-sm">-</span>
-                        )}
-                      </td>
-
-                      {/* Bobot & Durasi */}
-                      <td className="px-3 py-3.5 text-center">
-                        <div className="inline-flex flex-col items-center gap-0.5">
-                          <span className="rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface whitespace-nowrap">
-                            {course.sks} SKS
-                          </span>
-                          <span className="text-[10px] font-medium text-on-surface-variant whitespace-nowrap">
-                            {course.durasi} mnt
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Aksi */}
-                      <td className="px-3 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            type="button"
-                            onClick={() => openEditModal(course)}
-                            className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer"
-                            title={`Edit ${course.kodeMK}`}
-                          >
-                            <Icon name="edit" size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteTarget(course)}
-                            className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer"
-                            title={`Hapus ${course.kodeMK}`}
-                          >
-                            <Icon name="delete" size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Cards — Mobile */}
-          <div className="space-y-2.5 tablet:hidden overflow-y-auto flex-1 min-h-0">
-            {paginatedCourses.map((course) => {
-              const waUrl = formatWhatsAppUrl(course.kontakDosen)
-              const semester = getCourseSemester(course)
-              const lecturerList = parseLecturers(course.dosen)
-
-              return (
-                <div
-                  key={course.id}
-                  className="rounded-2xl border border-outline-variant/20 bg-surface-container-low/40 p-4 shadow-2xs dark:bg-surface-container-high/30 space-y-2.5"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-label-caps font-bold text-primary border border-primary/20">
-                          {course.kodeMK}
-                        </span>
-                        {semester && (
-                          <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300">
-                            Sem. {semester}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="text-body-md font-bold text-on-surface mt-1.5 leading-snug">
-                        {course.namaMK}
-                      </h3>
-                    </div>
-                    <div className="flex shrink-0 gap-1">
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(course)}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/10 hover:text-primary cursor-pointer"
-                        aria-label="Edit"
-                      >
-                        <Icon name="edit" size={18} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleteTarget(course)}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer"
-                        aria-label="Hapus"
-                      >
-                        <Icon name="delete" size={18} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Mobile Lecturer Display */}
-                  <div className="text-body-sm text-on-surface-variant">
-                    {lecturerList.length === 0 ? (
-                      <p className="text-body-xs text-on-surface-variant/50">Dosen belum diisi</p>
-                    ) : lecturerList.length === 1 ? (
-                      <div className="flex items-center gap-2">
-                        <Icon name="person" size={16} className="text-secondary shrink-0" />
-                        <span className="font-semibold text-on-surface truncate">{lecturerList[0]}</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-secondary font-bold text-body-xs">
-                          <Icon name="groups" size={16} />
-                          <span>Tim {lecturerList.length} Dosen:</span>
-                        </div>
-                        <ul className="text-body-xs font-medium text-on-surface pl-5 list-disc space-y-0.5">
-                          {lecturerList.map((docName, idx) => (
-                            <li key={idx}>{docName}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-outline-variant/10">
-                    <div className="flex items-center gap-1.5">
-                      <span className="rounded-md bg-surface-container px-2 py-0.5 text-label-caps font-bold text-on-surface">
-                        {course.sks} SKS
-                      </span>
-                      <span className="rounded-md bg-surface-container-high px-2 py-0.5 text-label-caps font-medium text-on-surface-variant">
-                        {course.durasi} mnt
-                      </span>
-                    </div>
-
-                    {course.kontakDosen && (
-                      <a
-                        href={waUrl || `tel:${course.kontakDosen}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-500/20"
-                      >
-                        <Icon name="chat" size={12} />
-                        <span>{course.kontakDosen}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Shared Pagination Controls */}
-          <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
-            <Pagination
-              currentPage={safeCurrentPage}
-              totalItems={filtered.length}
-              pageSize={pageSize === 0 ? 'Semua' : pageSize}
-              onPageChange={setCurrentPage}
-              onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
-              itemLabel="mata kuliah"
+            {/* Table — Desktop & Tablet */}
+            <CourseTable
+              courses={paginatedCourses}
+              onEdit={openEditModal}
+              onDelete={setDeleteTarget}
             />
-          </div>
-        </>
-      )}
-    </div>
+
+            {/* Cards — Mobile */}
+            <CourseCards
+              courses={paginatedCourses}
+              onEdit={openEditModal}
+              onDelete={setDeleteTarget}
+            />
+
+            {/* Shared Pagination Controls */}
+            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
+              <Pagination
+                currentPage={safeCurrentPage}
+                totalItems={filtered.length}
+                pageSize={pageSize === 0 ? 'Semua' : pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
+                itemLabel="mata kuliah"
+              />
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Modal Dialog Form (Tambah / Edit) */}
-      {modalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0"
-        >
-          <div
-            onClick={() => setModalOpen(false)}
-            className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
-          />
-
-          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low dark:border-outline-variant/15 overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
-            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
-              <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
-            </div>
-            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold">
-                  <Icon name={modalMode === 'add' ? 'add_box' : 'edit_document'} size={22} />
-                </span>
-                <div>
-                  <h3 className="text-title-lg font-bold text-on-surface">
-                    {modalMode === 'add' ? 'Tambah Mata Kuliah' : `Edit Mata Kuliah (${form.kodeMK})`}
-                  </h3>
-                  <p className="text-body-xs text-on-surface-variant">
-                    {modalMode === 'add' ? 'Daftarkan kode dan nama mata kuliah baru' : 'Perbarui data master mata kuliah'}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container cursor-pointer shrink-0"
-                aria-label="Tutup"
-              >
-                <Icon name="close" size={20} />
-              </button>
-            </header>
-
-            <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
-              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
-                {/* KIRI — Identitas MK */}
-                <div className="space-y-4">
-                  <Input
-                    label="Kode MK"
-                    value={form.kodeMK}
-                    disabled={modalMode === 'edit'}
-                    onChange={(e) => {
-                      const val = e.target.value.toUpperCase()
-                      setForm((f) => {
-                        const derivedSem = getCourseSemester({ kodeMK: val })
-                        return {
-                          ...f,
-                          kodeMK: val,
-                          ...(derivedSem ? { semester: derivedSem } : {}),
-                        }
-                      })
-                    }}
-                    placeholder="mis. ARS201 / IF301"
-                    className="uppercase font-mono font-bold"
-                  />
-                  <Input
-                    label="Nama Mata Kuliah"
-                    value={form.namaMK}
-                    onChange={(e) => setForm((f) => ({ ...f, namaMK: e.target.value }))}
-                    placeholder="Nama mata kuliah"
-                  />
-                  <Input
-                    label="Semester"
-                    type="number"
-                    min="1"
-                    max="8"
-                    value={form.semester}
-                    onChange={(e) => setForm((f) => ({ ...f, semester: Number(e.target.value) }))}
-                  />
-                </div>
-                {/* KANAN — Detail akademik */}
-                <div className="space-y-4">
-                  <Input
-                    label="Dosen Pengampu"
-                    value={form.dosen}
-                    onChange={(e) => setForm((f) => ({ ...f, dosen: e.target.value }))}
-                    placeholder="Nama lengkap & gelar dosen"
-                  />
-                  <Input
-                    label="Kontak Dosen (No. HP/WA)"
-                    value={form.kontakDosen}
-                    onChange={(e) => setForm((f) => ({ ...f, kontakDosen: e.target.value }))}
-                    placeholder="0812-3456-7890"
-                  />
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input
-                      label="Bobot SKS"
-                      type="number"
-                      min="1"
-                      max="8"
-                      value={form.sks}
-                      onChange={(e) => setForm((f) => ({ ...f, sks: Number(e.target.value) }))}
-                    />
-                    <Input
-                      label="Durasi (Menit)"
-                      type="number"
-                      min="30"
-                      max="360"
-                      step="10"
-                      value={form.durasi}
-                      onChange={(e) => setForm((f) => ({ ...f, durasi: Number(e.target.value) }))}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {formErrors.length > 0 && (
-                <div className="rounded-xl bg-error/10 p-3 text-body-xs font-semibold text-error">
-                  {formErrors.map((err) => (
-                    <p key={err}>{err}</p>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/15">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setModalOpen(false)}
-                  className="cursor-pointer"
-                >
-                  Batal
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={saving}
-                  className="font-bold shadow-md cursor-pointer"
-                >
-                  <Icon name="save" size={18} className="mr-1" />
-                  {saving ? 'Menyimpan...' : 'Simpan Data'}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <CourseFormModal
+        key={modalKey}
+        open={modalOpen}
+        mode={modalMode}
+        initialForm={form}
+        saving={saving}
+        errors={formErrors}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleFormSubmit}
+      />
 
       {/* Dialog Konfirmasi Hapus */}
       <ConfirmDialog

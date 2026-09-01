@@ -26,13 +26,22 @@ function updatePreferencesWithTransition(prefs) {
   // segera setelah transisi selesai supaya tidak mengganggu navigasi.
   const root = document.documentElement
   root.classList.add('theme-transition')
-  const transition = document.startViewTransition(() => {
+  try {
+    const transition = document.startViewTransition(() => {
+      applyDocumentPreferences(prefs)
+    })
+    // Hapus penanda setelah seluruh animasi selesai (bukan saat `ready`),
+    // supaya selektor `html.theme-transition` tetap aktif selama transisi.
+    const clearMarker = () => root.classList.remove('theme-transition')
+    if (transition?.finished) {
+      transition.finished.then(clearMarker).catch(clearMarker)
+    } else {
+      clearMarker()
+    }
+  } catch (err) {
+    root.classList.remove('theme-transition')
     applyDocumentPreferences(prefs)
-  })
-  // Hapus penanda setelah seluruh animasi selesai (bukan saat `ready`),
-  // supaya selektor `html.theme-transition` tetap aktif selama transisi.
-  const clearMarker = () => root.classList.remove('theme-transition')
-  transition.finished.then(clearMarker).catch(clearMarker)
+  }
 }
 
 export function AppProvider({ children }) {
