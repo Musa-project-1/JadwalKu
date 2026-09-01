@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { useFirestore } from '../../hooks/useFirestore'
