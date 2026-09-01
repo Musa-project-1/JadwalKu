@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
@@ -11,6 +11,7 @@ import { Pagination } from '../../components/Pagination'
 import {
   ProdiFilterDropdown,
   SemesterFilterDropdown,
+  TaFilterDropdown,
   DosenFilterDropdown,
   SksFilterDropdown,
 } from '../../components/admin/AdminFilterDropdowns'
@@ -34,18 +35,27 @@ const EMPTY_FORM = {
   semester: 1,
 }
 
-/** Helper: Dapatkan nomor semester dari field atau auto-ekstrak dari digit pertama kode MK */
+/** Helper: Dapatkan nomor semester dari field atau auto-ekstrak dari digit pertama kode MK (support >8: 9,10,12,14) */
 function getCourseSemester(course) {
   if (course?.semester != null && !isNaN(Number(course.semester)) && Number(course.semester) > 0) {
     return Number(course.semester)
   }
-  const match = String(course?.kodeMK || '').match(/\d/)
-  if (match) {
-    const d = Number(match[0])
-    if (d >= 1 && d <= 8) return d
+  // extract angka semester dari kodeMK: ambil angka terakhir/terpanjang (mis BD6405 -> 4? tapi fallback angka >0)
+  // prioritas: digit 1-2 angka setelah prefix huruf
+  const m = String(course?.kodeMK || '').match(/\d+/)
+  if (m) {
+    // ambil digit pertama sebagai semester legacy, tapi kalau angka 9-14 tetap valid
+    const d = Number(m[0][0])
+    if (d >= 1) return d
   }
   return null
 }
+
+const BASE_SEMESTER_GROUPS = [
+  { label: 'Semua Semester', value: '' },
+  { label: 'Semester Ganjil', value: 'ganjil' },
+  { label: 'Semester Genap', value: 'genap' },
+]
 
 export default function ManageCourses() {
   const { data: courses, loading } = useFirestore('mataKuliah')
@@ -76,6 +86,29 @@ export default function ManageCourses() {
     () => [...new Set(courses.map((c) => c.dosen).filter(Boolean))].sort(),
     [courses],
   )
+
+  const [taFilter, setTaFilter] = useState('')
+  const availableTaOptions = useMemo(() => {
+    const tas = [...new Set(courses.map((c) => String(c.tahunAjaran || '').trim()).filter(Boolean))].sort((a, b) => b.localeCompare(a))
+    if (tas.length === 0) return [{ label: 'Semua TA', value: '' }]
+    return [{ label: 'Semua TA', value: '' }, ...tas.map((ta) => ({ label: `TA ${ta}`, value: ta }))]
+  }, [courses])
+  useEffect(() => {
+    if (!taFilter) return
+    if (!availableTaOptions.some((o) => String(o.value) === String(taFilter))) setTaFilter('')
+  }, [availableTaOptions, taFilter])
+
+  // Opsi B: semester hanya yang ada data (support >8: 9,10,14 dst) — pool difilter TA dulu biar cascade TA→Semester
+  const availableSemesterOptions = useMemo(() => {
+    const pool = taFilter ? courses.filter((c) => String(c.tahunAjaran || '').trim() === String(taFilter)) : courses
+    const nums = [...new Set(pool.map((c) => getCourseSemester(c)).filter((n) => Number.isInteger(n) && n > 0))].sort((a, b) => a - b)
+    return [...BASE_SEMESTER_GROUPS, ...nums.map((n) => ({ label: `Semester ${n}`, value: String(n) }))]
+  }, [courses, taFilter])
+  useEffect(() => {
+    if (!semesterFilter) return
+    if (semesterFilter === 'ganjil' || semesterFilter === 'genap') return
+    if (!availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))) setSemesterFilter('')
+  }, [availableSemesterOptions, semesterFilter])
 
   const stats = useMemo(() => {
     const totalSks = courses.reduce((acc, c) => acc + (Number(c.sks) || 0), 0)
@@ -116,6 +149,7 @@ export default function ManageCourses() {
         if (sksFilter === '4+') return s >= 4
         return true
       })
+      .filter((c) => (taFilter ? String(c.tahunAjaran || '').trim() === String(taFilter) : true))
       .filter((c) =>
         q
           ? [c.kodeMK, c.namaMK, c.dosen, c.kontakDosen].some((v) =>
@@ -124,7 +158,7 @@ export default function ManageCourses() {
           : true,
       )
       .sort((a, b) => String(a.kodeMK).localeCompare(String(b.kodeMK)))
-  }, [courses, search, dosenFilter, prodiFilter, semesterFilter, sksFilter])
+  }, [courses, search, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter])
 
   // ── Paginasi Data Mata Kuliah ──
   const totalPages = pageSize === 0 ? 1 : Math.ceil(filtered.length / pageSize) || 1
@@ -135,10 +169,11 @@ export default function ManageCourses() {
     return filtered.slice(start, start + pageSize)
   }, [filtered, safeCurrentPage, pageSize])
 
-  const hasActiveFilters = Boolean(search || dosenFilter || prodiFilter || semesterFilter || sksFilter)
+  const hasActiveFilters = Boolean(search || dosenFilter || prodiFilter || semesterFilter || sksFilter || taFilter)
 
   function resetAllFilters() {
     setSearch('')
+    setTaFilter('')
     setDosenFilter('')
     setProdiFilter('')
     setSemesterFilter('')
@@ -327,9 +362,9 @@ export default function ManageCourses() {
 
       {/* ── 2. Live Database Course Management (Unified Card Container) ── */}
       <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
-        {/* Unified Search & Filters in 1 Row on Desktop */}
-        <div className="relative z-30 flex flex-col gap-2 tablet:flex-row tablet:items-center">
-          <div className="relative flex-1 min-w-[200px]">
+        {/* Unified Search & Filters — 2 rows ke bawah biar muat */}
+        <div className="relative z-30 flex flex-col gap-2">
+          <div className="relative w-full">
             <Icon
               name="search"
               size={17}
@@ -355,16 +390,25 @@ export default function ManageCourses() {
             )}
           </div>
 
-          {/* Filter Dropdowns & Actions */}
-          <div className="flex items-center gap-1.5 overflow-x-auto tablet:overflow-visible no-scrollbar w-full tablet:w-auto shrink-0 pb-0.5 tablet:pb-0 relative z-30">
+          {/* Baris 2: Chips — wrap */}
+          <div className="flex flex-wrap items-center gap-1.5 relative z-30">
             <ProdiFilterDropdown
               selected={prodiFilter}
               onSelect={setProdiFilter}
             />
 
+            {availableTaOptions.length > 2 && (
+              <TaFilterDropdown
+                selected={taFilter}
+                onSelect={setTaFilter}
+                taOptions={availableTaOptions}
+              />
+            )}
+
             <SemesterFilterDropdown
               selected={semesterFilter}
               onSelect={setSemesterFilter}
+              semesterOptions={availableSemesterOptions}
             />
 
             <DosenFilterDropdown
@@ -395,6 +439,7 @@ export default function ManageCourses() {
                   setSearch('')
                   setProdiFilter('')
                   setSemesterFilter('')
+                  setTaFilter('')
                   setDosenFilter('')
                   setSksFilter('')
                 }}
@@ -440,11 +485,24 @@ export default function ManageCourses() {
 
             {semesterFilter && (
               <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-1 text-indigo-700 dark:text-indigo-300">
-                <span>Semester: {SEMESTER_OPTIONS.find((s) => s.value === semesterFilter)?.label}</span>
+                <span>Semester: {availableSemesterOptions.find((s) => s.value === semesterFilter)?.label}</span>
                 <button
                   type="button"
                   onClick={() => setSemesterFilter('')}
                   className="rounded-full p-0.5 hover:bg-indigo-500/20 cursor-pointer"
+                >
+                  <Icon name="close" size={14} />
+                </button>
+              </span>
+            )}
+
+            {taFilter && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 px-2.5 py-1 text-teal-700 dark:text-teal-300">
+                <span>TA: {taFilter}</span>
+                <button
+                  type="button"
+                  onClick={() => setTaFilter('')}
+                  className="rounded-full p-0.5 hover:bg-teal-500/20 cursor-pointer"
                 >
                   <Icon name="close" size={14} />
                 </button>
@@ -800,17 +858,18 @@ export default function ManageCourses() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0"
         >
-          {/* Backdrop */}
           <div
             onClick={() => setModalOpen(false)}
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          {/* Modal Content Card */}
-          <div className="relative w-full max-w-lg rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 sm:p-8 shadow-2xl dark:bg-surface-container-low dark:border-outline-variant/15 animate-fade-up">
-            <header className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-5">
+          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low dark:border-outline-variant/15 overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
+              <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
+            </div>
+            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold">
                   <Icon name={modalMode === 'add' ? 'add_box' : 'edit_document'} size={22} />
@@ -827,82 +886,84 @@ export default function ManageCourses() {
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container cursor-pointer shrink-0"
                 aria-label="Tutup"
               >
                 <Icon name="close" size={20} />
               </button>
             </header>
 
-            <form onSubmit={handleFormSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Kode MK"
-                  value={form.kodeMK}
-                  disabled={modalMode === 'edit'}
-                  onChange={(e) => {
-                    const val = e.target.value.toUpperCase()
-                    setForm((f) => {
-                      const derivedSem = getCourseSemester({ kodeMK: val })
-                      return {
-                        ...f,
-                        kodeMK: val,
-                        ...(derivedSem ? { semester: derivedSem } : {}),
-                      }
-                    })
-                  }}
-                  placeholder="mis. ARS201 / IF301"
-                  className="uppercase font-mono font-bold"
-                />
-                <Input
-                  label="Nama Mata Kuliah"
-                  value={form.namaMK}
-                  onChange={(e) => setForm((f) => ({ ...f, namaMK: e.target.value }))}
-                  placeholder="Nama mata kuliah"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Dosen Pengampu"
-                  value={form.dosen}
-                  onChange={(e) => setForm((f) => ({ ...f, dosen: e.target.value }))}
-                  placeholder="Nama lengkap & gelar dosen"
-                />
-                <Input
-                  label="Kontak Dosen (No. HP/WA)"
-                  value={form.kontakDosen}
-                  onChange={(e) => setForm((f) => ({ ...f, kontakDosen: e.target.value }))}
-                  placeholder="0812-3456-7890"
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <Input
-                  label="Semester"
-                  type="number"
-                  min="1"
-                  max="8"
-                  value={form.semester}
-                  onChange={(e) => setForm((f) => ({ ...f, semester: Number(e.target.value) }))}
-                />
-                <Input
-                  label="Bobot SKS"
-                  type="number"
-                  min="1"
-                  max="8"
-                  value={form.sks}
-                  onChange={(e) => setForm((f) => ({ ...f, sks: Number(e.target.value) }))}
-                />
-                <Input
-                  label="Durasi (Menit)"
-                  type="number"
-                  min="30"
-                  max="360"
-                  step="10"
-                  value={form.durasi}
-                  onChange={(e) => setForm((f) => ({ ...f, durasi: Number(e.target.value) }))}
-                />
+            <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                {/* KIRI — Identitas MK */}
+                <div className="space-y-4">
+                  <Input
+                    label="Kode MK"
+                    value={form.kodeMK}
+                    disabled={modalMode === 'edit'}
+                    onChange={(e) => {
+                      const val = e.target.value.toUpperCase()
+                      setForm((f) => {
+                        const derivedSem = getCourseSemester({ kodeMK: val })
+                        return {
+                          ...f,
+                          kodeMK: val,
+                          ...(derivedSem ? { semester: derivedSem } : {}),
+                        }
+                      })
+                    }}
+                    placeholder="mis. ARS201 / IF301"
+                    className="uppercase font-mono font-bold"
+                  />
+                  <Input
+                    label="Nama Mata Kuliah"
+                    value={form.namaMK}
+                    onChange={(e) => setForm((f) => ({ ...f, namaMK: e.target.value }))}
+                    placeholder="Nama mata kuliah"
+                  />
+                  <Input
+                    label="Semester"
+                    type="number"
+                    min="1"
+                    max="8"
+                    value={form.semester}
+                    onChange={(e) => setForm((f) => ({ ...f, semester: Number(e.target.value) }))}
+                  />
+                </div>
+                {/* KANAN — Detail akademik */}
+                <div className="space-y-4">
+                  <Input
+                    label="Dosen Pengampu"
+                    value={form.dosen}
+                    onChange={(e) => setForm((f) => ({ ...f, dosen: e.target.value }))}
+                    placeholder="Nama lengkap & gelar dosen"
+                  />
+                  <Input
+                    label="Kontak Dosen (No. HP/WA)"
+                    value={form.kontakDosen}
+                    onChange={(e) => setForm((f) => ({ ...f, kontakDosen: e.target.value }))}
+                    placeholder="0812-3456-7890"
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      label="Bobot SKS"
+                      type="number"
+                      min="1"
+                      max="8"
+                      value={form.sks}
+                      onChange={(e) => setForm((f) => ({ ...f, sks: Number(e.target.value) }))}
+                    />
+                    <Input
+                      label="Durasi (Menit)"
+                      type="number"
+                      min="30"
+                      max="360"
+                      step="10"
+                      value={form.durasi}
+                      onChange={(e) => setForm((f) => ({ ...f, durasi: Number(e.target.value) }))}
+                    />
+                  </div>
+                </div>
               </div>
 
               {formErrors.length > 0 && (

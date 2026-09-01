@@ -28,7 +28,7 @@ export function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-md"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in max-[599px]:items-end max-[599px]:p-0"
       onClick={onCancel}
       role="presentation"
     >
@@ -38,16 +38,18 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby="confirm-title"
         tabIndex={-1}
-        // Klik di dalam panel tidak boleh menutup dialog.
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-xl bg-surface-container-lowest p-lg shadow-level-2 outline-none dark:bg-surface-container-low"
+        className="relative w-full max-w-md rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl outline-none dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 overflow-hidden"
       >
-        <h2 id="confirm-title" className="text-title-md text-on-surface">{title}</h2>
+        <div aria-hidden="true" className="hidden max-[599px]:flex justify-center -mt-2 mb-3 -mx-2">
+          <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
+        </div>
+        <h2 id="confirm-title" className="text-title-md font-bold text-on-surface">{title}</h2>
         {description ? (
-          <p className="mt-2 text-body-lg text-on-surface-variant">{description}</p>
+          <p className="mt-2 text-body-sm font-medium leading-relaxed text-on-surface-variant">{description}</p>
         ) : null}
         {children}
-        <div className="mt-lg flex justify-end gap-sm">
+        <div className="mt-6 flex justify-end gap-2.5">
           <Button variant="secondary" onClick={onCancel}>
             {cancelLabel}
           </Button>

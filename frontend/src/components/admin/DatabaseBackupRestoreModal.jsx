@@ -298,10 +298,11 @@ export function DatabaseBackupRestoreModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/65 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0 bg-black/65 backdrop-blur-sm animate-fade-in"
     >
-      <div className="w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up overflow-hidden">
+      <div className="w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up overflow-hidden max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
         {/* Header Modal */}
+        <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
         <header className="flex items-center justify-between border-b border-outline-variant/20 px-5 py-4 shrink-0 bg-surface-container-low/40">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
@@ -390,7 +391,7 @@ export function DatabaseBackupRestoreModal({
               </div>
 
               {/* Grid Koleksi */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3">
                 {COLLECTIONS_CONFIG.map((col) => {
                   const isChecked = selectedBackupCols.has(col.id)
                   const count = dbCounts[col.id] ?? 0
@@ -573,7 +574,7 @@ export function DatabaseBackupRestoreModal({
                       {/* Restore Strategy Selector */}
                       <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 p-4 space-y-2.5">
                         <p className="text-body-xs font-bold text-on-surface">Metode Pemulihan Data (*Strategy*):</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2.5">
                           <label
                             onClick={() => setRestoreMode('merge')}
                             className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${

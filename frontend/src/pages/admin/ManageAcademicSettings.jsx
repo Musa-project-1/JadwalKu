@@ -863,10 +863,11 @@ export default function ManageAcademicSettings() {
 
       {/* ── Modal Tambah Program Studi ── */}
       {addProdiModalOpen && (
-        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:p-0">
           <div onClick={() => setAddProdiModalOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in" />
-          <div className="relative w-full max-w-md rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up space-y-4">
-            <header className="flex items-center justify-between pb-3 border-b border-outline-variant/15">
+          <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+            <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
+            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
               <div className="flex items-center gap-2.5">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Icon name="school" size={20} />
@@ -878,42 +879,45 @@ export default function ManageAcademicSettings() {
               </button>
             </header>
 
-            <form onSubmit={handleAddProdi} className="space-y-4">
-              <div>
-                <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Nama Program Studi</label>
-                <input
-                  type="text"
-                  placeholder="mis. Teknik Biomedis"
-                  value={prodiNama}
-                  onChange={(e) => setProdiNama(e.target.value)}
-                  className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-2 text-body-sm font-semibold text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Semester Min</label>
-                  <FormSelect
-                    value={prodiMin}
-                    onChange={(val) => setProdiMin(Number(val))}
-                    options={SEMESTER_OPTIONS.map((s) => ({ value: s, label: String(s) }))}
-                  />
+            <form onSubmit={handleAddProdi} className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Nama Program Studi</label>
+                    <input
+                      type="text"
+                      placeholder="mis. Teknik Biomedis"
+                      value={prodiNama}
+                      onChange={(e) => setProdiNama(e.target.value)}
+                      className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-2 text-body-sm font-semibold text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Semester Max</label>
-                  <FormSelect
-                    value={prodiMax}
-                    onChange={(val) => setProdiMax(Number(val))}
-                    options={SEMESTER_OPTIONS.map((s) => ({ value: s, label: String(s) }))}
-                  />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Semester Min</label>
+                      <FormSelect
+                        value={prodiMin}
+                        onChange={(val) => setProdiMin(Number(val))}
+                        options={SEMESTER_OPTIONS.map((s) => ({ value: s, label: String(s) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Semester Max</label>
+                      <FormSelect
+                        value={prodiMax}
+                        onChange={(val) => setProdiMax(Number(val))}
+                        options={SEMESTER_OPTIONS.map((s) => ({ value: s, label: String(s) }))}
+                      />
+                    </div>
+                  </div>
                 </div>
+                {prodiFormError && (
+                  <p className="text-body-xs font-semibold text-error col-span-full">{prodiFormError}</p>
+                )}
               </div>
-
-              {prodiFormError && (
-                <p className="text-body-xs font-semibold text-error">{prodiFormError}</p>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/15">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-outline-variant/15 mt-4 shrink-0">
                 <Button type="button" variant="secondary" onClick={() => setAddProdiModalOpen(false)}>
                   Batal
                 </Button>
@@ -928,10 +932,11 @@ export default function ManageAcademicSettings() {
 
       {/* ── Modal Tambah Hari Libur (Dengan Dukungan Tiap Prodi) ── */}
       {addHolidayModalOpen && (
-        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:p-0">
           <div onClick={() => setAddHolidayModalOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in" />
-          <div className="relative w-full max-w-md rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up space-y-4">
-            <header className="flex items-center justify-between pb-3 border-b border-outline-variant/15">
+          <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+            <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
+            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
               <div className="flex items-center gap-2.5">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
                   <Icon name="event_busy" size={20} />
@@ -943,74 +948,75 @@ export default function ManageAcademicSettings() {
               </button>
             </header>
 
-            <form onSubmit={handleAddHoliday} className="space-y-4">
-              <div>
-                <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Nama Hari Libur / Agenda</label>
-                <input
-                  type="text"
-                  placeholder="mis. Libur Studi Ekskursi / Dies Natalis"
-                  value={holidayNama}
-                  onChange={(e) => setHolidayNama(e.target.value)}
-                  className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-2 text-body-sm font-semibold text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-                />
+            <form onSubmit={handleAddHoliday} className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Nama Hari Libur / Agenda</label>
+                    <input
+                      type="text"
+                      placeholder="mis. Libur Studi Ekskursi / Dies Natalis"
+                      value={holidayNama}
+                      onChange={(e) => setHolidayNama(e.target.value)}
+                      className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-2 text-body-sm font-semibold text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Jenis Libur</label>
+                      <FormSelect
+                        value={holidayTipe}
+                        onChange={setHolidayTipe}
+                        options={[
+                          { value: 'nasional', label: 'Libur Nasional' },
+                          { value: 'kampus', label: 'Libur / Cuti Kampus' },
+                          { value: 'semester', label: 'Libur Semester' },
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Cakupan Prodi</label>
+                      <FormSelect
+                        value={holidayProdi}
+                        onChange={setHolidayProdi}
+                        options={[
+                          { value: 'Semua', label: 'Semua Prodi (Umum)' },
+                          ...programs.map((p) => ({
+                            value: p.nama,
+                            label: `Khusus: ${p.nama}`,
+                          })),
+                        ]}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Tanggal Mulai</label>
+                      <input
+                        type="date"
+                        value={holidayMulai}
+                        onChange={(e) => setHolidayMulai(e.target.value)}
+                        className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-2 font-mono text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Tanggal Selesai</label>
+                      <input
+                        type="date"
+                        value={holidaySelesai}
+                        onChange={(e) => setHolidaySelesai(e.target.value)}
+                        className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-2 font-mono text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+                {holidayFormError && (
+                  <p className="text-body-xs font-semibold text-error col-span-full">{holidayFormError}</p>
+                )}
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Jenis Libur</label>
-                  <FormSelect
-                    value={holidayTipe}
-                    onChange={setHolidayTipe}
-                    options={[
-                      { value: 'nasional', label: 'Libur Nasional' },
-                      { value: 'kampus', label: 'Libur / Cuti Kampus' },
-                      { value: 'semester', label: 'Libur Semester' },
-                    ]}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Cakupan Prodi</label>
-                  <FormSelect
-                    value={holidayProdi}
-                    onChange={setHolidayProdi}
-                    options={[
-                      { value: 'Semua', label: 'Semua Prodi (Umum)' },
-                      ...programs.map((p) => ({
-                        value: p.nama,
-                        label: `Khusus: ${p.nama}`,
-                      })),
-                    ]}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Tanggal Mulai</label>
-                  <input
-                    type="date"
-                    value={holidayMulai}
-                    onChange={(e) => setHolidayMulai(e.target.value)}
-                    className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-2 font-mono text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Tanggal Selesai</label>
-                  <input
-                    type="date"
-                    value={holidaySelesai}
-                    onChange={(e) => setHolidaySelesai(e.target.value)}
-                    className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-3 py-2 font-mono text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {holidayFormError && (
-                <p className="text-body-xs font-semibold text-error">{holidayFormError}</p>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/15">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-outline-variant/15 mt-4 shrink-0">
                 <Button type="button" variant="secondary" onClick={() => setAddHolidayModalOpen(false)}>
                   Batal
                 </Button>
@@ -1025,10 +1031,11 @@ export default function ManageAcademicSettings() {
 
       {/* ── Modal Sinkron Libur Nasional (Pilihan Tahun 2026 / 2027) ── */}
       {syncHolidayModalOpen && (
-        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:p-0">
           <div onClick={() => setSyncHolidayModalOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in" />
-          <div className="relative w-full max-w-md rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up space-y-4">
-            <header className="flex items-center justify-between pb-3 border-b border-outline-variant/15">
+          <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+            <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
+            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
               <div className="flex items-center gap-2.5">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
                   <Icon name="cloud_sync" size={20} />
@@ -1040,43 +1047,47 @@ export default function ManageAcademicSettings() {
               </button>
             </header>
 
-            <div className="space-y-3">
-              <p className="text-body-sm text-on-surface-variant">
-                Impor daftar resmi hari libur nasional Indonesia secara otomatis. Sistem akan melewati libur yang sudah terdaftar untuk mencegah data duplikat.
-              </p>
-
-              <div>
-                <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Pilih Tahun Kalender</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {[2026, 2027].map((year) => (
-                    <button
-                      key={year}
-                      type="button"
-                      onClick={() => setSelectedSyncYear(year)}
-                      className={`rounded-2xl border p-3 text-center transition-all cursor-pointer ${
-                        selectedSyncYear === year
-                          ? 'border-secondary bg-secondary/10 text-secondary font-bold shadow-xs'
-                          : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container'
-                      }`}
-                    >
-                      <span className="block text-title-md font-bold">{year}</span>
-                      <span className="text-[11px] font-medium opacity-80">
-                        {NATIONAL_HOLIDAYS_PRESET[year]?.length || 0} Hari Libur Resmi
-                      </span>
-                    </button>
-                  ))}
+            <div className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                <div className="space-y-4">
+                  <p className="text-body-sm text-on-surface-variant">
+                    Impor daftar resmi hari libur nasional Indonesia secara otomatis. Sistem akan melewati libur yang sudah terdaftar untuk mencegah data duplikat.
+                  </p>
+                  <div>
+                    <label className="text-label-caps uppercase text-on-surface-variant block mb-1">Pilih Tahun Kalender</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[2026, 2027].map((year) => (
+                        <button
+                          key={year}
+                          type="button"
+                          onClick={() => setSelectedSyncYear(year)}
+                          className={`rounded-2xl border p-3 text-center transition-all cursor-pointer ${
+                            selectedSyncYear === year
+                              ? 'border-secondary bg-secondary/10 text-secondary font-bold shadow-xs'
+                              : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container'
+                          }`}
+                        >
+                          <span className="block text-title-md font-bold">{year}</span>
+                          <span className="text-[11px] font-medium opacity-80">
+                            {NATIONAL_HOLIDAYS_PRESET[year]?.length || 0} Hari Libur Resmi
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-              <div className="rounded-xl bg-surface-container-low p-3 text-[11px] text-on-surface-variant space-y-1">
-                <p className="font-bold text-on-surface">Termasuk di dalamnya:</p>
-                <p>• Hari Raya Idul Fitri & Cuti Bersama</p>
-                <p>• Tahun Baru Masehi, Imlek, Nyepi, Waisak, Natal</p>
-                <p>• Hari Kemerdekaan RI, Lahir Pancasila, Maulid Nabi, dsb.</p>
+                <div className="space-y-4">
+                  <div className="rounded-xl bg-surface-container-low p-3 text-[11px] text-on-surface-variant space-y-1">
+                    <p className="font-bold text-on-surface">Termasuk di dalamnya:</p>
+                    <p>• Hari Raya Idul Fitri & Cuti Bersama</p>
+                    <p>• Tahun Baru Masehi, Imlek, Nyepi, Waisak, Natal</p>
+                    <p>• Hari Kemerdekaan RI, Lahir Pancasila, Maulid Nabi, dsb.</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-outline-variant/15">
+            <div className="flex items-center justify-end gap-2 p-4 border-t border-outline-variant/15 shrink-0">
               <Button type="button" variant="secondary" onClick={() => setSyncHolidayModalOpen(false)}>
                 Batal
               </Button>
@@ -1100,14 +1111,14 @@ export default function ManageAcademicSettings() {
 
       {/* ── Modal Dialog: Batas Kalender Akademik & Live MEK Calculator ── */}
       {calendarModalOpen && (
-        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:p-0">
           <div
             onClick={() => setCalendarModalOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
+            className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
-          <div className="relative w-full max-w-2xl rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl overflow-hidden z-10 animate-fade-up">
-            {/* Header Modal */}
-            <div className="flex items-center justify-between border-b border-outline-variant/15 p-4 tablet:p-5 bg-surface-container-low/50">
+          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl overflow-hidden z-10 animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+            <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
+            <div className="flex items-center justify-between border-b border-outline-variant/15 p-4 tablet:p-5 bg-surface-container-low/50 shrink-0">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
                   <Icon name="tune" size={22} />
@@ -1138,7 +1149,7 @@ export default function ManageAcademicSettings() {
             </div>
 
             {/* Modal Body: Form & MEK Calculator */}
-            <form onSubmit={handleSaveCalendar} className="p-4 tablet:p-5 space-y-4">
+            <form onSubmit={handleSaveCalendar} className="flex-1 overflow-y-auto p-4 tablet:p-5 space-y-4">
               {/* MEK Live Calculator Summary Card */}
               <div className="grid grid-cols-2 tablet:grid-cols-4 gap-2.5 rounded-2xl border border-primary/20 bg-primary/5 p-3 dark:bg-primary/10">
                 <div>
@@ -1251,7 +1262,7 @@ export default function ManageAcademicSettings() {
               </div>
 
               {/* Modal Footer */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-outline-variant/15">
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-outline-variant/15 shrink-0">
                 <Button
                   type="button"
                   variant="secondary"

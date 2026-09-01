@@ -330,7 +330,8 @@ export default function ManageAnnouncements() {
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none overflow-hidden">
+          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none overflow-hidden">
+            <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
             <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
               <h3 className="text-title-md font-bold text-on-surface">
                 {editingItem ? 'Edit Pengumuman' : 'Buat Pengumuman Baru'}
@@ -344,7 +345,9 @@ export default function ManageAnnouncements() {
               </button>
             </header>
 
-            <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-5 space-y-4">
+            <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                <div className="space-y-4">
               <Input
                 label="Judul Pengumuman *"
                 value={formJudul}
@@ -445,8 +448,9 @@ export default function ManageAnnouncements() {
                 </div>
               </div>
 
-              {/* Live Preview Card */}
-              <div className="pt-2 border-t border-outline-variant/15">
+                </div>
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-low/40 p-3.5">
                 <span className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">
                   Pratinjau Tampilan Mahasiswa
                 </span>
@@ -460,9 +464,11 @@ export default function ManageAnnouncements() {
                   <p className="font-extrabold">{formJudul || 'Judul Pengumuman...'}</p>
                   <p className="opacity-90 mt-0.5">{formIsi || 'Isi pengumuman akan tampil di sini...'}</p>
                 </div>
+                  </div>
+                </div>
               </div>
 
-              <footer className="flex items-center justify-end gap-2 pt-4 border-t border-outline-variant/15">
+              <footer className="flex items-center justify-end gap-2 pt-4 border-t border-outline-variant/15 mt-4 shrink-0">
                 <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
                   Batal
                 </Button>

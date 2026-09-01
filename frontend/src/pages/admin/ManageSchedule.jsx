@@ -12,6 +12,8 @@ import { FormSelect } from '../../components/FormSelect'
 import {
   ProdiFilterDropdown,
   SemesterFilterDropdown,
+  TaFilterDropdown,
+  FakultasFilterDropdown,
   HariFilterDropdown,
   StatusFilterDropdown,
 } from '../../components/admin/AdminFilterDropdowns'
@@ -20,7 +22,7 @@ import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useCampus } from '../../context/CampusContext'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory, publishDocuments, saveSettings } from '../../lib/publishHelpers'
-import { deriveTahunAjaran } from '../../lib/tahunAjaran'
+import { deriveTahunAjaran, expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 import { UniversalImportModal } from '../../components/admin/UniversalImportModal'
 import { OfficialNoticeboardModal } from '../../components/admin/OfficialNoticeboardModal'
 import {
@@ -54,24 +56,17 @@ const EMPTY_COURSE = {
   semester: 1,
 }
 
-const SEMESTERS = [
+const BASE_SEMESTER_GROUPS = [
   { label: 'Semua Semester', value: '' },
-  { label: 'Semester Ganjil (1, 3, 5, 7)', value: 'ganjil' },
-  { label: 'Semester Genap (2, 4, 6, 8)', value: 'genap' },
-  { label: 'Semester 1', value: '1' },
-  { label: 'Semester 2', value: '2' },
-  { label: 'Semester 3', value: '3' },
-  { label: 'Semester 4', value: '4' },
-  { label: 'Semester 5', value: '5' },
-  { label: 'Semester 6', value: '6' },
-  { label: 'Semester 7', value: '7' },
-  { label: 'Semester 8', value: '8' },
+  { label: 'Semester Ganjil', value: 'ganjil' },
+  { label: 'Semester Genap', value: 'genap' },
 ]
 
 export default function ManageSchedule() {
   const { data: rawSchedule, loading: loadingSchedule } = useFirestore('jadwal')
   const { data: courses } = useFirestore('mataKuliah')
   const { data: programs } = useFirestore('prodi')
+  const { data: fakultasDocs } = useFirestore('fakultas')
   const { data: settingsDocs } = useFirestore('settings')
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
@@ -83,6 +78,13 @@ export default function ManageSchedule() {
   )
   const currentTA = deriveTahunAjaran(new Date(), academicCalendar)
 
+  // Map prodi -> fakultasId (untuk denorm ke jadwal)
+  const prodiFakultasMap = useMemo(() => {
+    const m = new Map()
+    for (const pr of programs || []) m.set(String(pr.nama || ''), String(pr.fakultasId || pr.fakultasNama || ''))
+    return m
+  }, [programs])
+
   // Map Mata Kuliah untuk lookup cepat
   const courseMap = useMemo(() => {
     const map = new Map()
@@ -92,12 +94,13 @@ export default function ManageSchedule() {
     return map
   }, [courses])
 
-  // List prodi options gabungan — prioritaskan config kampus, fallback DB + default.
+  // List prodi options — Opsi B: hanya yang ada data (DB + kampus). Hardcode 5 hanya kalau keduanya kosong.
   const prodiOptions = useMemo(() => {
     const fromDb = programs?.map((p) => p.nama || p.id).filter(Boolean) || []
     const fromCampus = campusProdiNames || []
-    const combined = [...new Set([...fromCampus, 'Informatika', 'Bisnis Digital', 'Arsitektur', 'Teknik Sipil', 'Kewirausahaan', ...fromDb])]
-    return combined.sort()
+    const have = [...new Set([...fromCampus, ...fromDb].filter(Boolean))]
+    if (have.length > 0) return have.sort()
+    return ['Arsitektur', 'Bisnis Digital', 'Informatika', 'Kewirausahaan', 'Teknik Sipil']
   }, [programs, campusProdiNames])
 
   // List existing Tahun Ajaran in system
@@ -123,10 +126,54 @@ export default function ManageSchedule() {
 
   // ── State Filter & Pencarian Database ──
   const [search, setSearch] = useState('')
+  const [fakultasFilter, setFakultasFilter] = useState('')
   const [prodiFilter, setProdiFilter] = useState('')
   const [semesterFilter, setSemesterFilter] = useState('')
   const [hariFilter, setHariFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [taFilter, setTaFilter] = useState('')
+  const availableTaOptions = useMemo(() => {
+    const tas = [...new Set(rawSchedule.map((s) => String(s.tahunAjaran || '').trim()).filter(Boolean))].sort((a, b) => b.localeCompare(a))
+    const opts = [{ label: 'Semua TA', value: '' }, ...tas.map((ta) => ({ label: `TA ${ta}`, value: ta }))]
+    return opts
+  }, [rawSchedule])
+  useEffect(() => {
+    if (!taFilter) return
+    const ok = availableTaOptions.some((o) => String(o.value) === String(taFilter))
+    if (!ok) setTaFilter('')
+  }, [availableTaOptions, taFilter])
+
+  // Opsi B + cascade: kalau TA dipilih, semester cuma yang ada di TA itu
+  const availableSemesterOptions = useMemo(() => {
+    const pool = taFilter ? rawSchedule.filter((s) => String(s.tahunAjaran || '').trim() === String(taFilter)) : rawSchedule
+    const nums = [...new Set(pool.map((s) => Number(s.semester)).filter((n) => Number.isInteger(n) && n > 0))].sort((a, b) => a - b)
+    const numeric = nums.map((n) => ({ label: `Semester ${n}`, value: String(n) }))
+    return [...BASE_SEMESTER_GROUPS, ...numeric]
+  }, [rawSchedule, taFilter])
+  // Auto-reset filter kalau pilihan aktif jadi tidak tersedia lagi
+  useEffect(() => {
+    if (!semesterFilter) return
+    if (semesterFilter === 'ganjil' || semesterFilter === 'genap') return
+    const ok = availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))
+    if (!ok) setSemesterFilter('')
+  }, [availableSemesterOptions, semesterFilter])
+
+  const availableFakultasOptions = useMemo(() => {
+    // Prefer fakultas collection for labels, fallback to distinct prodi fakultasId
+    const map = new Map()
+    ;(fakultasDocs || []).forEach((f) => {
+      const id = String(f.id || f.fakultasId || '')
+      if (id && !map.has(id)) map.set(id, { label: String(f.nama || f.singkatan || id), value: id })
+    })
+    if (map.size === 0) {
+      ;(programs || []).forEach((pr) => {
+        const fid = String(pr.fakultasId || '').trim()
+        if (fid && !map.has(fid)) map.set(fid, { label: fid, value: fid })
+      })
+    }
+    const opts = [{ label: 'Semua Fakultas', value: '' }, ...[...map.values()].sort((a, b) => a.label.localeCompare(b.label, 'id'))]
+    return opts
+  }, [fakultasDocs, programs])
 
   // ── State Bulk Selection ──
   const [selectedIds, setSelectedIds] = useState(new Set())
@@ -202,6 +249,7 @@ export default function ManageSchedule() {
   const filteredSchedule = useMemo(() => {
     const q = search.trim().toLowerCase()
     return rawSchedule
+      .filter((item) => (fakultasFilter ? String(item.fakultasId || prodiFakultasMap.get(String(item.prodi || '')) || '') === String(fakultasFilter) : true))
       .filter((item) => (prodiFilter ? item.prodi === prodiFilter : true))
       .filter((item) => {
         if (!semesterFilter) return true
@@ -210,6 +258,7 @@ export default function ManageSchedule() {
         if (semesterFilter === 'genap') return sem % 2 === 0
         return sem === Number(semesterFilter)
       })
+      .filter((item) => (taFilter ? String(item.tahunAjaran || '') === String(taFilter) : true))
       .filter((item) => (hariFilter ? item.hari === hariFilter : true))
       .filter((item) => (statusFilter ? (item.status || 'published') === statusFilter : true))
       .filter((item) => (onlyShowConflicts ? conflictMap.has(item.id) : true))
@@ -225,18 +274,73 @@ export default function ManageSchedule() {
         if (dayDiff !== 0) return dayDiff
         return String(a.jamMulai).localeCompare(String(b.jamMulai))
       })
-  }, [rawSchedule, prodiFilter, semesterFilter, hariFilter, statusFilter, onlyShowConflicts, conflictMap, search, courseMap])
+  }, [rawSchedule, fakultasFilter, prodiFilter, semesterFilter, taFilter, hariFilter, statusFilter, onlyShowConflicts, conflictMap, search, courseMap])
 
-  // ── Paginasi Data Jadwal (Auto-clamped during render) ──
-  const totalPages = pageSize === 0 ? 1 : Math.ceil(filteredSchedule.length / pageSize) || 1
+  // ── Grouping MK Umum (spec): kodeMK+hari+jam+dosen+ruang → 1 baris, badge multi-prodi
+  // Spec persis: komb unik kode MK + hari + jam + dosen + ruangan.
+  // Semester/TA/tipeKelas/status TIDAK masuk key — biar MKWK202 lintas prodi yang jam/dosen/ruang identik
+  // tetap collapse meski SKS/sem berbeda; badge S1/S3 tetap tampil bila sem berbeda dalam 1 grup.
+  // Jika butuh strict per-TA/sem, aktifkan filter TA/Semester dulu — grouping akan run di pool terfilter.
+  const groupedSchedule = useMemo(() => {
+    const groups = new Map()
+    for (const item of filteredSchedule) {
+      const course = courseMap.get(item.kodeMK)
+      const dosenKey = String(course?.dosen ?? item.dosen ?? '').trim().toLowerCase()
+      const ruangKey = String(item.ruang ?? '').trim().toLowerCase()
+      const key = [
+        String(item.kodeMK ?? '').trim().toUpperCase(),
+        String(item.hari ?? ''),
+        String(item.jamMulai ?? ''),
+        String(item.jamSelesai ?? ''),
+        dosenKey,
+        ruangKey,
+      ].join('|')
+      if (!groups.has(key)) groups.set(key, { key, items: [], course })
+      groups.get(key).items.push(item)
+    }
+    const arr = [...groups.values()]
+    const dayOrder = { Senin: 1, Selasa: 2, Rabu: 3, Kamis: 4, Jumat: 5, Sabtu: 6, Minggu: 7 }
+    arr.sort((a, b) => {
+      const ra = a.items[0], rb = b.items[0]
+      const da = (dayOrder[ra.hari] || 99) - (dayOrder[rb.hari] || 99)
+      if (da !== 0) return da
+      return String(ra.jamMulai).localeCompare(String(rb.jamMulai))
+    })
+    return arr
+  }, [filteredSchedule, courseMap])
+
+  // info ringkas: 101 sesi → N grup (hemat M baris)
+  const groupingStats = useMemo(() => {
+    const totalSesi = filteredSchedule.length
+    const totalGrup = groupedSchedule.length
+    const hemat = totalSesi - totalGrup
+    return { totalSesi, totalGrup, hemat, isGrouped: hemat > 0 }
+  }, [filteredSchedule.length, groupedSchedule.length])
+
+  // Paginasi per GRUP (bukan per sesi)
+  const totalPages = pageSize === 0 ? 1 : Math.ceil(groupedSchedule.length / pageSize) || 1
   const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages))
-  const paginatedSchedule = useMemo(() => {
-    if (pageSize === 0) return filteredSchedule
+  const paginatedGroups = useMemo(() => {
+    if (pageSize === 0) return groupedSchedule
     const start = (safeCurrentPage - 1) * pageSize
-    return filteredSchedule.slice(start, start + pageSize)
-  }, [filteredSchedule, safeCurrentPage, pageSize])
+    return groupedSchedule.slice(start, start + pageSize)
+  }, [groupedSchedule, safeCurrentPage, pageSize])
 
-  function jadwalDocId(entry) {
+  // expand state untuk grup multi-prodi
+  const [expandedGroups, setExpandedGroups] = useState(() => new Set())
+  function toggleExpandGroup(key) {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+  // reset expand kalau filter berubah biar gak expand nyangkut
+  useEffect(() => { setExpandedGroups(new Set()) }, [search, fakultasFilter, prodiFilter, semesterFilter, taFilter, hariFilter, statusFilter, onlyShowConflicts])
+
+  function jadwalDocId(entry, ta) {
+    const taStr = String(ta || entry.tahunAjaran || '').trim().replace(/[/#?[\]]/g, '-')
     return [
       entry.prodi,
       Number(entry.semester),
@@ -244,6 +348,7 @@ export default function ManageSchedule() {
       entry.jamMulai,
       entry.kodeMK,
       entry.tipeKelas,
+      taStr || 'tanpaTA',
     ]
       .join('|')
       .replace(/[/#?[\]]/g, '-')
@@ -262,12 +367,16 @@ export default function ManageSchedule() {
     }
 
     // 2. Publikasikan Jadwal
-    const scheduleDocs = (parsedData.scheduleEntries || []).map((e) => ({
-      id: jadwalDocId(e),
-      ...e,
-      tahunAjaran: targetTA,
-      status: 'published',
-    }))
+    const scheduleDocs = (parsedData.scheduleEntries || []).map((e) => {
+      const _fId = String(prodiFakultasMap.get(String(e.prodi || '')) || '').trim() || null
+      return {
+        ...e,
+        id: jadwalDocId(e, targetTA),
+        fakultasId: _fId,
+        tahunAjaran: targetTA,
+        status: 'published',
+      }
+    })
     const res = await publishDocuments('jadwal', scheduleDocs, actor)
 
     // 3. Publikasikan Ujian jika ada
@@ -310,11 +419,12 @@ export default function ManageSchedule() {
     if (errors.length > 0) return
 
     setBusy(true)
-    const docId = jadwalDocId(manualForm)
+    const _manualTA = expectedTahunAjaranForSemester(Number(manualForm.semester) || 1, new Date(), academicCalendar) || currentTA; const docId = jadwalDocId(manualForm, _manualTA)
     const newDoc = {
       ...manualForm,
       semester: Number(manualForm.semester),
-      tahunAjaran: currentTA,
+      fakultasId: String(prodiFakultasMap.get(String(manualForm.prodi || '')) || '').trim() || null,
+      tahunAjaran: _manualTA,
       status: 'published',
     }
 
@@ -431,10 +541,29 @@ export default function ManageSchedule() {
     setAddModalOpen(true)
   }
 
-  // ── Handler Hapus Jadwal ──
+  // ── Handler Hapus Jadwal (support grup MKWK: _group) ──
   async function handleDeleteSingle() {
     if (!deleteTarget) return
     const target = deleteTarget
+    // Grup: hapus semua sesi dalam grup
+    if (target._group) {
+      const ids = target._group.items.map((it) => it.id)
+      setBusy(true)
+      let okCount = 0
+      for (const id of ids) {
+        const r = await deleteDocument('jadwal', id)
+        if (r.ok) okCount += 1
+      }
+      setBusy(false)
+      setDeleteTarget(null)
+      if (okCount > 0) {
+        await appendHistory({ entitas: 'jadwal', field: 'hapus_grup', nilaiLama: target._group, nilaiBaru: null, aktor: actor, detail: `Hapus grup ${target._group.items[0]?.kodeMK} (${okCount} sesi)` })
+        setBanner({ ok: true, message: `${okCount} sesi grup ${target._group.items[0]?.kodeMK} berhasil dihapus!` })
+      } else {
+        setBanner({ ok: false, message: 'Gagal menghapus grup.' })
+      }
+      return
+    }
     setBusy(true)
     const result = await deleteDocument('jadwal', target.id)
     setBusy(false)
@@ -454,12 +583,13 @@ export default function ManageSchedule() {
     }
   }
 
-  // ── Bulk Actions Handler ──
+  // ── Bulk Actions Handler (group-aware) ──
+  const allFilteredIds = filteredSchedule.map((item) => item.id)
   function toggleSelectAll() {
-    if (selectedIds.size === filteredSchedule.length) {
+    if (selectedIds.size === allFilteredIds.length) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(filteredSchedule.map((item) => item.id)))
+      setSelectedIds(new Set(allFilteredIds))
     }
   }
 
@@ -471,6 +601,61 @@ export default function ManageSchedule() {
       return next
     })
   }
+
+  function toggleSelectGroup(group) {
+    const ids = group.items.map((it) => it.id)
+    const allSelected = ids.every((id) => selectedIds.has(id))
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (allSelected) ids.forEach((id) => next.delete(id))
+      else ids.forEach((id) => next.add(id))
+      return next
+    })
+  }
+
+  async function handleGroupEdit(group) {
+    // G01: edit berlaku untuk SEMUA prodi dalam grup (jam/dosen/ruang/kodeMK yang identik).
+    // Ambil first item sebagai wakil; save akan update SEMUA ids di grup dengan data yang sama.
+    openGroupEditModal(group)
+  }
+
+  async function handleGroupDelete(group) {
+    // Hapus semua sesi di grup (MKWK umum)
+    setDeleteTarget({ _group: group, ids: group.items.map((it) => it.id), label: `${group.items[0].kodeMK} — ${group.items.length} prodi` })
+  }
+
+  // ── Group Edit (MK Umum): edit 1x, update semua sesi dalam grup ──
+  const [groupEditing, setGroupEditing] = useState(null) // { group, editForm }
+  function openGroupEditModal(group) {
+    const first = group.items[0]
+    setGroupEditing({ group, editForm: { hari: first.hari, jamMulai: first.jamMulai, jamSelesai: first.jamSelesai, kodeMK: first.kodeMK, ruang: first.ruang ?? '', tipeKelas: first.tipeKelas ?? 'K1', status: first.status ?? 'published' } })
+    setEditErrors([])
+  }
+  function patchGroupForm(patch) {
+    setGroupEditing((s) => s ? { ...s, editForm: { ...s.editForm, ...patch } } : s)
+  }
+  async function handleSaveGroupEdit(e) {
+    e.preventDefault()
+    if (!groupEditing) return
+    const errors = validateScheduleEntry({ ...groupEditing.editForm, prodi: groupEditing.group.items[0].prodi, semester: groupEditing.group.items[0].semester })
+    setEditErrors(errors)
+    if (errors.length > 0) return
+    setBusy(true)
+    let okCount = 0
+    for (const item of groupEditing.group.items) {
+      const r = await updateDocument('jadwal', item.id, { ...groupEditing.editForm }, actor)
+      if (r.ok) okCount += 1
+    }
+    setBusy(false)
+    if (okCount > 0) {
+      await appendHistory({ entitas: 'jadwal', field: 'edit_grup', nilaiLama: groupEditing.group, nilaiBaru: groupEditing.editForm, aktor: actor, detail: `Edit grup ${groupEditing.group.items[0].kodeMK} (${okCount} sesi)` })
+      setBanner({ ok: true, message: `Grup ${groupEditing.group.items[0].kodeMK} (${okCount} sesi) berhasil diperbarui!` })
+      setGroupEditing(null)
+    } else {
+      setBanner({ ok: false, message: 'Gagal menyimpan edit grup.' })
+    }
+  }
+
 
   async function handleBulkStatusChange(newStatus) {
     if (selectedIds.size === 0) return
@@ -687,10 +872,10 @@ export default function ManageSchedule() {
 
       {/* ── 2. Live Database Schedule Management (Unified 1-Row Toolbar) ── */}
       <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
-        {/* Unified Search & Filters in 1 Row on Desktop */}
-        <div className="relative z-30 flex flex-col gap-2 tablet:flex-row tablet:items-center">
-          {/* Search Input */}
-          <div className="relative flex-1 min-w-[200px]">
+        {/* Unified Search & Filters — 2 rows ke bawah biar muat: baris atas search, baris bawah chips; filter yang cuma 1 opsi auto-hide */}
+        <div className="relative z-30 flex flex-col gap-2">
+          {/* Baris 1: Search full width */}
+          <div className="relative w-full">
             <Icon
               name="search"
               size={17}
@@ -714,17 +899,34 @@ export default function ManageSchedule() {
             )}
           </div>
 
-          {/* Custom Popover Filter Dropdowns + Template & Ekspor */}
-          <div className="flex items-center gap-1.5 overflow-x-auto tablet:overflow-visible no-scrollbar w-full tablet:w-auto shrink-0 pb-0.5 tablet:pb-0 relative z-30">
+          {/* Baris 2: Chips — wrap, auto-hide kalau cuma 1 opsi */}
+          <div className="flex flex-wrap items-center gap-1.5 relative z-30">
+            {availableFakultasOptions.length > 2 && (
+              <FakultasFilterDropdown
+                selected={fakultasFilter}
+                onSelect={(v) => { setFakultasFilter(v); if (v && prodiFilter) { const fid = String(prodiFakultasMap.get(String(prodiFilter)) || ''); if (fid && fid !== String(v)) setProdiFilter('') } }}
+                fakultasOptions={availableFakultasOptions}
+              />
+            )}
+
             <ProdiFilterDropdown
               prodiOptions={prodiOptions}
               selected={prodiFilter}
               onSelect={setProdiFilter}
             />
 
+            {availableTaOptions.length > 2 && (
+              <TaFilterDropdown
+                selected={taFilter}
+                onSelect={setTaFilter}
+                taOptions={availableTaOptions}
+              />
+            )}
+
             <SemesterFilterDropdown
               selected={semesterFilter}
               onSelect={setSemesterFilter}
+              semesterOptions={availableSemesterOptions}
             />
 
             <HariFilterDropdown
@@ -753,13 +955,15 @@ export default function ManageSchedule() {
               </button>
             )}
 
-            {(search || prodiFilter || semesterFilter || hariFilter || statusFilter || onlyShowConflicts) && (
+            {(search || fakultasFilter || prodiFilter || semesterFilter || taFilter || hariFilter || statusFilter || onlyShowConflicts) && (
               <button
                 type="button"
                 onClick={() => {
                   setSearch('')
+                  setFakultasFilter('')
                   setProdiFilter('')
                   setSemesterFilter('')
+                  setTaFilter('')
                   setHariFilter('')
                   setStatusFilter('')
                   setOnlyShowConflicts(false)
@@ -825,7 +1029,7 @@ export default function ManageSchedule() {
               )}
               {semesterFilter && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-body-xs font-semibold text-indigo-700 dark:text-indigo-300">
-                  <span>{SEMESTERS.find((s) => s.value === semesterFilter)?.label || `Sem. ${semesterFilter}`}</span>
+                  <span>{availableSemesterOptions.find((s) => s.value === semesterFilter)?.label || `Sem. ${semesterFilter}`}</span>
                   <button type="button" onClick={() => setSemesterFilter('')} className="hover:opacity-70 cursor-pointer">
                     <Icon name="close" size={12} />
                   </button>
@@ -900,25 +1104,31 @@ export default function ManageSchedule() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/10">
-                  {paginatedSchedule.map((item) => {
+                  {paginatedGroups.map((group) => {
+                    const item = group.items[0]
                     const course = courseMap.get(item.kodeMK)
-                    const isSelected = selectedIds.has(item.id)
-                    const clashList = conflictMap.get(item.id) || []
+                    const groupIds = group.items.map((it) => it.id)
+                    const allSelected = groupIds.every((id) => selectedIds.has(id))
+                    const someSelected = groupIds.some((id) => selectedIds.has(id))
+                    const anyClash = group.items.some((it) => conflictMap.has(it.id))
+                    const isExpanded = expandedGroups.has(group.key)
 
                     return (
                       <tr
-                        key={item.id}
+                        key={group.key}
                         className={`group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20 ${
-                          isSelected ? 'bg-primary/5 dark:bg-primary/10' : ''
-                        } ${clashList.length > 0 ? 'bg-red-500/5 dark:bg-red-500/10' : ''}`}
+                          someSelected ? 'bg-primary/5 dark:bg-primary/10' : ''
+                        } ${anyClash ? 'bg-red-500/5 dark:bg-red-500/10' : ''}`}
                       >
-                        {/* Checkbox */}
+                        {/* Checkbox (grup: centang semua) */}
                         <td className="px-3 py-2.5 text-center">
                           <input
                             type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleSelectOne(item.id)}
+                            checked={allSelected}
+                            ref={(el) => { if (el) el.indeterminate = !allSelected && someSelected }}
+                            onChange={() => toggleSelectGroup(group)}
                             className="rounded cursor-pointer"
+                            aria-label={`Pilih grup ${item.kodeMK}`}
                           />
                         </td>
 
@@ -928,9 +1138,9 @@ export default function ManageSchedule() {
                           <p className="font-mono text-body-xs font-semibold text-on-surface-variant mt-0.5 whitespace-nowrap">
                             {item.jamMulai} - {item.jamSelesai}
                           </p>
-                          {clashList.length > 0 && (
+                          {(() => { const clashList = group.items.flatMap((it) => conflictMap.get(it.id) || []); return clashList.length > 0 && (
                             <div className="flex flex-col gap-1 mt-1">
-                              {clashList.map((c, idx) => (
+                              {[...new Map(group.items.flatMap((it) => conflictMap.get(it.id) || []).map((cc) => [cc.message, cc])).values()].map((c, idx) => (
                                 <span
                                   key={idx}
                                   title={c.message}
@@ -952,15 +1162,64 @@ export default function ManageSchedule() {
                                 </span>
                               ))}
                             </div>
-                          )}
+                          )})()}
                         </td>
 
-                        {/* Prodi & Sem */}
-                        <td className="px-3 py-2.5">
-                          <p className="font-semibold text-body-sm text-on-surface truncate leading-tight">{item.prodi}</p>
-                          <span className="inline-flex items-center rounded-md bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 mt-0.5">
-                            Sem. {item.semester}
-                          </span>
+                        {/* Prodi & Sem — badge multi-prodi, wrap di dalam sel */}
+                        <td className="px-3 py-2.5 max-w-[170px]">
+                          <div className="flex flex-wrap gap-1 items-center">
+                            {(() => {
+                              const MAX_BADGES = 3
+                              const visible = isExpanded ? group.items : group.items.slice(0, MAX_BADGES)
+                              const hiddenCount = group.items.length - visible.length
+                              return (
+                                <>
+                                  {visible.map((it) => (
+                                    <span key={it.id} title={`${it.prodi} — Sem. ${it.semester}`} className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/15 whitespace-nowrap">
+                                      <Icon name="school" size={10} className="shrink-0" />
+                                      {it.prodi}
+                                      <span className="font-mono font-normal opacity-70 text-[9px]">S{it.semester}</span>
+                                    </span>
+                                  ))}
+                                  {hiddenCount > 0 && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => { e.stopPropagation(); toggleExpandGroup(group.key) }}
+                                      className="inline-flex items-center rounded-md bg-surface-container px-1.5 py-0.5 text-[10px] font-bold text-on-surface-variant border border-outline-variant/30 hover:bg-surface-container-high cursor-pointer"
+                                      title={group.items.slice(MAX_BADGES).map((it) => `${it.prodi} S${it.semester}`).join(', ')}
+                                    >
+                                      +{hiddenCount} lainnya
+                                    </button>
+                                  )}
+                                  {isExpanded && group.items.length > MAX_BADGES && (
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleExpandGroup(group.key)}
+                                      className="inline-flex items-center gap-0.5 rounded-md px-1 py-0.5 text-[10px] font-bold text-primary hover:underline cursor-pointer"
+                                    >
+                                      <Icon name="expand_less" size={11} /> ciutkan
+                                    </button>
+                                  )}
+                                </>
+                              )
+                            })()}
+                          </div>
+                          {group.items.length > 1 && (
+                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 dark:text-amber-300 border border-amber-500/20">
+                              <Icon name="groups" size={10} /> {group.items.length} prodi bergabung
+                            </span>
+                          )}
+                          {isExpanded && group.items.length > 1 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {group.items.map((it) => (
+                                <span key={it.id} className="inline-flex items-center gap-1 rounded-lg bg-surface-container border border-outline-variant/20 px-2 py-1 text-[11px]">
+                                  <span className="font-semibold">{it.prodi} S{it.semester}</span>
+                                  <button type="button" onClick={() => openEditModal(it)} className="rounded p-0.5 text-primary hover:bg-primary/10 cursor-pointer" title={`Edit ${it.prodi} saja`}><Icon name="edit" size={12} /></button>
+                                  <button type="button" onClick={() => setDeleteTarget(it)} className="rounded p-0.5 text-error hover:bg-error/10 cursor-pointer" title={`Hapus ${it.prodi} saja`}><Icon name="delete" size={12} /></button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </td>
 
                         {/* Mata Kuliah & Dosen */}
@@ -973,7 +1232,7 @@ export default function ManageSchedule() {
                               {course?.namaMK || item.kodeMK}
                             </span>
                           </div>
-                          <p className="text-body-xs font-medium text-on-surface-variant mt-0.5 truncate">
+                          <p className="text-body-xs font-medium text-on-surface-variant mt-1 whitespace-normal break-words leading-snug">
                             {course?.dosen || 'Dosen belum ditentukan'}
                           </p>
                         </td>
@@ -1005,30 +1264,30 @@ export default function ManageSchedule() {
                           </span>
                         </td>
 
-                        {/* Aksi */}
+                        {/* Aksi — grup: edit/hapus berlaku SEMUA prodi dalam grup; expand untuk per-prodi */}
                         <td className="px-3 py-2.5 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <button
                               type="button"
                               onClick={() => handleDuplicate(item)}
                               className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-secondary/15 hover:text-secondary transition-colors cursor-pointer"
-                              title="Duplikat Sesi"
+                              title="Duplikat (jadi sesi baru dari wakil grup)"
                             >
                               <Icon name="content_copy" size={15} />
                             </button>
                             <button
                               type="button"
-                              onClick={() => openEditModal(item)}
-                              className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer"
-                              title="Edit Jadwal"
+                              onClick={() => openGroupEditModal(group)}
+                              className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors cursor-pointer ${group.items.length > 1 ? 'text-primary bg-primary/10 hover:bg-primary/20 ring-1 ring-primary/20' : 'text-on-surface-variant hover:bg-primary/15 hover:text-primary'}`}
+                              title={group.items.length > 1 ? `Edit GRUP (${group.items.length} prodi sekaligus) — jam/dosen/ruang` : 'Edit Jadwal'}
                             >
-                              <Icon name="edit" size={15} />
+                              <Icon name={group.items.length > 1 ? 'edit_note' : 'edit'} size={15} />
                             </button>
                             <button
                               type="button"
-                              onClick={() => setDeleteTarget(item)}
-                              className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer"
-                              title="Hapus Jadwal"
+                              onClick={() => handleGroupDelete(group)}
+                              className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors cursor-pointer ${group.items.length > 1 ? 'text-error bg-error/10 hover:bg-error/20 ring-1 ring-error/20' : 'text-on-surface-variant hover:bg-error/15 hover:text-error'}`}
+                              title={group.items.length > 1 ? `Hapus GRUP (${group.items.length} prodi sekaligus)` : 'Hapus Jadwal'}
                             >
                               <Icon name="delete" size={15} />
                             </button>
@@ -1041,29 +1300,33 @@ export default function ManageSchedule() {
               </table>
             </div>
 
-            {/* Mobile Cards */}
+            {/* Mobile Cards — grup MKWK (badge multi-prodi, expand + per-prodi actions) */}
             <div className="space-y-3 tablet:hidden">
-              {paginatedSchedule.map((item) => {
+              {paginatedGroups.map((group) => {
+                const item = group.items[0]
                 const course = courseMap.get(item.kodeMK)
-                const isSelected = selectedIds.has(item.id)
-                const clashList = conflictMap.get(item.id) || []
+                const groupIds = group.items.map((it) => it.id)
+                const allSelected = groupIds.every((id) => selectedIds.has(id))
+                const isExpanded = expandedGroups.has(group.key)
+                const anyClash = group.items.some((it) => conflictMap.get(it.id))
+                const MAX_BADGES_M = 3
 
                 return (
                   <div
-                    key={item.id}
+                    key={group.key}
                     className={`rounded-2xl border bg-surface-container-lowest p-4 space-y-3 dark:bg-surface-container-low shadow-xs transition-all ${
-                      isSelected ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-outline-variant/20'
-                    } ${clashList.length > 0 ? 'border-red-500/40 bg-red-500/5' : ''}`}
+                      allSelected ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-outline-variant/20'
+                    } ${anyClash ? 'border-red-500/40 bg-red-500/5' : ''}`}
                   >
                     {/* Header Row: Checkbox + Kode MK + Mata Kuliah + Action Toolbar */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-start gap-2.5 min-w-0 flex-1">
                         <input
                           type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelectOne(item.id)}
+                          checked={allSelected}
+                          onChange={() => toggleSelectGroup(group)}
                           className="mt-1 rounded cursor-pointer shrink-0"
-                          aria-label={`Pilih ${item.kodeMK}`}
+                          aria-label={`Pilih grup ${item.kodeMK} (${group.items.length} prodi)`}
                         />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
@@ -1074,9 +1337,9 @@ export default function ManageSchedule() {
                               {course?.namaMK || item.kodeMK}
                             </span>
                           </div>
-                          <p className="text-body-xs font-medium text-on-surface-variant mt-0.5 truncate flex items-center gap-1">
-                            <Icon name="person" size={13} className="text-secondary shrink-0" />
-                            <span>{course?.dosen || 'Dosen belum ditentukan'}</span>
+                          <p className="text-body-xs font-medium text-on-surface-variant mt-1 whitespace-normal break-words leading-snug flex items-start gap-1">
+                            <Icon name="person" size={13} className="text-secondary shrink-0 mt-0.5" />
+                            <span className="min-w-0">{course?.dosen || 'Dosen belum ditentukan'}</span>
                           </p>
                         </div>
                       </div>
@@ -1087,42 +1350,65 @@ export default function ManageSchedule() {
                           type="button"
                           onClick={() => handleDuplicate(item)}
                           className="p-1 text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer"
-                          title="Duplikat Jadwal"
+                          title="Duplikat (wakil grup)"
                           aria-label="Duplikat"
                         >
                           <Icon name="content_copy" size={15} />
                         </button>
                         <button
                           type="button"
-                          onClick={() => openEditModal(item)}
-                          className="p-1 text-on-surface-variant hover:text-primary rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer"
-                          title="Edit Jadwal"
-                          aria-label="Edit"
+                          onClick={() => openGroupEditModal(group)}
+                          className={`p-1 rounded-lg transition-colors cursor-pointer ${group.items.length > 1 ? 'text-primary bg-primary/10 ring-1 ring-primary/20' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-high'}`}
+                          title={group.items.length > 1 ? `Edit GRUP (${group.items.length} prodi sekaligus)` : 'Edit'}
+                          aria-label="Edit grup"
                         >
-                          <Icon name="edit" size={15} />
+                          <Icon name={group.items.length > 1 ? 'edit_note' : 'edit'} size={15} />
                         </button>
                         <button
                           type="button"
-                          onClick={() => setDeleteTarget(item)}
-                          className="p-1 text-on-surface-variant hover:text-error rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer"
-                          title="Hapus Jadwal"
-                          aria-label="Hapus"
+                          onClick={() => handleGroupDelete(group)}
+                          className={`p-1 rounded-lg transition-colors cursor-pointer ${group.items.length > 1 ? 'text-error bg-error/10 ring-1 ring-error/20' : 'text-on-surface-variant hover:text-error hover:bg-surface-container-high'}`}
+                          title={group.items.length > 1 ? `Hapus GRUP (${group.items.length} prodi)` : 'Hapus'}
+                          aria-label="Hapus grup"
                         >
                           <Icon name="delete" size={15} />
                         </button>
                       </div>
                     </div>
 
-                    {/* Details Row: Chips & Badges */}
+                    {/* Details Row: Chips & Badges (grup: badges + expand + per-prodi) */}
                     <div className="flex flex-wrap items-center gap-1.5 text-body-xs pt-1 border-t border-outline-variant/15">
                       <span className="inline-flex items-center gap-1 rounded-lg bg-surface-container px-2 py-1 font-semibold text-on-surface">
                         <Icon name="schedule" size={13} className="text-primary" />
                         <span>{item.hari}, {item.jamMulai} - {item.jamSelesai}</span>
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-indigo-500/10 px-2 py-1 font-semibold text-indigo-700 dark:text-indigo-300">
-                        <Icon name="school" size={13} />
-                        <span>{item.prodi} (Sem. {item.semester})</span>
+                      <span className="inline-flex flex-wrap items-center gap-1 rounded-lg bg-indigo-500/10 px-2 py-1 font-semibold text-indigo-700 dark:text-indigo-300">
+                        <Icon name="school" size={13} className="shrink-0" />
+                        <span className="flex flex-wrap gap-1 items-center">
+                          {(isExpanded ? group.items : group.items.slice(0, MAX_BADGES_M)).map((it) => (
+                            <span key={it.id} className="inline-flex items-center gap-0.5 rounded-md bg-white/80 dark:bg-surface-container-high px-1.5 py-0.5 text-[11px] border border-indigo-500/15 whitespace-nowrap">{it.prodi} S{it.semester}</span>
+                          ))}
+                          {group.items.length > MAX_BADGES_M && !isExpanded && (
+                            <button type="button" onClick={() => toggleExpandGroup(group.key)} className="rounded-md bg-surface-container px-1.5 py-0.5 text-[11px] border border-outline-variant/30 cursor-pointer">+{group.items.length - MAX_BADGES_M} lainnya</button>
+                          )}
+                          {isExpanded && group.items.length > MAX_BADGES_M && (
+                            <button type="button" onClick={() => toggleExpandGroup(group.key)} className="text-primary underline text-[11px] cursor-pointer inline-flex items-center gap-0.5"><Icon name="expand_less" size={11} />ciutkan</button>
+                          )}
+                        </span>
+                        {group.items.length > 1 && <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1"><Icon name="groups" size={11} />{group.items.length} prodi</span>}
                       </span>
+                      {/* Expand: per-prodi individual actions (edit/duplicate/hapus per sesi) */}
+                      {isExpanded && group.items.length > 1 && (
+                        <div className="w-full flex flex-wrap gap-1 pt-1">
+                          {group.items.map((it) => (
+                            <span key={it.id} className="inline-flex items-center gap-1 rounded-lg bg-surface-container-low border border-outline-variant/20 px-2 py-1 text-[11px]">
+                              <span className="font-semibold">{it.prodi} S{it.semester}</span>
+                              <button type="button" onClick={() => openEditModal(it)} className="rounded p-0.5 text-primary hover:bg-primary/10 cursor-pointer" title={`Edit ${it.prodi} saja`}><Icon name="edit" size={12} /></button>
+                              <button type="button" onClick={() => setDeleteTarget(it)} className="rounded p-0.5 text-error hover:bg-error/10 cursor-pointer" title={`Hapus ${it.prodi} saja`}><Icon name="delete" size={12} /></button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       <span className="inline-flex items-center gap-1 rounded-lg bg-surface-container px-2 py-1 font-semibold text-on-surface-variant">
                         <Icon name="meeting_room" size={13} />
                         <span>{formatRuang(item.ruang, item.tipeKelas)}</span>
@@ -1138,9 +1424,12 @@ export default function ManageSchedule() {
                       </span>
                     </div>
 
-                    {clashList.length > 0 && (
+                    {(() => {
+                      const _clashList = [...new Map(group.items.flatMap((it) => conflictMap.get(it.id) || []).map((cc) => [cc.message, cc])).values()]
+                      if (_clashList.length === 0) return null
+                      return (
                       <div className="space-y-1.5 pt-1.5 border-t border-error/20">
-                        {clashList.map((c, idx) => (
+                        {_clashList.map((c, idx) => (
                           <div
                             key={idx}
                             className={`flex items-start gap-1.5 rounded-xl p-2 text-body-xs font-semibold ${
@@ -1160,22 +1449,31 @@ export default function ManageSchedule() {
                           </div>
                         ))}
                       </div>
-                    )}
+                      )
+                    })()}
                   </div>
                 )
               })}
             </div>
 
-            {/* Shared Pagination Controls */}
-            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
+            {/* Shared Pagination Controls (grup = 1 baris = MKWK umum lintas prodi) */}
+            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15 flex flex-wrap items-center justify-between gap-2">
+              {groupingStats.isGrouped && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                  <Icon name="compress" size={13} />
+                  {groupingStats.totalSesi} sesi → {groupingStats.totalGrup} baris (hemat {groupingStats.hemat})
+                </span>
+              )}
+              <div className="ml-auto">
               <Pagination
                 currentPage={safeCurrentPage}
-                totalItems={filteredSchedule.length}
+                totalItems={groupedSchedule.length}
                 pageSize={pageSize === 0 ? 'Semua' : pageSize}
                 onPageChange={setCurrentPage}
                 onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
-                itemLabel="sesi"
+                itemLabel="grup"
               />
+              </div>
             </div>
           </>
         )}
@@ -1193,12 +1491,11 @@ export default function ManageSchedule() {
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          <div className="relative w-full max-w-lg rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:p-5 max-[599px]:animate-[sheet-up_300ms_var(--ease-emphasized)_both]">
-            {/* Drag handle — mobile only */}
-            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pb-2 -mx-2">
+          <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
               <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
             </div>
-            <header className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-4">
+            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Icon name="add_circle" size={22} />
@@ -1217,8 +1514,11 @@ export default function ManageSchedule() {
               </button>
             </header>
 
-            <form onSubmit={handleAddManualSession} className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <form onSubmit={handleAddManualSession} className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                {/* KIRI — Waktu & penempatan */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Hari</label>
                   <FormSelect
@@ -1258,82 +1558,85 @@ export default function ManageSchedule() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className="text-label-caps uppercase text-on-surface-variant">Program Studi</label>
-                  <FormSelect
-                    value={manualForm.prodi}
-                    onChange={(val) => setManualForm((f) => ({ ...f, prodi: val }))}
-                    placeholder="- Pilih Prodi -"
-                    options={prodiOptions.map((p) => ({ value: p, label: p }))}
-                  />
-                </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-label-caps uppercase text-on-surface-variant">Program Studi</label>
+                    <FormSelect
+                      value={manualForm.prodi}
+                      onChange={(val) => setManualForm((f) => ({ ...f, prodi: val }))}
+                      placeholder="- Pilih Prodi -"
+                      options={prodiOptions.map((p) => ({ value: p, label: p }))}
+                    />
+                  </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-label-caps uppercase text-on-surface-variant">Semester</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="8"
-                    value={manualForm.semester}
-                    onChange={(e) => setManualForm((f) => ({ ...f, semester: Number(e.target.value) }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-label-caps uppercase text-on-surface-variant">Ruangan</label>
-                  <input
-                    type="text"
-                    placeholder="mis. Lab 1 / R. 302"
-                    value={manualForm.ruang}
-                    onChange={(e) => setManualForm((f) => ({ ...f, ruang: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <label className="text-label-caps uppercase text-on-surface-variant">Mata Kuliah</label>
-                  <button
-                    type="button"
-                    onClick={() => setNewCourseOpen(true)}
-                    className="text-body-xs font-bold text-primary hover:underline cursor-pointer"
-                  >
-                    + Buat MK Baru
-                  </button>
-                </div>
-                <FormSelect
-                  value={manualForm.kodeMK}
-                  onChange={(val) => setManualForm((f) => ({ ...f, kodeMK: val }))}
-                  placeholder="- Pilih Mata Kuliah Terdaftar -"
-                  options={courses.map((c) => ({
-                    value: c.kodeMK,
-                    label: `${c.kodeMK} — ${c.namaMK} (${c.dosen || 'Dosen -'})`,
-                  }))}
-                />
-              </div>
-
-              {addModalClash && (
-                <div className="flex items-start gap-2 rounded-xl bg-amber-500/15 border border-amber-500/30 p-2.5 text-body-xs font-semibold text-amber-900 dark:text-amber-200">
-                  <Icon name="warning" size={16} className="shrink-0 text-amber-600 mt-0.5" />
-                  <div>
-                    <p className="font-bold">Peringatan Bentrok Jadwal:</p>
-                    <p className="text-[11px] mt-0.5">{addModalClash}</p>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-label-caps uppercase text-on-surface-variant">Semester</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="8"
+                      value={manualForm.semester}
+                      onChange={(e) => setManualForm((f) => ({ ...f, semester: Number(e.target.value) }))}
+                      className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                    />
                   </div>
                 </div>
-              )}
 
-              {manualErrors.length > 0 && (
-                <div className="rounded-xl bg-error/10 p-2.5 text-body-xs font-semibold text-error">
-                  {manualErrors.map((err) => (
-                    <p key={err}>{err}</p>
-                  ))}
+                {/* KANAN — Identitas MK & ruang */}
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-label-caps uppercase text-on-surface-variant">Ruangan</label>
+                    <input
+                      type="text"
+                      placeholder="mis. Lab 1 / R. 302"
+                      value={manualForm.ruang}
+                      onChange={(e) => setManualForm((f) => ({ ...f, ruang: e.target.value }))}
+                      className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-label-caps uppercase text-on-surface-variant">Mata Kuliah</label>
+                      <button
+                        type="button"
+                        onClick={() => setNewCourseOpen(true)}
+                        className="text-body-xs font-bold text-primary hover:underline cursor-pointer"
+                      >
+                        + Buat MK Baru
+                      </button>
+                    </div>
+                    <FormSelect
+                      value={manualForm.kodeMK}
+                      onChange={(val) => setManualForm((f) => ({ ...f, kodeMK: val }))}
+                      placeholder="- Pilih Mata Kuliah Terdaftar -"
+                      options={courses.map((c) => ({
+                        value: c.kodeMK,
+                        label: `${c.kodeMK} — ${c.namaMK} (${c.dosen || 'Dosen -'})`,
+                      }))}
+                    />
+                  </div>
+
+                  {addModalClash && (
+                    <div className="flex items-start gap-2 rounded-xl bg-amber-500/15 border border-amber-500/30 p-2.5 text-body-xs font-semibold text-amber-900 dark:text-amber-200">
+                      <Icon name="warning" size={16} className="shrink-0 text-amber-600 mt-0.5" />
+                      <div>
+                        <p className="font-bold">Peringatan Bentrok Jadwal:</p>
+                        <p className="text-[11px] mt-0.5">{addModalClash}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {manualErrors.length > 0 && (
+                    <div className="rounded-xl bg-error/10 p-2.5 text-body-xs font-semibold text-error">
+                      {manualErrors.map((err) => (
+                        <p key={err}>{err}</p>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-outline-variant/15">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/15 mt-4 col-span-full">
                 <Button
                   type="button"
                   variant="secondary"
@@ -1364,12 +1667,11 @@ export default function ManageSchedule() {
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          <div className="relative w-full max-w-lg rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:p-5 max-[599px]:animate-[sheet-up_300ms_var(--ease-emphasized)_both]">
-            {/* Drag handle — mobile only */}
-            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pb-2 -mx-2">
+          <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
               <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
             </div>
-            <header className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-4">
+            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Icon name="edit_calendar" size={22} />
@@ -1388,8 +1690,11 @@ export default function ManageSchedule() {
               </button>
             </header>
 
-            <form onSubmit={handleSaveEdit} className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <form onSubmit={handleSaveEdit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                {/* KIRI — Waktu & penempatan */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-label-caps uppercase text-on-surface-variant">Hari</label>
                   <FormSelect
@@ -1429,85 +1734,86 @@ export default function ManageSchedule() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className="text-label-caps uppercase text-on-surface-variant">Prodi</label>
-                  <FormSelect
-                    value={editForm.prodi}
-                    onChange={(val) => setEditForm((f) => ({ ...f, prodi: val }))}
-                    placeholder="- Pilih Prodi -"
-                    options={prodiOptions.map((p) => ({ value: p, label: p }))}
-                  />
-                </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-label-caps uppercase text-on-surface-variant">Program Studi</label>
+                    <FormSelect
+                      value={editForm.prodi}
+                      onChange={(val) => setEditForm((f) => ({ ...f, prodi: val }))}
+                      placeholder="- Pilih Prodi -"
+                      options={prodiOptions.map((p) => ({ value: p, label: p }))}
+                    />
+                  </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-label-caps uppercase text-on-surface-variant">Semester</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="8"
-                    value={editForm.semester}
-                    onChange={(e) => setEditForm((f) => ({ ...f, semester: Number(e.target.value) }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-label-caps uppercase text-on-surface-variant">Ruangan</label>
-                  <input
-                    type="text"
-                    value={editForm.ruang}
-                    onChange={(e) => setEditForm((f) => ({ ...f, ruang: e.target.value }))}
-                    className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className="text-label-caps uppercase text-on-surface-variant">Mata Kuliah</label>
-                  <FormSelect
-                    value={editForm.kodeMK}
-                    onChange={(val) => setEditForm((f) => ({ ...f, kodeMK: val }))}
-                    options={courses.map((c) => ({
-                      value: c.kodeMK,
-                      label: `${c.kodeMK} — ${c.namaMK}`,
-                    }))}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-label-caps uppercase text-on-surface-variant">Status Publikasi</label>
-                  <FormSelect
-                    value={editForm.status}
-                    onChange={(val) => setEditForm((f) => ({ ...f, status: val }))}
-                    options={[
-                      { value: 'published', label: 'Published' },
-                      { value: 'draft', label: 'Draft' },
-                    ]}
-                  />
-                </div>
-              </div>
-
-              {editModalClash && (
-                <div className="flex items-start gap-2 rounded-xl bg-amber-500/15 border border-amber-500/30 p-2.5 text-body-xs font-semibold text-amber-900 dark:text-amber-200">
-                  <Icon name="warning" size={16} className="shrink-0 text-amber-600 mt-0.5" />
-                  <div>
-                    <p className="font-bold">Peringatan Bentrok Jadwal:</p>
-                    <p className="text-[11px] mt-0.5">{editModalClash}</p>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-label-caps uppercase text-on-surface-variant">Semester</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="8"
+                      value={editForm.semester}
+                      onChange={(e) => setEditForm((f) => ({ ...f, semester: Number(e.target.value) }))}
+                      className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                    />
                   </div>
                 </div>
-              )}
 
-              {editErrors.length > 0 && (
-                <div className="rounded-xl bg-error/10 p-2.5 text-body-xs font-semibold text-error">
-                  {editErrors.map((err) => (
-                    <p key={err}>{err}</p>
-                  ))}
+                {/* KANAN — Identitas MK & ruang */}
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-label-caps uppercase text-on-surface-variant">Ruangan</label>
+                    <input
+                      type="text"
+                      value={editForm.ruang}
+                      onChange={(e) => setEditForm((f) => ({ ...f, ruang: e.target.value }))}
+                      className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-label-caps uppercase text-on-surface-variant">Mata Kuliah</label>
+                    <FormSelect
+                      value={editForm.kodeMK}
+                      onChange={(val) => setEditForm((f) => ({ ...f, kodeMK: val }))}
+                      options={courses.map((c) => ({
+                        value: c.kodeMK,
+                        label: `${c.kodeMK} — ${c.namaMK}`,
+                      }))}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-label-caps uppercase text-on-surface-variant">Status Publikasi</label>
+                    <FormSelect
+                      value={editForm.status}
+                      onChange={(val) => setEditForm((f) => ({ ...f, status: val }))}
+                      options={[
+                        { value: 'published', label: 'Published' },
+                        { value: 'draft', label: 'Draft' },
+                      ]}
+                    />
+                  </div>
+
+                  {editModalClash && (
+                    <div className="flex items-start gap-2 rounded-xl bg-amber-500/15 border border-amber-500/30 p-2.5 text-body-xs font-semibold text-amber-900 dark:text-amber-200">
+                      <Icon name="warning" size={16} className="shrink-0 text-amber-600 mt-0.5" />
+                      <div>
+                        <p className="font-bold">Peringatan Bentrok Jadwal:</p>
+                        <p className="text-[11px] mt-0.5">{editModalClash}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {editErrors.length > 0 && (
+                    <div className="rounded-xl bg-error/10 p-2.5 text-body-xs font-semibold text-error">
+                      {editErrors.map((err) => (
+                        <p key={err}>{err}</p>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-outline-variant/15">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/15 mt-4 col-span-full">
                 <Button
                   type="button"
                   variant="secondary"
@@ -1526,6 +1832,61 @@ export default function ManageSchedule() {
         </div>
       )}
 
+      {/* ── 4b. Modal Edit GRUP (MK umum: 1x edit → update semua sesi dalam grup) ── */}
+      {groupEditing && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4 max-[599px]:items-end max-[599px]:justify-stretch max-[599px]:p-0">
+          <div onClick={() => setGroupEditing(null)} className="absolute inset-0 bg-black/60 backdrop-blur-xs animate-fade-in" />
+          <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none">
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
+            <header className="flex items-start justify-between p-5 border-b border-outline-variant/15 shrink-0 gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300"><Icon name="edit_note" size={22} /></span>
+                <div className="min-w-0">
+                  <h3 className="text-title-lg font-bold tracking-tight text-on-surface">Edit Grup ({groupEditing.group.items.length} sesi)</h3>
+                  <p className="text-body-xs font-medium text-on-surface-variant truncate">{groupEditing.group.items[0].kodeMK} — {groupEditing.group.items.map((it) => it.prodi).join(', ')}</p>
+                  <p className="text-[11px] font-bold text-amber-700 dark:text-amber-300 mt-0.5">Aksi ini berlaku untuk SEMUA prodi dalam grup sekaligus. Untuk edit 1 prodi saja: expand baris → edit per-prodi.</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setGroupEditing(null)} className="rounded-full p-1.5 text-on-surface-variant hover:bg-surface-container cursor-pointer shrink-0"><Icon name="close" size={20} /></button>
+            </header>
+            <form onSubmit={handleSaveGroupEdit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                {/* KIRI — Ringkasan grup */}
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-3.5">
+                    <p className="text-label-caps uppercase font-bold text-amber-800 dark:text-amber-300 mb-2">Grup — {groupEditing.group.items.length} sesi terhubung</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {groupEditing.group.items.map((it) => (
+                        <span key={it.id} className="inline-flex items-center rounded-full bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:text-indigo-300">{it.prodi} S{it.semester}</span>
+                      ))}
+                    </div>
+                    <p className="text-[11px] font-medium text-amber-800/80 dark:text-amber-200/80 mt-2">Kode, jam, dosen & ruang yang identik — perubahan di kanan akan diterapkan ke semua prodi ini.</p>
+                  </div>
+                </div>
+                {/* KANAN — Form */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1"><label className="text-label-caps uppercase text-on-surface-variant">Hari</label><FormSelect value={groupEditing.editForm.hari} onChange={(val) => patchGroupForm({ hari: val })} options={DAYS.map((d) => ({ value: d, label: d }))} /></div>
+                <div className="flex flex-col gap-1"><label className="text-label-caps uppercase text-on-surface-variant">Jam Mulai</label><input type="time" value={groupEditing.editForm.jamMulai} onChange={(e) => patchGroupForm({ jamMulai: e.target.value })} className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 font-mono text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none" /></div>
+                <div className="flex flex-col gap-1"><label className="text-label-caps uppercase text-on-surface-variant">Jam Selesai</label><input type="time" value={groupEditing.editForm.jamSelesai} onChange={(e) => patchGroupForm({ jamSelesai: e.target.value })} className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 font-mono text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none" /></div>
+                <div className="flex flex-col gap-1"><label className="text-label-caps uppercase text-on-surface-variant">Tipe Kelas</label><FormSelect value={groupEditing.editForm.tipeKelas} onChange={(val) => patchGroupForm({ tipeKelas: val })} options={CLASS_TYPE_CODES.map((t) => ({ value: t, label: t }))} /></div>
+              </div>
+                  <div className="flex flex-col gap-1"><label className="text-label-caps uppercase text-on-surface-variant">Mata Kuliah</label><FormSelect value={groupEditing.editForm.kodeMK} onChange={(val) => patchGroupForm({ kodeMK: val })} options={courses.map((cc) => ({ value: cc.kodeMK, label: `${cc.kodeMK} — ${cc.namaMK}` }))} /></div>
+                  <div className="flex flex-col gap-1"><label className="text-label-caps uppercase text-on-surface-variant">Ruangan</label><input type="text" value={groupEditing.editForm.ruang} onChange={(e) => patchGroupForm({ ruang: e.target.value })} className="rounded-xl border border-outline-variant/30 bg-surface-container-low/60 p-2 text-body-sm font-semibold text-on-surface focus:border-primary focus:outline-none" /></div>
+                  <div className="flex flex-col gap-1"><label className="text-label-caps uppercase text-on-surface-variant">Status</label><FormSelect value={groupEditing.editForm.status} onChange={(val) => patchGroupForm({ status: val })} options={[{ value: 'published', label: 'Published' }, { value: 'draft', label: 'Draft' }]} /></div>
+                  {editErrors.length > 0 && (<div className="rounded-xl bg-error/10 p-2.5 text-body-xs font-semibold text-error">{editErrors.map((err) => (<p key={err}>{err}</p>))}</div>)}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/15 mt-4 col-span-full">
+                <Button type="button" variant="secondary" onClick={() => setGroupEditing(null)} className="cursor-pointer">Batal</Button>
+                <Button type="submit" disabled={busy} className="font-bold cursor-pointer"><Icon name="save" size={18} className="mr-1" />{busy ? 'Menyimpan...' : `Simpan Grup (${groupEditing.group.items.length} sesi)`}</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ── 5. Modal Tambah Master MK Cepat ── */}
       {newCourseOpen && (
         <div
@@ -1538,12 +1899,11 @@ export default function ManageSchedule() {
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          <div className="relative w-full max-w-md rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 max-[599px]:p-5 max-[599px]:animate-[sheet-up_300ms_var(--ease-emphasized)_both]">
-            {/* Drag handle — mobile only */}
-            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pb-2 -mx-2">
+          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
               <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
             </div>
-            <header className="flex items-center justify-between pb-3 border-b border-outline-variant/15 mb-4">
+            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
               <h3 className="text-title-md font-bold text-on-surface">Tambah Mata Kuliah Baru</h3>
               <button
                 type="button"
@@ -1554,44 +1914,54 @@ export default function ManageSchedule() {
               </button>
             </header>
 
-            <form onSubmit={handleSaveNewCourse} className="space-y-3">
-              <Input
-                label="Kode MK"
-                value={newCourseForm.kodeMK}
-                onChange={(e) => setNewCourseForm((f) => ({ ...f, kodeMK: e.target.value.toUpperCase() }))}
-                placeholder="mis. IF201"
-                className="uppercase font-mono font-bold"
-              />
-              <Input
-                label="Nama Mata Kuliah"
-                value={newCourseForm.namaMK}
-                onChange={(e) => setNewCourseForm((f) => ({ ...f, namaMK: e.target.value }))}
-                placeholder="Nama lengkap mata kuliah"
-              />
-              <Input
-                label="Dosen Pengampu"
-                value={newCourseForm.dosen}
-                onChange={(e) => setNewCourseForm((f) => ({ ...f, dosen: e.target.value }))}
-                placeholder="Nama & Gelar Dosen"
-              />
-              <div className="grid grid-cols-2 gap-2.5">
-                <Input
-                  label="SKS"
-                  type="number"
-                  min="1"
-                  max="6"
-                  value={newCourseForm.sks}
-                  onChange={(e) => setNewCourseForm((f) => ({ ...f, sks: Number(e.target.value) }))}
-                />
-                <Input
-                  label="Durasi (menit)"
-                  type="number"
-                  min="30"
-                  max="300"
-                  step="10"
-                  value={newCourseForm.durasi}
-                  onChange={(e) => setNewCourseForm((f) => ({ ...f, durasi: Number(e.target.value) }))}
-                />
+            <form onSubmit={handleSaveNewCourse} className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                <div className="space-y-3">
+                  <Input
+                    label="Kode MK"
+                    value={newCourseForm.kodeMK}
+                    onChange={(e) => setNewCourseForm((f) => ({ ...f, kodeMK: e.target.value.toUpperCase() }))}
+                    placeholder="mis. IF201"
+                    className="uppercase font-mono font-bold"
+                  />
+                  <Input
+                    label="Nama Mata Kuliah"
+                    value={newCourseForm.namaMK}
+                    onChange={(e) => setNewCourseForm((f) => ({ ...f, namaMK: e.target.value }))}
+                    placeholder="Nama lengkap mata kuliah"
+                  />
+                  <Input
+                    label="Dosen Pengampu"
+                    value={newCourseForm.dosen}
+                    onChange={(e) => setNewCourseForm((f) => ({ ...f, dosen: e.target.value }))}
+                    placeholder="Nama & Gelar Dosen"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <Input
+                      label="SKS"
+                      type="number"
+                      min="1"
+                      max="6"
+                      value={newCourseForm.sks}
+                      onChange={(e) => setNewCourseForm((f) => ({ ...f, sks: Number(e.target.value) }))}
+                    />
+                    <Input
+                      label="Durasi (menit)"
+                      type="number"
+                      min="30"
+                      max="300"
+                      step="10"
+                      value={newCourseForm.durasi}
+                      onChange={(e) => setNewCourseForm((f) => ({ ...f, durasi: Number(e.target.value) }))}
+                    />
+                  </div>
+                  <div className="rounded-2xl border border-primary/15 bg-primary/5 p-3.5">
+                    <p className="text-label-caps uppercase font-bold text-primary mb-1">Tips</p>
+                    <p className="text-body-xs font-medium leading-relaxed text-on-surface-variant">MK baru akan langsung tersedia di dropdown “Pilih Mata Kuliah” tanpa reload. Kode MK jadi key unik.</p>
+                  </div>
+                </div>
               </div>
 
               {newCourseErrors.length > 0 && (
@@ -1602,7 +1972,7 @@ export default function ManageSchedule() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-3">
+              <div className="flex justify-end gap-2 pt-4 border-t border-outline-variant/15 mt-4 col-span-full">
                 <Button type="button" variant="secondary" onClick={() => setNewCourseOpen(false)}>
                   Batal
                 </Button>
@@ -1615,12 +1985,16 @@ export default function ManageSchedule() {
         </div>
       )}
 
-      {/* ── 6. Dialog Konfirmasi Hapus Single ── */}
+      {/* ── 6. Dialog Konfirmasi Hapus Single / Grup (MK umum: hapus SEMUA sesi dalam grup) ── */}
       <ConfirmDialog
         open={Boolean(deleteTarget)}
-        title="Hapus sesi jadwal?"
-        description={`Sesi ${deleteTarget?.kodeMK} (${deleteTarget?.hari}, ${deleteTarget?.jamMulai}) akan dihapus permanen dari database.`}
-        confirmLabel="Hapus Jadwal"
+        title={deleteTarget?._group ? `Hapus ${deleteTarget._group.items.length} sesi grup?` : 'Hapus sesi jadwal?'}
+        description={
+          deleteTarget?._group
+            ? `Grup ${deleteTarget._group.items[0]?.kodeMK} — ${deleteTarget._group.items.map((it) => it.prodi + ' S' + it.semester).join(', ')} — dengan jam ${deleteTarget._group.items[0]?.hari} ${deleteTarget._group.items[0]?.jamMulai} akan dihapus ${deleteTarget._group.items.length} sesi sekaligus (SEMUA prodi dalam grup). Batalkan salah satu jika hanya ingin hapus 1 prodi: expand baris → hapus per-prodi.`
+            : `Sesi ${deleteTarget?.kodeMK} (${deleteTarget?.hari}, ${deleteTarget?.jamMulai}) akan dihapus permanen dari database.`
+        }
+        confirmLabel={deleteTarget?._group ? `Hapus ${deleteTarget._group.items.length} sesi grup` : 'Hapus Jadwal'}
         onConfirm={handleDeleteSingle}
         onCancel={() => setDeleteTarget(null)}
       />

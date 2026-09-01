@@ -25,23 +25,37 @@ import { useCustomSchedule } from '../../hooks/useCustomSchedule'
 import { AnnouncementBanner } from '../../components/student/AnnouncementBanner'
 import { RoomLocationModal } from '../../components/student/RoomLocationModal'
 
+function currentMinuteOfDay() {
+  const d = new Date()
+  return d.getHours() * 60 + d.getMinutes()
+}
+function getDailyNote() {
+  const today = new Date().toISOString().slice(0, 10)
+  try {
+    const raw = localStorage.getItem('jadwal-kampus:dailyNotes')
+    if (!raw) return ''
+    const obj = JSON.parse(raw)
+    return obj[today] || ''
+  } catch { return '' }
+}
+function saveDailyNote(v) {
+  const today = new Date().toISOString().slice(0, 10)
+  try {
+    const raw = localStorage.getItem('jadwal-kampus:dailyNotes')
+    const obj = raw ? JSON.parse(raw) : {}
+    obj[today] = v
+    localStorage.setItem('jadwal-kampus:dailyNotes', JSON.stringify(obj))
+  } catch {}
+}
+
 export default function Home() {
   const navigate = useNavigate()
-  const { program, semester } = useApp()
+  const { fakultasId, program, semester } = useApp()
   const { tasks } = useTasks()
   const { isCustomMode, customScheduleIds } = useCustomSchedule()
   const todayName = getTodayName()
   const [roomModalTarget, setRoomModalTarget] = useState(null)
 
-  const { data: jadwal, loading } = useFirestore('jadwal', [
-    ['prodi', '==', program ?? ''],
-    ['semester', '==', Number(semester) || 0],
-    ['status', '==', 'published'],
-  ])
-  const { data: allPublishedJadwal } = useFirestore('jadwal', [
-    ['status', '==', 'published'],
-  ])
-  const { data: mataKuliah } = useFirestore('mataKuliah')
   const { data: settingsDocs } = useFirestore('settings')
 
   const calDoc = useMemo(
@@ -49,22 +63,46 @@ export default function Home() {
     [settingsDocs],
   )
 
-  // Fallback: kalau Firebase belum dikonfigurasi (dev tanpa .env),
-  // pakai sample data supaya UI tetap bisa dites.
+  const expectedTA = useMemo(
+    () => expectedTahunAjaranForSemester(semester, new Date(), calDoc),
+    [semester, calDoc],
+  )
+
+  const needsTaMigration = useMemo(() => {
+    const savedTA = getItem(STORAGE_KEYS.tahunAjaran, null)
+    return savedTA && savedTA !== expectedTA
+  }, [expectedTA])
+
+  const { data: jadwal, loading } = useFirestore('jadwal', [
+    ['prodi', '==', program ?? ''],
+    ['semester', '==', Number(semester) || 0],
+    ['tahunAjaran', '==', expectedTA || ''],
+    ['status', '==', 'published'],
+  ])
+  const { data: allPublishedJadwal } = useFirestore('jadwal', [
+    ['status', '==', 'published'],
+  ])
+  const { data: mataKuliah } = useFirestore('mataKuliah')
+
   const useSample = !firebaseReady
   const scheduleSource = useMemo(() => {
+    const byFakultas = (e) => {
+      if (!e.fakultasId) return true
+      if (!fakultasId) return true
+      return String(e.fakultasId) === String(fakultasId)
+    }
     if (loading) return []
     if (isCustomMode) {
       const pool = allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule
       const customSet = new Set(customScheduleIds)
-      return pool.filter((e) => customSet.has(e.id))
+      return pool.filter((e) => customSet.has(e.id) && byFakultas(e))
     }
-    if (jadwal.length > 0) return jadwal
+    if (jadwal.length > 0) return jadwal.filter(byFakultas)
     if (!useSample) return []
     return sampleSchedule.filter(
       (e) => e.prodi === program && e.semester === Number(semester),
     )
-  }, [loading, isCustomMode, allPublishedJadwal, customScheduleIds, jadwal, useSample, program, semester])
+  }, [loading, isCustomMode, allPublishedJadwal, customScheduleIds, jadwal, useSample, program, semester, fakultasId])
 
   const courseMap = useMemo(() => {
     const source = mataKuliah.length > 0 ? mataKuliah : useSample ? sampleCourses : []
@@ -76,7 +114,6 @@ export default function Home() {
     [scheduleSource, todayName],
   )
 
-  // Preview jadwal besok
   const DAYS_LIST = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
   const todayIndex = new Date().getDay()
   const tomorrowName = DAYS_LIST[(todayIndex + 1) % 7]
@@ -85,7 +122,6 @@ export default function Home() {
     [scheduleSource, tomorrowName],
   )
 
-  // Agenda / Fase kegiatan terdekat dari kalender akademik (settings/academicCalendar.events)
   const upcomingAgenda = useMemo(() => {
     const events = calDoc?.events || []
     if (!Array.isArray(events) || events.length === 0) return []
@@ -97,8 +133,6 @@ export default function Home() {
   }, [calDoc])
 
   const [nowMinutes, setNowMinutes] = useState(() => currentMinuteOfDay())
-
-  // Tick tiap 15 detik untuk update real-time status kelas live & countdown
   useEffect(() => {
     const id = setInterval(() => setNowMinutes(currentMinuteOfDay()), 15_000)
     return () => clearInterval(id)
@@ -109,8 +143,6 @@ export default function Home() {
   }, [todayEntries, nowMinutes])
 
   const nextEntries = useMemo(() => {
-    // Dinamis: tampilkan maksimal 3 sesi setelah highlight (total max 4 incl. highlight),
-    // agar layout tetap ringkas dan proporsional tanpa hardcode dummy.
     if (todayEntries.length === 0) return []
     const sorted = sortByTime(todayEntries)
     const idx = liveClassState.entry ? sorted.findIndex((e) => e.id === liveClassState.entry.id) : -1
@@ -123,9 +155,7 @@ export default function Home() {
   const displayedCount = todayEntries.length === 0 ? 0 : 1 + nextEntries.length
   const hasMoreToday = todayEntries.length > displayedCount
 
-  // TA ditampilkan = TA di mana semester berjalan berada (via logika
-  // tahunAjaran), bukan dari data yang mungkin basi / beragam.
-  const dataTA = expectedTahunAjaranForSemester(semester, new Date(), calDoc)
+  const dataTA = expectedTA
 
   const activeEntry = liveClassState.entry
   const activeCourse = activeEntry ? courseMap.get(activeEntry.kodeMK) : null
@@ -141,8 +171,6 @@ export default function Home() {
   }
 
   const stats = useMemo(() => {
-    // Hitung total SKS dari data mata kuliah yang sebenarnya (bukan asumsi
-    // 3 SKS/MK). Fallback ke 2 SKS bila data MK belum tersedia.
     const sksByKode = new Map()
     scheduleSource.forEach((e) => {
       if (!sksByKode.has(e.kodeMK)) {
@@ -163,9 +191,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-3.5 w-full max-w-full overflow-x-hidden min-h-0 animate-fade-in">
-      {/* 1. Header — 1:1 dengan WeeklySchedule / Tasks / Exams / Pengaturan */}
       <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3.5 w-full">
-        {/* Left: Greeting icon + gradient title + Prodi & TA badge */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <div
             className={`flex h-11 w-11 tablet:h-11 shrink-0 items-center justify-center rounded-2xl ${greeting.iconBg} shadow-xs`}
@@ -200,8 +226,6 @@ export default function Home() {
               </p>
             </div>
           </div>
-
-          {/* Right: 3 Quick Stats — pill style selaras dengan toolbar lain (tanpa inset shadow) */}
           <div className="flex items-center gap-2 shrink-0 w-full tablet:w-auto">
             <div className="grid grid-cols-3 gap-2 w-full tablet:w-auto tablet:flex tablet:items-center">
             <button
@@ -218,7 +242,6 @@ export default function Home() {
                 <p className="text-[9.5px] font-bold text-emerald-800/80 dark:text-emerald-300 uppercase tracking-wide leading-none mt-0.5">SKS</p>
               </div>
             </button>
-
             <button
               type="button"
               onClick={() => navigate('/jadwal')}
@@ -233,7 +256,6 @@ export default function Home() {
                 <p className="text-[9.5px] font-bold text-blue-800/80 dark:text-blue-300 uppercase tracking-wide leading-none mt-0.5">Kelas</p>
               </div>
             </button>
-
             <button
               type="button"
               onClick={() => navigate('/tugas')}
@@ -252,30 +274,32 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Broadcast Pengumuman Kampus & Kuliah Pengganti */}
-      <AnnouncementBanner currentProgram={program} currentSemester={semester} />
+      {needsTaMigration && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 flex items-center justify-between gap-3">
+          <p className="text-body-xs font-semibold text-amber-900 dark:text-amber-200">
+            Tahun ajaran berubah — jadwal semester {semester} sekarang TA {expectedTA}. Tap untuk sinkron.
+          </p>
+          <button type="button" onClick={() => { setItem(STORAGE_KEYS.tahunAjaran, expectedTA); window.location.reload() }} className="shrink-0 rounded-full bg-amber-600 text-white px-3 py-1 text-body-xs font-bold hover:bg-amber-700 cursor-pointer">Sinkron</button>
+        </div>
+      )}
 
-      {/* 3. Main Grid — parent grid stretch agar kedua kolom sama tinggi mengikuti kolom terpanjang; konten tetap top-aligned */}
+      <AnnouncementBanner currentProgram={program} currentSemester={semester} />
       <div className="grid grid-cols-1 desktop:grid-cols-12 gap-3.5 desktop:items-stretch">
-        {/* LEFT COLUMN (7 COLS): JADWAL KULIAH CARD */}
         <section className="desktop:col-span-7 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col flex-1 self-stretch min-h-0">
             <div className="flex flex-col flex-1 min-h-0">
-              {/* Header: Title + Session count — neutral */}
               <div className="flex items-center justify-between pb-3 border-b border-outline-variant/15 mb-3 gap-2">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/20">
                     <Icon name="event_available" size={18} />
                   </span>
                   <h3 className="text-body-sm tablet:text-body-md font-bold text-on-surface truncate">
-                    Jadwal Kuliah Hari Ini (<span className="text-primary">{todayName}</span>)
+                    Jadwal Kuliah Hari Ini (<span className="text-primary\">{todayName}</span>)
                   </h3>
                 </div>
                 <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 border border-primary/20 shrink-0">
                   {todayEntries.length} Sesi
                 </span>
               </div>
-
-              {/* Highlight: Kelas Berikutnya / Sedang Berlangsung / Selesai — hijau (var(--bg-success)) hanya di box ini */}
               {loading ? (
                 <div className="mt-3 space-y-2">
                   <Skeleton className="h-32 rounded-3xl" />
@@ -302,7 +326,6 @@ export default function Home() {
                     onLocation={(entry, course) => setRoomModalTarget({ entry, course })}
                     onViewSchedule={() => navigate('/jadwal')}
                   />
-                  {/* Sesi berikut — compact neutral, hierarki sekunder (max 3 setelah highlight, total max 4) */}
                   {nextEntries.map((entry, i) => {
                     const c = courseMap.get(entry.kodeMK)
                     return (
@@ -329,8 +352,6 @@ export default function Home() {
                 </div>
               )}
             </div>
-
-            {/* Footer: Lihat semua jadwal hari ini — netral, mt-auto pin ke bawah bila card stretch */}
             {!loading && hasMoreToday && (
               <div className="mt-auto pt-4 flex justify-center">
                 <button
@@ -356,10 +377,7 @@ export default function Home() {
               </div>
             )}
           </section>
-
-        {/* RIGHT COLUMN (5 COLS): CATATAN, COMPACT TUGAS & JADWAL BESOK */}
         <aside className="desktop:col-span-5 flex flex-col gap-3.5 h-full min-h-0">
-          {/* 1. Catatan Hari Ini — Warm Accent Sticky Note */}
           <section className="rounded-3xl border border-amber-500/25 dark:border-amber-500/20 bg-gradient-to-br from-amber-500/15 via-[#FFF4E5] to-amber-500/10 dark:from-amber-950/30 dark:via-warning-container/20 dark:to-amber-900/15 border-l-4 border-l-amber-500 p-3 tablet:p-3.5 shadow-xs flex flex-col">
               <h3 className="mb-1 flex items-center gap-2 text-body-sm font-bold text-[#92400E] dark:text-warning">
                 <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-amber-500/20 text-[#D97706]">
@@ -377,8 +395,6 @@ export default function Home() {
                 className="h-12 w-full resize-none bg-transparent p-0 text-body-xs text-[#92400E] dark:text-warning placeholder:text-[#92400E]/60 dark:placeholder:text-warning/60 focus:outline-none"
               />
             </section>
-
-          {/* 2. Tugas Terdekat — compact card */}
           <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:p-3.5 shadow-xs flex flex-col">
               <div className="flex items-center justify-between pb-1.5 border-b border-outline-variant/15 mb-2">
                 <h3 className="flex items-center gap-1.5 text-body-sm font-bold text-on-surface">
@@ -395,7 +411,6 @@ export default function Home() {
                   Lihat Semua
                 </button>
               </div>
-
               {tasks.filter((t) => !t.selesai).length === 0 ? (
                 <div className="py-1 flex items-center justify-between text-body-xs text-on-surface-variant font-medium">
                   <span>Tidak ada tugas tertunda saat ini 🎉</span>
@@ -433,8 +448,6 @@ export default function Home() {
                 </ul>
               )}
             </section>
-
-          {/* 3. Jadwal Besok */}
           <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 tablet:p-4 shadow-xs flex flex-col">
               <div>
                 <div className="flex items-center justify-between pb-2 border-b border-outline-variant/15 mb-2.5">
@@ -450,12 +463,11 @@ export default function Home() {
                     {tomorrowEntries.length} Sesi
                   </span>
                 </div>
-
                 {tomorrowEntries.length === 0 ? (
                   <div className="py-4 text-center text-body-xs text-on-surface-variant font-medium space-y-1">
                     <Icon name="beach_access" size={24} className="mx-auto text-emerald-500" />
                     <p>Tidak ada perkuliahan untuk hari besok ({tomorrowName}).</p>
-                    <p className="text-[11px] text-on-surface-variant/80">Waktu yang baik untuk mengerjakan tugas & istirahat.</p>
+                    <p className="text-[11px] text-on-surface-variant/80">Waktu yang baik untuk mengerjakan tugas &amp; istirahat.</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -489,8 +501,6 @@ export default function Home() {
                   </div>
                 )}
               </div>
-
-              {/* Agenda/Holiday Micro-Snippet at the bottom of Tomorrow Schedule */}
               {upcomingAgenda.length > 0 && (
                 <div className="mt-2 pt-2 border-t border-outline-variant/15 flex items-center gap-2 text-[11px] text-on-surface-variant font-medium truncate">
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-secondary/15 text-secondary">
@@ -504,40 +514,13 @@ export default function Home() {
             </section>
         </aside>
       </div>
-
       {roomModalTarget && (
         <RoomLocationModal
-          isOpen={Boolean(roomModalTarget)}
+          entry={roomModalTarget.entry}
+          course={roomModalTarget.course}
           onClose={() => setRoomModalTarget(null)}
-          ruang={roomModalTarget.entry?.ruang}
-          tipeKelas={roomModalTarget.entry?.tipeKelas}
-          scheduleEntries={todayEntries}
-          currentCourseName={roomModalTarget.course?.namaMK ?? roomModalTarget.entry?.kodeMK}
         />
       )}
     </div>
   )
-}
-
-function currentMinuteOfDay() {
-  const now = new Date()
-  return now.getHours() * 60 + now.getMinutes()
-}
-
-function dailyNoteKey() {
-  const d = new Date()
-  // Kunci memakai tanggal LOKAL (WIB), bukan UTC — kalau pakai UTC,
-  // catatan "hari ini" baru berganti pada jam 07:00, bukan tengah malam.
-  const localIso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-    d.getDate(),
-  ).padStart(2, '0')}`
-  return `${STORAGE_KEYS.dailyNotes}:${localIso}`
-}
-
-function getDailyNote() {
-  return getItem(dailyNoteKey(), '')
-}
-
-function saveDailyNote(value) {
-  setItem(dailyNoteKey(), value)
 }

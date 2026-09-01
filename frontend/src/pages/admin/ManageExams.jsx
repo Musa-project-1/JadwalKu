@@ -38,6 +38,12 @@ const dateFormatter = new Intl.DateTimeFormat('id-ID', {
   year: 'numeric',
 })
 
+const BASE_SEMESTER_GROUPS = [
+  { label: 'Semua Semester', value: '' },
+  { label: 'Semester Ganjil', value: 'ganjil' },
+  { label: 'Semester Genap', value: 'genap' },
+]
+
 export default function ManageExams() {
   const { data: exams, loading } = useFirestore('ujian')
   const { data: courses } = useFirestore('mataKuliah')
@@ -50,6 +56,17 @@ export default function ManageExams() {
   const [prodiFilter, setProdiFilter] = useState('')
   const [semesterFilter, setSemesterFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+
+  // Opsi B: semester hanya yang ada data (support >8: 9,10,14 dst — dari exams.semester)
+  const availableSemesterOptions = useMemo(() => {
+    const nums = [...new Set(exams.map((e) => Number(e.semester)).filter((n) => Number.isInteger(n) && n > 0))].sort((a, b) => a - b)
+    return [...BASE_SEMESTER_GROUPS, ...nums.map((n) => ({ label: `Semester ${n}`, value: String(n) }))]
+  }, [exams])
+  useEffect(() => {
+    if (!semesterFilter) return
+    if (semesterFilter === 'ganjil' || semesterFilter === 'genap') return
+    if (!availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))) setSemesterFilter('')
+  }, [availableSemesterOptions, semesterFilter])
 
   // Pagination States
   const [currentPage, setCurrentPage] = useState(1)
@@ -393,7 +410,7 @@ export default function ManageExams() {
   }
 
   return (
-    <div className="space-y-6 pb-16 animate-fade-in w-full max-w-full overflow-x-hidden">
+    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
       {/* Hidden File Input */}
       <input
         ref={fileInputRef}
@@ -567,6 +584,7 @@ export default function ManageExams() {
             <SemesterFilterDropdown
               selected={semesterFilter}
               onSelect={setSemesterFilter}
+              semesterOptions={availableSemesterOptions}
             />
 
             <StatusFilterDropdown
@@ -669,7 +687,7 @@ export default function ManageExams() {
 
             {semesterFilter && (
               <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-body-xs font-semibold text-indigo-700 dark:text-indigo-300">
-                <span>Semester: {SEMESTER_OPTIONS.find((s) => s.value === semesterFilter)?.label}</span>
+                <span>Semester: {availableSemesterOptions.find((s) => s.value === semesterFilter)?.label}</span>
                 <button
                   type="button"
                   onClick={() => setSemesterFilter('')}
@@ -1067,17 +1085,18 @@ export default function ManageExams() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0"
         >
-          {/* Backdrop */}
           <div
             onClick={() => setModalOpen(false)}
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          {/* Modal Card */}
-          <div className="relative w-full max-w-lg rounded-3xl border border-outline-variant/25 bg-surface-container-lowest p-6 sm:p-8 shadow-2xl dark:bg-surface-container-low dark:border-outline-variant/15 animate-fade-up">
-            <header className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-5">
+          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low dark:border-outline-variant/15 overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+            <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
+              <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
+            </div>
+            <header className="flex items-center justify-between p-5 border-b border-outline-variant/15 shrink-0">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold">
                   <Icon name={editingTarget ? 'edit_calendar' : 'add_circle'} size={22} />
@@ -1094,15 +1113,17 @@ export default function ManageExams() {
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="rounded-full p-2 text-on-surface-variant hover:bg-surface-container cursor-pointer"
+                className="rounded-full p-2 text-on-surface-variant hover:bg-surface-container cursor-pointer shrink-0"
               >
                 <Icon name="close" size={20} />
               </button>
             </header>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Jenis & Mode */}
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
+                {/* KIRI — Identitas ujian */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-body-xs font-bold text-on-surface mb-1">
                     Jenis Ujian *
@@ -1194,8 +1215,48 @@ export default function ManageExams() {
                 </div>
               </div>
 
-              {/* Tanggal, Jam & Ruang */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                </div>
+                {/* KANAN — Waktu & tempat */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-3">
+                    <div>
+                      <label className="block text-body-xs font-bold text-on-surface mb-1">
+                        Tanggal *
+                      </label>
+                      <input
+                        type="date"
+                        value={form.tanggal}
+                        onChange={(e) => setForm((f) => ({ ...f, tanggal: e.target.value }))}
+                        className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-3.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-body-xs font-bold text-on-surface mb-1">
+                        Waktu / Jam *
+                      </label>
+                      <input
+                        type="text"
+                        value={form.jam}
+                        onChange={(e) => setForm((f) => ({ ...f, jam: e.target.value }))}
+                        placeholder="08:00 - 10:00"
+                        className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-3.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-body-xs font-bold text-on-surface mb-1">
+                        Ruang
+                      </label>
+                      <input
+                        type="text"
+                        value={form.ruang}
+                        onChange={(e) => setForm((f) => ({ ...f, ruang: e.target.value }))}
+                        placeholder="R. 301 / Lab"
+                        className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-3.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
+                      />
+                    </div>
+                  </div>
                 <div>
                   <label className="block text-body-xs font-bold text-on-surface mb-1">
                     Tanggal *
@@ -1236,8 +1297,7 @@ export default function ManageExams() {
                   />
                 </div>
               </div>
-
-              {/* Error messages */}
+              {/* Error + footer span full width below 2-col */}
               {formErrors.length > 0 && (
                 <div className="rounded-xl border border-error/30 bg-error/10 p-3 text-body-xs text-error">
                   {formErrors.map((err, i) => (
@@ -1246,8 +1306,10 @@ export default function ManageExams() {
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-outline-variant/15">
+              </div>
+
+              {/* Action Buttons — full width below grid */}
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-outline-variant/15 mt-4 col-span-full">
                 <Button
                   type="button"
                   variant="secondary"

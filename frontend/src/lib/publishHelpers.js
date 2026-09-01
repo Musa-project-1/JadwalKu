@@ -22,7 +22,7 @@ export { deriveTahunAjaran }
 /**
  * ATURAN SEMESTER: jadwal semester yang sama (mis. Semester 4) di tahun
  * ajaran berbeda adalah jadwal BERBEDA. Saat batch dipublish, semua dokumen
- * published LAIN dengan pasangan prodi+semester yang sama (di luar batch)
+ * published LAIN dengan pasangan prodi+semester+tahunAjaran yang sama (di luar batch)
  * otomatis diarsipkan — jadi jadwal baru MENGGANTIKAN yang lama, tidak
  * pernah tercampur.
  *
@@ -36,20 +36,19 @@ async function archiveReplacedPublished(collectionName, draftDocs, keepIds, acto
   // Map berisi array kosong yang tidak pernah dipakai. Kueri per kelompok
   // dijalankan paralel agar tidak serial (N+1).
   const groupKeys = new Set(
-    draftDocs.map((d) => `${d.data().prodi ?? ''}|${Number(d.data().semester)}`),
+    draftDocs.map((d) => `${d.data().prodi ?? ''}|${Number(d.data().semester)}|${String(d.data().tahunAjaran ?? '').trim()}`),
   )
 
   const results = await Promise.all(
     Array.from(groupKeys).map(async (key) => {
-      const [prodi, semester] = key.split('|')
-      const snap = await getDocs(
-        query(
-          collection(db, collectionName),
-          where('prodi', '==', prodi),
-          where('semester', '==', Number(semester)),
-          where('status', '==', 'published'),
-        ),
-      )
+      const [prodi, semester, ta] = key.split('|')
+      const clauses = [
+        where('prodi', '==', prodi),
+        where('semester', '==', Number(semester)),
+        where('status', '==', 'published'),
+      ]
+      if (ta) clauses.push(where('tahunAjaran', '==', ta))
+      const snap = await getDocs(query(collection(db, collectionName), ...clauses))
       return snap.docs.filter((d) => !keepIds.has(d.id))
     }),
   )

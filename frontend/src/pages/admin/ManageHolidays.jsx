@@ -287,17 +287,15 @@ export default function ManageHolidays() {
   }
 
   return (
-    <div className="space-y-lg">
-      <header>
-        <div className="flex items-center gap-md">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-tertiary-container/50 dark:bg-tertiary-container/25 text-tertiary">
-            <Icon name="event_note" size={26} />
+    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-x-hidden min-h-0 flex-1">
+      <header className="shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-tertiary-container/60 text-tertiary shadow-xs dark:bg-tertiary-container/30">
+            <Icon name="event_note" size={22} />
           </span>
-          <div>
-            <h2 className="text-headline-lg font-bold text-on-surface">Kelola Libur & Kalender Akademik</h2>
-            <p className="text-body-sm text-on-surface-variant mt-0.5">
-              Atur batas tanggal semester dan hari libur perkuliahan kampus.
-            </p>
+          <div className="min-w-0">
+            <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">Kelola Libur & Kalender Akademik</h2>
+            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">Atur batas tanggal semester dan hari libur perkuliahan.</p>
           </div>
         </div>
       </header>
@@ -321,10 +319,10 @@ export default function ManageHolidays() {
       {/* Form tambah libur */}
       <form
         onSubmit={handleAdd}
-        className="rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low"
+        className="shrink-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low"
       >
-        <h3 className="mb-md text-title-md text-on-surface">Tambah Hari Libur Kuliah</h3>
-        <div className="grid gap-md tablet:grid-cols-[auto_1fr_auto] tablet:items-end">
+        <h3 className="text-body-sm tablet:text-title-sm font-bold text-on-surface shrink-0 mb-2.5">Tambah Hari Libur Kuliah</h3>
+        <div className="grid gap-3 tablet:grid-cols-[auto_1fr_auto] tablet:items-end">
           <Input
             label="Tanggal"
             type="date"
@@ -345,20 +343,22 @@ export default function ManageHolidays() {
         {formError && <p className="mt-sm text-body-sm text-error">{formError}</p>}
       </form>
 
-      {/* Daftar */}
+      {/* Daftar — flex-1 fills remaining height so form + list balance vertically */}
       {loading ? (
-        <div className="space-y-sm">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
+        <div className="flex-1 flex flex-col gap-3 pt-2">
+          <Skeleton className="h-16 w-full rounded-3xl" />
+          <Skeleton className="h-16 w-full rounded-3xl" />
         </div>
       ) : sorted.length === 0 ? (
-        <EmptyState
-          icon="calendar_today"
-          title="Belum ada hari libur"
-          description="Tambahkan tanggal libur agar kelas otomatis disembunyikan pada hari tersebut."
-        />
+        <div className="flex-1 flex flex-col items-center justify-center rounded-3xl border border-outline-variant/20 bg-surface-container-lowest/50 p-8 dark:bg-surface-container-low/40 min-h-[120px]">
+          <EmptyState
+            icon="calendar_today"
+            title="Belum ada hari libur"
+            description="Tambahkan tanggal libur agar kelas otomatis disembunyikan pada hari tersebut."
+          />
+        </div>
       ) : (
-        <ul className="space-y-sm">
+        <ul className="flex-1 flex flex-col gap-2 overflow-y-auto min-h-0">
           {sorted.map((holiday) => {
             const isPast = String(holiday.tanggal) < today
             const dayNumber = Number(String(holiday.tanggal).slice(8, 10))

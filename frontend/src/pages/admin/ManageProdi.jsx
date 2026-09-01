@@ -16,16 +16,18 @@ const SEMESTER_OPTIONS = Array.from({ length: 14 }, (_, i) => i + 1)
 
 export default function ManageProdi() {
   const { data: programs, loading } = useFirestore('prodi')
+  const { data: fakultasList } = useFirestore('fakultas')
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
 
   const [nama, setNama] = useState('')
   const [semesterMin, setSemesterMin] = useState(1)
   const [semesterMax, setSemesterMax] = useState(8)
+  const [fakultasId, setFakultasId] = useState('')
   const [formError, setFormError] = useState('')
   const [banner, setBanner] = useState(null) // { ok, message }
   const [editingId, setEditingId] = useState(null)
-  const [editDraft, setEditDraft] = useState({ nama: '', semesterMin: 1, semesterMax: 8 })
+  const [editDraft, setEditDraft] = useState({ nama: '', semesterMin: 1, semesterMax: 8, fakultasId: '' })
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [saving, setSaving] = useState(false)
   const [syncing, setSyncing] = useState(false)
@@ -34,6 +36,23 @@ export default function ManageProdi() {
     () => [...programs].sort((a, b) => a.nama.localeCompare(b.nama, 'id')),
     [programs],
   )
+
+  const fakultasNameMap = useMemo(() => {
+    const m = new Map()
+    ;(fakultasList || []).forEach((f) => m.set(String(f.id), String(f.nama || f.singkatan || f.id)))
+    return m
+  }, [fakultasList])
+
+  const groupedByFakultas = useMemo(() => {
+    const groups = new Map()
+    for (const pr of sorted) {
+      const fid = String(pr.fakultasId || '').trim()
+      const key = fid || '__tanpa__'
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key).push(pr)
+    }
+    return groups
+  }, [sorted])
 
   async function handleSync() {
     setSyncing(true)
@@ -65,7 +84,7 @@ export default function ManageProdi() {
     }
 
     setSaving(true)
-    const data = { nama: nama.trim(), semesterMin, semesterMax }
+    const data = { nama: nama.trim(), semesterMin, semesterMax, ...(fakultasId ? { fakultasId } : {}) }
     const result = await setDocSafe(data)
     setSaving(false)
 
@@ -74,6 +93,7 @@ export default function ManageProdi() {
       setNama('')
       setSemesterMin(1)
       setSemesterMax(8)
+      setFakultasId('')
     } else {
       setBanner({ ok: false, message: result.error })
     }
@@ -99,6 +119,7 @@ export default function ManageProdi() {
       nama: program.nama,
       semesterMin: program.semesterMin,
       semesterMax: program.semesterMax,
+      fakultasId: program.fakultasId || '',
     })
   }
 
@@ -142,18 +163,16 @@ export default function ManageProdi() {
   }
 
   return (
-    <div className="space-y-lg">
-      <header className="flex flex-col gap-sm tablet:flex-row tablet:items-center tablet:justify-between">
-        <div>
-          <div className="flex items-center gap-md">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-container/50 dark:bg-primary-container/25 text-primary">
-              <Icon name="list_alt" size={26} />
-            </span>
-            <h2 className="text-headline-lg font-bold text-on-surface">Kelola Daftar Prodi</h2>
+    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-x-hidden min-h-0 flex-1">
+      <header className="flex flex-col gap-2.5 tablet:flex-row tablet:items-center tablet:justify-between shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-container/50 dark:bg-primary-container/25 text-primary shadow-xs">
+            <Icon name="list_alt" size={22} />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">Kelola Daftar Prodi</h2>
+            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">Daftar prodi & rentang semesternya.</p>
           </div>
-          <p className="text-body-lg text-on-surface-variant">
-            Daftar program studi beserta rentang semesternya.
-          </p>
         </div>
         <Button
           variant="secondary"
@@ -177,16 +196,25 @@ export default function ManageProdi() {
       {/* Form tambah */}
       <form
         onSubmit={handleAdd}
-        className="rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low"
+        className="shrink-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low"
       >
-        <h3 className="mb-md text-title-md text-on-surface">Tambah Prodi</h3>
-        <div className="grid gap-md tablet:grid-cols-[1fr_auto_auto_auto] tablet:items-end">
+        <h3 className="text-body-sm tablet:text-title-sm font-bold text-on-surface shrink-0 mb-2.5">Tambah Prodi</h3>
+        <div className="grid gap-3 tablet:grid-cols-[1fr_1fr_auto_auto_auto] tablet:items-end">
           <Input
             label="Nama Prodi"
             value={nama}
             onChange={(e) => setNama(e.target.value)}
             placeholder="mis. Informatika"
           />
+          <div>
+            <label className="mb-1 block text-body-sm font-semibold text-on-surface-variant">Fakultas</label>
+            <FormSelect
+              value={fakultasId}
+              onChange={(val) => setFakultasId(String(val || ''))}
+              options={[{ value: '', label: 'Tanpa Fakultas' }, ...(fakultasList || []).map((f) => ({ value: String(f.id), label: String(f.nama || f.singkatan || f.id) }))]}
+              placeholder="Pilih fakultas"
+            />
+          </div>
           <div>
             <label className="mb-1 block text-body-sm font-semibold text-on-surface-variant">Sem. Awal</label>
             <FormSelect
@@ -211,31 +239,48 @@ export default function ManageProdi() {
         {formError && <p className="mt-sm text-body-sm text-error">{formError}</p>}
       </form>
 
-      {/* Daftar */}
+      {/* Daftar — flex-1 so it fills remaining height balancing with form above */}
       {loading ? (
-        <div className="space-y-sm">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
+        <div className="flex-1 flex flex-col gap-3 pt-2">
+          <Skeleton className="h-20 w-full rounded-3xl" />
+          <Skeleton className="h-20 w-full rounded-3xl" />
+          <Skeleton className="h-20 w-full rounded-3xl" />
         </div>
       ) : sorted.length === 0 ? (
-        <EmptyState
-          icon="list_alt"
-          title="Belum ada prodi terdaftar"
-          description="Tambahkan program studi agar mahasiswa bisa memilih prodi & semester saat onboarding."
-        />
+        <div className="flex-1 flex flex-col items-center justify-center rounded-3xl border border-outline-variant/20 bg-surface-container-lowest/50 p-8 dark:bg-surface-container-low/40 min-h-[180px]">
+          <EmptyState
+            icon="list_alt"
+            title="Belum ada prodi terdaftar"
+            description="Tambahkan program studi agar mahasiswa bisa memilih prodi & semester saat onboarding."
+          />
+        </div>
       ) : (
-        <ul className="space-y-sm">
-          {sorted.map((program) => (
-            <li
-              key={program.id}
-              className="flex flex-wrap items-center gap-md rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low"
-            >
+        <div className="flex-1 flex flex-col gap-4 overflow-y-auto min-h-0 pr-1">
+          {Array.from(groupedByFakultas.entries()).map(([fid, prodis]) => (
+            <div key={fid} className="space-y-2">
+              <h4 className="flex items-center gap-2 text-body-xs font-bold tracking-widest uppercase text-on-surface-variant px-1">
+                <span className="h-px flex-1 bg-outline-variant/30" />
+                {fid === '__tanpa__' ? 'Tanpa Fakultas' : (fakultasNameMap.get(fid) || fid)}
+                <span className="rounded-full bg-surface-container px-2 py-0.5 text-[10px] font-bold border border-outline-variant/20">{prodis.length}</span>
+                <span className="h-px flex-1 bg-outline-variant/30" />
+              </h4>
+              <ul className="flex flex-col gap-2">
+                {prodis.map((program) => (
+                  <li
+                    key={program.id}
+                    className="flex flex-wrap items-center gap-3 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low"
+                  >
               {editingId === program.id ? (
-                <div className="grid flex-1 gap-sm tablet:grid-cols-[1fr_auto_auto_auto] tablet:items-center">
+                <div className="grid flex-1 gap-2 tablet:grid-cols-[1fr_1fr_auto_auto_auto] tablet:items-center">
                   <Input
                     value={editDraft.nama}
                     onChange={(e) => setEditDraft((d) => ({ ...d, nama: e.target.value }))}
+                  />
+                  <FormSelect
+                    value={editDraft.fakultasId || ''}
+                    onChange={(val) => setEditDraft((d) => ({ ...d, fakultasId: String(val || '') }))}
+                    options={[{ value: '', label: 'Tanpa Fakultas' }, ...(fakultasList || []).map((f) => ({ value: String(f.id), label: String(f.nama || f.singkatan || f.id) }))]}
+                    placeholder="Fakultas"
                   />
                   <FormSelect
                     value={editDraft.semesterMin}
@@ -283,8 +328,11 @@ export default function ManageProdi() {
                 </>
               )}
             </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
       <ConfirmDialog

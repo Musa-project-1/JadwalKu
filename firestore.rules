@@ -83,5 +83,10 @@ service cloud.firestore {
       // siapa pun, termasuk anonim, bisa membuat/mengubah/menghapus.
       allow write: if isAdmin();
     }
+
+    match /fakultas/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }

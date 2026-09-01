@@ -135,7 +135,7 @@ function extractPrograms(scheduleEntries = [], courses = [], exams = []) {
       const sems = Array.from(p.semesters).sort((a, b) => a - b)
       return {
         nama: p.nama,
-        semesterMin: 1,
+        semesterMin: sems.length > 0 ? Math.min(...sems) : 1,
         semesterMax: sems.length > 0 ? Math.max(sems[sems.length - 1], 8) : 8,
       }
     })

@@ -223,7 +223,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-4 tablet:space-y-4.5 w-full max-w-full overflow-x-hidden">
+    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
       {/* ── 1. Page Header (Comfortable & Generous) ── */}
       <header className="flex flex-col desktop:flex-row desktop:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -286,7 +286,7 @@ export default function AdminDashboard() {
       )}
 
       {/* ── 2. Stat Cards (4-Column Balanced Grid) ── */}
-      <section className="grid grid-cols-2 desktop:grid-cols-4 gap-3 tablet:gap-4 items-stretch" aria-label="Statistik Sistem">
+      <section className="shrink-0 grid grid-cols-2 desktop:grid-cols-4 gap-3 tablet:gap-4 items-stretch" aria-label="Statistik Sistem">
         {/* Stat 1: Total Prodi */}
         <Link
           to="/admin/pengaturan-akademik"
@@ -357,7 +357,7 @@ export default function AdminDashboard() {
       </section>
 
       {/* ── 3. Main 2-Column Balanced & Aligned Grid (Desktop & Mobile) ── */}
-      <div className="grid gap-3.5 tablet:gap-4 desktop:grid-cols-12 desktop:items-stretch">
+      <div className="flex-1 flex flex-col min-h-0 grid gap-3.5 tablet:gap-4 desktop:grid-cols-12 desktop:items-stretch">
         {/* Kolom Kiri: Riwayat Perubahan Data (Desktop: Kolom Kiri 7 / Mobile: Order 2) */}
         <section className="desktop:col-span-7 h-full flex flex-col order-2 desktop:order-1">
           <div className="h-full flex flex-col justify-between rounded-2xl tablet:rounded-3xl bg-surface-container-lowest p-3.5 tablet:p-4.5 dark:bg-surface-container-low border border-outline-variant/20 shadow-2xs">
@@ -553,7 +553,7 @@ export default function AdminDashboard() {
 
       {/* ── 4. Bottom Analytics — Isi Ruang Kosong (3 Kolom Sejajar) ── */}
       <section
-        className="grid grid-cols-1 desktop:grid-cols-3 gap-3.5 tablet:gap-4 items-stretch"
+        className="shrink-0 grid grid-cols-1 desktop:grid-cols-3 gap-3.5 tablet:gap-4 items-stretch"
         aria-label="Dashboard Analitik"
       >
         {/* Panel 1: Sebaran Sesi per Hari */}
@@ -737,11 +737,11 @@ function FullHistoryModal({ historyList, onClose }) {
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 max-[599px]:items-end max-[599px]:p-0 animate-fade-in"
     >
-      <div className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest shadow-level-4 dark:bg-surface-container-low overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-outline-variant/15 p-5 tablet:p-6 bg-surface-container-low/50">
+      <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest shadow-level-4 dark:bg-surface-container-low overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+        <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
+        <div className="flex items-center justify-between border-b border-outline-variant/15 p-5 tablet:p-6 bg-surface-container-low/50 shrink-0">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
               <Icon name="history" size={22} />
@@ -764,7 +764,7 @@ function FullHistoryModal({ historyList, onClose }) {
         </div>
 
         {/* Filter Bar & Search */}
-        <div className="p-4 border-b border-outline-variant/15 space-y-3 bg-surface-container-lowest dark:bg-surface-container-low">
+        <div className="p-4 border-b border-outline-variant/15 space-y-3 bg-surface-container-lowest shrink-0 dark:bg-surface-container-low">
           <div className="relative">
             <Icon
               name="search"
@@ -855,7 +855,7 @@ function FullHistoryModal({ historyList, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-outline-variant/15 p-4 bg-surface-container-low/30 flex justify-end">
+        <div className="border-t border-outline-variant/15 p-4 bg-surface-container-low/30 flex justify-end shrink-0">
           <Button variant="secondary" onClick={onClose} className="rounded-xl px-5 py-2 text-body-sm font-bold">
             Tutup
           </Button>

@@ -171,17 +171,17 @@ export default function ManualEntry() {
   }
 
   return (
-    <div className="space-y-lg">
-      <header>
+    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-x-hidden min-h-0 flex-1">
+      <header className="shrink-0">
         <div className="flex items-center gap-md">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary-container/50 dark:bg-secondary-container/25 text-secondary">
-            <Icon name="edit_note" size={26} />
+          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-xs dark:bg-secondary-container/30">
+            <Icon name="edit_note" size={22} />
           </span>
-          <h2 className="text-headline-lg font-bold text-on-surface">Input Jadwal Manual</h2>
+          <div className="min-w-0">
+            <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">Input Jadwal Manual</h2>
+            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">Tambah satu per satu sesi kelas tanpa upload file — kumpulkan lalu simpan/publish.</p>
+          </div>
         </div>
-        <p className="text-body-lg text-on-surface-variant">
-          Tambah satu per satu sesi kelas tanpa upload file — kumpulkan lalu simpan/publish.
-        </p>
       </header>
 
       {banner && (
@@ -193,7 +193,7 @@ export default function ManualEntry() {
       )}
 
       {/* Form mata kuliah baru */}
-      <section className="rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low">
+      <section className="shrink-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low">
         <button
           type="button"
           onClick={() => setCourseOpen((open) => !open)}
@@ -231,9 +231,9 @@ export default function ManualEntry() {
       {/* Form sesi */}
       <form
         onSubmit={addSession}
-        className="grid gap-md rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low tablet:grid-cols-4 desktop:grid-cols-8"
+        className="shrink-0 grid gap-3 tablet:gap-4 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low tablet:grid-cols-4 desktop:grid-cols-8"
       >
-        <h3 className="col-span-full text-title-md text-on-surface">Sesi Kelas</h3>
+        <h3 className="col-span-full text-body-sm tablet:text-title-sm font-bold text-on-surface">Sesi Kelas</h3>
         <div>
           <label className="mb-1 block text-body-sm font-semibold text-on-surface-variant">Hari</label>
           <FormSelect
@@ -283,20 +283,20 @@ export default function ManualEntry() {
 
       {/* Daftar sesi yang dikumpulkan */}
       {sessions.length > 0 && (
-        <section className="rounded-3xl bg-surface-container-lowest p-lg dark:bg-surface-container-low">
-          <h3 className="mb-md text-title-md text-on-surface">
+        <section className="flex-1 flex flex-col min-h-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low">
+          <h3 className="text-body-sm tablet:text-title-sm font-bold text-on-surface shrink-0 pb-3 border-b border-outline-variant/15">
             Sesi Siap Simpan ({sessions.length})
           </h3>
-          <ul className="divide-y divide-surface-variant">
+          <ul className="flex-1 divide-y divide-outline-variant/15 overflow-y-auto min-h-0 mt-2 pr-1">
             {sessions.map((session) => (
-              <li key={session._id} className="flex items-center justify-between gap-sm py-sm">
+              <li key={session._id} className="flex items-center justify-between gap-2 py-2.5">
                 <span className="min-w-0 truncate text-body-sm text-on-surface">
                   <strong>{session.kodeMK}</strong> • {session.hari}, {session.jamMulai}-{session.jamSelesai} • {session.prodi} Sem {session.semester} • {session.ruang} ({session.tipeKelas})
                 </span>
                 <button
                   type="button"
                   onClick={() => setSessions((list) => list.filter((s) => s._id !== session._id))}
-                  className="shrink-0 rounded-full p-xs text-on-surface-variant hover:bg-error/10 hover:text-error"
+                  className="shrink-0 rounded-full p-1.5 text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer"
                   aria-label={`Hapus sesi ${session.kodeMK}`}
                 >
                   <Icon name="close" size={18} />
@@ -304,7 +304,7 @@ export default function ManualEntry() {
               </li>
             ))}
           </ul>
-          <div className="mt-md flex justify-end gap-sm">
+          <div className="flex justify-end gap-2 pt-3 border-t border-outline-variant/15 shrink-0 mt-2">
             <Button variant="secondary" onClick={saveDraft} disabled={busy}>
               <Icon name="save" size={20} /> Simpan sebagai Draft
             </Button>
@@ -316,9 +316,10 @@ export default function ManualEntry() {
       )}
 
       {sessions.length === 0 && !loading && (
-        <p className="py-md text-center text-body-sm text-on-surface-variant">
-          Sesi yang ditambahkan muncul di sini sebelum disimpan.
-        </p>
+        <div className="flex-1 flex flex-col items-center justify-center rounded-3xl border border-outline-variant/20 bg-surface-container-lowest/50 p-8 dark:bg-surface-container-low/40 min-h-[180px]">
+          <Icon name="inbox" size={28} className="text-on-surface-variant/40 mb-2" />
+          <p className="text-body-sm font-medium text-on-surface-variant">Sesi yang ditambahkan muncul di sini sebelum disimpan.</p>
+        </div>
       )}
     </div>
   )

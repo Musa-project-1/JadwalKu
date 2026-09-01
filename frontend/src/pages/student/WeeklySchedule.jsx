@@ -131,17 +131,24 @@ export default function WeeklySchedule() {
 
   const useSample = !firebaseReady
   const scheduleSource = useMemo(() => {
+    const byFakultas = (e) => {
+      // Hierarki TA->Ganjil/Genap->Semester: fakultasId is optional for legacy docs
+      // If doc has fakultasId and user has fakultasId, must match; otherwise allow (legacy fallback)
+      if (!e.fakultasId) return true
+      if (!fakultasId) return true
+      return String(e.fakultasId) === String(fakultasId)
+    }
     if (loading) return []
     if (isCustomMode) {
       const pool = allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule
       const customSet = new Set(customScheduleIds)
       const matches = pool.filter((e) => customSet.has(e.id))
-      return matches.filter((e) => String(e.tahunAjaran ?? currentTA) === selectedTA)
+      return matches.filter((e) => String(e.tahunAjaran ?? currentTA) === selectedTA && byFakultas(e))
     }
 
     const pool = [...jadwal, ...archivedJadwal]
     const active = pool.filter(
-      (e) => String(e.tahunAjaran ?? currentTA) === selectedTA,
+      (e) => String(e.tahunAjaran ?? currentTA) === selectedTA && byFakultas(e),
     )
     if (active.length > 0) return active
     if (viewingArchive) return []

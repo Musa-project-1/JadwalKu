@@ -108,12 +108,13 @@ export function OfficialNoticeboardModal({
   return (
     <>
       {/* 1. Modal Preview & Settings in Screen */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-3 sm:p-5 animate-fade-in print:hidden">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0 animate-fade-in print:hidden">
         <div
           ref={modalRef}
-          className="flex flex-col w-full max-w-6xl max-h-[94vh] overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up"
+          className="flex flex-col w-full max-w-6xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0"
         >
           {/* Header Modal */}
+          <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
           <div className="flex items-center justify-between border-b border-outline-variant/20 px-5 py-4 shrink-0 bg-surface-container-low/40">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
@@ -331,7 +332,7 @@ export function OfficialNoticeboardModal({
               </div>
 
               {/* Landscape Paper Simulation Wrapper */}
-              <div className="w-full max-h-[580px] overflow-y-auto rounded-2xl border border-outline-variant/35 bg-neutral-300/80 dark:bg-neutral-900/90 p-3 sm:p-5 shadow-inner">
+              <div className="w-full max-h-[580px] overflow-y-auto rounded-2xl border border-outline-variant/35 bg-neutral-300/80 dark:bg-neutral-900/90 p-3 tablet:p-5 shadow-inner">
                 <div
                   className="w-full max-w-[800px] mx-auto bg-white text-neutral-900 p-6 rounded-lg shadow-md font-serif text-[10px] leading-normal border border-neutral-300 isolate"
                   style={{ backgroundColor: '#ffffff', color: '#171717' }}

@@ -32,6 +32,7 @@ export default function Settings() {
     setFontSize,
     highContrast,
     setHighContrast,
+    fakultasNama,
     program,
     semester,
   } = useApp()
@@ -84,7 +85,7 @@ export default function Settings() {
               </span>
             </div>
             <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-              {program || 'Belum dipilih'} · Semester {semester || '-'} {taLabel ? `· TA ${taLabel}` : ''} · Preferensi & integrasi
+              {fakultasNama ? `${fakultasNama} · ` : ''}{program || 'Belum dipilih'} · Semester {semester || '-'} {taLabel ? `· TA ${taLabel}` : ''} · Preferensi & integrasi
             </p>
           </div>
         </div>
@@ -208,7 +209,7 @@ export default function Settings() {
                   Setelan Saat Ini
                 </p>
                 <h3 className="mt-1 text-title-md font-bold text-on-surface leading-snug truncate">
-                  {program ?? 'Belum dipilih'} · Semester {semester ?? '-'}
+                  {fakultasNama ? `${fakultasNama} · ` : ''}{program ?? 'Belum dipilih'} · Semester {semester ?? '-'}
                 </h3>
                 {taLabel && (
                   <span className="inline-block mt-2 text-body-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
@@ -218,7 +219,7 @@ export default function Settings() {
               </div>
               <Button
                 variant="secondary"
-                onClick={() => navigate('/onboarding/prodi')}
+                onClick={() => navigate('/onboarding/wizard')}
                 className="shrink-0 px-4 py-2 text-body-xs font-bold shadow-xs cursor-pointer rounded-2xl"
               >
                 Ganti

@@ -18,11 +18,8 @@ const About = lazy(() => import('./pages/student/About'))
 const ChangeHistory = lazy(() => import('./pages/student/ChangeHistory'))
 const ExportShare = lazy(() => import('./pages/student/ExportShare'))
 const Onboarding = lazy(() => import('./pages/student/Onboarding'))
-const ProdiStep = lazy(() =>
-  import('./pages/student/Onboarding').then((m) => ({ default: m.ProdiStep })),
-)
-const SemesterStep = lazy(() =>
-  import('./pages/student/Onboarding').then((m) => ({ default: m.SemesterStep })),
+const OnboardingWizard = lazy(() =>
+  import('./pages/student/Onboarding').then((m) => ({ default: m.OnboardingWizard })),
 )
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
@@ -54,8 +51,7 @@ export default function App() {
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/onboarding/prodi" element={<ProdiStep />} />
-          <Route path="/onboarding/semester" element={<SemesterStep />} />
+          <Route path="/onboarding/wizard" element={<OnboardingWizard />} />
 
           <Route
             element={

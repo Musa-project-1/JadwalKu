@@ -10,6 +10,8 @@ export function useFirestore(collectionName, constraints = []) {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(firebaseReady)
   const [error, setError] = useState(null)
+  // guard: invalid / internal collection names (e.g. __noop__) -> return empty without firing SDK query
+  const isValidCollection = typeof collectionName === 'string' && collectionName.length > 0 && !collectionName.startsWith('__')
   const constraintKey = constraints
     .map(([field, op, value]) => `${field}:${op}:${String(value)}`)
     .join('|')
@@ -18,6 +20,11 @@ export function useFirestore(collectionName, constraints = []) {
   const prevKeyRef = useRef(constraintKey)
 
   useEffect(() => {
+    // invalid collection -> no-op, avoid SDK assertion
+    if (!isValidCollection) {
+      setLoading(false)
+      return undefined
+    }
     // Reset data when the query changes so stale results don't persist
     if (prevKeyRef.current !== constraintKey) {
       prevKeyRef.current = constraintKey
@@ -75,7 +82,7 @@ export function useFirestore(collectionName, constraints = []) {
     }
     // constraintKey is the stable serialization of `constraints`
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collectionName, constraintKey])
+  }, [collectionName, constraintKey, isValidCollection])
 
   return { data, loading, error, ready: firebaseReady }
 }
