@@ -27,14 +27,14 @@ export function RoomListPanel({
   return (
     <section className="h-full flex flex-col justify-between rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low min-h-0 space-y-3">
       <div className="flex-1 flex flex-col space-y-3 min-h-0">
-        {/* Header Panel */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/15 pb-3">
+        {/* Header Panel (Flex row across mobile & desktop with items-center justify-between) */}
+        <div className="flex items-center justify-between gap-3 border-b border-outline-variant/15 pb-3">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20 shadow-xs">
               <Icon name="meeting_room" size={22} />
             </span>
             <div className="min-w-0 flex-1">
-              <h2 className="text-base tablet:text-lg font-bold tracking-tight text-on-surface">
+              <h2 className="text-base tablet:text-lg font-bold tracking-tight text-on-surface truncate">
                 Master Denah & Ruangan ({rooms.length})
               </h2>
               <p className="text-[11.5px] font-medium text-on-surface-variant truncate">
@@ -53,7 +53,7 @@ export function RoomListPanel({
                 title="Ekstrak nama ruangan unik dari jadwal kuliah aktif"
               >
                 <Icon name="auto_fix_high" size={13} className={extracting ? 'animate-spin' : 'text-teal-700 dark:text-teal-400'} />
-                <span>{extracting ? 'Mengekstrak...' : 'Scan dari Jadwal'}</span>
+                <span className="hidden sm:inline">{extracting ? 'Mengekstrak...' : 'Scan dari Jadwal'}</span>
               </button>
             )}
 
