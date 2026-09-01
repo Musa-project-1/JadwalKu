@@ -14,6 +14,8 @@ import { exportAcademicSettingsToExcel } from '../../lib/academicExcelExport'
 import { AcademicSettingsHeader } from '../../components/admin/manageAcademicSettings/AcademicSettingsHeader'
 import { ProgramListPanel } from '../../components/admin/manageAcademicSettings/ProgramListPanel'
 import { HolidayListPanel } from '../../components/admin/manageAcademicSettings/HolidayListPanel'
+import { RoomListPanel } from '../../components/admin/manageAcademicSettings/RoomListPanel'
+import { AddEditRoomModal } from '../../components/admin/manageAcademicSettings/AddEditRoomModal'
 import AddProdiModal from '../../components/admin/manageAcademicSettings/AddProdiModal'
 import AddHolidayModal from '../../components/admin/manageAcademicSettings/AddHolidayModal'
 import SyncNationalHolidaysModal from '../../components/admin/manageAcademicSettings/SyncNationalHolidaysModal'
@@ -31,12 +33,22 @@ function todayISO() {
 export default function ManageAcademicSettings() {
   const { data: programs, loading: loadingProdi } = useFirestore('prodi')
   const { data: holidays, loading: loadingHolidays } = useFirestore('libur')
+  const { data: rooms, loading: loadingRooms } = useFirestore('rooms')
+  const { data: schedules } = useFirestore('jadwal')
   const { data: settingsDocs } = useFirestore('settings')
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
 
+  const [activeTab, setActiveTab] = useState('prodi-libur') // 'prodi-libur' | 'rooms'
   const [banner, setBanner] = useState(null)
   const [backupRestoreOpen, setBackupRestoreOpen] = useState(false)
+
+  // ── Room Modal States ──
+  const [roomModalOpen, setRoomModalOpen] = useState(false)
+  const [editingRoom, setEditingRoom] = useState(null)
+  const [savingRoom, setSavingRoom] = useState(false)
+  const [extractingRooms, setExtractingRooms] = useState(false)
+  const [deleteRoomTarget, setDeleteRoomTarget] = useState(null)
 
   // ── 1. Academic Calendar State ──
   const calDoc = useMemo(
@@ -153,6 +165,110 @@ export default function ManageAcademicSettings() {
       setKaldikImportOpen(false)
     } else {
       setBanner({ ok: false, message: result.error })
+    }
+  }
+
+  // ── Room Handlers ──
+  async function handleSaveRoom(roomPayload) {
+    setSavingRoom(true)
+    try {
+      if (editingRoom?.id) {
+        await updateDocument('rooms', editingRoom.id, {
+          ...roomPayload,
+          updatedAt: new Date().toISOString(),
+        })
+        setBanner({ ok: true, message: `✓ Ruangan "${roomPayload.namaRuang}" berhasil diperbarui.` })
+      } else {
+        await addDocument('rooms', {
+          ...roomPayload,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
+        setBanner({ ok: true, message: `✓ Ruangan "${roomPayload.namaRuang}" berhasil ditambahkan.` })
+      }
+      setRoomModalOpen(false)
+      setEditingRoom(null)
+    } catch (err) {
+      console.error('Failed to save room:', err)
+      setBanner({ ok: false, message: `Gagal menyimpan ruangan: ${err.message}` })
+    } finally {
+      setSavingRoom(false)
+    }
+  }
+
+  async function handleDeleteRoom() {
+    if (!deleteRoomTarget?.id) return
+    try {
+      await deleteDocument('rooms', deleteRoomTarget.id)
+      setBanner({ ok: true, message: `✓ Ruangan "${deleteRoomTarget.namaRuang}" telah dihapus.` })
+      setDeleteRoomTarget(null)
+    } catch (err) {
+      console.error('Failed to delete room:', err)
+      setBanner({ ok: false, message: `Gagal menghapus ruangan: ${err.message}` })
+    }
+  }
+
+  async function handleAutoExtractRooms() {
+    if (!Array.isArray(schedules) || schedules.length === 0) {
+      setBanner({ ok: false, message: 'Tidak ada data jadwal kuliah untuk diekstrak ruangannya.' })
+      return
+    }
+    setExtractingRooms(true)
+    try {
+      const existingNames = new Set(rooms.map((r) => String(r.namaRuang || '').trim().toLowerCase()))
+      const uniqueScheduleRooms = new Set()
+
+      schedules.forEach((s) => {
+        const raw = String(s.ruang || '').trim()
+        if (raw && !raw.toLowerCase().includes('online') && !raw.toLowerCase().includes('zoom')) {
+          uniqueScheduleRooms.add(raw)
+        }
+      })
+
+      let addedCount = 0
+      for (const roomName of uniqueScheduleRooms) {
+        if (!existingNames.has(roomName.toLowerCase())) {
+          let detectedFloor = 1
+          let detectedGedung = 'Gedung Utama'
+          if (roomName.toLowerCase().includes('halimah')) detectedGedung = 'Gedung Siti Halimah'
+          else if (roomName.toLowerCase().includes('lab')) detectedGedung = 'Gedung Laboratorium'
+          else if (roomName.toLowerCase().includes('gkb')) detectedGedung = 'Gedung Kuliah Bersama (GKB)'
+
+          const numMatch = roomName.match(/\d+/)
+          if (numMatch) {
+            const num = parseInt(numMatch[0], 10)
+            if (num >= 100 && num <= 999) detectedFloor = Math.floor(num / 100)
+            else if (num >= 1 && num <= 9) detectedFloor = num
+          }
+
+          await addDocument('rooms', {
+            namaRuang: roomName,
+            aliases: [],
+            gedung: detectedGedung,
+            lantai: detectedFloor,
+            kapasitas: 40,
+            tipeRuang: roomName.toLowerCase().includes('lab') ? 'lab' : 'kelas',
+            petunjukArah: `Ruangan ${roomName} terletak di ${detectedGedung} Lantai ${detectedFloor}.`,
+            fasilitas: ['AC Ruangan', 'Proyektor LCD', 'Papan Tulis Whiteboard', 'WiFi Kampus / Eduroam'],
+            aktif: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          })
+          addedCount++
+        }
+      }
+
+      setBanner({
+        ok: true,
+        message: addedCount > 0
+          ? `✓ Berhasil mengekstrak dan menambahkan ${addedCount} ruangan baru dari jadwal.`
+          : 'Seluruh ruangan pada jadwal aktif sudah terdaftar di master database.',
+      })
+    } catch (err) {
+      console.error('Auto extract rooms failed:', err)
+      setBanner({ ok: false, message: `Gagal mengekstrak ruangan: ${err.message}` })
+    } finally {
+      setExtractingRooms(false)
     }
   }
 
@@ -459,6 +575,40 @@ export default function ManageAcademicSettings() {
         onExportExcel={handleExportExcel}
       />
 
+      {/* Tab Switcher: Master Prodi & Libur vs Master Denah Ruangan */}
+      <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-surface-container-low border border-outline-variant/20 shadow-2xs w-fit">
+        <button
+          type="button"
+          onClick={() => setActiveTab('prodi-libur')}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'prodi-libur'
+              ? 'bg-primary text-on-primary shadow-xs'
+              : 'text-on-surface-variant hover:text-on-surface'
+          }`}
+        >
+          <Icon name="school" size={15} />
+          <span>Prodi & Kalender Libur</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('rooms')}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'rooms'
+              ? 'bg-primary text-on-primary shadow-xs'
+              : 'text-on-surface-variant hover:text-on-surface'
+          }`}
+        >
+          <Icon name="meeting_room" size={15} />
+          <span>Master Denah & Ruangan</span>
+          <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+            activeTab === 'rooms' ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-container-high text-on-surface-variant'
+          }`}>
+            {rooms.length}
+          </span>
+        </button>
+      </div>
+
       {banner && (
         <StatusBanner
           ok={banner.ok}
@@ -467,52 +617,94 @@ export default function ManageAcademicSettings() {
         />
       )}
 
-      {/* ── 2. Master Program Studi & Hari Libur (Grid 2 Kolom Penuh & Seimbang) ── */}
-      <div className="flex-1 flex flex-col min-h-0 grid grid-cols-1 desktop:grid-cols-2 gap-4 tablet:gap-4.5 desktop:items-stretch">
-        {/* Panel 1: Master Program Studi */}
-        <ProgramListPanel
-          programs={sortedProdi}
-          loadingProdi={loadingProdi}
-          syncingProdi={syncingProdi}
-          onSyncProdi={handleSyncProdi}
-          onOpenAddModal={() => {
-            setProdiNama('')
-            setProdiMin(1)
-            setProdiMax(8)
-            setProdiFormError('')
-            setAddProdiModalOpen(true)
-          }}
-          editingProdiId={editingProdiId}
-          setEditingProdiId={setEditingProdiId}
-          editProdiDraft={editProdiDraft}
-          setEditProdiDraft={setEditProdiDraft}
-          onSaveEditProdi={handleSaveEditProdi}
-          onDeleteTarget={(p) => setDeleteProdiTarget(p)}
-        />
+      {/* ── 2. Master Content (Prodi & Libur ATAU Master Ruangan) ── */}
+      {activeTab === 'prodi-libur' ? (
+        <div className="flex-1 flex flex-col min-h-0 grid grid-cols-1 desktop:grid-cols-2 gap-4 tablet:gap-4.5 desktop:items-stretch">
+          {/* Panel 1: Master Program Studi */}
+          <ProgramListPanel
+            programs={sortedProdi}
+            loadingProdi={loadingProdi}
+            syncingProdi={syncingProdi}
+            onSyncProdi={handleSyncProdi}
+            onOpenAddModal={() => {
+              setProdiNama('')
+              setProdiMin(1)
+              setProdiMax(8)
+              setProdiFormError('')
+              setAddProdiModalOpen(true)
+            }}
+            editingProdiId={editingProdiId}
+            setEditingProdiId={setEditingProdiId}
+            editProdiDraft={editProdiDraft}
+            setEditProdiDraft={setEditProdiDraft}
+            onSaveEditProdi={handleSaveEditProdi}
+            onDeleteTarget={(p) => setDeleteProdiTarget(p)}
+          />
 
-        {/* Panel 2: Hari Libur & Cuti */}
-        <HolidayListPanel
-          filteredHolidays={filteredHolidays}
-          totalHolidaysCount={holidays.length}
-          loadingHolidays={loadingHolidays}
-          programs={programs}
-          holidayTypeFilter={holidayTypeFilter}
-          setHolidayTypeFilter={setHolidayTypeFilter}
-          holidayProdiFilter={holidayProdiFilter}
-          setHolidayProdiFilter={setHolidayProdiFilter}
-          onOpenSyncModal={() => setSyncHolidayModalOpen(true)}
-          onOpenAddModal={() => {
-            setHolidayNama('')
-            setHolidayMulai(todayISO())
-            setHolidaySelesai(todayISO())
-            setHolidayTipe('nasional')
-            setHolidayProdi('Semua')
-            setHolidayFormError('')
-            setAddHolidayModalOpen(true)
-          }}
-          onDeleteTarget={(h) => setDeleteHolidayTarget(h)}
-        />
-      </div>
+          {/* Panel 2: Hari Libur & Cuti */}
+          <HolidayListPanel
+            filteredHolidays={filteredHolidays}
+            totalHolidaysCount={holidays.length}
+            loadingHolidays={loadingHolidays}
+            programs={programs}
+            holidayTypeFilter={holidayTypeFilter}
+            setHolidayTypeFilter={setHolidayTypeFilter}
+            holidayProdiFilter={holidayProdiFilter}
+            setHolidayProdiFilter={setHolidayProdiFilter}
+            onOpenSyncModal={() => setSyncHolidayModalOpen(true)}
+            onOpenAddModal={() => {
+              setHolidayNama('')
+              setHolidayMulai(todayISO())
+              setHolidaySelesai(todayISO())
+              setHolidayTipe('nasional')
+              setHolidayProdi('Semua')
+              setHolidayFormError('')
+              setAddHolidayModalOpen(true)
+            }}
+            onDeleteTarget={(h) => setDeleteHolidayTarget(h)}
+          />
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col min-h-0">
+          <RoomListPanel
+            rooms={rooms}
+            loadingRooms={loadingRooms}
+            onOpenAddModal={() => {
+              setEditingRoom(null)
+              setRoomModalOpen(true)
+            }}
+            onEditRoom={(r) => {
+              setEditingRoom(r)
+              setRoomModalOpen(true)
+            }}
+            onDeleteRoom={(r) => setDeleteRoomTarget(r)}
+            onAutoExtractFromSchedule={handleAutoExtractRooms}
+            extracting={extractingRooms}
+          />
+        </div>
+      )}
+
+      {/* ── Modal Tambah/Edit Ruangan ── */}
+      <AddEditRoomModal
+        open={roomModalOpen}
+        onClose={() => {
+          setRoomModalOpen(false)
+          setEditingRoom(null)
+        }}
+        editingRoom={editingRoom}
+        onSave={handleSaveRoom}
+        busy={savingRoom}
+      />
+
+      {/* ── Dialog Konfirmasi Hapus Ruangan ── */}
+      <ConfirmDialog
+        open={Boolean(deleteRoomTarget)}
+        title="Hapus Ruangan Master?"
+        description={`Ruangan "${deleteRoomTarget?.namaRuang}" akan dihapus dari master denah kampus.`}
+        confirmLabel="Hapus Ruangan"
+        onConfirm={handleDeleteRoom}
+        onCancel={() => setDeleteRoomTarget(null)}
+      />
 
       {/* ── Modals & Dialogs ── */}
       <AddProdiModal

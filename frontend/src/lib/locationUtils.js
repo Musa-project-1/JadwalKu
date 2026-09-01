@@ -1,8 +1,10 @@
+import { findRoomMasterMatch } from './roomUtils'
+
 /**
  * Utilitas Parser Lokasi Kampus, Gedung, Nomor Lantai, dan Panduan Arah (Wayfinding)
+ * Mendukung pencarian dinamis dari Master Ruangan Firestore jika tersedia.
  */
-
-export function parseRoomLocation(rawRuang = '', tipeKelas = 'K1') {
+export function parseRoomLocation(rawRuang = '', tipeKelas = 'K1', roomMasterList = []) {
   const clean = String(rawRuang || '').trim()
   const lower = clean.toLowerCase()
 
@@ -20,131 +22,79 @@ export function parseRoomLocation(rawRuang = '', tipeKelas = 'K1') {
       buildingCode: 'ONLINE',
       floor: 'Cloud / Internet',
       floorNumber: 0,
-      roomNumber: 'Kelas Online',
+      roomNumber: clean || 'Kelas Online',
       roomType: 'Kuliah Daring / Teleconference',
       guidance:
-        'Sesi perkuliahan dilaksanakan via platform video conference (Zoom / Google Meet). Pastikan jaringan internet stabil dan bergabung 5–10 menit sebelum jam kuliah dimulai.',
+        'Sesi perkuliahan dilaksanakan via platform teleconference (Zoom / Google Meet). Pastikan koneksi internet stabil dan bergabung 5–10 menit sebelum jam kuliah dimulai.',
       facilities: ['Aplikasi Zoom / Meet', 'Materi LMS / Slide', 'Interaksi Virtual'],
       badgeTone: 'bg-blue-500/15 text-blue-800 dark:text-blue-300 border-blue-500/30',
       icon: 'videocam',
       isOnline: true,
+      isCustomMaster: false,
     }
   }
 
-  // 2. Auditorium / Aula / Hall
-  if (lower.includes('auditorium') || lower.includes('aula') || lower.includes('hall')) {
+  // 2. Cek apakah ruangan terdaftar resmi di Master Ruangan Kampus (Firestore)
+  const masterMatch = findRoomMasterMatch(clean, roomMasterList)
+  if (masterMatch) {
     return {
       raw: clean,
-      building: 'Gedung Rektorat & Aula Serbaguna',
-      buildingCode: 'AULA',
-      floor: 'Lantai 1 (Lobi Utama)',
-      floorNumber: 1,
-      roomNumber: clean,
-      roomType: 'Auditorium & Gedung Pertemuan',
-      guidance:
-        'Masuk melalui lobi utama Gedung Pusat/Rektorat. Aula besar terletak tepat di sayap tengah lantai 1 dengan kapasitas ratusan mahasiswa.',
-      facilities: ['Sound System Profesional', 'Proyektor Layar Lebar', 'AC Sentral', 'Panggung Presentasi'],
-      badgeTone: 'bg-purple-500/15 text-purple-800 dark:text-purple-300 border-purple-500/30',
-      icon: 'theater_comedy',
+      building: masterMatch.gedung || 'Gedung Kampus',
+      buildingCode: masterMatch.gedungCode || masterMatch.gedung || 'RUANG',
+      floor: masterMatch.lantai ? `Lantai ${masterMatch.lantai}` : 'Lantai Kampus',
+      floorNumber: masterMatch.lantai || 1,
+      roomNumber: masterMatch.namaRuang || clean,
+      roomType:
+        masterMatch.tipeRuang === 'lab'
+          ? 'Laboratorium Praktikum'
+          : masterMatch.tipeRuang === 'auditorium'
+          ? 'Auditorium / Aula Besar'
+          : 'Ruang Kelas Perkuliahan',
+      guidance: masterMatch.petunjukArah || `Ruangan ${masterMatch.namaRuang} terletak di ${masterMatch.gedung || 'area kampus'}.`,
+      facilities: Array.isArray(masterMatch.fasilitas) && masterMatch.fasilitas.length > 0
+        ? masterMatch.fasilitas
+        : ['AC Ruangan', 'Proyektor LCD', 'Papan Tulis Whiteboard'],
+      badgeTone:
+        masterMatch.tipeRuang === 'lab'
+          ? 'bg-purple-500/15 text-purple-800 dark:text-purple-300 border-purple-500/30'
+          : 'bg-teal-500/15 text-teal-800 dark:text-teal-300 border-teal-500/30',
+      icon:
+        masterMatch.tipeRuang === 'lab'
+          ? 'desktop_windows'
+          : masterMatch.tipeRuang === 'auditorium'
+          ? 'theater_comedy'
+          : 'meeting_room',
       isOnline: false,
+      isCustomMaster: true,
+      kapasitas: masterMatch.kapasitas,
     }
   }
 
-  // 3. Laboratorium Komputer / Sains
-  if (
-    lower.includes('lab') ||
-    lower.includes('laboratorium') ||
-    lower.includes('komputer') ||
-    lower.includes('bengkel')
-  ) {
-    // Detect floor if any number in room (e.g. Lab 2 -> Lt. 2 or Lab 301 -> Lt. 3)
-    let floorNumber = 2
-    let floorText = 'Lantai 2'
-    const numMatch = clean.match(/\d+/)
-    if (numMatch) {
-      const num = parseInt(numMatch[0], 10)
-      if (num >= 100) {
-        floorNumber = Math.floor(num / 100)
-        floorText = `Lantai ${floorNumber}`
-      } else if (num >= 1 && num <= 6) {
-        floorNumber = num
-        floorText = `Lantai ${floorNumber}`
-      }
-    }
-
-    return {
-      raw: clean,
-      building: 'Gedung Laboratorium Terpadu (Lab Center)',
-      buildingCode: 'LAB',
-      floor: `${floorText} (Sayap Lab)`,
-      floorNumber,
-      roomNumber: clean,
-      roomType: 'Laboratorium Praktikum & Komputer',
-      guidance: `Masuk melalui pintu barat Gedung Lab Terpadu. Naik tangga/lift menuju ${floorText}, koridor laboratorium berada di sisi utara. Harap gunakan kartu tanda mahasiswa (KTM) dan jaga ketertiban peralatan praktikum.`,
-      facilities: ['PC / Workstation', 'AC Dingin', 'LAN & Eduroam WiFi', 'Proyektor & Whiteboard', 'CCTV'],
-      badgeTone: 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30',
-      icon: 'desktop_windows',
-      isOnline: false,
+  // 3. Fallback Aman & Faktual (Tanpa Data Fiktif) jika belum dikonfigurasi di Master Admin
+  let detectedFloor = 'Lantai 1'
+  const numMatch = clean.match(/\d+/)
+  if (numMatch) {
+    const num = parseInt(numMatch[0], 10)
+    if (num >= 100 && num <= 999) {
+      detectedFloor = `Lantai ${Math.floor(num / 100)}`
+    } else if (num >= 1 && num <= 9) {
+      detectedFloor = `Lantai ${num}`
     }
   }
-
-  // 4. Gedung Spesifik (misal: Gedung B, Gedung A, GKB, Gedung Halimah, dsb.)
-  let building = 'Gedung Kuliah Bersama (GKB)'
-  let buildingCode = 'GKB'
-  if (lower.includes('gedung a') || lower.startsWith('a.') || lower.startsWith('a-')) {
-    building = 'Gedung A (Fakultas Utama)'
-    buildingCode = 'GDA'
-  } else if (lower.includes('gedung b') || lower.startsWith('b.') || lower.startsWith('b-')) {
-    building = 'Gedung B (Fakultas Sains & Teknologi)'
-    buildingCode = 'GDB'
-  } else if (lower.includes('gedung c') || lower.startsWith('c.') || lower.startsWith('c-')) {
-    building = 'Gedung C (Fakultas Humaniora)'
-    buildingCode = 'GDC'
-  } else if (lower.includes('gedung d') || lower.startsWith('d.') || lower.startsWith('d-')) {
-    building = 'Gedung D (Pascasarjana & Riset)'
-    buildingCode = 'GDD'
-  } else if (lower.includes('halimah')) {
-    building = 'Gedung Siti Halimah'
-    buildingCode = 'GSH'
-  }
-
-  // 5. Floor Extraction (misal: 201 -> Lt. 2, 304 -> Lt. 3, 102 -> Lt. 1, 401 -> Lt. 4)
-  let floorNumber = 1
-  let floorText = 'Lantai 1'
-
-  const floorExplicitMatch = lower.match(/(?:lt|lantai)[.\s]*(\d+)/i)
-  if (floorExplicitMatch) {
-    floorNumber = parseInt(floorExplicitMatch[1], 10)
-    floorText = `Lantai ${floorNumber}`
-  } else {
-    const numMatch = clean.match(/\d+/)
-    if (numMatch) {
-      const num = parseInt(numMatch[0], 10)
-      if (num >= 100 && num <= 999) {
-        floorNumber = Math.floor(num / 100)
-        floorText = `Lantai ${floorNumber}`
-      } else if (num >= 1000) {
-        floorNumber = Math.floor(num / 1000)
-        floorText = `Lantai ${floorNumber}`
-      }
-    }
-  }
-
-  const roomDisplay = clean || 'Ruang Kuliah Teori'
 
   return {
-    raw: roomDisplay,
-    building,
-    buildingCode,
-    floor: `${floorText}`,
-    floorNumber,
-    roomNumber: roomDisplay,
-    roomType: 'Ruang Kelas Teori',
-    guidance: `Tiba di ${building}, gunakan tangga utama atau lift di lobi depan menuju ${floorText}. Ruangan ${roomDisplay} terletak di sepanjang koridor kelas dengan nomor pintu terpasang di atas pintu masuk.`,
-    facilities: ['AC Ruangan', 'Proyektor LCD', 'Stopkontak Tiap Meja', 'Papan Tulis Whiteboard', 'WiFi Kampus'],
-    badgeTone: 'bg-primary/10 text-primary border-primary/20',
+    raw: clean,
+    building: 'Gedung Perkuliahan Kampus',
+    buildingCode: clean.slice(0, 4).toUpperCase(),
+    floor: detectedFloor,
+    floorNumber: 1,
+    roomNumber: clean || 'Ruang Kelas',
+    roomType: tipeKelas === 'HB' ? 'Kelas Hybrid' : 'Ruang Kelas Tatap Muka',
+    guidance: `Silakan menuju ${clean || 'ruang kelas'} sesuai denah kampus atau tanyakan petugas akademik jika membutuhkan panduan ruangan.`,
+    facilities: ['Fasilitas Perkuliahan Standar'],
+    badgeTone: 'bg-surface-container-high text-on-surface border-outline-variant/30',
     icon: 'meeting_room',
     isOnline: false,
+    isCustomMaster: false,
   }
 }
-
