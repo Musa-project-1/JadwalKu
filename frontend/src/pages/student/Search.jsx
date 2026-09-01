@@ -123,26 +123,44 @@ export default function Search() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-lg">
-      <header>
-        <h2 className="text-display text-on-surface">Search</h2>
+    <div className="flex flex-col gap-3.5 w-full max-w-full overflow-x-hidden animate-fade-in">
+      {/* 1. Header Pencarian — Structured 1:1 like WeeklySchedule */}
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+            <Icon name="search" size={24} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+                Pencarian Kampus
+              </h1>
+              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+                Global Explorer
+              </span>
+            </div>
+            <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
+              Cari dosen, jadwal kuliah, mata kuliah terdaftar, dan tugas aktif
+            </p>
+          </div>
+        </div>
       </header>
 
-      <div className="relative group rounded-full border border-outline-variant/40 bg-surface-container-lowest p-1 shadow-sm transition-all focus-within:border-primary focus-within:shadow-md dark:bg-surface-container-low">
+      {/* 2. Search Input Container */}
+      <div className="relative group rounded-2xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low p-1.5 shadow-xs transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
         <Icon
           name="search"
           size={20}
           className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors"
         />
-        {/* Token warna otomatis berubah di mode gelap, tanpa override dark: */}
         <input
           type="search"
           value={queryText}
           onChange={(e) => setQueryText(e.target.value)}
           onKeyDown={handleSearchKeyDown}
-          placeholder="Cari mata kuliah, dosen, atau tugas..."
+          placeholder="Cari nama dosen, mata kuliah, ruangan, atau judul tugas..."
           autoFocus
-          className="w-full bg-transparent py-2.5 pl-11 pr-4 text-body-lg text-on-surface focus:outline-none"
+          className="w-full bg-transparent py-2 pl-11 pr-4 text-body-sm tablet:text-body-md font-semibold text-on-surface focus:outline-none placeholder:text-on-surface-variant/60"
         />
       </div>
 

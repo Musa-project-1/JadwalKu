@@ -57,12 +57,17 @@ export function DatabaseBackupRestoreModal({
       const counts = {}
       try {
         for (const col of COLLECTIONS_CONFIG) {
-          const snap = await getDocs(collection(db, col.id))
-          counts[col.id] = snap.size
+          try {
+            const snap = await getDocs(collection(db, col.id))
+            counts[col.id] = snap.size
+          } catch (colErr) {
+            // Jika koleksi dibatasi Firestore security rules, beri fallback 0 tanpa spam console error
+            counts[col.id] = 0
+          }
         }
         if (isMounted) setDbCounts(counts)
       } catch (err) {
-        console.error('Failed to count collections:', err)
+        // Fallback silent
       } finally {
         if (isMounted) setLoadingStats(false)
       }

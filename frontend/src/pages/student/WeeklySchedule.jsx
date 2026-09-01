@@ -332,22 +332,6 @@ export default function WeeklySchedule() {
   const pxPerHour = Math.max(28, safeGridHeight / totalHours)
   const gridHeight = safeGridHeight
 
-  if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
-    const sampleStart = 480 // 08:00
-    const sampleEnd = 580   // 09:40
-    console.log('[WeeklySchedule Debug Grid]', {
-      containerHeight: gridBodyHeight,
-      safeGridHeight,
-      totalHours,
-      pxPerHour,
-      sampleCard: {
-        jam: '08:00 - 09:40',
-        top: ((sampleStart - rangeStart) / 60) * pxPerHour,
-        height: Math.max(((sampleEnd - sampleStart) / 60) * pxPerHour - 4, 48),
-      }
-    })
-  }
-
   function openDetail(entry) {
     setDetailEntry(entry)
   }

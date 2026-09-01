@@ -96,27 +96,27 @@ export default function Settings() {
             type="button"
             onClick={() => setShowDocsModal(true)}
             title="Buka Pusat Panduan & Tutorial 13 Fitur Mahasiswa"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-primary text-on-primary text-body-xs font-bold shadow-xs hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-on-primary text-body-xs font-bold shadow-xs hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
           >
-            <Icon name="menu_book" size={16} />
+            <Icon name="menu_book" size={15} />
             <span>Tutorial</span>
           </button>
           <button
             type="button"
             onClick={() => setShowHistoryModal(true)}
             title="Buka Riwayat Perubahan Jadwal"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-2xs transition-all cursor-pointer"
           >
-            <Icon name="history" size={16} className="text-primary" />
+            <Icon name="history" size={15} className="text-primary" />
             <span>Riwayat</span>
           </button>
           <button
             type="button"
             onClick={() => setShowAboutModal(true)}
             title="Buka Tentang & Bantuan (FAQ)"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-2xs transition-all cursor-pointer"
           >
-            <Icon name="help_outline" size={16} className="text-secondary" />
+            <Icon name="help_outline" size={15} className="text-secondary" />
             <span>Tentang & FAQ</span>
           </button>
         </div>
