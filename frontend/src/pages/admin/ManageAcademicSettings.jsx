@@ -570,7 +570,7 @@ export default function ManageAcademicSettings() {
 
   async function handleExportExcel() {
     const { exportAcademicSettingsToExcel } = await import('../../lib/academicExcelExport')
-    exportAcademicSettingsToExcel({
+    await exportAcademicSettingsToExcel({
       currentComputedTA,
       currentComputedTerm,
       customCal,

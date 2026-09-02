@@ -352,7 +352,7 @@ export default function ManageExams() {
     try {
       const buffer = await file.arrayBuffer()
       const { parseWorkbook } = await import('../../lib/xlsxParser')
-      const parsed = parseWorkbook(buffer)
+      const parsed = await parseWorkbook(buffer)
       if (parsed.exams.length === 0) {
         setBanner({
           ok: false,

@@ -1,4 +1,5 @@
-import * as XLSX from 'xlsx'
+let _XLSXExp = null
+async function getXLSXExp() { if (!_XLSXExp) _XLSXExp = await import('xlsx'); return _XLSXExp }
 import { MONTH_NAMES } from '../constants/academicConstants'
 import { getTermLabel } from './tahunAjaran'
 
@@ -6,7 +7,7 @@ import { getTermLabel } from './tahunAjaran'
  * Export the master academic data (calendar bounds, program studi, holidays) to a
  * single multi-sheet Excel workbook and trigger a download.
  */
-export function exportAcademicSettingsToExcel({
+export async function exportAcademicSettingsToExcel({
   currentComputedTA,
   currentComputedTerm,
   customCal,
@@ -14,6 +15,7 @@ export function exportAcademicSettingsToExcel({
   sortedProdi,
   sortedHolidays,
 }) {
+  const XLSX = await getXLSXExp()
   const wb = XLSX.utils.book_new()
 
   // 1. Sheet Kalender

@@ -1,6 +1,16 @@
-import * as XLSX from 'xlsx'
-import mammoth from 'mammoth'
-import { parseWorkbook } from './xlsxParser'
+let _XLSX2 = null
+async function getXLSX2() {
+  if (!_XLSX2) _XLSX2 = await import('xlsx')
+  return _XLSX2
+}
+let _mammoth = null
+async function getMammoth() {
+  if (!_mammoth) {
+    const mod = await import('mammoth')
+    _mammoth = mod.default || mod
+  }
+  return _mammoth
+}
 // Bundle worker lokal (dari node_modules) agar tidak bergantung CDN (unpkg/jsdelivr)
 // saat runtime. Vite akan menyalin file ini ke dist/assets dan mengembalikan URL lokal.
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
@@ -101,8 +111,10 @@ export async function parseUniversalFile(file, onProgress = () => {}, campusConf
 
   if (['xlsx', 'xls', 'csv'].includes(ext)) {
     onProgress({ stage: 'Membaca spreadsheet...', progress: 30 })
+    const XLSX = await getXLSX2()
     const wb = XLSX.read(arrayBuffer, { type: 'array', cellDates: false })
-    const campusParsed = parseWorkbook(arrayBuffer, campusConfig)
+    const { parseWorkbook } = await import('./xlsxParser')
+    const campusParsed = await parseWorkbook(arrayBuffer, campusConfig)
     const hasCampusFormat = campusParsed.detectedFormat === 'campus-matrix'
 
     const firstSheetName = wb.SheetNames[0]
@@ -124,6 +136,7 @@ export async function parseUniversalFile(file, onProgress = () => {}, campusConf
 
   if (ext === 'docx') {
     onProgress({ stage: 'Mengekstrak tabel Word...', progress: 40 })
+    const mammoth = await getMammoth()
     const result = await mammoth.convertToHtml({ arrayBuffer })
     const html = result.value
     const parser = new DOMParser()

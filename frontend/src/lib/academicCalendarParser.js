@@ -15,7 +15,8 @@
  *   kategori: 'registrasi'|'perkuliahan'|'uts'|'uas'|'ujian'|'yudisium'|'libur'|'kegiatan'|'minggu_tenang',
  * }
  */
-import * as XLSX from 'xlsx'
+let _XLSXCal = null
+async function getXLSXCal() { if (!_XLSXCal) _XLSXCal = await import('xlsx'); return _XLSXCal }
 // Bundle worker lokal agar tidak bergantung CDN saat runtime (sama seperti universalParser).
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import tesseractWorkerUrl from 'tesseract.js/dist/worker.min.js?url'
@@ -471,6 +472,7 @@ export async function parseAcademicCalendarFile(file, onProgress = () => {}) {
   if (['xlsx', 'xls', 'csv'].includes(ext)) {
     onProgress({ stage: 'Membaca spreadsheet...', progress: 30 })
     const arrayBuffer = await file.arrayBuffer()
+    const XLSX = await getXLSXCal()
     const wb = XLSX.read(arrayBuffer, { type: 'array', cellDates: false })
     const sheetName =
       wb.SheetNames.find((n) => {

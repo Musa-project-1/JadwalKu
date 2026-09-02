@@ -1,5 +1,10 @@
-import * as XLSX from 'xlsx'
 import { CLASS_TYPE_CODES, DAYS } from './uploadValidator'
+
+let _XLSX = null
+async function getXLSX() {
+  if (!_XLSX) _XLSX = await import('xlsx')
+  return _XLSX
+}
 
 /**
  * Parser file .xlsx/.csv jadwal kampus (client-side, SheetJS).
@@ -67,7 +72,8 @@ const EXAM_ALIASES = {
  *   detectedFormat: string
  * }}
  */
-export function parseWorkbook(data, campusConfig = {}) {
+export async function parseWorkbook(data, campusConfig = {}) {
+  const XLSX = await getXLSX()
   const wb = XLSX.read(data, { type: 'array', cellDates: false })
   const warnings = []
 
@@ -95,17 +101,17 @@ export function parseWorkbook(data, campusConfig = {}) {
       warnings.push(...univ.warnings)
       detectedFormat = 'campus-matrix'
     } else {
-      const rows = sheetToRows(scheduleSheet)
+      const rows = sheetToRows(scheduleSheet, XLSX)
       const parsed = flatOrMatrix(rows, campusConfig)
       scheduleEntries = parsed.scheduleEntries
       detectedFormat = parsed.detectedFormat
-      courses = courseSheet ? parseCourses(sheetToRows(courseSheet)) : []
+      courses = courseSheet ? parseCourses(sheetToRows(courseSheet, XLSX)) : []
     }
   } else if (courseSheet) {
-    courses = parseCourses(sheetToRows(courseSheet))
+    courses = parseCourses(sheetToRows(courseSheet, XLSX))
   }
 
-  if (examSheet) exams = parseExams(sheetToRows(examSheet))
+  if (examSheet) exams = parseExams(sheetToRows(examSheet, XLSX))
 
   const programs = extractPrograms(scheduleEntries, courses, exams)
 
@@ -552,8 +558,10 @@ function findSheet(wb, names) {
   return name ? wb.Sheets[name] : null
 }
 
-function sheetToRows(sheet) {
-  return XLSX.utils.sheet_to_json(sheet, { defval: '', raw: true })
+function sheetToRows(sheet, XLSXOverride) {
+  const _lib = XLSXOverride || _XLSX
+  if (!_lib) throw new Error('XLSX belum dimuat — panggil parseWorkbook terlebih dahulu')
+  return _lib.utils.sheet_to_json(sheet, { defval: '', raw: true })
 }
 
 /** Layout tabular datar dengan alias kolom fleksibel. */
