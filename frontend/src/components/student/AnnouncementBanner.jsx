@@ -6,7 +6,7 @@ import { getItem, setItem } from '../../lib/storage'
 const STORAGE_KEY_READ = 'readAnnouncements'
 
 export function AnnouncementBanner({ currentProgram, currentSemester }) {
-  const { data: announcements } = useFirestore('announcements')
+  const { data: announcements, error: announcementError } = useFirestore('announcements', [], { limit: 50, orderByField: 'updatedAt', orderByDir: 'desc' })
   const [readIds, setReadIds] = useState(() => getItem(STORAGE_KEY_READ, []))
   const [expandedIds, setExpandedIds] = useState(() => new Set())
 
@@ -67,6 +67,9 @@ export function AnnouncementBanner({ currentProgram, currentSemester }) {
     })
   }
 
+  if (announcementError) {
+    console.warn('[AnnouncementBanner]', announcementError.message || announcementError)
+  }
   if (activeAnnouncements.length === 0) return null
 
   return (

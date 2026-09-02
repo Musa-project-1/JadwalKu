@@ -35,7 +35,7 @@ export default function ManageAcademicSettings() {
   const { data: programs, loading: loadingProdi } = useFirestore('prodi')
   const { data: holidays, loading: loadingHolidays } = useFirestore('libur')
   const { data: rooms, loading: loadingRooms } = useFirestore('rooms')
-  const { data: schedules } = useFirestore('jadwal')
+  const { data: schedules } = useFirestore('jadwal', [], { limit: 500 })
   const { data: settingsDocs } = useFirestore('settings')
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
@@ -173,18 +173,27 @@ export default function ManageAcademicSettings() {
   async function handleSaveRoom(roomPayload) {
     setSavingRoom(true)
     try {
+      let res
       if (editingRoom?.id) {
-        await updateDocument('rooms', editingRoom.id, {
+        res = await updateDocument('rooms', editingRoom.id, {
           ...roomPayload,
           updatedAt: new Date().toISOString(),
         })
+        if (!res.ok) {
+          setBanner({ ok: false, message: res.error || 'Gagal memperbarui ruangan.' })
+          return
+        }
         setBanner({ ok: true, message: `✓ Ruangan "${roomPayload.namaRuang}" berhasil diperbarui.` })
       } else {
-        await addDocument('rooms', {
+        res = await addDocument('rooms', {
           ...roomPayload,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         })
+        if (!res.ok) {
+          setBanner({ ok: false, message: res.error || 'Gagal menambahkan ruangan.' })
+          return
+        }
         setBanner({ ok: true, message: `✓ Ruangan "${roomPayload.namaRuang}" berhasil ditambahkan.` })
       }
       setRoomModalOpen(false)
@@ -200,7 +209,11 @@ export default function ManageAcademicSettings() {
   async function handleDeleteRoom() {
     if (!deleteRoomTarget?.id) return
     try {
-      await deleteDocument('rooms', deleteRoomTarget.id)
+      const res = await deleteDocument('rooms', deleteRoomTarget.id)
+      if (!res.ok) {
+        setBanner({ ok: false, message: res.error || 'Gagal menghapus ruangan.' })
+        return
+      }
       setBanner({ ok: true, message: `✓ Ruangan "${deleteRoomTarget.namaRuang}" telah dihapus.` })
       setDeleteRoomTarget(null)
     } catch (err) {
@@ -226,45 +239,53 @@ export default function ManageAcademicSettings() {
         }
       })
 
-      let addedCount = 0
-      for (const roomName of uniqueScheduleRooms) {
-        if (!existingNames.has(roomName.toLowerCase())) {
-          let detectedFloor = 1
-          let detectedGedung = 'Gedung Utama'
-          if (roomName.toLowerCase().includes('halimah')) detectedGedung = 'Gedung Siti Halimah'
-          else if (roomName.toLowerCase().includes('lab')) detectedGedung = 'Gedung Laboratorium'
-          else if (roomName.toLowerCase().includes('gkb')) detectedGedung = 'Gedung Kuliah Bersama (GKB)'
-
-          const numMatch = roomName.match(/\d+/)
-          if (numMatch) {
-            const num = parseInt(numMatch[0], 10)
-            if (num >= 100 && num <= 999) detectedFloor = Math.floor(num / 100)
-            else if (num >= 1 && num <= 9) detectedFloor = num
-          }
-
-          await addDocument('rooms', {
-            namaRuang: roomName,
-            aliases: [],
-            gedung: detectedGedung,
-            lantai: detectedFloor,
-            kapasitas: 40,
-            tipeRuang: roomName.toLowerCase().includes('lab') ? 'lab' : 'kelas',
-            petunjukArah: `Ruangan ${roomName} terletak di ${detectedGedung} Lantai ${detectedFloor}.`,
-            fasilitas: ['AC Ruangan', 'Proyektor LCD', 'Papan Tulis Whiteboard', 'WiFi Kampus / Eduroam'],
-            aktif: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          })
-          addedCount++
+      const newRoomNames = [...uniqueScheduleRooms].filter((n) => !existingNames.has(n.toLowerCase()))
+      const payloads = newRoomNames.map((roomName) => {
+        let detectedFloor = 1
+        let detectedGedung = 'Gedung Utama'
+        if (roomName.toLowerCase().includes('halimah')) detectedGedung = 'Gedung Siti Halimah'
+        else if (roomName.toLowerCase().includes('lab')) detectedGedung = 'Gedung Laboratorium'
+        else if (roomName.toLowerCase().includes('gkb')) detectedGedung = 'Gedung Kuliah Bersama (GKB)'
+        const numMatch = roomName.match(/\d+/)
+        if (numMatch) {
+          const num = parseInt(numMatch[0], 10)
+          if (num >= 100 && num <= 999) detectedFloor = Math.floor(num / 100)
+          else if (num >= 1 && num <= 9) detectedFloor = num
         }
-      }
-
-      setBanner({
-        ok: true,
-        message: addedCount > 0
-          ? `✓ Berhasil mengekstrak dan menambahkan ${addedCount} ruangan baru dari jadwal.`
-          : 'Seluruh ruangan pada jadwal aktif sudah terdaftar di master database.',
+        return {
+          namaRuang: roomName,
+          aliases: [],
+          gedung: detectedGedung,
+          lantai: detectedFloor,
+          kapasitas: 40,
+          tipeRuang: roomName.toLowerCase().includes('lab') ? 'lab' : 'kelas',
+          petunjukArah: `Ruangan ${roomName} terletak di ${detectedGedung} Lantai ${detectedFloor}.`,
+          fasilitas: ['AC Ruangan', 'Proyektor LCD', 'Papan Tulis Whiteboard', 'WiFi Kampus / Eduroam'],
+          aktif: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
       })
+      const results = await Promise.allSettled(payloads.map((payload) => addDocument('rooms', payload)))
+      let addedCount = 0
+      let failCount = 0
+      results.forEach((r) => {
+        if (r.status === 'fulfilled' && r.value?.ok) addedCount++
+        else failCount++
+      })
+
+      if (failCount > 0 && addedCount === 0) {
+        setBanner({ ok: false, message: `Gagal mengekstrak ${failCount} ruangan. Periksa koneksi/rules Firestore.` })
+      } else if (failCount > 0) {
+        setBanner({ ok: true, message: `✓ Berhasil menambahkan ${addedCount} ruangan, ${failCount} gagal.` })
+      } else {
+        setBanner({
+          ok: true,
+          message: addedCount > 0
+            ? `✓ Berhasil mengekstrak dan menambahkan ${addedCount} ruangan baru dari jadwal.`
+            : 'Seluruh ruangan pada jadwal aktif sudah terdaftar di master database.',
+        })
+      }
     } catch (err) {
       console.error('Auto extract rooms failed:', err)
       setBanner({ ok: false, message: `Gagal mengekstrak ruangan: ${err.message}` })
@@ -497,18 +518,14 @@ export default function ManageAcademicSettings() {
       holidays.map((h) => `${h.mulai}_${(h.nama || '').trim().toLowerCase()}`),
     )
 
-    for (const item of preset) {
+    const toAdd = preset.filter((item) => {
       const key = `${item.mulai}_${item.nama.trim().toLowerCase()}`
-      if (!existingKeySet.has(key)) {
-        const res = await addDocument('libur', item, actor)
-        if (res.ok) {
-          addedCount += 1
-          existingKeySet.add(key)
-        }
-      } else {
-        skippedCount += 1
-      }
-    }
+      if (existingKeySet.has(key)) { skippedCount += 1; return false }
+      existingKeySet.add(key)
+      return true
+    })
+    const syncResults = await Promise.allSettled(toAdd.map((item) => addDocument('libur', item, actor)))
+    syncResults.forEach((r) => { if (r.status === 'fulfilled' && r.value?.ok) addedCount += 1 })
 
     if (addedCount > 0) {
       await appendHistory({

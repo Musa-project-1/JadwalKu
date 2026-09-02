@@ -122,9 +122,14 @@ export function DatabaseBackupRestoreModal({
         metadata: {},
       }
 
-      for (const colId of selectedBackupCols) {
-        const snap = await getDocs(collection(db, colId))
-        const docs = snap.docs.map((d) => ({ _id: d.id, ...d.data() }))
+      const exportResults = await Promise.all(
+        [...selectedBackupCols].map(async (colId) => {
+          const snap = await getDocs(collection(db, colId))
+          const docs = snap.docs.map((d) => ({ _id: d.id, ...d.data() }))
+          return { colId, docs }
+        }),
+      )
+      for (const { colId, docs } of exportResults) {
         payload.collections[colId] = docs
         payload.metadata[colId] = { count: docs.length }
       }

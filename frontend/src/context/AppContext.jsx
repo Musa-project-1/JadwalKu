@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { collection, getDocs } from 'firebase/firestore'
 import { db, firebaseReady } from '../lib/firebaseClient'
+import { logError } from '../lib/errorLogger'
 import { getItem, setItem, removeItem, STORAGE_KEYS } from '../lib/storage'
 import { AppContext } from '../hooks/useApp'
 
@@ -99,7 +100,10 @@ export function AppProvider({ children }) {
             removeItem(STORAGE_KEYS.semester)
           } catch {}
         }
-      } catch {}
+      } catch (err) {
+        console.warn('[AppContext] semester guard:', err?.message || err)
+        logError({ type: 'app-semester-guard', detail: err?.message ?? String(err), context: { program, semester } })
+      }
     })()
     return () => { cancelled = true }
   }, [program, semester])

@@ -100,7 +100,7 @@ export default function WeeklySchedule() {
   const [printModalOpen, setPrintModalOpen] = useState(false)
   const [krsSimulatorOpen, setKrsSimulatorOpen] = useState(false)
 
-  const { data: jadwal, loading } = useFirestore('jadwal', [
+  const { data: jadwal, loading, error: jadwalError } = useFirestore('jadwal', [
     ['prodi', '==', program ?? ''],
     ['semester', '==', Number(semester) || 0],
     ['status', '==', 'published'],
@@ -110,9 +110,7 @@ export default function WeeklySchedule() {
     ['semester', '==', Number(semester) || 0],
     ['status', '==', 'archived'],
   ])
-  const { data: allPublishedJadwal } = useFirestore('jadwal', [
-    ['status', '==', 'published'],
-  ])
+  const { data: allPublishedJadwal, error: allPublishedError } = useFirestore(isCustomMode ? 'jadwal' : '__noop__', isCustomMode ? [['status', '==', 'published']] : [])
 
   const allTAs = useMemo(() => {
     const set = new Set([currentTA])
@@ -557,6 +555,9 @@ export default function WeeklySchedule() {
       </header>
 
       {/* Broadcast Pengumuman Kampus & Kuliah Pengganti */}
+      {jadwalError && (
+        <div role="status" className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-body-sm font-semibold text-error">Gagal memuat jadwal: {String(jadwalError.message || jadwalError.code || jadwalError)}</div>
+      )}
       <AnnouncementBanner currentProgram={program} currentSemester={semester} />
 
       {/* Mobile & Tablet View (<1024px) */}

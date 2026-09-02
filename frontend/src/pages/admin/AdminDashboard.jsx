@@ -37,9 +37,9 @@ export default function AdminDashboard() {
 
   const { data: programs, loading: loadingProdi } = useFirestore('prodi')
   const { data: courses, loading: loadingCourses } = useFirestore('mataKuliah')
-  const { data: schedules, loading: loadingSchedules } = useFirestore('jadwal')
+  const { data: schedules, loading: loadingSchedules, error: scheduleError } = useFirestore('jadwal', [], { limit: 500 })
   const { data: exams, loading: loadingExams } = useFirestore('ujian')
-  const { data: history, loading: loadingHistory } = useFirestore('riwayat')
+  const { data: history, loading: loadingHistory, error: historyError } = useFirestore('riwayat', [], { limit: 100, orderByField: 'timestamp', orderByDir: 'desc' })
   const { data: settingsDocs } = useFirestore('settings')
 
   const appSettings = useMemo(
@@ -94,10 +94,16 @@ export default function AdminDashboard() {
   }, [schedules])
 
   const prodiBreakdown = useMemo(() => {
+    const byProdi = new Map()
+    for (const s of schedules) {
+      const key = String(s.prodi || '')
+      if (!byProdi.has(key)) byProdi.set(key, [])
+      byProdi.get(key).push(s)
+    }
     return programs
       .map((p) => {
         const name = p.nama || String(p.id || '')
-        const prodiSchedules = schedules.filter((s) => s.prodi === name)
+        const prodiSchedules = byProdi.get(name) || []
         return {
           name,
           sessionCount: prodiSchedules.length,
@@ -190,6 +196,12 @@ export default function AdminDashboard() {
           message={banner.message}
           onClose={() => setBanner(null)}
         />
+      )}
+      {historyError && (
+        <StatusBanner ok={false} message={`Gagal memuat riwayat: ${historyError.message || historyError.code || 'Unknown error'}`} onClose={() => {}} />
+      )}
+      {scheduleError && (
+        <StatusBanner ok={false} message={`Gagal memuat jadwal: ${scheduleError.message || scheduleError.code || 'Unknown error'}`} onClose={() => {}} />
       )}
 
       {/* ── 2. Stat Cards (4-Column Balanced Grid) ── */}

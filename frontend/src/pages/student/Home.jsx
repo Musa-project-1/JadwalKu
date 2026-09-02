@@ -73,15 +73,13 @@ export default function Home() {
     return savedTA && savedTA !== expectedTA
   }, [expectedTA])
 
-  const { data: jadwal, loading } = useFirestore('jadwal', [
+  const { data: jadwal, loading, error: jadwalError } = useFirestore('jadwal', [
     ['prodi', '==', program ?? ''],
     ['semester', '==', Number(semester) || 0],
     ['tahunAjaran', '==', expectedTA || ''],
     ['status', '==', 'published'],
   ])
-  const { data: allPublishedJadwal } = useFirestore('jadwal', [
-    ['status', '==', 'published'],
-  ])
+  const { data: allPublishedJadwal } = useFirestore(isCustomMode ? 'jadwal' : '__noop__', isCustomMode ? [['status', '==', 'published']] : [])
   const { data: mataKuliah } = useFirestore('mataKuliah')
 
   const useSample = !firebaseReady
@@ -283,6 +281,9 @@ export default function Home() {
         </div>
       )}
 
+      {jadwalError && (
+        <div role="status" className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-body-sm font-semibold text-error">Gagal memuat jadwal: {String(jadwalError.message || jadwalError.code || jadwalError)}</div>
+      )}
       <AnnouncementBanner currentProgram={program} currentSemester={semester} />
       <div className="grid grid-cols-1 desktop:grid-cols-12 gap-4 desktop:items-stretch">
         <section className="desktop:col-span-7 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-6 tablet:p-6 shadow-level-1 flex flex-col flex-1 self-stretch min-h-0">

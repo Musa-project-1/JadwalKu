@@ -17,6 +17,7 @@ import {
 import { CourseTable, CourseCards, CourseFormModal } from '../../components/admin/manageCourses'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
+import { useDebounce } from '../../hooks/useDebounce'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory } from '../../lib/publishHelpers'
 import { validateCourseEntry } from '../../lib/uploadValidator'
@@ -39,6 +40,7 @@ export default function ManageCourses() {
   const { campus, prodiNames } = useCampus()
 
   const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search, 250)
   const [dosenFilter, setDosenFilter] = useState('')
   const [prodiFilter, setProdiFilter] = useState('')
   const [semesterFilter, setSemesterFilter] = useState('')
@@ -102,8 +104,8 @@ export default function ManageCourses() {
   }, [courses, lecturers])
 
   const filtered = useMemo(
-    () => filterCourses(courses, { search, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter }, campus),
-    [courses, search, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter, campus],
+    () => filterCourses(courses, { search: debouncedSearch, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter }, campus),
+    [courses, debouncedSearch, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter, campus],
   )
 
   // ── Paginasi Data Mata Kuliah ──

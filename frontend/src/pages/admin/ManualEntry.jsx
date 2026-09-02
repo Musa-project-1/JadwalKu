@@ -94,22 +94,26 @@ export default function ManualEntry() {
       return
     }
     setBusy(true)
+    const draftResults = await Promise.allSettled(
+      sessions.map((session) => {
+        const { _id, ...data } = session
+        return addDocument(
+          'jadwal',
+          {
+            ...data,
+            tahunAjaran: session.tahunAjaran || deriveTahunAjaran(),
+            status: 'draft',
+          },
+          actor,
+        )
+      }),
+    )
     let okCount = 0
     let failCount = 0
-    for (const session of sessions) {
-      const { _id, ...data } = session
-      const result = await addDocument(
-        'jadwal',
-        {
-          ...data,
-          tahunAjaran: session.tahunAjaran || deriveTahunAjaran(),
-          status: 'draft',
-        },
-        actor,
-      )
-      if (result.ok) okCount += 1
+    draftResults.forEach((r) => {
+      if (r.status === 'fulfilled' && r.value?.ok) okCount += 1
       else failCount += 1
-    }
+    })
     if (okCount > 0) {
       await appendHistory({
         entitas: 'jadwal',
@@ -134,33 +138,36 @@ export default function ManualEntry() {
       return
     }
     setBusy(true)
-    const ids = []
-    for (const session of sessions) {
-      const { _id, ...data } = session
-      const result = await addDocument(
-        'jadwal',
-        {
-          ...data,
-          tahunAjaran: session.tahunAjaran || deriveTahunAjaran(),
-          status: 'draft',
-        },
-        actor,
-      )
-      if (result.ok) ids.push(result.id)
-    }
+    const publishResults = await Promise.allSettled(
+      sessions.map((session) => {
+        const { _id, ...data } = session
+        return addDocument(
+          'jadwal',
+          {
+            ...data,
+            tahunAjaran: session.tahunAjaran || deriveTahunAjaran(),
+            status: 'draft',
+          },
+          actor,
+        )
+      }),
+    )
+    const ids = publishResults.filter((r) => r.status === 'fulfilled' && r.value?.ok).map((r) => r.value.id)
     if (ids.length === 0) {
       setBanner({ ok: false, message: 'Gagal menyimpan sesi.' })
       setBusy(false)
       return
     }
     const pubResult = await publishDocuments('jadwal', ids, actor)
-    await appendHistory({
-      entitas: 'jadwal',
-      field: 'publish',
-      nilaiLama: null,
-      nilaiBaru: `${ids.length} entri manual`,
-      aktor: actor,
-    })
+    if (pubResult.ok) {
+      await appendHistory({
+        entitas: 'jadwal',
+        field: 'publish',
+        nilaiLama: null,
+        nilaiBaru: `${ids.length} entri manual`,
+        aktor: actor,
+      })
+    }
     setBanner(
       pubResult.ok
         ? { ok: true, message: `${pubResult.publishedCount} sesi dipublikasikan ke mahasiswa.` }

@@ -26,6 +26,8 @@ export default function Tasks() {
   const [showForm, setShowForm] = useState(false)
   const [initialKodeMK, setInitialKodeMK] = useState('')
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [actionError, setActionError] = useState('')
+  const [actionSuccess, setActionSuccess] = useState('')
 
   // Filter State
   const [scopeFilter, setScopeFilter] = useState('all') // 'all' | 'prodi' | 'pribadi'
@@ -353,11 +355,35 @@ export default function Tasks() {
       )}
 
       {/* Form Modal Dialog */}
+      {actionError && (
+        <div role="status" className="rounded-2xl border border-error/30 bg-error/10 dark:bg-error/15 px-4 py-3 flex items-start justify-between gap-3">
+          <span className="flex items-center gap-2 text-body-sm font-semibold text-error"><span className="text-error">{actionError}</span></span>
+          <button type="button" onClick={() => setActionError('')} className="shrink-0 rounded-full p-1 hover:bg-error/15"><span className="text-error">×</span></button>
+        </div>
+      )}
+      {actionSuccess && (
+        <div role="status" className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 flex items-start justify-between gap-3">
+          <span className="text-body-sm font-semibold text-emerald-800 dark:text-emerald-200">{actionSuccess}</span>
+          <button type="button" onClick={() => setActionSuccess('')} className="shrink-0 rounded-full p-1 hover:bg-emerald-500/15">×</button>
+        </div>
+      )}
       {showForm && (
         <AddTaskForm
           initialKodeMK={initialKodeMK}
-          onSubmit={(data, isProdi) => {
-            addTask(data, isProdi)
+          onSubmit={async (data, isProdi) => {
+            const res = await addTask(data, isProdi)
+            if (!res?.ok) {
+              setActionError(res?.error || 'Gagal menyimpan tugas')
+              setTimeout(() => setActionError(''), 4000)
+              if (res?.fallback) {
+                setActionSuccess('Disimpan lokal karena gagal sync cloud')
+                setTimeout(() => setActionSuccess(''), 3000)
+                setShowForm(false)
+              }
+              return
+            }
+            setActionSuccess(isProdi ? 'Tugas Prodi tersinkron ke cloud' : 'Tugas berhasil ditambahkan')
+            setTimeout(() => setActionSuccess(''), 2500)
             setShowForm(false)
           }}
           onCancel={() => setShowForm(false)}
@@ -371,9 +397,16 @@ export default function Tasks() {
         message={`Apakah Anda yakin ingin menghapus tugas "${deleteTarget?.judul}"?`}
         confirmLabel="Hapus"
         danger
-        onConfirm={() => {
+        onConfirm={async () => {
           if (deleteTarget) {
-            removeTask(deleteTarget.id, deleteTarget.isProdi)
+            const res = await removeTask(deleteTarget.id)
+            if (res?.ok === false) {
+              setActionError(res?.error || 'Gagal menghapus tugas')
+              setTimeout(() => setActionError(''), 4000)
+            } else {
+              setActionSuccess('Tugas dihapus')
+              setTimeout(() => setActionSuccess(''), 2500)
+            }
             setDeleteTarget(null)
           }
         }}

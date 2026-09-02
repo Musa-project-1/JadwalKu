@@ -62,18 +62,19 @@ export function NotificationsProvider({ children }) {
   ])
   const { data: mataKuliah } = useFirestore('mataKuliah')
   const { data: ujian } = useFirestore('ujian', [['status', '==', 'published']])
-  const { data: riwayat } = useFirestore('riwayat')
+  const { data: riwayat } = useFirestore('riwayat', [], { limit: 50, orderByField: 'timestamp', orderByDir: 'desc' })
 
   const dispatchedNativeRef = useRef(new Set())
 
   const runEngine = useCallback(() => {
-    const now = new Date()
-    const todayEntries = jadwal.filter((e) => e.hari === getTodayName(now))
-    const courseMap = new Map(mataKuliah.map((c) => [c.kodeMK, c]))
-    const tasks = getItem(STORAGE_KEYS.tasks, [])
+    try {
+      const now = new Date()
+      const todayEntries = Array.isArray(jadwal) ? jadwal.filter((e) => e.hari === getTodayName(now)) : []
+      const courseMap = new Map((Array.isArray(mataKuliah) ? mataKuliah : []).map((c) => [c.kodeMK, c]))
+      const tasks = getItem(STORAGE_KEYS.tasks, [])
 
-    const prefs = getReminderPrefs()
-    const incoming = [
+      const prefs = getReminderPrefs()
+      const incoming = [
       ...(prefs.kelas ? buildClassReminders(todayEntries, courseMap, now, prefs.classWindow) : []),
       ...(prefs.tugas ? buildTaskDeadlineReminders(tasks, now) : []),
       ...(prefs.ujian ? buildExamReminders(ujian, now, prefs.examDays) : []),
@@ -127,8 +128,11 @@ export function NotificationsProvider({ children }) {
           item.read !== prior.read
         )
       })
-    if (!changed) return
-    persist(merged)
+      if (!changed) return
+      persist(merged)
+    } catch (err) {
+      console.warn('[Notifications] runEngine error:', err?.message || err)
+    }
   }, [jadwal, mataKuliah, ujian, riwayat, persist])
 
   useEffect(() => {

@@ -615,7 +615,7 @@ const HISTORY_FILTERS = [
 
 function HistoryModal({ onClose }) {
   const [filter, setFilter] = useState('all')
-  const { data: riwayat, loading } = useFirestore('riwayat')
+  const { data: riwayat, loading, error: riwayatError } = useFirestore('riwayat', [], { limit: 80, orderByField: 'timestamp', orderByDir: 'desc' })
 
   const filtered = useMemo(
     () =>
@@ -678,6 +678,11 @@ function HistoryModal({ onClose }) {
           ))}
         </div>
 
+        {riwayatError && (
+          <div role="status" className="mx-4 mt-3 rounded-xl border border-error/30 bg-error/10 px-4 py-2 text-body-sm font-semibold text-error">
+            Gagal memuat riwayat: {String(riwayatError.message || riwayatError.code || riwayatError)}
+          </div>
+        )}
         <div className="flex-1 overflow-y-auto p-5 tablet:p-6 space-y-5">
           {loading ? (
             <div className="space-y-3">

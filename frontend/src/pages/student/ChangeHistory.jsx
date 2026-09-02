@@ -16,7 +16,7 @@ export default function ChangeHistory() {
   const navigate = useNavigate()
   const [filter, setFilter] = useState('all')
 
-  const { data: riwayat, loading } = useFirestore('riwayat')
+  const { data: riwayat, loading, error: riwayatError } = useFirestore('riwayat', [], { limit: 100, orderByField: 'timestamp', orderByDir: 'desc' })
 
   const filtered = useMemo(
     () =>
@@ -65,6 +65,11 @@ export default function ChangeHistory() {
         ))}
       </div>
 
+      {riwayatError && (
+        <div role="status" className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-body-sm font-semibold text-error">
+          Gagal memuat riwayat: {String(riwayatError.message || riwayatError.code || riwayatError)}
+        </div>
+      )}
       {loading ? (
         <div className="space-y-sm">
           <Skeleton className="h-20 rounded-lg" />

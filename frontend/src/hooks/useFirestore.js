@@ -1,20 +1,22 @@
-import { collection, onSnapshot, query, where } from 'firebase/firestore'
+import { collection, onSnapshot, query, where, orderBy, limit } from 'firebase/firestore'
 import { useEffect, useRef, useState } from 'react'
 import { db, firebaseReady } from '../lib/firebaseClient'
 
 /**
  * @param {string} collectionName
  * @param {Array<[string, string, unknown]>} constraints Firestore where tuples
+ * @param {{limit?: number, orderByField?: string, orderByDir?: 'asc'|'desc'}} opts optional limit/orderBy
  */
-export function useFirestore(collectionName, constraints = []) {
+export function useFirestore(collectionName, constraints = [], opts = {}) {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(firebaseReady)
   const [error, setError] = useState(null)
   // guard: invalid / internal collection names (e.g. __noop__) -> return empty without firing SDK query
   const isValidCollection = typeof collectionName === 'string' && collectionName.length > 0 && !collectionName.startsWith('__')
+  const optsKey = `${opts.limit ?? ''}|${opts.orderByField ?? ''}|${opts.orderByDir ?? ''}`
   const constraintKey = constraints
     .map(([field, op, value]) => `${field}:${op}:${String(value)}`)
-    .join('|')
+    .join('|') + `||${optsKey}`
 
   // Track previous constraintKey so we can reset data when query changes
   const prevKeyRef = useRef(constraintKey)
@@ -51,6 +53,8 @@ export function useFirestore(collectionName, constraints = []) {
     let unsub = null
     try {
       const clauses = validConstraints.map(([field, op, value]) => where(field, op, value))
+      if (opts.orderByField) clauses.push(orderBy(opts.orderByField, opts.orderByDir || 'desc'))
+      if (opts.limit) clauses.push(limit(opts.limit))
       const q = clauses.length > 0 ? query(collection(db, collectionName), ...clauses) : collection(db, collectionName)
 
       unsub = onSnapshot(

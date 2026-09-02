@@ -20,6 +20,7 @@ import { ExamFormModal } from '../../components/admin/manageExams/ExamFormModal'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useCampus } from '../../context/useCampus'
+import { useDebounce } from '../../hooks/useDebounce'
 import { addDocument, deleteDocument, updateDocument } from '../../lib/adminData'
 import { publishDocuments, appendHistory } from '../../lib/publishHelpers'
 import { parseWorkbook } from '../../lib/xlsxParser'
@@ -42,7 +43,7 @@ const BASE_SEMESTER_GROUPS = [
 ]
 
 export default function ManageExams() {
-  const { data: exams, loading } = useFirestore('ujian')
+  const { data: exams, loading, error: ujianError } = useFirestore('ujian', [], { limit: 500 })
   const { data: courses } = useFirestore('mataKuliah')
   const { prodiNames } = useCampus()
   const { user } = useAdminAuth()
@@ -50,6 +51,7 @@ export default function ManageExams() {
 
   // Filter States
   const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search, 250)
   const [jenisFilter, setJenisFilter] = useState('Semua') // Semua | UTS | UAS
   const [prodiFilter, setProdiFilter] = useState('')
   const [semesterFilter, setSemesterFilter] = useState('')
@@ -113,7 +115,7 @@ export default function ManageExams() {
 
   // Filtered List
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase()
+    const q = debouncedSearch.trim().toLowerCase()
     return exams
       .filter((e) => {
         if (jenisFilter !== 'Semua' && e.jenis !== jenisFilter) return false
@@ -149,7 +151,7 @@ export default function ManageExams() {
           String(a.tanggal).localeCompare(String(b.tanggal)) ||
           String(a.jam).localeCompare(String(b.jam)),
       )
-  }, [exams, jenisFilter, prodiFilter, semesterFilter, statusFilter, search, courseMap])
+  }, [exams, jenisFilter, prodiFilter, semesterFilter, statusFilter, debouncedSearch, courseMap])
 
   // Dynamic Pagination
   const totalPages = pageSize === 0 ? 1 : Math.ceil(filtered.length / pageSize) || 1
@@ -336,11 +338,8 @@ export default function ManageExams() {
     const ids = [...selectedIds]
     if (ids.length === 0) return
     setBusy(true)
-    let okCount = 0
-    for (const id of ids) {
-      const res = await deleteDocument('ujian', id)
-      if (res.ok) okCount += 1
-    }
+    const bulkResults = await Promise.allSettled(ids.map((id) => deleteDocument('ujian', id)))
+    const okCount = bulkResults.filter((r) => r.status === 'fulfilled' && r.value?.ok).length
     setBusy(false)
     setBulkDeleteOpen(false)
     setSelectedIds(new Set())
@@ -371,13 +370,13 @@ export default function ManageExams() {
   async function confirmImport() {
     if (!imported) return
     setBusy(true)
+    const importResults = await Promise.allSettled(imported.map((row) => addDocument('ujian', { ...row, status: 'draft' }, actor)))
     let okCount = 0
     let failCount = 0
-    for (const row of imported) {
-      const result = await addDocument('ujian', { ...row, status: 'draft' }, actor)
-      if (result.ok) okCount += 1
+    importResults.forEach((r) => {
+      if (r.status === 'fulfilled' && r.value?.ok) okCount += 1
       else failCount += 1
-    }
+    })
     setBusy(false)
     setImported(null)
     setBanner(
@@ -463,6 +462,7 @@ export default function ManageExams() {
         onOpenAdd={openAdd}
       />
 
+      {ujianError && <StatusBanner ok={false} message={`Gagal memuat ujian: ${ujianError.message || ujianError.code || 'Unknown error'}`} onClose={() => {}} />}
       {/* Banner */}
       {banner && (
         <StatusBanner

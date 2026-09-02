@@ -13,15 +13,14 @@ export function RoomLocationModal({
   currentCourseName = '',
 }) {
   const [copied, setCopied] = useState(false)
-  const { data: roomMasterList } = useFirestore('rooms')
+  const { data: roomMasterList } = useFirestore('rooms', [], { limit: 200 })
 
   // Escape key handler
   useEffect(() => {
-    if (!isOpen) return
     function handleKeyDown(e) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') onClose?.()
     }
-    window.addEventListener('keydown', handleKeyDown)
+    if (isOpen) window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 

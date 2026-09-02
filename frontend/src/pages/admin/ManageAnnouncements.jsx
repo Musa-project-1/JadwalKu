@@ -6,21 +6,26 @@ import { CustomDatePicker } from '../../components/CustomDatePicker'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { EmptyState } from '../../components/EmptyState'
 import { useFirestore } from '../../hooks/useFirestore'
+import { StatusBanner } from '../../components/StatusBanner'
+import { useDebounce } from '../../hooks/useDebounce'
 import { addDocument, updateDocument, deleteDocument } from '../../lib/adminData'
 import { useCampus } from '../../context/useCampus'
 
 export default function ManageAnnouncements() {
-  const { data: announcements, loading } = useFirestore('announcements')
+  const { data: announcements, loading, error: announcementError } = useFirestore('announcements', [], { limit: 100, orderByField: 'createdAt', orderByDir: 'desc' })
   const { data: settingsDocs } = useFirestore('settings')
 
   const [searchQuery, setSearchQuery] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 250)
+
   const [modalOpen, setModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [banner, setBanner] = useState(null)
 
   // Form State
   const [formJudul, setFormJudul] = useState('')
@@ -44,8 +49,8 @@ export default function ManageAnnouncements() {
   const filteredAnnouncements = useMemo(() => {
     let list = Array.isArray(announcements) ? [...announcements] : []
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim()
+    if (debouncedSearchQuery.trim()) {
+      const q = debouncedSearchQuery.toLowerCase().trim()
       list = list.filter(
         (a) =>
           a.judul?.toLowerCase().includes(q) ||
@@ -65,7 +70,7 @@ export default function ManageAnnouncements() {
     }
 
     return list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
-  }, [announcements, searchQuery, filterCategory, filterStatus])
+  }, [announcements, debouncedSearchQuery, filterCategory, filterStatus])
 
   // Support ESC key to close modal
   useEffect(() => {
@@ -118,16 +123,22 @@ export default function ManageAnnouncements() {
         updatedAt: new Date().toISOString(),
       }
 
+      let res
       if (editingItem) {
-        await updateDocument('announcements', editingItem.id, payload)
+        res = await updateDocument('announcements', editingItem.id, payload)
       } else {
         payload.createdAt = new Date().toISOString()
-        await addDocument('announcements', payload)
+        res = await addDocument('announcements', payload)
       }
-
+      if (!res.ok) {
+        setBanner({ ok: false, message: res.error || 'Gagal menyimpan pengumuman.' })
+        return
+      }
+      setBanner({ ok: true, message: editingItem ? '✓ Pengumuman berhasil diperbarui.' : '✓ Pengumuman berhasil dibuat.' })
       setModalOpen(false)
     } catch (err) {
       console.error('Failed to save announcement:', err)
+      setBanner({ ok: false, message: `Gagal menyimpan pengumuman: ${err.message}` })
     } finally {
       setSaving(false)
     }
@@ -135,22 +146,30 @@ export default function ManageAnnouncements() {
 
   async function handleToggleStatus(item) {
     try {
-      await updateDocument('announcements', item.id, {
+      const res = await updateDocument('announcements', item.id, {
         aktif: !item.aktif,
         updatedAt: new Date().toISOString(),
       })
+      if (!res.ok) setBanner({ ok: false, message: res.error || 'Gagal mengubah status.' })
     } catch (err) {
       console.error('Failed to toggle status:', err)
+      setBanner({ ok: false, message: `Gagal mengubah status: ${err.message}` })
     }
   }
 
   async function handleDelete() {
     if (!deleteTarget) return
     try {
-      await deleteDocument('announcements', deleteTarget.id)
+      const res = await deleteDocument('announcements', deleteTarget.id)
+      if (!res.ok) {
+        setBanner({ ok: false, message: res.error || 'Gagal menghapus pengumuman.' })
+        return
+      }
+      setBanner({ ok: true, message: '✓ Pengumuman telah dihapus.' })
       setDeleteTarget(null)
     } catch (err) {
       console.error('Failed to delete announcement:', err)
+      setBanner({ ok: false, message: `Gagal menghapus pengumuman: ${err.message}` })
     }
   }
 
@@ -254,6 +273,8 @@ export default function ManageAnnouncements() {
         </div>
       </div>
 
+      {banner && <StatusBanner ok={banner.ok} message={banner.message} onClose={() => setBanner(null)} />}
+      {announcementError && <StatusBanner ok={false} message={`Gagal memuat pengumuman: ${announcementError.message || announcementError.code || 'Unknown error'}`} onClose={() => {}} />}
       {/* Announcements List */}
       {loading ? (
         <div className="py-12 text-center text-on-surface-variant">Memuat pengumuman...</div>

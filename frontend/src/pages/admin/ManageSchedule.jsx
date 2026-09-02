@@ -23,7 +23,10 @@ import { QuickCourseModal } from '../../components/admin/manageSchedule/QuickCou
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useCampus } from '../../context/useCampus'
+import { useDebounce } from '../../hooks/useDebounce'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
+import { writeBatch, doc } from 'firebase/firestore'
+import { db } from '../../lib/firebaseClient'
 import { appendHistory, publishDocuments, saveSettings } from '../../lib/publishHelpers'
 import { deriveTahunAjaran, expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 import { findConflicts, validateCourseEntry, validateScheduleEntry } from '../../lib/uploadValidator'
@@ -57,7 +60,7 @@ const EMPTY_COURSE = {
 }
 
 export default function ManageSchedule() {
-  const { data: rawSchedule, loading: loadingSchedule } = useFirestore('jadwal')
+  const { data: rawSchedule, loading: loadingSchedule, error: scheduleError } = useFirestore('jadwal', [], { limit: 500, orderByField: 'updatedAt', orderByDir: 'desc' })
   const { data: courses } = useFirestore('mataKuliah')
   const { data: programs } = useFirestore('prodi')
   const { data: fakultasDocs } = useFirestore('fakultas')
@@ -121,6 +124,7 @@ export default function ManageSchedule() {
 
   // ── State Filter & Pencarian Database ──
   const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search, 250)
   const [fakultasFilter, setFakultasFilter] = useState('')
   const [prodiFilter, setProdiFilter] = useState('')
   const [semesterFilter, setSemesterFilter] = useState('')
@@ -230,13 +234,13 @@ export default function ManageSchedule() {
     return { conflictsList: list, conflictMap: map }
   }, [rawSchedule, courseMap])
 
-  // Live Conflict Checking di Modal Tambah & Edit
+  // Live Conflict Checking di Modal Tambah & Edit — guarded so no recompute when modal closed
   const addModalClash = useMemo(() => {
-    if (!manualForm.hari || !manualForm.jamMulai || !manualForm.jamSelesai || !manualForm.kodeMK) return null
+    if (!addModalOpen || !manualForm.hari || !manualForm.jamMulai || !manualForm.jamSelesai || !manualForm.kodeMK) return null
     const list = findConflicts([...rawSchedule, { ...manualForm, id: 'temp-manual' }], courseMap)
     const found = list.find((c) => c.idA === 'temp-manual' || c.idB === 'temp-manual')
     return found ? found.message : null
-  }, [manualForm, rawSchedule, courseMap])
+  }, [addModalOpen, manualForm, rawSchedule, courseMap])
 
   const editModalClash = useMemo(() => {
     if (!editingItem || !editForm.hari || !editForm.jamMulai || !editForm.jamSelesai || !editForm.kodeMK) return null
@@ -259,7 +263,7 @@ export default function ManageSchedule() {
           hariFilter,
           statusFilter,
           onlyShowConflicts,
-          search,
+          search: debouncedSearch,
         },
         { courseMap, prodiFakultasMap, conflictMap },
       ),
@@ -273,7 +277,7 @@ export default function ManageSchedule() {
       statusFilter,
       onlyShowConflicts,
       conflictMap,
-      search,
+      debouncedSearch,
       courseMap,
       prodiFakultasMap,
     ],
@@ -317,7 +321,7 @@ export default function ManageSchedule() {
     // oxlint-disable-next-line react/set-state-in-effect
     setExpandedGroups(new Set())
   }, [
-    search,
+    debouncedSearch,
     fakultasFilter,
     prodiFilter,
     semesterFilter,
@@ -332,14 +336,14 @@ export default function ManageSchedule() {
     setBusy(true)
     const targetTA = parsedData.tahunAjaran || currentTA
 
-    // 1. Simpan Master MK jika ada MK baru
-    for (const c of parsedData.courses || []) {
-      if (c.kodeMK) {
-        await setDocument('mataKuliah', c.kodeMK, c, actor)
-      }
-    }
+    // 1. Simpan Master MK jika ada MK baru (batch)
+    const courseResults = await Promise.allSettled(
+      (parsedData.courses || []).filter((c) => c.kodeMK).map((c) => setDocument('mataKuliah', c.kodeMK, c, actor)),
+    )
+    const failedCourses = courseResults.filter((r) => r.status === 'rejected' || !r.value?.ok).length
+    if (failedCourses > 0) setBanner({ ok: false, message: `${failedCourses} mata kuliah gagal disimpan. Periksa koneksi/rules.` })
 
-    // 2. Simpan sesi jadwal ke Firestore
+    // 2. Simpan sesi jadwal ke Firestore (batch via Promise.allSettled)
     const scheduleDocs = (parsedData.scheduleEntries || []).map((e) => {
       const _fId = String(prodiFakultasMap.get(String(e.prodi || '')) || '').trim() || null
       return {
@@ -350,9 +354,15 @@ export default function ManageSchedule() {
         status: 'published',
       }
     })
-    for (const doc of scheduleDocs) {
-      const { id, ...data } = doc
-      await setDocument('jadwal', id, data, actor)
+    const scheduleResults = await Promise.allSettled(
+      scheduleDocs.map(async (doc) => {
+        const { id, ...data } = doc
+        return setDocument('jadwal', id, data, actor)
+      }),
+    )
+    const failedSchedules = scheduleResults.filter((r) => r.status === 'rejected' || !r.value?.ok).length
+    if (failedSchedules > 0) {
+      setBanner({ ok: false, message: `${failedSchedules} sesi jadwal gagal disimpan.` })
     }
     const res = await publishDocuments(
       'jadwal',
@@ -368,10 +378,12 @@ export default function ManageSchedule() {
         tahunAjaran: targetTA,
         status: 'published',
       }))
-      for (const doc of examDocs) {
-        const { id, ...data } = doc
-        await setDocument('ujian', id, data, actor)
-      }
+      await Promise.allSettled(
+        examDocs.map(async (doc) => {
+          const { id, ...data } = doc
+          return setDocument('ujian', id, data, actor)
+        }),
+      )
       await publishDocuments(
         'ujian',
         examDocs.map((d) => d.id),
@@ -546,11 +558,8 @@ export default function ManageSchedule() {
     if (target._group) {
       const ids = target._group.items.map((it) => it.id)
       setBusy(true)
-      let okCount = 0
-      for (const id of ids) {
-        const r = await deleteDocument('jadwal', id)
-        if (r.ok) okCount += 1
-      }
+      const delResults = await Promise.allSettled(ids.map((id) => deleteDocument('jadwal', id)))
+      const okCount = delResults.filter((r) => r.status === 'fulfilled' && r.value?.ok).length
       setBusy(false)
       setDeleteTarget(null)
       if (okCount > 0) {
@@ -653,11 +662,8 @@ export default function ManageSchedule() {
     if (errors.length > 0) return
 
     setBusy(true)
-    let okCount = 0
-    for (const item of groupEditing.group.items) {
-      const r = await updateDocument('jadwal', item.id, { ...groupEditing.editForm }, actor)
-      if (r.ok) okCount += 1
-    }
+    const groupEditResults = await Promise.allSettled(groupEditing.group.items.map((item) => updateDocument('jadwal', item.id, { ...groupEditing.editForm }, actor)))
+    const okCount = groupEditResults.filter((r) => r.status === 'fulfilled' && r.value?.ok).length
     setBusy(false)
     if (okCount > 0) {
       await appendHistory({
@@ -681,11 +687,8 @@ export default function ManageSchedule() {
   async function handleBulkStatusChange(newStatus) {
     if (selectedIds.size === 0) return
     setBusy(true)
-    let successCount = 0
-    for (const id of selectedIds) {
-      const res = await updateDocument('jadwal', id, { status: newStatus }, actor)
-      if (res.ok) successCount += 1
-    }
+    const bulkStatusResults = await Promise.allSettled([...selectedIds].map((id) => updateDocument('jadwal', id, { status: newStatus }, actor)))
+    const successCount = bulkStatusResults.filter((r) => r.status === 'fulfilled' && r.value?.ok).length
     setBusy(false)
     await appendHistory({
       entitas: 'jadwal',
@@ -705,11 +708,8 @@ export default function ManageSchedule() {
   async function handleBulkDelete() {
     if (selectedIds.size === 0) return
     setBusy(true)
-    let deletedCount = 0
-    for (const id of selectedIds) {
-      const res = await deleteDocument('jadwal', id)
-      if (res.ok) deletedCount += 1
-    }
+    const bulkDelResults = await Promise.allSettled([...selectedIds].map((id) => deleteDocument('jadwal', id)))
+    const deletedCount = bulkDelResults.filter((r) => r.status === 'fulfilled' && r.value?.ok).length
     setBusy(false)
     setBulkDeleteOpen(false)
     await appendHistory({
@@ -813,6 +813,11 @@ export default function ManageSchedule() {
             message={banner.message}
             onClose={() => setBanner(null)}
           />
+        </div>
+      )}
+      {scheduleError && (
+        <div className="shrink-0">
+          <StatusBanner ok={false} message={`Gagal memuat jadwal: ${scheduleError.message || scheduleError.code || 'Unknown error'}`} onClose={() => {}} />
         </div>
       )}
 

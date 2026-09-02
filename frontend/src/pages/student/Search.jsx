@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useDebounce } from '../../hooks/useDebounce'
 import { useTasks } from '../../hooks/useTasks'
 import { useFirestore } from '../../hooks/useFirestore'
 import { Icon } from '../../components/Icon'
@@ -21,6 +22,7 @@ const FILTERS = [
 export default function Search() {
   const { tasks } = useTasks()
   const [queryText, setQueryText] = useState('')
+  const debouncedQuery = useDebounce(queryText, 250)
   const [filter, setFilter] = useState('all')
   const [recents, setRecents] = useState(() => getItem(STORAGE_KEYS.recentSearches, []))
   const [selectedLecturer, setSelectedLecturer] = useState(null)
@@ -75,7 +77,7 @@ export default function Search() {
   }, [courses, fullSchedulePool])
 
   const results = useMemo(() => {
-    const q = queryText.trim().toLowerCase()
+    const q = debouncedQuery.trim().toLowerCase()
     if (!q) return null
 
     const courseHits = courses.filter(
@@ -101,7 +103,7 @@ export default function Search() {
     })
 
     return { courseHits, lecturerHits, taskHits, scheduleHits }
-  }, [queryText, courses, allLecturers, tasks, fullSchedulePool, courseNameMap])
+  }, [debouncedQuery, courses, allLecturers, tasks, fullSchedulePool, courseNameMap])
 
   const hasResults =
     results &&

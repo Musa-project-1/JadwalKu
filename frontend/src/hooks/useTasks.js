@@ -72,15 +72,39 @@ export function useTasks() {
   const addTask = useCallback(
     async (taskData, isProdi = false) => {
       if (isProdi && firebaseReady) {
-        // Tulis ke Firestore agar tersinkronisasi ke seluruh mahasiswa prodi
-        const res = await addDocument('tugasProdi', {
-          ...taskData,
-          prodi: program,
-          semester: Number(semester) || 0,
-          dibuatOleh: taskData.dibuatOleh || 'Komti / Mahasiswa',
-          createdAt: new Date(),
-        })
-        return res
+        try {
+          const res = await addDocument('tugasProdi', {
+            ...taskData,
+            prodi: program,
+            semester: Number(semester) || 0,
+            dibuatOleh: taskData.dibuatOleh || 'Komti / Mahasiswa',
+            createdAt: new Date(),
+          })
+          // Fallback ke local jika Firestore gagal (rules/offline) agar data tidak hilang
+          if (res?.ok) return res
+          // fallback to local storage when cloud write fails
+          const fallbackTask = {
+            id: crypto.randomUUID(),
+            selesai: false,
+            prioritas: taskData.prioritas ?? 'sedang',
+            isProdi: false,
+            dibuatOleh: 'Pribadi (gagal sync Prodi)',
+            ...taskData,
+          }
+          persistLocal([...localTasksRef.current, fallbackTask])
+          return { ok: false, error: res?.error || 'Gagal menyimpan ke cloud, disimpan lokal', id: fallbackTask.id, fallback: true }
+        } catch (err) {
+          const fallbackTask = {
+            id: crypto.randomUUID(),
+            selesai: false,
+            prioritas: taskData.prioritas ?? 'sedang',
+            isProdi: false,
+            dibuatOleh: 'Pribadi (gagal sync Prodi)',
+            ...taskData,
+          }
+          persistLocal([...localTasksRef.current, fallbackTask])
+          return { ok: false, error: err?.message ?? String(err), id: fallbackTask.id, fallback: true }
+        }
       }
 
       // Default / fallback: simpan ke LocalStorage
@@ -100,14 +124,17 @@ export function useTasks() {
 
   const updateTask = useCallback(
     async (id, changes) => {
-      // Tugas bersama prodi tersimpan di Firestore — jangan edit salinan lokal
-      // yang tidak pernah sinkron (bug: perubahan tampak hilang setelah reload).
       const isCloudShared = (cloudProdiTasks || []).some((t) => t.id === id)
       if (isCloudShared && firebaseReady) {
-        return updateDocument('tugasProdi', id, changes)
+        try {
+          const res = await updateDocument('tugasProdi', id, changes)
+          return res
+        } catch (err) {
+          return { ok: false, error: err?.message ?? String(err) }
+        }
       }
       persistLocal(localTasksRef.current.map((t) => (t.id === id ? { ...t, ...changes } : t)))
-      return { ok: true }
+      return { ok: true, id }
     },
     [cloudProdiTasks, persistLocal],
   )
@@ -137,10 +164,12 @@ export function useTasks() {
     async (id) => {
       const isCloudShared = (cloudProdiTasks || []).some((t) => t.id === id)
       if (isCloudShared && firebaseReady) {
-        await deleteDocument('tugasProdi', id)
-        return
+        const res = await deleteDocument('tugasProdi', id)
+        if (res?.ok === false) return res
+        return { ok: true, id }
       }
       persistLocal(localTasksRef.current.filter((t) => t.id !== id))
+      return { ok: true, id }
     },
     [cloudProdiTasks, persistLocal],
   )

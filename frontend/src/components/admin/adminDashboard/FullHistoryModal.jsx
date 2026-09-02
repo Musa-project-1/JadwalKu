@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useDebounce } from '../../../hooks/useDebounce'
 import { Icon } from '../../Icon'
 
 function formatDateID(iso) {
@@ -36,6 +37,7 @@ function getEntityBadge(entity = '') {
 export function FullHistoryModal({ historyList, onClose }) {
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search, 250)
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -48,10 +50,10 @@ export function FullHistoryModal({ historyList, onClose }) {
   const filtered = useMemo(() => {
     return historyList.filter((item) => {
       const matchSearch =
-        !search ||
-        (item.entitas ?? '').toLowerCase().includes(search.toLowerCase()) ||
-        (item.detail ?? '').toLowerCase().includes(search.toLowerCase()) ||
-        (item.aktor ?? '').toLowerCase().includes(search.toLowerCase())
+        !debouncedSearch ||
+        (item.entitas ?? '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        (item.detail ?? '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        (item.aktor ?? '').toLowerCase().includes(debouncedSearch.toLowerCase())
 
       if (!matchSearch) return false
 
@@ -63,7 +65,7 @@ export function FullHistoryModal({ historyList, onClose }) {
       if (filter === 'prodi') return entity.includes('prodi')
       return true
     })
-  }, [historyList, filter, search])
+  }, [historyList, filter, debouncedSearch])
 
   return (
     <div

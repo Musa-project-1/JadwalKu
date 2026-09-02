@@ -27,3 +27,5 @@ export function RequireAdmin() {
 
   return <Outlet />
 }
+
+export default RequireAdmin
