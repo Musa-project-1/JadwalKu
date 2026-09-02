@@ -335,7 +335,7 @@ export default function WeeklySchedule() {
   }
 
   const toolbarContent = (
-    <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-surface-container-low/50 dark:bg-surface-container-high/20 border-b border-outline-variant/20 flex-nowrap overflow-x-auto no-scrollbar shrink-0 w-full">
+    <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-surface-container-low/50 dark:bg-surface-container-high/20 border-b border-outline-variant/20 flex-nowrap overflow-x-auto no-scrollbar shrink-0 w-full">
       {/* Left: Mode Switcher & 4 Action Icon-Only Buttons */}
       <div className="flex items-center gap-2.5 shrink-0">
         {/* Mode Switcher */}
@@ -345,7 +345,7 @@ export default function WeeklySchedule() {
             onClick={() => setScheduleMode('regular')}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-body-xs font-bold transition-all cursor-pointer ${
               !isCustomMode
-                ? 'bg-surface shadow-xs text-primary'
+                ? 'bg-surface shadow-level-1 text-primary'
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
@@ -357,7 +357,7 @@ export default function WeeklySchedule() {
             onClick={() => setScheduleMode('custom')}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-body-xs font-bold transition-all cursor-pointer ${
               isCustomMode
-                ? 'bg-amber-500/20 text-amber-900 dark:text-amber-300 shadow-xs border border-amber-500/30'
+                ? 'bg-amber-500/20 text-amber-900 dark:text-amber-300 shadow-level-1 border border-amber-500/30'
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
@@ -370,7 +370,7 @@ export default function WeeklySchedule() {
           <button
             type="button"
             onClick={() => setCustomModalOpen(true)}
-            className="flex items-center gap-1 rounded-xl bg-amber-500 text-slate-900 px-2.5 py-1 text-body-xs font-bold hover:bg-amber-400 active:opacity-80 transition-all shadow-xs cursor-pointer shrink-0"
+            className="flex items-center gap-1 rounded-xl bg-amber-500 text-slate-900 px-2.5 py-1 text-body-xs font-bold hover:bg-amber-400 active:opacity-80 transition-all shadow-level-1 cursor-pointer shrink-0"
           >
             <Icon name="tune" size={14} />
             <span>Atur Matkul</span>
@@ -387,7 +387,7 @@ export default function WeeklySchedule() {
             onClick={() => setAttendanceModalOpen(true)}
             title="Rekap Presensi — Lihat rekapitulasi kehadiran & sisa jatah absen seluruh mata kuliah"
             aria-label="Rekap Presensi"
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 active:opacity-80 transition-all shadow-2xs cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 active:opacity-80 transition-all shadow-level-1 cursor-pointer"
           >
             <Icon name="fact_check" size={16} />
           </button>
@@ -397,7 +397,7 @@ export default function WeeklySchedule() {
             onClick={() => setNotesModalOpen(true)}
             title="Semua Catatan — Lihat seluruh catatan perkuliahan semester ini"
             aria-label="Semua Catatan"
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 active:opacity-80 transition-all shadow-2xs cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 active:opacity-80 transition-all shadow-level-1 cursor-pointer"
           >
             <Icon name="sticky_note_2" size={16} />
           </button>
@@ -407,7 +407,7 @@ export default function WeeklySchedule() {
             onClick={() => setPrintModalOpen(true)}
             title="Cetak PDF — Unduh atau cetak jadwal format meja belajar / kartu saku"
             aria-label="Cetak PDF"
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 active:opacity-80 transition-all shadow-2xs cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 active:opacity-80 transition-all shadow-level-1 cursor-pointer"
           >
             <Icon name="print" size={16} />
           </button>
@@ -417,7 +417,7 @@ export default function WeeklySchedule() {
             onClick={() => setKrsSimulatorOpen(true)}
             title="Simulator KRS — Simulasikan pemilihan KRS & cek bentrok waktu semester baru"
             aria-label="Simulator KRS"
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20 active:opacity-80 transition-all shadow-2xs cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20 active:opacity-80 transition-all shadow-level-1 cursor-pointer"
           >
             <Icon name="science" size={16} />
           </button>
@@ -425,22 +425,22 @@ export default function WeeklySchedule() {
       </div>
 
       {/* Right: Legend Acuan Warna Tipe Kelas (4 dot warna + label) */}
-      <div className="flex items-center gap-2.5 tablet:gap-3 shrink-0 text-[11px] font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-3 py-1 rounded-xl border border-outline-variant/20">
-        <span className="text-[10px] uppercase font-bold text-on-surface-variant/70 tracking-wider">Tipe:</span>
+      <div className="flex items-center gap-2.5 tablet:gap-3 shrink-0 text-label-caps font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-3 py-1 rounded-xl border border-outline-variant/20">
+        <span className="text-label-caps uppercase font-bold text-on-surface-variant/70 tracking-wider">Tipe:</span>
         <div className="flex items-center gap-1.5" title="K1: Kelas Reguler / Offline di Ruangan Fisik">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-2xs" />
+          <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-level-1" />
           <span className="text-emerald-950 dark:text-emerald-200">K1 (Offline)</span>
         </div>
         <div className="flex items-center gap-1.5" title="K2: Kelas Karyawan / Online (Zoom/Google Meet)">
-          <span className="h-2 w-2 rounded-full bg-blue-500 shadow-2xs" />
+          <span className="h-2 w-2 rounded-full bg-blue-500 shadow-level-1" />
           <span className="text-blue-950 dark:text-blue-200">K2 (Online)</span>
         </div>
         <div className="flex items-center gap-1.5" title="HB: Hybrid (Kombinasi tatap muka & daring)">
-          <span className="h-2 w-2 rounded-full bg-violet-500 shadow-2xs" />
+          <span className="h-2 w-2 rounded-full bg-violet-500 shadow-level-1" />
           <span className="text-violet-950 dark:text-violet-200">HB (Hybrid)</span>
         </div>
         <div className="flex items-center gap-1.5" title="GBK: Kelas Gabungan Lintas Prodi/Angkatan">
-          <span className="h-2 w-2 rounded-full bg-amber-500 shadow-2xs" />
+          <span className="h-2 w-2 rounded-full bg-amber-500 shadow-level-1" />
           <span className="text-amber-950 dark:text-amber-200">GBK (Gabung)</span>
         </div>
       </div>
@@ -449,9 +449,9 @@ export default function WeeklySchedule() {
 
   return (
     <div className="flex flex-col gap-3 w-full max-w-full overflow-x-hidden">
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full">
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
             <Icon name="calendar_month" size={24} />
           </div>
           <div className="min-w-0">
@@ -459,7 +459,7 @@ export default function WeeklySchedule() {
               <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
                 Jadwal Mingguan
               </h2>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
                 Aktif
               </span>
             </div>
@@ -472,16 +472,16 @@ export default function WeeklySchedule() {
 
         {/* Controls Desktop & Tablet */}
         <div className="hidden tablet:flex items-center gap-2 shrink-0">
-          <div className="hidden desktop:inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-xs shrink-0">
+          <div className="hidden desktop:inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
             <button
               type="button"
               onClick={() => {
                 setViewDays('5')
                 setItem('jadwal:viewDays', '5')
               }}
-              className={`rounded-full px-3 py-1 text-[11.5px] font-bold transition-all cursor-pointer ${
+              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
                 viewDays === '5'
-                  ? 'bg-surface shadow-xs text-primary'
+                  ? 'bg-surface shadow-level-1 text-primary'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -493,9 +493,9 @@ export default function WeeklySchedule() {
                 setViewDays('6')
                 setItem('jadwal:viewDays', '6')
               }}
-              className={`rounded-full px-3 py-1 text-[11.5px] font-bold transition-all cursor-pointer ${
+              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
                 viewDays === '6'
-                  ? 'bg-surface shadow-xs text-primary'
+                  ? 'bg-surface shadow-level-1 text-primary'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -504,7 +504,7 @@ export default function WeeklySchedule() {
           </div>
 
           {/* Desktop Week Navigator */}
-          <div className="flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-1 py-1 shadow-xs min-w-0">
+          <div className="flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-1 py-1 shadow-level-1 min-w-0">
             <button
               type="button"
               onClick={() => setWeekOffset((prev) => prev - 1)}
@@ -514,7 +514,7 @@ export default function WeeklySchedule() {
             >
               <Icon name="chevron_left" size={17} />
             </button>
-            <span className="px-2.5 text-[11.5px] font-bold text-on-surface whitespace-nowrap">
+            <span className="px-2.5 text-label-caps font-bold text-on-surface whitespace-nowrap">
               {weekRangeLabel}
             </span>
             <button
@@ -530,7 +530,7 @@ export default function WeeklySchedule() {
               <button
                 type="button"
                 onClick={() => setWeekOffset(0)}
-                className="ml-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary hover:bg-primary/25 transition-colors shrink-0 cursor-pointer"
+                className="ml-1 rounded-full bg-primary/15 px-2 py-0.5 text-label-caps font-bold text-primary hover:bg-primary/25 transition-colors shrink-0 cursor-pointer"
               >
                 Hari Ini
               </button>
@@ -547,7 +547,7 @@ export default function WeeklySchedule() {
           <button
             type="button"
             onClick={() => setShareOpen(true)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/25 shadow-xs cursor-pointer"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/25 shadow-level-1 cursor-pointer"
             title="Bagikan / Ekspor Jadwal"
             aria-label="Bagikan atau ekspor jadwal"
           >
@@ -562,7 +562,7 @@ export default function WeeklySchedule() {
       {/* Mobile & Tablet View (<1024px) */}
       <div className="desktop:hidden flex flex-col gap-3 w-full">
         {/* Mode Switcher & Aksi */}
-        <div className="rounded-2xl bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/20 shadow-xs overflow-hidden">
+        <div className="rounded-2xl bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/20 shadow-level-1 overflow-hidden">
           {toolbarContent}
         </div>
 
@@ -570,7 +570,7 @@ export default function WeeklySchedule() {
         <div className="flex flex-col gap-2 tablet:hidden w-full max-w-full">
           {/* Row 1: Bulan (Kiri) & TA Selector + Share (Kanan) */}
           <div className="flex items-center justify-between gap-2 w-full">
-            <div className="flex items-center gap-1.5 text-body-xs font-bold text-primary bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-2xl shadow-2xs shrink-0">
+            <div className="flex items-center gap-1.5 text-body-xs font-bold text-primary bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-2xl shadow-level-1 shrink-0">
               <Icon name="calendar_month" size={15} />
               <span>{monthYearLabel}</span>
             </div>
@@ -585,7 +585,7 @@ export default function WeeklySchedule() {
               <button
                 type="button"
                 onClick={() => setShareOpen(true)}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/20 shadow-xs cursor-pointer"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/20 shadow-level-1 cursor-pointer"
                 title="Bagikan Jadwal"
                 aria-label="Bagikan jadwal"
               >
@@ -595,7 +595,7 @@ export default function WeeklySchedule() {
           </div>
 
           {/* Row 2: Week Navigator Pill Lebar Penuh + Tombol Hari Ini jika bergeser */}
-          <div className="flex items-center justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-high/60 px-2 py-1.5 shadow-xs w-full">
+          <div className="flex items-center justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-high/60 px-2 py-1.5 shadow-level-1 w-full">
             <button
               type="button"
               onClick={() => setWeekOffset((prev) => prev - 1)}
@@ -613,7 +613,7 @@ export default function WeeklySchedule() {
                 <button
                   type="button"
                   onClick={() => setWeekOffset(0)}
-                  className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary hover:bg-primary/25 transition-colors shrink-0"
+                  className="rounded-full bg-primary/15 px-2 py-0.5 text-label-caps font-bold text-primary hover:bg-primary/25 transition-colors shrink-0"
                 >
                   Hari Ini
                 </button>
@@ -648,11 +648,11 @@ export default function WeeklySchedule() {
                 onClick={() => setSelectedDay(day)}
                 className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all duration-200 cursor-pointer min-w-0 ${
                   isSelected
-                    ? 'bg-primary text-on-primary font-bold shadow-xs'
+                    ? 'bg-primary text-on-primary font-bold shadow-level-1'
                     : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high dark:bg-surface-container-high'
                 }`}
               >
-                <span className="text-[11px] uppercase font-bold tracking-tight">
+                <span className="text-label-caps uppercase font-bold tracking-tight">
                   {shortDay}
                 </span>
                 <span className={`text-body-sm font-extrabold mt-0.5 ${isSelected ? 'text-on-primary' : 'text-on-surface'}`}>
@@ -711,15 +711,15 @@ export default function WeeklySchedule() {
         )}
         <div
           ref={gridScrollRef}
-          className="overflow-hidden h-[calc(100vh-190px)] min-h-[460px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-sm relative flex flex-col"
+          className="overflow-hidden h-[calc(100vh-190px)] min-h-[460px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 relative flex flex-col"
         >
           {/* Mode Switcher, Actions & Legend (Desktop) */}
           {toolbarContent}
             <div
-              className="grid sticky top-0 z-30 shrink-0 bg-surface-container-lowest dark:bg-surface-container-low shadow-sm border-b border-outline-variant/40"
+              className="grid sticky top-0 z-30 shrink-0 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 border-b border-outline-variant/40"
               style={{ gridTemplateColumns: `64px repeat(${activeWeekDays.length}, minmax(0, 1fr))` }}
             >
-              <div className="p-3 text-center text-[10.5px] font-bold uppercase tracking-wider text-on-surface-variant/60 flex items-center justify-center sticky left-0 z-40 bg-surface-container-lowest dark:bg-surface-container-low border-r border-outline-variant/30 select-none">
+              <div className="p-3 text-center text-body-xs font-bold uppercase tracking-wider text-on-surface-variant/70 flex items-center justify-center sticky left-0 z-40 bg-surface-container-lowest dark:bg-surface-container-low border-r border-outline-variant/30 select-none">
                 GMT+7
               </div>
               {weekDates.map(({ day, dateNum, monthShort, iso }) => {
@@ -737,7 +737,7 @@ export default function WeeklySchedule() {
                     }`}
                   >
                     {isTodayCol ? (
-                      <span className="rounded-full bg-primary text-on-primary px-3.5 py-1 text-label-caps font-bold shadow-sm inline-block">
+                      <span className="rounded-full bg-primary text-on-primary px-4 py-1 text-label-caps font-bold shadow-level-1 inline-block">
                         {day}
                       </span>
                     ) : (
@@ -774,7 +774,7 @@ export default function WeeklySchedule() {
                         }`}
                         style={isFirst ? undefined : { top }}
                       >
-                        <span className="text-[11.5px] font-normal text-on-surface-variant/65 tabular-nums leading-none tracking-tight">
+                        <span className="text-label-caps font-normal text-on-surface-variant/70 tabular-nums leading-none tracking-tight">
                           {String(Math.floor(m / 60)).padStart(2, '0')}:00
                         </span>
                       </div>
@@ -799,7 +799,7 @@ export default function WeeklySchedule() {
                     >
                       {isHoliday && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
-                          <span className="text-label-caps uppercase tracking-widest text-on-surface-variant/45 -rotate-90 font-bold">
+                          <span className="text-label-caps uppercase tracking-widest text-on-surface-variant/70 -rotate-90 font-bold">
                             LIBUR
                           </span>
                         </div>
@@ -843,7 +843,7 @@ export default function WeeklySchedule() {
                               type="button"
                               onClick={() => openDetail(entry)}
                               style={{ top: top + 2, minHeight: height, height: 'auto' }}
-                              className={`absolute inset-x-1 z-10 rounded-2xl p-2.5 text-left transition-shadow duration-200 hover:z-30 hover:shadow-lg flex flex-col justify-between cursor-pointer ${
+                              className={`absolute inset-x-1 z-10 rounded-2xl p-2.5 text-left transition-shadow duration-200 hover:z-30 hover:shadow-level-2 flex flex-col justify-between cursor-pointer ${
                                 TONE_BG_CLASSES[classType.tone]
                               } ${borderClass} ${shadowClass} ${conflicted ? 'ring-2 ring-error/60' : ''}`}
                               title={`${course?.namaMK ?? entry.kodeMK} · ${entry.jamMulai}-${entry.jamSelesai} · ${formatRuang(entry.ruang, entry.tipeKelas)}`}
@@ -852,7 +852,7 @@ export default function WeeklySchedule() {
                               <div className="flex items-center justify-between w-full shrink-0">
                                 <div className="flex items-center gap-1.5 min-w-0">
                                   <Icon name={iconName} size={16} className={iconColor} />
-                                  <span className={`text-[11px] font-bold uppercase tracking-wider ${iconColor}`}>
+                                  <span className={`text-label-caps font-bold uppercase tracking-wider ${iconColor}`}>
                                     {entry.tipeKelas || 'K1'}
                                   </span>
                                 </div>
@@ -860,7 +860,7 @@ export default function WeeklySchedule() {
                                 <div className="flex items-center gap-1 shrink-0">
                                   {transition && (
                                     <span
-                                      className="flex h-4 items-center gap-0.5 px-1 rounded-full bg-orange-500/20 text-orange-800 dark:text-orange-300 text-[9px] font-bold border border-orange-500/30"
+                                      className="flex h-4 items-center gap-0.5 px-1 rounded-full bg-orange-500/20 text-orange-800 dark:text-orange-300 text-label-caps font-bold border border-orange-500/30"
                                       title={transition.message}
                                     >
                                       <Icon name="directions_run" size={9} />
@@ -875,19 +875,19 @@ export default function WeeklySchedule() {
                                     </span>
                                   )}
                                   {conflicted && <Icon name="warning" size={13} className="shrink-0 text-error" />}
-                                  <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-bold tracking-tight shadow-xs ${timePillClass}`}>
+                                  <span className={`px-2 py-0.5 rounded-full text-body-xs font-bold tracking-tight shadow-level-1 ${timePillClass}`}>
                                     {entry.jamMulai} - {entry.jamSelesai}
                                   </span>
                                 </div>
                               </div>
 
                               {/* 2. Baris Kedua: Nama Mata Kuliah Rata Tengah (14-15px font-bold, 2 baris wrap tanpa tertimpa) */}
-                              <h3 className={`my-auto py-1 text-center text-[13.5px] tablet:text-[14.5px] font-bold tracking-tight leading-snug whitespace-normal break-words line-clamp-2 ${text}`}>
+                              <h3 className={`my-auto py-1 text-center text-title-sm tablet:text-title-md font-bold tracking-tight leading-snug whitespace-normal break-words line-clamp-2 ${text}`}>
                                 {course?.namaMK ?? entry.kodeMK}
                               </h3>
 
                               {/* 3. Baris Terakhir: Ikon Lokasi + Nama Ruang Kelas */}
-                              <div className={`flex items-center justify-center gap-1 text-[11.5px] font-normal leading-tight opacity-90 shrink-0 ${subtext}`}>
+                              <div className={`flex items-center justify-center gap-1 text-label-caps font-normal leading-tight opacity-90 shrink-0 ${subtext}`}>
                                 <Icon name={isOnline ? 'videocam' : 'location_on'} size={12} className="shrink-0" />
                                 <span className="truncate">{formatRuang(entry.ruang, entry.tipeKelas)}</span>
                               </div>
@@ -912,7 +912,7 @@ export default function WeeklySchedule() {
                               className="pointer-events-none absolute inset-x-0 z-20 transition-all duration-300 ease-out"
                             >
                               <span className="absolute -left-1 -top-[4px] h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-primary/20 animate-pulse" />
-                              <div className="h-[2px] w-full bg-primary/70 shadow-xs" />
+                              <div className="h-[2px] w-full bg-primary/70 shadow-level-1" />
                             </div>
                           )
                         })()

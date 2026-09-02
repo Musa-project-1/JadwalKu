@@ -68,11 +68,11 @@ export default function Settings() {
   }
 
   return (
-    <div className="flex flex-col gap-3.5 w-full max-w-full overflow-x-hidden animate-fade-in">
+    <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
       {/* 1. Header Halaman — 1:1 with WeeklySchedule / Tasks / Exams */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full">
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
             <Icon name="settings" size={24} />
           </div>
           <div className="min-w-0">
@@ -80,7 +80,7 @@ export default function Settings() {
               <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
                 Pengaturan
               </h2>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
                 V1.3.0 PWA
               </span>
             </div>
@@ -96,7 +96,7 @@ export default function Settings() {
             type="button"
             onClick={() => setShowDocsModal(true)}
             title="Buka Pusat Panduan & Tutorial 13 Fitur Mahasiswa"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-on-primary text-body-xs font-bold shadow-xs hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-on-primary text-body-xs font-bold shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
           >
             <Icon name="menu_book" size={15} />
             <span>Tutorial</span>
@@ -105,7 +105,7 @@ export default function Settings() {
             type="button"
             onClick={() => setShowHistoryModal(true)}
             title="Buka Riwayat Perubahan Jadwal"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-level-1 transition-all cursor-pointer"
           >
             <Icon name="history" size={15} className="text-primary" />
             <span>Riwayat</span>
@@ -114,7 +114,7 @@ export default function Settings() {
             type="button"
             onClick={() => setShowAboutModal(true)}
             title="Buka Tentang & Bantuan (FAQ)"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-level-1 transition-all cursor-pointer"
           >
             <Icon name="help_outline" size={15} className="text-secondary" />
             <span>Tentang & FAQ</span>
@@ -123,16 +123,16 @@ export default function Settings() {
       </header>
 
       {/* 2. Secondary Toolbar — 1:1 with Tasks.jsx / Exams.jsx */}
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-2.5 shadow-xs flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3">
+      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-2.5 shadow-level-1 flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3">
         {/* Left: Status chips */}
-        <div className="flex items-center gap-2.5 tablet:gap-3 shrink-0 text-[11px] font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-3 py-1 rounded-xl border border-outline-variant/20 overflow-x-auto no-scrollbar">
-          <span className="text-[10px] uppercase font-bold text-on-surface-variant/70 tracking-wider shrink-0">Status:</span>
+        <div className="flex items-center gap-2.5 tablet:gap-3 shrink-0 text-label-caps font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-3 py-1 rounded-xl border border-outline-variant/20 overflow-x-auto no-scrollbar">
+          <span className="text-label-caps uppercase font-bold text-on-surface-variant/70 tracking-wider shrink-0">Status:</span>
           <span className="flex items-center gap-1.5 shrink-0" title="Progressive Web App — tersedia offline">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-2xs shrink-0" />
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-level-1 shrink-0" />
             <span className="text-emerald-700 dark:text-emerald-300 whitespace-nowrap">Offline PWA Aktif</span>
           </span>
           <span className="flex items-center gap-1.5 shrink-0">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-2xs shrink-0" />
+            <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-level-1 shrink-0" />
             <span className={`whitespace-nowrap ${syncMessage ? 'text-primary' : ''}`}>{syncMessage || 'Tersinkronisasi'}</span>
           </span>
           <span className="hidden tablet:inline h-4 w-px bg-outline-variant/30 shrink-0" />
@@ -151,7 +151,7 @@ export default function Settings() {
               type="button"
               onClick={handleManualSync}
               disabled={isSyncing}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary text-body-xs font-bold border border-primary/20 transition-all shadow-2xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary text-body-xs font-bold border border-primary/20 transition-all shadow-level-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             >
               <Icon name={isSyncing ? 'sync' : 'refresh'} size={14} className={isSyncing ? 'animate-spin' : ''} />
               <span className="hidden tablet:inline">{isSyncing ? 'Menyinkronkan...' : 'Sinkronkan'}</span>
@@ -171,15 +171,15 @@ export default function Settings() {
       </div>
 
       {/* 3. Hero Banner — Pusat Panduan & Dokumentasi */}
-      <div className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 dark:from-primary/15 dark:via-primary/10 dark:to-surface-container-high p-5 tablet:p-6 shadow-xs flex flex-col desktop:flex-row items-start desktop:items-center justify-between gap-4">
+      <div className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 dark:from-primary/15 dark:via-primary/10 dark:to-surface-container-high p-5 tablet:p-6 shadow-level-1 flex flex-col desktop:flex-row items-start desktop:items-center justify-between gap-4">
         <div className="flex items-start gap-4 min-w-0">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-xs">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-level-1">
             <Icon name="auto_stories" size={26} />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface">Pusat Panduan & Tutorial Seluruh Fitur</h3>
-              <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-extrabold text-primary uppercase tracking-wide border border-primary/30">
+              <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-label-caps font-extrabold text-primary uppercase tracking-wide border border-primary/30">
                 13 Fitur Mahasiswa
               </span>
             </div>
@@ -191,21 +191,21 @@ export default function Settings() {
         <button
           type="button"
           onClick={() => setShowDocsModal(true)}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary hover:brightness-105 active:opacity-80 text-body-sm font-bold shadow-xs transition-all cursor-pointer shrink-0 whitespace-nowrap w-full desktop:w-auto"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary hover:brightness-105 active:opacity-80 text-body-sm font-bold shadow-level-1 transition-all cursor-pointer shrink-0 whitespace-nowrap w-full desktop:w-auto"
         >
           <Icon name="explore" size={18} />
           <span>Buka Panduan Tutorial</span>
         </button>
       </div>
 
-      {/* 4. Main Grid — 1:1 with Tasks/Exams card grid (rounded-3xl, shadow-xs) */}
-      <div className="grid grid-cols-1 desktop:grid-cols-2 gap-3.5 items-stretch">
+      {/* 4. Main Grid — 1:1 with Tasks/Exams card grid (rounded-3xl, shadow-level-1) */}
+      <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4 items-stretch">
         {/* ROW 1 - LEFT: Setelan Saat Ini */}
-        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col justify-between">
+        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-level-1 flex flex-col justify-between">
           <div>
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-[11px] uppercase font-extrabold tracking-wider text-on-surface-variant">
+                <p className="text-label-caps uppercase font-extrabold tracking-wider text-on-surface-variant">
                   Setelan Saat Ini
                 </p>
                 <h3 className="mt-1 text-title-md font-bold text-on-surface leading-snug truncate">
@@ -220,7 +220,7 @@ export default function Settings() {
               <Button
                 variant="secondary"
                 onClick={() => navigate('/onboarding/wizard')}
-                className="shrink-0 px-4 py-2 text-body-xs font-bold shadow-xs cursor-pointer rounded-2xl"
+                className="shrink-0 px-4 py-2 text-body-xs font-bold shadow-level-1 cursor-pointer rounded-2xl"
               >
                 Ganti
               </Button>
@@ -242,7 +242,7 @@ export default function Settings() {
         </section>
 
         {/* ROW 1 - RIGHT: Tampilan */}
-        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col">
+        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-level-1 flex flex-col">
           <h3 className="mb-3 flex items-center gap-2 text-title-sm font-bold text-on-surface">
             <Icon name="dark_mode" size={18} className="text-primary" />
             Tampilan
@@ -254,7 +254,7 @@ export default function Settings() {
                 <span className="text-body-sm font-bold text-on-surface">Mode Gelap</span>
                 <p className="text-body-xs text-on-surface-variant">Pilih tema visual aplikasi</p>
               </div>
-              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-2xs shrink-0">
+              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1 shrink-0">
                 {[
                   { value: 'light', icon: 'light_mode', label: 'Terang' },
                   { value: 'dark', icon: 'dark_mode', label: 'Gelap' },
@@ -268,7 +268,7 @@ export default function Settings() {
                     aria-label={`Tema ${opt.label}`}
                     className={`flex h-8 w-11 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:opacity-80 ${
                       theme === opt.value
-                        ? 'bg-surface text-primary shadow-xs'
+                        ? 'bg-surface text-primary shadow-level-1'
                         : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
@@ -284,7 +284,7 @@ export default function Settings() {
                 <span className="text-body-sm font-bold text-on-surface">Ukuran Font</span>
                 <span className="text-body-xs font-semibold text-primary capitalize">{fontSize}</span>
               </div>
-              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-2xs">
+              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1">
                 {FONT_SIZES.map((opt) => (
                   <button
                     key={opt.value}
@@ -292,7 +292,7 @@ export default function Settings() {
                     onClick={() => setFontSize(opt.value)}
                     className={`flex-1 rounded-full py-1.5 text-body-xs font-bold transition-all duration-200 cursor-pointer active:opacity-80 ${
                       fontSize === opt.value
-                        ? 'bg-surface text-primary shadow-xs'
+                        ? 'bg-surface text-primary shadow-level-1'
                         : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
@@ -318,7 +318,7 @@ export default function Settings() {
                 }`}
               >
                 <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-xs ${
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
                     highContrast ? 'left-[22px]' : 'left-0.5'
                   }`}
                 />
@@ -328,7 +328,7 @@ export default function Settings() {
         </section>
 
         {/* ROW 2 - LEFT: Keterangan Warna Kelas */}
-        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col">
+        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-level-1 flex flex-col">
           <h3 className="mb-2.5 flex items-center gap-2 text-title-sm font-bold text-on-surface">
             <Icon name="palette" size={18} className="text-primary" />
             Keterangan Warna Kelas
@@ -340,7 +340,7 @@ export default function Settings() {
             {LEGEND.map((item) => (
               <li
                 key={item.code}
-                className="flex items-center gap-3 rounded-2xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-3 border border-outline-variant/20 shadow-2xs"
+                className="flex items-center gap-3 rounded-2xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-3 border border-outline-variant/20 shadow-level-1"
               >
                 <span className={`h-3 w-3 rounded-full shrink-0 ${item.dot}`} />
                 <div className="min-w-0">
@@ -350,13 +350,13 @@ export default function Settings() {
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-[11px] text-on-surface-variant/70 font-medium border-t border-outline-variant/15 pt-3">
+          <p className="mt-3 text-label-caps text-on-surface-variant/70 font-medium border-t border-outline-variant/15 pt-3">
             K1 Emerald = Offline · K2 Blue = Online · HB Violet = Hybrid · GBK Amber = Gabungan lintas prodi
           </p>
         </section>
 
         {/* ROW 2 - RIGHT: Pengingat & Notifikasi Web Push */}
-        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col">
+        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-level-1 flex flex-col">
           <NotificationSettingsSection navigate={navigate} />
         </section>
       </div>
@@ -451,17 +451,17 @@ function NotificationSettingsSection({ navigate }) {
           </h3>
 
           {permission === 'granted' ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 px-2.5 py-0.5 text-[10.5px] font-bold">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 px-2.5 py-0.5 text-body-xs font-bold">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Browser Aktif</span>
             </span>
           ) : permission === 'denied' ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-error/15 text-error border border-error/25 px-2.5 py-0.5 text-[10.5px] font-bold">
+            <span className="inline-flex items-center gap-1 rounded-full bg-error/15 text-error border border-error/25 px-2.5 py-0.5 text-body-xs font-bold">
               <Icon name="block" size={12} />
               <span>Diblokir</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 px-2.5 py-0.5 text-[10.5px] font-bold">
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 px-2.5 py-0.5 text-body-xs font-bold">
               <Icon name="info" size={12} />
               <span>Belum Aktif</span>
             </span>
@@ -474,14 +474,14 @@ function NotificationSettingsSection({ navigate }) {
               <p className="text-body-xs font-bold text-amber-900 dark:text-amber-200">
                 Izinkan Pop-up Notifikasi Browser
               </p>
-              <p className="text-[11px] text-on-surface-variant">
+              <p className="text-label-caps text-on-surface-variant">
                 Terima pengingat kelas & tugas langsung di layar komputer atau HP
               </p>
             </div>
             <button
               type="button"
               onClick={requestNotificationPermission}
-              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-[11px] font-bold shadow-xs transition-all active:opacity-80 cursor-pointer shrink-0"
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-label-caps font-bold shadow-level-1 transition-all active:opacity-80 cursor-pointer shrink-0"
             >
               Izinkan Notifikasi
             </button>
@@ -505,7 +505,7 @@ function NotificationSettingsSection({ navigate }) {
                 onClick={() => updatePref('classWindow', mins)}
                 className={`px-2.5 py-1 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
                   prefs.classWindow === mins
-                    ? 'bg-primary text-on-primary shadow-xs'
+                    ? 'bg-primary text-on-primary shadow-level-1'
                     : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
@@ -558,7 +558,7 @@ function NotificationSettingsSection({ navigate }) {
           <button
             type="button"
             onClick={handleTestNotification}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface py-2 text-body-xs font-bold transition-all border border-outline-variant/25 cursor-pointer shadow-2xs"
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface py-2 text-body-xs font-bold transition-all border border-outline-variant/25 cursor-pointer shadow-level-1"
           >
             <Icon name={testSent ? 'check' : 'notifications'} size={15} className="text-primary" />
             <span>{testSent ? 'Notifikasi Terkirim!' : '🧪 Uji Coba Notifikasi Browser'}</span>
@@ -596,7 +596,7 @@ function ToggleSwitch({ checked, onChange }) {
       }`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-xs ${
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
           checked ? 'left-[22px]' : 'left-0.5'
         }`}
       />
@@ -667,9 +667,9 @@ function HistoryModal({ onClose }) {
               key={f.value}
               type="button"
               onClick={() => setFilter(f.value)}
-              className={`shrink-0 rounded-full px-3.5 py-1 text-body-xs font-bold transition-all cursor-pointer ${
+              className={`shrink-0 rounded-full px-4 py-1 text-body-xs font-bold transition-all cursor-pointer ${
                 filter === f.value
-                  ? 'bg-primary text-on-primary shadow-xs'
+                  ? 'bg-primary text-on-primary shadow-level-1'
                   : 'bg-surface-container-high/60 text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -693,7 +693,7 @@ function HistoryModal({ onClose }) {
           ) : (
             grouped.map(([dateLabel, entries]) => (
               <section key={dateLabel} className="space-y-2.5">
-                <h4 className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/80 border-b border-outline-variant/15 pb-1">
+                <h4 className="text-label-caps font-bold uppercase tracking-wider text-on-surface-variant/80 border-b border-outline-variant/15 pb-1">
                   {dateLabel}
                 </h4>
                 <div className="space-y-2">
@@ -707,20 +707,20 @@ function HistoryModal({ onClose }) {
                     return (
                       <div
                         key={entry.id}
-                        className="flex gap-3 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low/40 dark:bg-surface-container-high/30 p-3.5 shadow-xs"
+                        className="flex gap-3 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low/40 dark:bg-surface-container-high/30 p-4 shadow-level-1"
                       >
                         <div className={`w-1 shrink-0 rounded-full ${accent}`} />
                         <div className="min-w-0 flex-1">
                           <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                            <span className="rounded-md bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
+                            <span className="rounded-md bg-surface-container-highest px-2 py-0.5 text-label-caps font-bold uppercase tracking-wider text-on-surface-variant">
                               {entry.entitas ?? 'perubahan'}
                             </span>
-                            <span className="text-[11px] text-on-surface-variant font-medium">{entry.field ?? ''}</span>
+                            <span className="text-label-caps text-on-surface-variant font-medium">{entry.field ?? ''}</span>
                           </div>
                           <p className="text-body-sm font-bold text-on-surface leading-snug">
                             {entry.detail ?? `${entry.entitas}: ${entry.field} diperbarui`}
                           </p>
-                          <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-on-surface-variant">
+                          <div className="mt-1 flex flex-wrap items-center gap-x-2 text-label-caps text-on-surface-variant">
                             {entry.nilaiLama != null && (
                               <>
                                 <span className="line-through text-outline opacity-75">{String(entry.nilaiLama)}</span>
@@ -731,7 +731,7 @@ function HistoryModal({ onClose }) {
                               <span className="font-bold text-primary">{String(entry.nilaiBaru)}</span>
                             )}
                             {entry.aktor && (
-                              <span className="ml-auto text-[10px] text-on-surface-variant font-medium opacity-80">
+                              <span className="ml-auto text-label-caps text-on-surface-variant font-medium opacity-80">
                                 oleh {entry.aktor}
                               </span>
                             )}
@@ -816,13 +816,13 @@ function AboutModal({ onClose }) {
               <span>Jadwal</span>
               <span className="text-primary">Ku</span>
             </h4>
-            <p className="font-brand mt-0.5 text-[10.5px] font-bold tracking-[0.09em] uppercase text-primary">
+            <p className="font-brand mt-0.5 text-body-xs font-bold tracking-wider uppercase text-primary">
               SCHEDULE SMARTER · CAMPUS TIMETABLE
             </p>
             <p className="mt-2 text-body-xs text-on-surface-variant max-w-sm mx-auto">
               Aplikasi jadwal perkuliahan, ujian, dan manajemen tugas akademik modern Universitas.
             </p>
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-surface-container-highest px-3 py-1 text-[10px] font-bold text-on-surface-variant">
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-surface-container-highest px-3 py-1 text-label-caps font-bold text-on-surface-variant">
               <span>Versi 1.3.0 PWA</span>
               <span>•</span>
               <span className="text-emerald-600 dark:text-emerald-400">Offline Ready</span>
@@ -845,7 +845,7 @@ function AboutModal({ onClose }) {
                     <button
                       type="button"
                       onClick={() => setOpenIndex(isOpen ? -1 : index)}
-                      className="flex w-full items-center justify-between p-3.5 text-left text-body-sm font-bold text-on-surface hover:text-primary transition-colors cursor-pointer"
+                      className="flex w-full items-center justify-between p-4 text-left text-body-sm font-bold text-on-surface hover:text-primary transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5">
                         <Icon name={faq.icon} size={18} className="text-secondary shrink-0" />

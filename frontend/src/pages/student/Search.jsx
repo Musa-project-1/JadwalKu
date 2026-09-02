@@ -123,11 +123,11 @@ export default function Search() {
   }
 
   return (
-    <div className="flex flex-col gap-3.5 w-full max-w-full overflow-x-hidden animate-fade-in">
+    <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
       {/* 1. Header Pencarian — Structured 1:1 like WeeklySchedule */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full">
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
             <Icon name="search" size={24} />
           </div>
           <div className="min-w-0">
@@ -135,7 +135,7 @@ export default function Search() {
               <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
                 Pencarian Kampus
               </h1>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
                 Global Explorer
               </span>
             </div>
@@ -147,7 +147,7 @@ export default function Search() {
       </header>
 
       {/* 2. Search Input Container */}
-      <div className="relative group rounded-2xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low p-1.5 shadow-xs transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+      <div className="relative group rounded-2xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low p-1.5 shadow-level-1 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
         <Icon
           name="search"
           size={20}
@@ -160,7 +160,7 @@ export default function Search() {
           onKeyDown={handleSearchKeyDown}
           placeholder="Cari nama dosen, mata kuliah, ruangan, atau judul tugas..."
           autoFocus
-          className="w-full bg-transparent py-2 pl-11 pr-4 text-body-sm tablet:text-body-md font-semibold text-on-surface focus:outline-none placeholder:text-on-surface-variant/60"
+          className="w-full bg-transparent py-2 pl-11 pr-4 text-body-sm tablet:text-body-md font-semibold text-on-surface focus:outline-none placeholder:text-on-surface-variant"
         />
       </div>
 
@@ -214,7 +214,7 @@ export default function Search() {
             onClick={() => setFilter(f.value)}
             className={`shrink-0 rounded-full px-4 py-1.5 text-body-sm font-medium transition-all duration-150 active:opacity-80 ${
               filter === f.value
-                ? 'bg-primary text-on-primary shadow-sm'
+                ? 'bg-primary text-on-primary shadow-level-1'
                 : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high dark:bg-surface-container-high'
             }`}
           >
@@ -334,7 +334,7 @@ function LecturerCard({ lecturer, onClick }) {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
-      className="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest hover:border-primary/50 hover:bg-surface-container-low transition-all cursor-pointer dark:bg-surface-container-low group shadow-xs"
+      className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest hover:border-primary/50 hover:bg-surface-container-low transition-all cursor-pointer dark:bg-surface-container-low group shadow-level-1"
     >
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-body-sm group-hover:bg-primary group-hover:text-on-primary transition-colors">
@@ -344,7 +344,7 @@ function LecturerCard({ lecturer, onClick }) {
           <p className="text-body-sm font-bold text-on-surface truncate group-hover:text-primary transition-colors">
             {lecturer.dosen}
           </p>
-          <div className="flex items-center gap-2 mt-0.5 text-[11px] text-on-surface-variant font-medium">
+          <div className="flex items-center gap-2 mt-0.5 text-label-caps text-on-surface-variant font-medium">
             <span>{lecturer.sessionCount} Sesi Mengajar</span>
             {lecturer.kontakDosen && (
               <>
@@ -379,7 +379,7 @@ function ResultSection({ title, icon, children }) {
 
 function ResultRow({ icon, title, subtitle, tintClass = 'bg-surface-container text-primary' }) {
   return (
-    <div className="flex items-center gap-md rounded-2xl bg-surface-container-lowest p-3 border border-outline-variant/10 transition-all duration-200 hover:shadow-md hover:bg-surface-container-low dark:bg-surface-container-low">
+    <div className="flex items-center gap-md rounded-2xl bg-surface-container-lowest p-3 border border-outline-variant/10 transition-all duration-200 hover:shadow-level-2 hover:bg-surface-container-low dark:bg-surface-container-low">
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tintClass}`}>
         <Icon name={icon} size={18} />
       </div>

@@ -90,7 +90,7 @@ export default function About() {
             <span className="text-primary">Ku</span>
           </h1>
 
-          <p className="font-brand mt-1 text-[10.5px] font-bold tracking-[0.09em] uppercase text-primary">
+          <p className="font-brand mt-1 text-body-xs font-bold tracking-wider uppercase text-primary">
             SCHEDULE SMARTER · CAMPUS TIMETABLE
           </p>
 
@@ -100,13 +100,13 @@ export default function About() {
 
           {/* Version Badges */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            <span className="rounded-full bg-surface-container px-3 py-1 text-[11px] font-bold text-on-surface-variant">
+            <span className="rounded-full bg-surface-container px-3 py-1 text-label-caps font-bold text-on-surface-variant">
               Versi 0.1.0 (Beta)
             </span>
-            <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+            <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-label-caps font-bold text-emerald-800 dark:text-emerald-300">
               ⚡ PWA Ready
             </span>
-            <span className="rounded-full bg-blue-500/10 px-3 py-1 text-[11px] font-bold text-blue-800 dark:text-blue-300">
+            <span className="rounded-full bg-blue-500/10 px-3 py-1 text-label-caps font-bold text-blue-800 dark:text-blue-300">
               💾 Offline First
             </span>
           </div>
@@ -114,11 +114,11 @@ export default function About() {
       </section>
 
       {/* Feature Highlights 3-Col Grid — horizontal side-by-side */}
-      <section className="grid grid-cols-1 tablet:grid-cols-3 gap-3.5">
+      <section className="grid grid-cols-1 tablet:grid-cols-3 gap-4">
         {FEATURES.map((f) => (
           <div
             key={f.title}
-            className="flex flex-col items-start rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-sm dark:bg-surface-container-low dark:border-outline-variant/15"
+            className="flex flex-col items-start rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-5 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15"
           >
             <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl font-bold ${f.color}`}>
               <Icon name={f.icon} size={20} />
@@ -149,7 +149,7 @@ export default function About() {
                   aria-expanded={isOpen}
                   className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-surface-container-low/60 cursor-pointer"
                 >
-                  <div className="flex items-center gap-3.5">
+                  <div className="flex items-center gap-4">
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
                         isOpen
@@ -183,10 +183,10 @@ export default function About() {
       </section>
 
       {/* Support & Contact Card */}
-      <section className="rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 via-surface-container-lowest to-surface-container-lowest p-6 sm:p-8 shadow-sm dark:from-primary/15 dark:via-surface-container-low dark:to-surface-container-low dark:border-primary/25">
+      <section className="rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 via-surface-container-lowest to-surface-container-lowest p-6 sm:p-8 shadow-level-1 dark:from-primary/15 dark:via-surface-container-low dark:to-surface-container-low dark:border-primary/25">
         <div className="flex flex-col gap-6 tablet:flex-row tablet:items-center tablet:justify-between">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-md">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-level-2">
               <Icon name="support_agent" size={24} />
             </div>
             <div>
@@ -211,7 +211,7 @@ export default function About() {
           <div className="flex flex-wrap gap-2.5 shrink-0">
             <Button
               onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
-              className="rounded-full px-5 py-2.5 font-bold shadow-md cursor-pointer"
+              className="rounded-full px-5 py-2.5 font-bold shadow-level-2 cursor-pointer"
             >
               <Icon name="chat" size={18} className="mr-1" />
               WhatsApp Admin

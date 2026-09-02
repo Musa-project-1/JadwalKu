@@ -30,11 +30,11 @@ function RoleSelection() {
           </p>
         </header>
         <div className="grid w-full grid-cols-1 gap-lg tablet:grid-cols-2">
-          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-200 hover:shadow-md active:opacity-85 cursor-pointer group">
+          <div className="rounded-3xl p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-level-1 dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-200 hover:shadow-level-2 active:opacity-85 cursor-pointer group">
             <button
               type="button"
               onClick={() => navigate('/onboarding/wizard')}
-              className="relative flex flex-col items-center justify-center rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-8 sm:p-10 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] dark:bg-surface-container-low w-full h-full focus:outline-none cursor-pointer"
+              className="relative flex flex-col items-center justify-center rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-8 sm:p-10 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] dark:bg-surface-container-low w-full h-full focus:outline-none cursor-pointer"
             >
               <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-700 transition-colors duration-300 ease-out group-hover:bg-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-300 dark:group-hover:bg-emerald-500/25">
                 <Icon name="school" size={40} filled className="text-emerald-700 dark:text-emerald-300" />
@@ -45,18 +45,18 @@ function RoleSelection() {
               <p className="text-body-sm text-on-surface-variant font-medium max-w-[260px]">
                 Akses jadwal kelas, ujian, dan informasi akademik
               </p>
-              <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100">
+              <div className="mt-4 flex items-center gap-1 text-body-sm font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100">
                 <span>Lanjutkan</span>
                 <Icon name="arrow_forward" size={15} />
               </div>
             </button>
           </div>
 
-          <div className="rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-200 hover:shadow-md active:opacity-85 cursor-pointer group">
+          <div className="rounded-3xl p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-level-1 dark:bg-surface-container-lowest/10 flex flex-col transition-all duration-200 hover:shadow-level-2 active:opacity-85 cursor-pointer group">
             <button
               type="button"
               onClick={() => navigate('/admin/login')}
-              className="relative flex flex-col items-center justify-center rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-8 sm:p-10 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] dark:bg-surface-container-low w-full h-full focus:outline-none cursor-pointer"
+              className="relative flex flex-col items-center justify-center rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-8 sm:p-10 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] dark:bg-surface-container-low w-full h-full focus:outline-none cursor-pointer"
             >
               <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors duration-300 ease-out group-hover:bg-primary/20 dark:bg-primary/15 dark:text-primary dark:group-hover:bg-primary/25">
                 <Icon name="admin_panel_settings" size={40} className="text-primary" />
@@ -67,7 +67,7 @@ function RoleSelection() {
               <p className="text-body-sm text-on-surface-variant font-medium max-w-[260px]">
                 Kelola data jadwal, prodi, dan pengaturan kampus
               </p>
-              <div className="mt-4 flex items-center gap-1 text-[13px] font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100">
+              <div className="mt-4 flex items-center gap-1 text-body-sm font-semibold text-primary opacity-60 transition-all duration-300 group-hover:opacity-100">
                 <span>Masuk Panel</span>
                 <Icon name="arrow_forward" size={15} />
               </div>
@@ -293,8 +293,8 @@ export function OnboardingWizard() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-transparent p-md sm:p-lg py-6">
-      <div className="w-full max-w-[1100px] rounded-[2rem] p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-2xs dark:bg-surface-container-lowest/10 animate-fade-in">
-        <div className="w-full rounded-[calc(2rem-0.25rem)] border border-outline-variant/20 bg-surface-container-lowest p-5 sm:p-6 shadow-xs dark:bg-surface-container-low">
+      <div className="w-full max-w-[1100px] rounded-3xl p-1 bg-surface-container-low/60 border border-outline-variant/15 shadow-level-1 dark:bg-surface-container-lowest/10 animate-fade-in">
+        <div className="w-full rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-5 sm:p-6 shadow-level-1 dark:bg-surface-container-low">
           {/* Header */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
@@ -308,9 +308,9 @@ export function OnboardingWizard() {
             <p className="mt-1 text-body-sm text-on-surface-variant font-medium">
               Fakultas → Prodi → Semester &amp; TA
               {currentTerm === 'libur' ? (
-                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/25 px-2 py-0.5 text-[11px] font-bold text-amber-800 dark:text-amber-300">Libur · TA {currentTA}</span>
+                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/25 px-2 py-0.5 text-label-caps font-bold text-amber-800 dark:text-amber-300">Libur · TA {currentTA}</span>
               ) : (
-                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">{currentTerm === 'ganjil' ? 'Ganjil' : 'Genap'} · TA {currentTA}</span>
+                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-label-caps font-bold text-emerald-700 dark:text-emerald-300">{currentTerm === 'ganjil' ? 'Ganjil' : 'Genap'} · TA {currentTA}</span>
               )}
             </p>
             {(invitePrefill.prodi || invitePrefill.fakultasId) && (
@@ -329,7 +329,7 @@ export function OnboardingWizard() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-violet-500/15 text-violet-600 dark:text-violet-300"><Icon name="account_balance" size={16} /></span>
                 <h2 className="text-body-sm font-bold text-on-surface">Fakultas</h2>
-                {fakultasId && <span className="ml-auto text-[11px] font-bold text-violet-600 dark:text-violet-300">Terpilih</span>}
+                {fakultasId && <span className="ml-auto text-label-caps font-bold text-violet-600 dark:text-violet-300">Terpilih</span>}
               </div>
               {fakultasList.length > 4 && (
                 <div className="mb-2">
@@ -354,7 +354,7 @@ export function OnboardingWizard() {
                       <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${meta.color}`}><Icon name={meta.icon} size={16} /></span>
                       <div className="min-w-0 flex-1">
                         <p className={`text-body-xs font-semibold truncate ${isSelected ? 'text-primary' : 'text-on-surface'}`}>{f.nama}</p>
-                        {f.singkatan && <p className="text-[11px] font-medium text-on-surface-variant/60">{f.singkatan}</p>}
+                        {f.singkatan && <p className="text-label-caps font-medium text-on-surface-variant/70">{f.singkatan}</p>}
                       </div>
                       {isSelected ? <Icon name="check_circle" filled size={18} className="text-primary shrink-0" /> : <span className="h-3.5 w-3.5 rounded-full border border-outline-variant/30 shrink-0" />}
                     </button>
@@ -370,7 +370,7 @@ export function OnboardingWizard() {
             <div className="flex items-center gap-2 mb-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"><Icon name="school" size={16} /></span>
               <h2 className="text-body-sm font-bold text-on-surface">Jurusan / Prodi</h2>
-              {prodi && <span className="ml-auto text-[11px] font-bold text-emerald-600 dark:text-emerald-300">Terpilih: {prodi}</span>}
+              {prodi && <span className="ml-auto text-label-caps font-bold text-emerald-600 dark:text-emerald-300">Terpilih: {prodi}</span>}
             </div>
             {filteredPrograms.length > 4 && (
               <div className="mb-2">
@@ -389,10 +389,10 @@ export function OnboardingWizard() {
                     className={`flex w-full items-center justify-between rounded-2xl border px-3 py-2 text-left transition-all cursor-pointer ${isSelected ? 'border-primary/40 bg-primary/[0.06] dark:bg-primary/10' : 'border-outline-variant/20 bg-surface-container-low/30 hover:border-outline-variant/40 hover:bg-surface-container-low/60 dark:bg-surface-container-high/20'}`}
                   >
                     <span className="flex items-center gap-2.5 min-w-0">
-                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[13px] ${meta.color} ${isSelected ? 'ring-1 ring-primary/20' : ''}`}><Icon name={meta.icon} size={16} /></span>
+                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-body-sm ${meta.color} ${isSelected ? 'ring-1 ring-primary/20' : ''}`}><Icon name={meta.icon} size={16} /></span>
                       <span className="min-w-0">
                         <p className={`text-body-xs font-semibold truncate ${isSelected ? 'text-primary' : 'text-on-surface'}`}>{p.nama}</p>
-                        <p className="text-[11px] font-medium text-on-surface-variant/60">Semester {p.semesterMin}–{p.semesterMax}</p>
+                        <p className="text-label-caps font-medium text-on-surface-variant/70">Semester {p.semesterMin}–{p.semesterMax}</p>
                       </span>
                     </span>
                     {isSelected ? <Icon name="check_circle" filled size={18} className="text-primary shrink-0" /> : <span className="h-3.5 w-3.5 rounded-full border border-outline-variant/30 shrink-0" />}
@@ -415,7 +415,7 @@ export function OnboardingWizard() {
             <div className="flex items-center gap-2 mb-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-300"><Icon name="calendar_month" size={16} /></span>
               <h2 className="text-body-sm font-bold text-on-surface">Semester &amp; TA</h2>
-              {semester && <span className="ml-auto text-[11px] font-bold text-blue-600 dark:text-blue-300">Sem {semester} · TA {effectiveTA}</span>}
+              {semester && <span className="ml-auto text-label-caps font-bold text-blue-600 dark:text-blue-300">Sem {semester} · TA {effectiveTA}</span>}
             </div>
             {!prodi && <p className="text-body-xs text-on-surface-variant mb-2">Pilih prodi dulu untuk melihat semester.</p>}
             {prodi && (
@@ -431,11 +431,11 @@ export function OnboardingWizard() {
                       key={s}
                       type="button"
                       onClick={() => setSemesterLocal(s)}
-                      className={`flex flex-col items-center justify-center rounded-2xl border py-3.5 transition-all cursor-pointer ${isSelected ? 'border-primary bg-primary text-on-primary shadow-md ring-2 ring-primary/40' : isCurrentTermSem ? 'border-primary/30 bg-primary/5 text-on-surface hover:bg-primary/10' : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'}`}
+                      className={`flex flex-col items-center justify-center rounded-2xl border py-4 transition-all cursor-pointer ${isSelected ? 'border-primary bg-primary text-on-primary shadow-level-2 ring-2 ring-primary/40' : isCurrentTermSem ? 'border-primary/30 bg-primary/5 text-on-surface hover:bg-primary/10' : 'border-outline-variant/30 bg-surface-container-low/50 text-on-surface hover:border-primary/40 dark:bg-surface-container-high/30'}`}
                     >
                       <span className="text-headline-sm font-bold leading-none mb-0.5">{s}</span>
-                      <span className={`text-[10px] font-semibold uppercase tracking-wider ${isSelected ? 'text-white/80' : 'text-on-surface-variant/70'}`}>{isGanjil ? 'Ganjil' : 'Genap'}</span>
-                      <span className={`mt-0.5 text-[9px] font-bold tracking-wide ${isSelected ? 'text-white/70' : isExpected ? 'text-emerald-600 dark:text-emerald-300' : 'text-on-surface-variant/60'}`}>TA {taForS}</span>
+                      <span className={`text-label-caps font-semibold uppercase tracking-wider ${isSelected ? 'text-white/80' : 'text-on-surface-variant/70'}`}>{isGanjil ? 'Ganjil' : 'Genap'}</span>
+                      <span className={`mt-0.5 text-label-caps font-bold tracking-wide ${isSelected ? 'text-white/70' : isExpected ? 'text-emerald-600 dark:text-emerald-300' : 'text-on-surface-variant/70'}`}>TA {taForS}</span>
                     </button>
                   )
                 })}
@@ -445,7 +445,7 @@ export function OnboardingWizard() {
 
           {/* Preview (#2) */}
           {preview && prodi && semester && (
-            <div className={`rounded-2xl border p-3.5 ${preview.count > 0 ? 'border-emerald-500/25 bg-emerald-500/5' : 'border-amber-500/25 bg-amber-500/5'}`}>
+            <div className={`rounded-2xl border p-4 ${preview.count > 0 ? 'border-emerald-500/25 bg-emerald-500/5' : 'border-amber-500/25 bg-amber-500/5'}`}>
               <div className="flex items-center gap-2 mb-1">
                 <Icon name={preview.count > 0 ? 'visibility' : 'info'} size={16} className={preview.count > 0 ? 'text-emerald-600 dark:text-emerald-300' : 'text-amber-600 dark:text-amber-300'} />
                 <p className="text-body-xs font-bold text-on-surface">Preview Jadwal: {prodi} Sem {semester} · TA {effectiveTA}</p>
@@ -496,12 +496,12 @@ export function OnboardingWizard() {
             <button type="button" onClick={() => navigate('/onboarding')} className="rounded-full px-4 py-1.5 text-body-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/40 transition-colors">
               Kembali
             </button>
-            <button type="button" disabled={!canSave} onClick={handleSave} className={`inline-flex items-center gap-1.5 rounded-full px-5 py-1.5 text-body-xs font-bold shadow-sm transition-all ${canSave ? 'bg-primary text-on-primary hover:bg-primary/90 hover:shadow' : 'bg-surface-container-high text-on-surface-variant/50 cursor-not-allowed'}`}>
+            <button type="button" disabled={!canSave} onClick={handleSave} className={`inline-flex items-center gap-1.5 rounded-full px-5 py-1.5 text-body-xs font-bold shadow-level-1 transition-all ${canSave ? 'bg-primary text-on-primary hover:bg-primary/90 hover:shadow' : 'bg-surface-container-high text-on-surface-variant/50 cursor-not-allowed'}`}>
               <Icon name="check" size={16} />
               <span>Simpan &amp; Mulai</span>
             </button>
           </div>
-          <p className="mt-2 text-center text-[11px] leading-none text-on-surface-variant/50">Fakultas, prodi &amp; semester bisa diubah di Pengaturan</p>
+          <p className="mt-2 text-center text-label-caps leading-none text-on-surface-variant/50">Fakultas, prodi &amp; semester bisa diubah di Pengaturan</p>
         </div>
       </div>
     </div>

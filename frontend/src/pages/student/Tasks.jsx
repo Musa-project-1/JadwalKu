@@ -86,11 +86,11 @@ export default function Tasks() {
   )
 
   return (
-    <div className="flex flex-col gap-3.5 w-full max-w-full overflow-x-hidden animate-fade-in">
+    <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
       {/* 1. Header Halaman — Structured like WeeklySchedule */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full">
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
             <Icon name="assignment" size={24} />
           </div>
           <div className="min-w-0">
@@ -98,7 +98,7 @@ export default function Tasks() {
               <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
                 Tugas Kuliah
               </h2>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
                 {allActiveCount > 0 ? `${allActiveCount} Aktif` : 'Tuntas'}
               </span>
             </div>
@@ -111,13 +111,13 @@ export default function Tasks() {
         {/* Controls Desktop & Tablet */}
         <div className="flex items-center gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
           {/* Scope Filter Switcher */}
-          <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-xs shrink-0">
+          <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
             <button
               type="button"
               onClick={() => setScopeFilter('all')}
-              className={`rounded-full px-3 py-1 text-[11.5px] font-bold transition-all cursor-pointer ${
+              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
                 scopeFilter === 'all'
-                  ? 'bg-surface shadow-xs text-primary'
+                  ? 'bg-surface shadow-level-1 text-primary'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -126,9 +126,9 @@ export default function Tasks() {
             <button
               type="button"
               onClick={() => setScopeFilter('prodi')}
-              className={`rounded-full px-3 py-1 text-[11.5px] font-bold transition-all cursor-pointer ${
+              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
                 scopeFilter === 'prodi'
-                  ? 'bg-surface shadow-xs text-primary'
+                  ? 'bg-surface shadow-level-1 text-primary'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -137,9 +137,9 @@ export default function Tasks() {
             <button
               type="button"
               onClick={() => setScopeFilter('pribadi')}
-              className={`rounded-full px-3 py-1 text-[11.5px] font-bold transition-all cursor-pointer ${
+              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
                 scopeFilter === 'pribadi'
-                  ? 'bg-surface shadow-xs text-primary'
+                  ? 'bg-surface shadow-level-1 text-primary'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -154,7 +154,7 @@ export default function Tasks() {
               setInitialKodeMK('')
               setShowForm(true)
             }}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-primary text-on-primary text-body-xs tablet:text-body-sm font-bold shadow-xs hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-2xl bg-primary text-on-primary text-body-xs tablet:text-body-sm font-bold shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
           >
             <Icon name="add" size={16} />
             <span>Tambah Tugas</span>
@@ -163,7 +163,7 @@ export default function Tasks() {
       </header>
 
       {/* 2. Secondary Toolbar: Progress Bar, Status Toggle & Course Filters */}
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-2.5 shadow-xs flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3">
+      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-2.5 shadow-level-1 flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3">
         {/* Status Filter Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           <button
@@ -171,7 +171,7 @@ export default function Tasks() {
             onClick={() => setStatusFilter('active')}
             className={`px-3 py-1 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'active'
-                ? 'bg-primary/10 text-primary border border-primary/25 shadow-2xs'
+                ? 'bg-primary/10 text-primary border border-primary/25 shadow-level-1'
                 : 'text-on-surface-variant hover:bg-surface-container'
             }`}
           >
@@ -182,7 +182,7 @@ export default function Tasks() {
             onClick={() => setStatusFilter('done')}
             className={`px-3 py-1 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'done'
-                ? 'bg-primary/10 text-primary border border-primary/25 shadow-2xs'
+                ? 'bg-primary/10 text-primary border border-primary/25 shadow-level-1'
                 : 'text-on-surface-variant hover:bg-surface-container'
             }`}
           >
@@ -193,7 +193,7 @@ export default function Tasks() {
             onClick={() => setStatusFilter('all')}
             className={`px-3 py-1 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'all'
-                ? 'bg-primary/10 text-primary border border-primary/25 shadow-2xs'
+                ? 'bg-primary/10 text-primary border border-primary/25 shadow-level-1'
                 : 'text-on-surface-variant hover:bg-surface-container'
             }`}
           >
@@ -234,7 +234,7 @@ export default function Tasks() {
 
       {/* 3. Urgent High Priority Banner (If any) */}
       {highPriority.length > 0 && statusFilter !== 'done' && (
-        <div className="rounded-2xl border border-error/30 bg-error/10 dark:bg-error/15 p-3.5 space-y-2 shadow-xs">
+        <div className="rounded-2xl border border-error/30 bg-error/10 dark:bg-error/15 p-4 space-y-2 shadow-level-1">
           <div className="flex items-center gap-2 text-error font-extrabold text-body-xs">
             <Icon name="priority_high" size={17} className="shrink-0 animate-bounce" />
             <span>Tugas Mendesak Mendekati Tenggat Waktu</span>
@@ -244,11 +244,11 @@ export default function Tasks() {
               <div
                 key={t.id}
                 onClick={() => toggleDone(t.id)}
-                className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-surface-container-lowest dark:bg-surface-container-low border border-error/25 shadow-2xs cursor-pointer hover:border-error transition-all"
+                className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-surface-container-lowest dark:bg-surface-container-low border border-error/25 shadow-level-1 cursor-pointer hover:border-error transition-all"
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-body-xs font-bold text-on-surface truncate">{t.judul}</p>
-                  <p className="text-[10.5px] text-error font-semibold mt-0.5">{formatDeadline(t.deadline)}</p>
+                  <p className="text-body-xs text-error font-semibold mt-0.5">{formatDeadline(t.deadline)}</p>
                 </div>
                 <Icon name="check_circle_outline" size={16} className="text-error shrink-0" />
               </div>
@@ -259,8 +259,8 @@ export default function Tasks() {
 
       {/* 4. Task List & Empty State Container */}
       {tasks.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-outline-variant/35 bg-surface-container-lowest dark:bg-surface-container-low p-8 tablet:p-12 text-center shadow-xs flex flex-col items-center justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary border border-primary/20 shadow-xs mb-3">
+        <div className="rounded-3xl border border-dashed border-outline-variant/35 bg-surface-container-lowest dark:bg-surface-container-low p-8 tablet:p-12 text-center shadow-level-1 flex flex-col items-center justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary border border-primary/20 shadow-level-1 mb-3">
             <Icon name="assignment" size={36} />
           </div>
           <h3 className="text-title-md font-bold text-on-surface">Belum ada tugas kuliah</h3>
@@ -273,14 +273,14 @@ export default function Tasks() {
               setInitialKodeMK('')
               setShowForm(true)
             }}
-            className="mt-5 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary text-body-sm font-bold shadow-sm hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+            className="mt-5 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary text-body-sm font-bold shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
           >
             <Icon name="add" size={18} />
             <span>Tambah Tugas Baru</span>
           </button>
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-outline-variant/35 bg-surface-container-lowest dark:bg-surface-container-low p-8 text-center shadow-xs">
+        <div className="rounded-3xl border border-dashed border-outline-variant/35 bg-surface-container-lowest dark:bg-surface-container-low p-8 text-center shadow-level-1">
           <Icon name="filter_list_off" size={36} className="mx-auto text-outline-variant mb-2" />
           <h4 className="text-body-sm font-bold text-on-surface">Tidak ada tugas yang sesuai filter</h4>
           <p className="text-body-xs text-on-surface-variant mt-1">Coba ubah status atau kategori tugas di atas.</p>
@@ -291,7 +291,7 @@ export default function Tasks() {
           {thisWeek.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 px-1">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant">
+                <span className="text-label-caps font-extrabold uppercase tracking-wider text-on-surface-variant">
                   Tenggat Minggu Ini ({thisWeek.length})
                 </span>
               </div>
@@ -312,7 +312,7 @@ export default function Tasks() {
           {nextWeek.length > 0 && (
             <div className="space-y-2 pt-2">
               <div className="flex items-center gap-2 px-1">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant">
+                <span className="text-label-caps font-extrabold uppercase tracking-wider text-on-surface-variant">
                   Tenggat Mendatang ({nextWeek.length})
                 </span>
               </div>
@@ -333,7 +333,7 @@ export default function Tasks() {
           {done.length > 0 && statusFilter !== 'active' && (
             <div className="space-y-2 pt-2">
               <div className="flex items-center gap-2 px-1">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant">
+                <span className="text-label-caps font-extrabold uppercase tracking-wider text-on-surface-variant">
                   Tugas Selesai ({done.length})
                 </span>
               </div>
@@ -389,7 +389,7 @@ function TaskCard({ task, onToggle, onDelete }) {
 
   return (
     <div
-      className={`relative flex items-start gap-3 rounded-2xl border p-3.5 shadow-2xs transition-all ${
+      className={`relative flex items-start gap-3 rounded-2xl border p-4 shadow-level-1 transition-all ${
         task.selesai
           ? 'border-outline-variant/20 bg-surface-container-low/40 opacity-75 dark:bg-surface-container-high/20'
           : isPast
@@ -410,7 +410,7 @@ function TaskCard({ task, onToggle, onDelete }) {
         onClick={() => onToggle(task.id)}
         className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border-2 transition-all cursor-pointer ${
           task.selesai
-            ? 'border-primary bg-primary text-on-primary shadow-2xs'
+            ? 'border-primary bg-primary text-on-primary shadow-level-1'
             : 'border-outline-variant bg-surface-container'
         }`}
       >
@@ -422,12 +422,12 @@ function TaskCard({ task, onToggle, onDelete }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
               {task.kodeMK && (
-                <span className="font-mono text-[10px] font-extrabold text-primary bg-primary/10 border border-primary/20 px-2 py-0.2 rounded-md">
+                <span className="font-mono text-label-caps font-extrabold text-primary bg-primary/10 border border-primary/20 px-2 py-0.2 rounded-md">
                   {task.kodeMK}
                 </span>
               )}
               <span
-                className={`rounded-md px-1.5 py-0.2 text-[10px] font-bold ${
+                className={`rounded-md px-1.5 py-0.2 text-label-caps font-bold ${
                   task.isProdi
                     ? 'bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/25'
                     : 'bg-surface-container text-on-surface-variant'
@@ -448,7 +448,7 @@ function TaskCard({ task, onToggle, onDelete }) {
 
           {/* Deadline Badge */}
           <span
-            className={`shrink-0 rounded-xl px-2.5 py-1 text-[11px] font-extrabold ${
+            className={`shrink-0 rounded-xl px-2.5 py-1 text-label-caps font-extrabold ${
               task.selesai
                 ? 'bg-surface-container text-on-surface-variant'
                 : isPast
@@ -463,13 +463,13 @@ function TaskCard({ task, onToggle, onDelete }) {
         </div>
 
         {task.catatan && (
-          <p className="text-[11px] text-on-surface-variant/90 leading-relaxed line-clamp-2 bg-surface-container-low/50 dark:bg-surface-container-high/40 p-2 rounded-xl border border-outline-variant/15 mt-1">
+          <p className="text-label-caps text-on-surface-variant/90 leading-relaxed line-clamp-2 bg-surface-container-low/50 dark:bg-surface-container-high/40 p-2 rounded-xl border border-outline-variant/15 mt-1">
             {task.catatan}
           </p>
         )}
 
         <div className="mt-2 flex items-center justify-between border-t border-outline-variant/15 pt-1.5">
-          <span className="text-[10.5px] text-on-surface-variant font-medium">
+          <span className="text-body-xs text-on-surface-variant font-medium">
             Prioritas: <strong className="text-on-surface">{PRIORITY_LABEL[task.prioritas] ?? task.prioritas}</strong>
             {task.dibuatOleh && <span className="opacity-70"> · {task.dibuatOleh}</span>}
           </span>
@@ -563,13 +563,13 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
       <form
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-xl max-h-[92vh] tablet:max-h-[88vh] overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up flex flex-col"
+        className="w-full max-w-xl max-h-[92vh] tablet:max-h-[88vh] overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-3 animate-fade-up flex flex-col"
       >
         {/* Header Modal - Gradient Teal/Indigo Theme */}
         <header className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-indigo-950 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-level-1">
                 <Icon name="add_task" size={22} />
               </div>
               <div className="min-w-0">
@@ -577,7 +577,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                   <h3 className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
                     Tambah Tugas Baru
                   </h3>
-                  <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                  <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wider border border-white/25 shadow-level-1">
                     Deadline Tracker
                   </span>
                 </div>
@@ -603,7 +603,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
         <div className="p-4 tablet:p-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
           {/* 1. Tipe Tugas: Pribadi vs Bersama Prodi */}
           <div>
-            <label className="mb-1.5 block text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant">
+            <label className="mb-1.5 block text-label-caps uppercase tracking-wider font-extrabold text-on-surface-variant">
               Tipe Tugas
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -612,7 +612,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                 onClick={() => setIsProdi(false)}
                 className={`flex items-center justify-center gap-2 rounded-2xl border-2 p-3 text-body-xs font-bold transition-all cursor-pointer ${
                   !isProdi
-                    ? 'border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/25'
+                    ? 'border-primary bg-primary/10 text-primary shadow-level-1 ring-1 ring-primary/25'
                     : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
@@ -624,7 +624,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                 onClick={() => setIsProdi(true)}
                 className={`flex items-center justify-center gap-2 rounded-2xl border-2 p-3 text-body-xs font-bold transition-all cursor-pointer ${
                   isProdi
-                    ? 'border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/25'
+                    ? 'border-primary bg-primary/10 text-primary shadow-level-1 ring-1 ring-primary/25'
                     : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
@@ -632,7 +632,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                 <span>Bersama Prodi</span>
               </button>
             </div>
-            <p className="mt-1.5 text-[10.5px] text-on-surface-variant font-medium">
+            <p className="mt-1.5 text-body-xs text-on-surface-variant font-medium">
               {isProdi
                 ? 'Tugas ini akan tersinkronisasi ke seluruh mahasiswa di prodi & semester yang sama.'
                 : 'Tugas ini hanya tersimpan di perangkat lokal Anda.'}
@@ -641,7 +641,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
 
           {/* 2. Judul Tugas */}
           <label className="block">
-            <span className="mb-1 block text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant">
+            <span className="mb-1 block text-label-caps uppercase tracking-wider font-extrabold text-on-surface-variant">
               Judul Tugas *
             </span>
             <input
@@ -649,35 +649,35 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
               onChange={(e) => setJudul(e.target.value)}
               required
               placeholder="Contoh: Makalah Etika Profesi Bab 1-3"
-              className="w-full rounded-2xl border border-outline-variant/35 bg-surface-container-low/40 px-3.5 py-2.5 text-body-sm text-on-surface placeholder:text-outline-variant focus:border-primary focus:outline-none dark:bg-surface-container-high/40 shadow-xs"
+              className="w-full rounded-2xl border border-outline-variant/35 bg-surface-container-low/40 px-4 py-2.5 text-body-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:outline-none dark:bg-surface-container-high/40 shadow-level-1"
             />
           </label>
 
           {/* 3. Kode MK & Premium Deadline Selector */}
           <div className="space-y-3">
             <label className="block">
-              <span className="mb-1 block text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant">
+              <span className="mb-1 block text-label-caps uppercase tracking-wider font-extrabold text-on-surface-variant">
                 Kode Mata Kuliah (Opsional)
               </span>
               <input
                 value={kodeMK}
                 onChange={(e) => setKodeMK(e.target.value)}
                 placeholder="Contoh: IF301"
-                className="w-full rounded-2xl border border-outline-variant/35 bg-surface-container-low/40 px-3.5 py-2.5 text-body-sm text-on-surface placeholder:text-outline-variant focus:border-primary focus:outline-none dark:bg-surface-container-high/40 shadow-xs"
+                className="w-full rounded-2xl border border-outline-variant/35 bg-surface-container-low/40 px-4 py-2.5 text-body-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:outline-none dark:bg-surface-container-high/40 shadow-level-1"
               />
             </label>
 
             {/* Premium Tenggat Waktu — Dropdown Date Picker (Premium) */}
-            <div className="rounded-[20px] border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 space-y-3 shadow-sm">
+            <div className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 space-y-3 shadow-level-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant flex items-center gap-1.5">
+                <span className="text-label-caps uppercase tracking-wider font-extrabold text-on-surface-variant flex items-center gap-1.5">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/15">
                     <Icon name="calendar_month" size={14} />
                   </span>
                   <span>Tenggat Waktu *</span>
                 </span>
                 {formattedDeadlineInfo && (
-                  <span className={`text-[10.5px] font-extrabold px-2.5 py-1 rounded-full border shadow-2xs ${
+                  <span className={`text-body-xs font-extrabold px-2.5 py-1 rounded-full border shadow-level-1 ${
                     formattedDeadlineInfo.days < 0
                       ? 'bg-error/15 text-error border-error/25'
                       : formattedDeadlineInfo.days <= 1
@@ -693,7 +693,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
 
               {/* Pintasan — pill premium */}
               <div>
-                <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant/70">Pintasan:</span>
+                <span className="mb-1.5 block text-label-caps font-extrabold uppercase tracking-widest text-on-surface-variant/70">Pintasan:</span>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {[
                     { label: 'Hari Ini', days: 0 },
@@ -713,9 +713,9 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                         key={chip.label}
                         type="button"
                         onClick={() => { setOffsetDays(chip.days); setPickerOpen(false) }}
-                        className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all cursor-pointer active:scale-95 ${
+                        className={`px-3 py-1 rounded-full text-label-caps font-bold border transition-all cursor-pointer active:scale-95 ${
                           isActive
-                            ? 'bg-primary text-on-primary border-primary shadow-xs'
+                            ? 'bg-primary text-on-primary border-primary shadow-level-1'
                             : 'bg-surface-container-high/70 hover:bg-surface-container-high text-on-surface border-outline-variant/25 hover:border-outline-variant/40'
                         }`}
                       >
@@ -736,7 +736,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
               />
 
               {formattedDeadlineInfo && (
-                <p className="text-[11px] text-on-surface-variant font-medium flex items-center gap-1.5">
+                <p className="text-label-caps text-on-surface-variant font-medium flex items-center gap-1.5">
                   <Icon name="event_available" size={14} className="text-emerald-600 dark:text-emerald-400" />
                   <span>Jatuh tempo: <strong className="text-on-surface">{formattedDeadlineInfo.formatted}</strong> · {formattedDeadlineInfo.relative}</span>
                 </p>
@@ -746,7 +746,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
 
           {/* 4. Tingkat Prioritas */}
           <fieldset>
-            <legend className="mb-1.5 text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant">
+            <legend className="mb-1.5 text-label-caps uppercase tracking-wider font-extrabold text-on-surface-variant">
               Tingkat Prioritas
             </legend>
             <div className="grid grid-cols-3 gap-2">
@@ -755,12 +755,12 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                 onClick={() => setPrioritas('tinggi')}
                 className={`rounded-2xl border-2 py-2.5 px-2 text-body-xs font-extrabold transition-all cursor-pointer flex flex-col items-center gap-0.5 ${
                   prioritas === 'tinggi'
-                    ? 'border-error bg-error/15 text-error ring-1 ring-error/25 shadow-xs'
+                    ? 'border-error bg-error/15 text-error ring-1 ring-error/25 shadow-level-1'
                     : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
                 <span>Mendesak</span>
-                <span className="text-[9.5px] opacity-75 font-medium">Prioritas Tinggi</span>
+                <span className="text-label-caps opacity-75 font-medium">Prioritas Tinggi</span>
               </button>
 
               <button
@@ -768,12 +768,12 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                 onClick={() => setPrioritas('sedang')}
                 className={`rounded-2xl border-2 py-2.5 px-2 text-body-xs font-extrabold transition-all cursor-pointer flex flex-col items-center gap-0.5 ${
                   prioritas === 'sedang'
-                    ? 'border-amber-500 bg-amber-500/15 text-amber-900 dark:text-amber-200 ring-1 ring-amber-500/25 shadow-xs'
+                    ? 'border-amber-500 bg-amber-500/15 text-amber-900 dark:text-amber-200 ring-1 ring-amber-500/25 shadow-level-1'
                     : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
                 <span>Segera</span>
-                <span className="text-[9.5px] opacity-75 font-medium">Prioritas Sedang</span>
+                <span className="text-label-caps opacity-75 font-medium">Prioritas Sedang</span>
               </button>
 
               <button
@@ -781,19 +781,19 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                 onClick={() => setPrioritas('rendah')}
                 className={`rounded-2xl border-2 py-2.5 px-2 text-body-xs font-extrabold transition-all cursor-pointer flex flex-col items-center gap-0.5 ${
                   prioritas === 'rendah'
-                    ? 'border-blue-500 bg-blue-500/15 text-blue-900 dark:text-blue-200 ring-1 ring-blue-500/25 shadow-xs'
+                    ? 'border-blue-500 bg-blue-500/15 text-blue-900 dark:text-blue-200 ring-1 ring-blue-500/25 shadow-level-1'
                     : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
                 <span>Masih Lama</span>
-                <span className="text-[9.5px] opacity-75 font-medium">Prioritas Rendah</span>
+                <span className="text-label-caps opacity-75 font-medium">Prioritas Rendah</span>
               </button>
             </div>
           </fieldset>
 
           {/* 5. Catatan / Instruksi Tugas */}
           <label className="block">
-            <span className="mb-1 block text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant">
+            <span className="mb-1 block text-label-caps uppercase tracking-wider font-extrabold text-on-surface-variant">
               Catatan / Instruksi Tugas
             </span>
             <textarea
@@ -803,7 +803,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
               onChange={(e) => setCatatan(e.target.value)}
               rows={3}
               placeholder="Tuliskan format pengumpulan, link materi/drive, nomor bab, atau catatan penting..."
-              className="w-full resize-none rounded-2xl border border-outline-variant/35 bg-surface-container-low/40 p-3 text-body-sm text-on-surface placeholder:text-outline-variant focus:border-primary focus:outline-none dark:bg-surface-container-high/40 shadow-xs"
+              className="w-full resize-none rounded-2xl border border-outline-variant/35 bg-surface-container-low/40 p-3 text-body-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:outline-none dark:bg-surface-container-high/40 shadow-level-1"
             />
           </label>
         </div>
@@ -813,7 +813,7 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
           <Button type="button" variant="secondary" onClick={onCancel} className="px-5 py-2 font-semibold">
             Batal
           </Button>
-          <Button type="submit" className="px-6 py-2 font-bold shadow-xs">
+          <Button type="submit" className="px-6 py-2 font-bold shadow-level-1">
             Simpan Tugas
           </Button>
         </footer>
@@ -972,7 +972,7 @@ function PremiumDeadlineField({ deadline, setDeadline, pickerOpen, setPickerOpen
         onClick={() => setPickerOpen((v) => !v)}
         aria-haspopup="dialog"
         aria-expanded={pickerOpen}
-        className={`w-full flex items-center justify-between gap-3 rounded-[14px] border bg-white dark:bg-surface-container-high/50 px-3.5 py-2.5 text-left shadow-xs transition-all cursor-pointer ${
+        className={`w-full flex items-center justify-between gap-3 rounded-xl border bg-white dark:bg-surface-container-high/50 px-4 py-2.5 text-left shadow-level-1 transition-all cursor-pointer ${
           pickerOpen
             ? 'border-primary ring-2 ring-primary/20'
             : deadline
@@ -988,14 +988,14 @@ function PremiumDeadlineField({ deadline, setDeadline, pickerOpen, setPickerOpen
             {deadline ? (
               <>
                 <span className="block text-body-sm font-extrabold text-on-surface tracking-tight">{displayText}</span>
-                <span className="block text-[11px] font-semibold text-on-surface-variant -mt-0.5 truncate">
+                <span className="block text-label-caps font-semibold text-on-surface-variant -mt-0.5 truncate">
                   {formattedDeadlineInfo ? `${formattedDeadlineInfo.formatted} · ${formattedDeadlineInfo.relative}` : ''}
                 </span>
               </>
             ) : (
               <>
                 <span className="block text-body-sm font-semibold text-outline-variant">dd/mm/yyyy</span>
-                <span className="block text-[11px] text-on-surface-variant/70 -mt-0.5">Pilih tanggal tenggat</span>
+                <span className="block text-label-caps text-on-surface-variant/70 -mt-0.5">Pilih tanggal tenggat</span>
               </>
             )}
           </span>
@@ -1009,10 +1009,10 @@ function PremiumDeadlineField({ deadline, setDeadline, pickerOpen, setPickerOpen
         <div
           role="dialog"
           aria-label="Pilih tanggal tenggat waktu"
-          className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-[18px] border border-outline-variant/20 bg-white dark:bg-surface-container-low shadow-xl overflow-hidden animate-fade-up"
+          className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-xl border border-outline-variant/20 bg-white dark:bg-surface-container-low shadow-level-3 overflow-hidden animate-fade-up"
         >
           {/* Month header — premium */}
-          <div className="flex items-center justify-between px-3.5 py-3 bg-surface-container-low/60 dark:bg-surface-container-high/30 border-b border-outline-variant/15">
+          <div className="flex items-center justify-between px-4 py-3 bg-surface-container-low/60 dark:bg-surface-container-high/30 border-b border-outline-variant/15">
             <div className="flex items-center gap-1">
               <span className="text-body-sm font-extrabold text-on-surface capitalize">{monthLabelEn}</span>
               <span className="text-body-xs text-on-surface-variant font-medium hidden tablet:inline capitalize">· {monthLabel}</span>
@@ -1030,7 +1030,7 @@ function PremiumDeadlineField({ deadline, setDeadline, pickerOpen, setPickerOpen
           {/* Weekday row */}
           <div className="grid grid-cols-7 gap-0 px-2 pt-2.5">
             {WEEKDAY_LABELS.map((w) => (
-              <span key={w} className="text-center text-[11px] font-extrabold tracking-wider text-on-surface-variant/60 py-1">{w}</span>
+              <span key={w} className="text-center text-label-caps font-extrabold tracking-wider text-on-surface-variant/70 py-1">{w}</span>
             ))}
           </div>
 
@@ -1044,13 +1044,13 @@ function PremiumDeadlineField({ deadline, setDeadline, pickerOpen, setPickerOpen
                   key={cell.key}
                   type="button"
                   onClick={() => selectDate(cell.key)}
-                  className={`h-8 w-8 mx-auto flex items-center justify-center rounded-full text-[13px] font-semibold transition-all cursor-pointer ${
+                  className={`h-8 w-8 mx-auto flex items-center justify-center rounded-full text-body-sm font-semibold transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-[#0a58ca] text-white shadow-sm ring-2 ring-[#0a58ca]/20'
+                      ? 'bg-[#0a58ca] text-white shadow-level-1 ring-2 ring-[#0a58ca]/20'
                       : isToday
                         ? 'bg-primary/12 text-primary border border-primary/30 font-extrabold'
                         : cell.muted
-                          ? 'text-on-surface-variant/35 hover:bg-surface-container-high/60'
+                          ? 'text-on-surface-variant/70 hover:bg-surface-container-high/60'
                           : 'text-on-surface hover:bg-surface-container-high'
                   }`}
                 >
