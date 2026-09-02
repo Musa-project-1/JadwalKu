@@ -7,6 +7,10 @@ export default defineConfig({
   // Jika repo di-rename / pakai custom domain, ubah nilai base di sini.
   base: '/JadwalKu/',
   build: {
+    // matikan <link rel=modulepreload> — Vite inject preload untuk semua manualChunks
+    // tapi SW Workbox serve dari CacheStorage -> mismatch "preloaded but not used within a few seconds"
+    // warning 20x numpuk. Import tetap load normal via <script type=module>.
+    modulePreload: false,
     chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
