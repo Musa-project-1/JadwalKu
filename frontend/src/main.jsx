@@ -17,10 +17,21 @@ if (import.meta.env.DEV && 'serviceWorker' in navigator) {
   })
 } else {
   // Mode produksi: Otomatis refresh & aktifkan versi deploy baru
+  // Saat SW baru mengambil alih (controllerchange), reload paksa agar
+  // chunk hash lama tidak bercampur dengan hash baru -> cegah TypeError M_ID / undefined
   const updateSW = registerSW({
     immediate: true,
     onNeedRefresh() {
+      // SW baru sudah siap — langsung aktifkan tanpa tanya user
       updateSW(true)
+    },
+    onRegisteredSW(_swUrl, registration) {
+      if (!registration) return
+      // Deteksi controller baru (SW baru sudah skipWaiting + clientsClaim)
+      // -> reload sekali agar semua chunk fresh dari cache baru
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload()
+      })
     },
   })
 }

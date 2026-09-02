@@ -54,6 +54,10 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+        // Saat chunk JS/CSS di-fetch dan 404 (hash lama tidak ada di cache baru)
+        // -> abaikan dari precache agar SW tidak blok request -> fallback ke network
+        // -> controllerchange di main.jsx akan reload halaman
+        navigationPreload: false,
       },
       manifest: {
         name: 'JadwalKu',
