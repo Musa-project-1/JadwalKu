@@ -51,6 +51,9 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         navigateFallback: '/JadwalKu/index.html',
+        // Jangan intercept URL dengan query params selain hash router
+        // agar Lighthouse audit (?audit=1) tidak kena redirect loop
+        navigateFallbackDenylist: [/\?(?!$)/],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
