@@ -285,7 +285,7 @@ export default function Exams() {
       ) : (
         <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
           {grouped.map(([dateLabel, exams]) => (
-            <section key={dateLabel} className="space-y-2.5">
+            <section key={dateLabel} className="space-y-4">
               <div className="flex items-center justify-between px-1 py-1 border-b border-outline-variant/20">
                 <span className="text-label-caps font-extrabold uppercase tracking-wider text-on-surface flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-primary" />

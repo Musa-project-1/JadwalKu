@@ -58,7 +58,7 @@ export default function AdminLogin() {
         <Link
           to="/"
           viewTransition
-          className="flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-lowest/80 dark:bg-surface-container-low/80 backdrop-blur-md px-3.5 py-1.5 text-body-xs font-bold text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all shadow-xs group"
+          className="flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-lowest/80 dark:bg-surface-container-low/80 backdrop-blur-md px-4 py-2 text-body-xs font-bold text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all shadow-level-1 group"
         >
           <Icon name="arrow_back" size={16} className="text-on-surface-variant group-hover:text-primary transition-colors" />
           <span>Mode Mahasiswa</span>
@@ -69,7 +69,7 @@ export default function AdminLogin() {
           onClick={() => setTheme(nextTheme)}
           aria-label={`Ganti ke mode ${nextTheme === 'dark' ? 'gelap' : 'terang'}`}
           title={`Mode ${nextTheme === 'dark' ? 'Gelap' : 'Terang'}`}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container-lowest/80 dark:bg-surface-container-low/80 backdrop-blur-md text-on-surface-variant transition-all hover:bg-surface-container-highest hover:text-on-surface shadow-xs cursor-pointer"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container-lowest/80 dark:bg-surface-container-low/80 backdrop-blur-md text-on-surface-variant transition-all hover:bg-surface-container-highest hover:text-on-surface shadow-level-1 cursor-pointer"
         >
           <Icon name={nextTheme === 'dark' ? 'dark_mode' : 'light_mode'} size={18} />
         </button>
@@ -79,21 +79,21 @@ export default function AdminLogin() {
       <div className="relative z-10 w-full max-w-[440px]">
         {/* Brand Header */}
         <div className="mb-6 text-center">
-          <div className="relative inline-flex items-center justify-center p-3 rounded-3xl bg-surface-container-lowest/90 dark:bg-surface-container-high/60 border border-outline-variant/30 shadow-md mb-3.5 group">
+          <div className="relative inline-flex items-center justify-center p-3 rounded-3xl bg-surface-container-lowest/90 dark:bg-surface-container-high/60 border border-outline-variant/30 shadow-level-2 mb-3.5 group">
             <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo JadwalKu" className="h-12 w-12 shrink-0 group-hover:opacity-90 transition-opacity" />
           </div>
           <h1 className="text-display-sm tablet:text-display-md font-bold font-brand tracking-tight text-on-surface">
             <span>Jadwal</span>
             <span className="text-primary">Ku</span>
           </h1>
-          <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/25 px-3 py-0.5 text-label-caps font-extrabold text-primary shadow-2xs">
+          <div className="mt-1.5 inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/25 px-3 py-0.5 text-label-caps font-extrabold text-primary shadow-level-1">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>ADMIN CONSOLE</span>
           </div>
         </div>
 
         {/* Card Form */}
-        <div className="rounded-3xl border border-outline-variant/30 bg-surface-container-lowest/85 dark:bg-surface-container-low/80 backdrop-blur-xl p-6 tablet:p-8 shadow-2xl transition-all">
+        <div className="rounded-3xl border border-outline-variant/30 bg-surface-container-lowest/85 dark:bg-surface-container-low/80 backdrop-blur-xl p-6 tablet:p-8 shadow-level-3 transition-all">
           <div className="mb-5 pb-3 border-b border-outline-variant/20 flex items-center justify-between">
             <div>
               <h2 className="text-title-sm font-bold text-on-surface">Masuk Panel Admin</h2>
@@ -107,7 +107,7 @@ export default function AdminLogin() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-body-xs font-bold text-on-surface">
+              <label className="mb-1.5 flex items-center gap-2 text-body-xs font-bold text-on-surface">
                 <Icon name="mail" size={15} className="text-primary" />
                 <span>Email</span>
               </label>
@@ -119,7 +119,7 @@ export default function AdminLogin() {
                   placeholder="admin@jadwalkampus.app"
                   autoComplete="username"
                   required
-                  className="w-full rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/60 dark:bg-surface-container-high/40 px-3.5 py-2.5 text-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="w-full rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/60 dark:bg-surface-container-high/40 px-4 py-2.5 text-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 />
               </div>
             </div>
@@ -127,7 +127,7 @@ export default function AdminLogin() {
             {/* Password Field with Show/Hide Toggle */}
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="flex items-center gap-1.5 text-body-xs font-bold text-on-surface">
+                <label className="flex items-center gap-2 text-body-xs font-bold text-on-surface">
                   <Icon name="lock" size={15} className="text-primary" />
                   <span>Kata Sandi</span>
                 </label>
@@ -157,7 +157,7 @@ export default function AdminLogin() {
 
             {/* Error Banner */}
             {error && (
-              <div className="flex items-center gap-2 rounded-2xl border border-error/30 bg-error-container/60 px-3.5 py-2.5 text-body-xs text-on-error-container">
+              <div className="flex items-center gap-2 rounded-2xl border border-error/30 bg-error-container/60 px-4 py-2.5 text-body-xs text-on-error-container">
                 <Icon name="error" size={17} className="shrink-0 text-error" />
                 <span className="font-semibold">{error}</span>
               </div>
@@ -167,7 +167,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={submitting}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary via-primary to-teal-600 py-3 text-body-sm font-bold text-on-primary shadow-md hover:shadow-lg hover:brightness-105 active:opacity-80 disabled:opacity-60 transition-all cursor-pointer"
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary via-primary to-teal-600 py-3 text-body-sm font-bold text-on-primary shadow-level-2 hover:shadow-level-2 hover:brightness-105 active:opacity-80 disabled:opacity-60 transition-all cursor-pointer"
             >
               {submitting ? (
                 <>
@@ -185,7 +185,7 @@ export default function AdminLogin() {
         </div>
 
         {/* Security Footer Note */}
-        <p className="mt-5 text-center text-[11.5px] text-on-surface-variant/75 flex items-center justify-center gap-1.5">
+        <p className="mt-5 text-center text-label-caps text-on-surface-variant/75 flex items-center justify-center gap-2">
           <Icon name="lock" size={13} className="text-primary/70" />
           <span>Koneksi aman terenkripsi · JadwalKu Administrator</span>
         </p>

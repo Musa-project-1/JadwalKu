@@ -305,13 +305,13 @@ export function DatabaseBackupRestoreModal({
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0 bg-black/65 backdrop-blur-sm animate-fade-in"
     >
-      <div className="w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up overflow-hidden max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+      <div className="w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-3 animate-fade-up overflow-hidden max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
         {/* Header Modal */}
         <div aria-hidden className="hidden max-[599px]:flex justify-center pt-3 pb-1 shrink-0"><span className="h-1 w-10 rounded-full bg-outline-variant/60" /></div>
         {/* Header Banner - Rich Full-Width Teal/Emerald Gradient matching the student design system */}
         <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white flex items-center justify-between border-b border-white/10 shrink-0 shadow-level-1">
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs backdrop-blur-md">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-level-1 backdrop-blur-md">
               <Icon name="cloud_sync" size={22} />
             </div>
             <div className="min-w-0">
@@ -319,11 +319,11 @@ export function DatabaseBackupRestoreModal({
                 <h3 className="text-base tablet:text-lg font-bold text-white tracking-tight truncate">
                   Pusat Backup & Restore Database
                 </h3>
-                <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide border border-white/25 shadow-2xs backdrop-blur-md">
+                <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wide border border-white/25 shadow-level-1 backdrop-blur-md">
                   JSON Safe
                 </span>
               </div>
-              <p className="text-[11.5px] text-white/80 font-medium truncate mt-0.5">
+              <p className="text-label-caps text-white/80 font-medium truncate mt-0.5">
                 Amankan seluruh data perkuliahan atau pulihkan data dari berkas cadangan JSON
               </p>
             </div>
@@ -376,7 +376,7 @@ export function DatabaseBackupRestoreModal({
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-body-sm font-bold text-on-surface">Pilih Koleksi untuk Dicadangkan</h3>
-                  <p className="text-[11px] text-on-surface-variant">
+                  <p className="text-label-caps text-on-surface-variant">
                     Pilih modul database yang ingin disertakan ke dalam berkas cadangan JSON
                   </p>
                 </div>
@@ -384,7 +384,7 @@ export function DatabaseBackupRestoreModal({
                   <button
                     type="button"
                     onClick={selectAllBackupCols}
-                    className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                    className="text-label-caps font-bold text-primary hover:underline cursor-pointer"
                   >
                     Pilih Semua
                   </button>
@@ -392,7 +392,7 @@ export function DatabaseBackupRestoreModal({
                   <button
                     type="button"
                     onClick={clearAllBackupCols}
-                    className="text-[11px] font-bold text-on-surface-variant hover:text-error cursor-pointer"
+                    className="text-label-caps font-bold text-on-surface-variant hover:text-error cursor-pointer"
                   >
                     Kosongkan
                   </button>
@@ -409,9 +409,9 @@ export function DatabaseBackupRestoreModal({
                     <div
                       key={col.id}
                       onClick={() => toggleBackupCol(col.id)}
-                      className={`flex items-start gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                      className={`flex items-start gap-3 p-4 rounded-2xl border transition-all cursor-pointer ${
                         isChecked
-                          ? 'border-teal-600 bg-teal-500/10 dark:bg-teal-950/30 ring-1 ring-teal-500/40 shadow-xs'
+                          ? 'border-teal-600 bg-teal-500/10 dark:bg-teal-950/30 ring-1 ring-teal-500/40 shadow-level-1'
                           : 'border-outline-variant/20 bg-surface-container-low/50 hover:bg-surface-container-low dark:bg-surface-container/30'
                       }`}
                     >
@@ -423,15 +423,15 @@ export function DatabaseBackupRestoreModal({
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-body-xs font-bold text-on-surface flex items-center gap-1.5">
+                          <p className="text-body-xs font-bold text-on-surface flex items-center gap-2">
                             <Icon name={col.icon} size={15} className="text-teal-600 dark:text-teal-400" />
                             <span>{col.label}</span>
                           </p>
-                          <span className="rounded-full bg-surface-container px-2 py-0.5 text-[10px] font-extrabold text-on-surface-variant">
+                          <span className="rounded-full bg-surface-container px-2 py-0.5 text-label-caps font-extrabold text-on-surface-variant">
                             {loadingStats ? '...' : `${count} Dok`}
                           </span>
                         </div>
-                        <p className="text-[10.5px] text-on-surface-variant mt-0.5 truncate">
+                        <p className="text-body-xs text-on-surface-variant mt-0.5 truncate">
                           {col.desc}
                         </p>
                       </div>
@@ -441,7 +441,7 @@ export function DatabaseBackupRestoreModal({
               </div>
 
               {/* Box Info */}
-              <div className="flex items-start gap-2.5 rounded-2xl bg-teal-500/10 border border-teal-500/20 p-3.5 text-[11px] text-teal-900 dark:text-teal-200">
+              <div className="flex items-start gap-2 rounded-2xl bg-teal-500/10 border border-teal-500/20 p-4 text-label-caps text-teal-900 dark:text-teal-200">
                 <Icon name="info" size={16} className="shrink-0 mt-0.5 text-teal-600 dark:text-teal-400" />
                 <span>
                   File JSON yang diunduh mencakup seluruh struktur data, id dokumen, serta stempel waktu ekspor. File ini dapat disimpan di Google Drive / flashdisk sebagai arsip semester.
@@ -472,19 +472,19 @@ export function DatabaseBackupRestoreModal({
                   <h4 className="text-body-sm font-bold text-on-surface">
                     Tarik & Lepas File Cadangan JSON di sini
                   </h4>
-                  <p className="text-[11px] text-on-surface-variant mt-1">
+                  <p className="text-label-caps text-on-surface-variant mt-1">
                     atau klik untuk memilih berkas dari komputer Anda (.json)
                   </p>
                 </div>
               ) : (
                 /* File Loaded Preview */
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3.5 rounded-2xl border border-teal-500/30 bg-teal-500/10 dark:bg-teal-950/30">
+                  <div className="flex items-center justify-between p-4 rounded-2xl border border-teal-500/30 bg-teal-500/10 dark:bg-teal-950/30">
                     <div className="flex items-center gap-3">
                       <Icon name="description" size={24} className="text-teal-600 dark:text-teal-400" />
                       <div>
                         <p className="text-body-xs font-bold text-on-surface">{restoreFile.name}</p>
-                        <p className="text-[10px] text-on-surface-variant">
+                        <p className="text-label-caps text-on-surface-variant">
                           {(restoreFile.size / 1024).toFixed(1)} KB · Terbaca oleh sistem
                         </p>
                       </div>
@@ -522,7 +522,7 @@ export function DatabaseBackupRestoreModal({
                         <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
                           Pilih Koleksi yang Ingin Dipulihkan
                         </p>
-                        <span className="text-[11px] font-bold text-teal-700 dark:text-teal-300">
+                        <span className="text-label-caps font-bold text-teal-700 dark:text-teal-300">
                           {selectedRestoreCols.size} Koleksi Dipilih
                         </span>
                       </div>
@@ -581,12 +581,12 @@ export function DatabaseBackupRestoreModal({
                       </div>
 
                       {/* Restore Strategy Selector */}
-                      <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 p-4 space-y-2.5">
+                      <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 p-4 space-y-4">
                         <p className="text-body-xs font-bold text-on-surface">Metode Pemulihan Data (*Strategy*):</p>
-                        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2.5">
+                        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2">
                           <label
                             onClick={() => setRestoreMode('merge')}
-                            className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${
+                            className={`flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition-all ${
                               restoreMode === 'merge'
                                 ? 'border-teal-600 bg-teal-500/10 dark:bg-teal-950/30 ring-1 ring-teal-500/40'
                                 : 'border-outline-variant/20 bg-surface-container-lowest hover:bg-surface-container-low'
@@ -601,7 +601,7 @@ export function DatabaseBackupRestoreModal({
                             />
                             <div>
                               <p className="text-body-xs font-bold text-on-surface">🔄 Gabungkan & Update</p>
-                              <p className="text-[10.5px] text-on-surface-variant mt-0.5">
+                              <p className="text-body-xs text-on-surface-variant mt-0.5">
                                 Menambah atau menimpa dokumen yang sama tanpa menghapus data lain.
                               </p>
                             </div>
@@ -609,7 +609,7 @@ export function DatabaseBackupRestoreModal({
 
                           <label
                             onClick={() => setRestoreMode('replace')}
-                            className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${
+                            className={`flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition-all ${
                               restoreMode === 'replace'
                                 ? 'border-error bg-error/10 ring-1 ring-error/40'
                                 : 'border-outline-variant/20 bg-surface-container-lowest hover:bg-surface-container-low'
@@ -624,7 +624,7 @@ export function DatabaseBackupRestoreModal({
                             />
                             <div>
                               <p className="text-body-xs font-bold text-error">⚠️ Timpa Bersih (Clean Replace)</p>
-                              <p className="text-[10.5px] text-on-surface-variant mt-0.5">
+                              <p className="text-body-xs text-on-surface-variant mt-0.5">
                                 Menghapus seluruh data lama pada koleksi terpilih sebelum memasukkan data backup.
                               </p>
                             </div>
@@ -660,8 +660,8 @@ export function DatabaseBackupRestoreModal({
         </div>
 
         {/* Footer Actions */}
-        <footer className="flex items-center justify-between border-t border-outline-variant/20 px-5 py-3.5 bg-surface-container-low/40 shrink-0">
-          <span className="text-[11px] text-on-surface-variant font-bold">
+        <footer className="flex items-center justify-between border-t border-outline-variant/20 px-5 py-4 bg-surface-container-low/40 shrink-0">
+          <span className="text-label-caps text-on-surface-variant font-bold">
             {activeTab === 'backup'
               ? `${selectedBackupCols.size} dari ${COLLECTIONS_CONFIG.length} koleksi dipilih`
               : restoreData
@@ -669,12 +669,12 @@ export function DatabaseBackupRestoreModal({
               : 'Pilih file JSON untuk memulai restore'}
           </span>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
               disabled={restoring || exporting}
-              className="px-4 py-1.5 rounded-full text-body-xs font-semibold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 rounded-full text-body-xs font-semibold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer disabled:opacity-50"
             >
               Tutup
             </button>
@@ -684,7 +684,7 @@ export function DatabaseBackupRestoreModal({
                 type="button"
                 onClick={handleExportBackup}
                 disabled={exporting || selectedBackupCols.size === 0}
-                className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-teal-800 text-white text-body-xs font-bold shadow-xs hover:bg-teal-900 active:scale-98 transition-all disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2 rounded-full bg-teal-800 text-white text-body-xs font-bold shadow-level-1 hover:bg-teal-900 active:scale-98 transition-all disabled:opacity-50 cursor-pointer"
               >
                 <Icon name={exporting ? 'sync' : 'download'} size={16} className={exporting ? 'animate-spin' : ''} />
                 <span>{exporting ? 'Mengekspor JSON...' : 'Unduh Cadangan Database (.json)'}</span>
@@ -694,7 +694,7 @@ export function DatabaseBackupRestoreModal({
                 type="button"
                 onClick={handleExecuteRestore}
                 disabled={restoring || !restoreData || selectedRestoreCols.size === 0}
-                className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-teal-800 text-white text-body-xs font-bold shadow-xs hover:bg-teal-900 active:scale-98 transition-all disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2 rounded-full bg-teal-800 text-white text-body-xs font-bold shadow-level-1 hover:bg-teal-900 active:scale-98 transition-all disabled:opacity-50 cursor-pointer"
               >
                 <Icon name={restoring ? 'sync' : 'restore'} size={16} className={restoring ? 'animate-spin' : ''} />
                 <span>{restoring ? 'Memulihkan Data...' : 'Mulai Pulihkan Data'}</span>

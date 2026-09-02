@@ -157,9 +157,9 @@ export default function ManageAnnouncements() {
   return (
     <div className="space-y-6">
       {/* ── 1. Page Header ── */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 border border-amber-500/20 shadow-xs dark:bg-amber-500/20 dark:text-amber-400">
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 border border-amber-500/20 shadow-level-1 dark:bg-amber-500/20 dark:text-amber-400">
             <Icon name="campaign" size={24} />
           </div>
           <div className="min-w-0">
@@ -167,7 +167,7 @@ export default function ManageAnnouncements() {
               <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
                 Kelola Pengumuman
               </h1>
-              <span className="rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2.5 py-0.5 text-[11px] font-bold border border-amber-500/20">
+              <span className="rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2.5 py-0.5 text-label-caps font-bold border border-amber-500/20">
                 Siaran Mahasiswa
               </span>
             </div>
@@ -177,11 +177,11 @@ export default function ManageAnnouncements() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             type="button"
             onClick={openAddModal}
-            className="rounded-full px-4 py-1.5 font-bold shadow-xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
+            className="rounded-full px-4 py-2 font-bold shadow-level-1 cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
           >
             <Icon name="add" size={16} className="mr-1" />
             <span>Buat Pengumuman</span>
@@ -190,7 +190,7 @@ export default function ManageAnnouncements() {
       </header>
 
       {/* ── 2. Toolbar & Filter Dropdowns (1-Row Horizontal Compact) ── */}
-      <div className="flex flex-col tablet:flex-row items-center justify-between gap-2.5 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/20 shadow-xs">
+      <div className="flex flex-col tablet:flex-row items-center justify-between gap-2 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/20 shadow-level-1">
         <div className="relative flex-1 min-w-[200px] w-full">
           <Icon
             name="search"
@@ -202,7 +202,7 @@ export default function ManageAnnouncements() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari judul atau isi pengumuman..."
-            className="w-full rounded-full border border-outline-variant/30 bg-surface-container-lowest py-1.5 pl-9 pr-8 text-body-xs font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:outline-none dark:bg-surface-container-high transition-all shadow-2xs"
+            className="w-full rounded-full border border-outline-variant/30 bg-surface-container-lowest py-2 pl-9 pr-8 text-body-xs font-medium text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:outline-none dark:bg-surface-container-high transition-all shadow-level-1"
           />
           {searchQuery && (
             <button
@@ -245,7 +245,7 @@ export default function ManageAnnouncements() {
                 setFilterCategory('all')
                 setFilterStatus('all')
               }}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-error/30 bg-error/10 px-3 py-1.5 text-[11.5px] font-bold text-error hover:bg-error/20 cursor-pointer transition-colors shadow-2xs"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-error/30 bg-error/10 px-3 py-2 text-label-caps font-bold text-error hover:bg-error/20 cursor-pointer transition-colors shadow-level-1"
             >
               <Icon name="refresh" size={13} />
               <span>Reset</span>
@@ -282,7 +282,7 @@ export default function ManageAnnouncements() {
             return (
               <div
                 key={item.id}
-                className={`rounded-2xl border p-4 shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                className={`rounded-2xl border p-4 shadow-level-1 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                   item.aktif === false
                     ? 'border-outline-variant/15 bg-surface-container-low/40 opacity-60'
                     : 'border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low'
@@ -290,15 +290,15 @@ export default function ManageAnnouncements() {
               >
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10.5px] font-bold border ${badgeBg}`}>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-body-xs font-bold border ${badgeBg}`}>
                       {badgeLabel}
                     </span>
-                    <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                    <span className="text-label-caps font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
                       {item.targetProdi === 'all' ? 'Semua Prodi' : item.targetProdi}
                       {item.targetSemester !== 'all' ? ` · Sem. ${item.targetSemester}` : ''}
                     </span>
                     {item.berlakuHingga && (
-                      <span className="text-[11px] text-on-surface-variant font-medium">
+                      <span className="text-label-caps text-on-surface-variant font-medium">
                         s.d. {item.berlakuHingga}
                       </span>
                     )}
@@ -320,7 +320,7 @@ export default function ManageAnnouncements() {
                   <button
                     type="button"
                     onClick={() => handleToggleStatus(item)}
-                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-colors cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-xl text-label-caps font-bold border transition-colors cursor-pointer ${
                       item.aktif !== false
                         ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20 hover:bg-emerald-500/20'
                         : 'bg-surface-container text-on-surface-variant border-outline-variant/25 hover:bg-surface-container-high'
@@ -366,15 +366,15 @@ export default function ManageAnnouncements() {
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
           />
 
-          <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low dark:border-outline-variant/15 overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
+          <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-level-3 dark:bg-surface-container-low dark:border-outline-variant/15 overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0">
             <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
               <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
             </div>
 
             {/* Header Banner - Rich Full-Width Teal/Emerald Gradient matching the student design system */}
             <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white flex items-center justify-between border-b border-white/10 shrink-0 shadow-level-1">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs backdrop-blur-md">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-level-1 backdrop-blur-md">
                   <Icon name={editingItem ? 'edit_note' : 'campaign'} size={22} />
                 </div>
                 <div className="min-w-0">
@@ -382,11 +382,11 @@ export default function ManageAnnouncements() {
                     <h3 className="text-base tablet:text-lg font-bold text-white tracking-tight truncate">
                       {editingItem ? 'Edit Pengumuman' : 'Buat Pengumuman Baru'}
                     </h3>
-                    <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide border border-white/25 shadow-2xs backdrop-blur-md">
+                    <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wide border border-white/25 shadow-level-1 backdrop-blur-md">
                       {editingItem ? 'Update Siaran' : 'Siaran Langsung'}
                     </span>
                   </div>
-                  <p className="text-[11.5px] text-white/80 font-medium truncate mt-0.5">
+                  <p className="text-label-caps text-white/80 font-medium truncate mt-0.5">
                     {editingItem ? 'Perbarui informasi siaran pengumuman' : 'Siarkan info akademik atau kuliah pengganti ke mahasiswa'}
                   </p>
                 </div>
@@ -414,7 +414,7 @@ export default function ManageAnnouncements() {
                       onChange={(e) => setFormJudul(e.target.value)}
                       placeholder="Contoh: Kuliah Pengganti Basis Data / Pindah ke Lab 2"
                       required
-                      className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-3.5 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
+                      className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 px-4 py-2 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/30"
                     />
                   </div>
 
@@ -510,10 +510,10 @@ export default function ManageAnnouncements() {
 
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-low/40 p-4">
-                    <span className="block text-[11px] font-extrabold text-on-surface-variant uppercase tracking-wider mb-2.5">
+                    <span className="block text-label-caps font-extrabold text-on-surface-variant uppercase tracking-wider mb-2.5">
                       Pratinjau Tampilan Mahasiswa
                     </span>
-                    <div className={`rounded-2xl border p-4 text-body-xs shadow-2xs ${
+                    <div className={`rounded-2xl border p-4 text-body-xs shadow-level-1 ${
                       formKategori === 'urgent'
                         ? 'bg-error/10 border-error/30 text-error-950 dark:text-error-100'
                         : formKategori === 'warning'
@@ -540,7 +540,7 @@ export default function ManageAnnouncements() {
                 </div>
               </div>
 
-              <footer className="flex items-center justify-end gap-2.5 pt-4 border-t border-outline-variant/15 mt-5 col-span-full">
+              <footer className="flex items-center justify-end gap-2 pt-4 border-t border-outline-variant/15 mt-5 col-span-full">
                 <Button
                   type="button"
                   variant="secondary"
@@ -552,7 +552,7 @@ export default function ManageAnnouncements() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="rounded-full px-5 py-2 font-bold shadow-xs text-body-xs bg-teal-800 hover:bg-teal-900 text-white cursor-pointer active:scale-98 transition-all"
+                  className="rounded-full px-5 py-2 font-bold shadow-level-1 text-body-xs bg-teal-800 hover:bg-teal-900 text-white cursor-pointer active:scale-98 transition-all"
                 >
                   <Icon name="campaign" size={17} className="mr-1.5" />
                   {saving ? 'Menyimpan...' : 'Simpan Pengumuman'}

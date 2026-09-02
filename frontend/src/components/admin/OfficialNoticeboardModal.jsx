@@ -112,13 +112,13 @@ export function OfficialNoticeboardModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0 animate-fade-in print:hidden">
         <div
           ref={modalRef}
-          className="flex flex-col w-full max-w-6xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0"
+          className="flex flex-col w-full max-w-6xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-3 overflow-hidden animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0"
         >
           {/* Header Banner - Rich Full-Width Teal/Emerald Gradient matching the student design system */}
           <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-level-1">
                   <Icon name="table_chart" size={22} />
                 </div>
                 <div className="min-w-0">
@@ -126,7 +126,7 @@ export function OfficialNoticeboardModal({
                     <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
                       Cetak Mading A4 Landscape Resmi
                     </h2>
-                    <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                    <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wider border border-white/25 shadow-level-1">
                       A4 Landscape
                     </span>
                   </div>
@@ -151,9 +151,9 @@ export function OfficialNoticeboardModal({
           {/* Body: Sidebar Pengaturan Kiri & Preview Dokumen Kanan */}
           <div className="flex-1 overflow-y-auto grid grid-cols-1 tablet:grid-cols-12 gap-4 tablet:gap-5 p-4 tablet:p-5">
             {/* Sidebar Kontrol (Kiri: 5 Kolom pada tablet, 4 pada desktop) */}
-            <div className="tablet:col-span-5 desktop:col-span-4 space-y-3.5">
+            <div className="tablet:col-span-5 desktop:col-span-4 space-y-4">
               {/* Filter Lingkup Cetak */}
-              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-3.5 space-y-2.5">
+              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-4 space-y-4">
                 <div className="flex items-center gap-3">
                   <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
                     <Icon name="tune" size={16} />
@@ -164,7 +164,7 @@ export function OfficialNoticeboardModal({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                  <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                     Program Studi
                   </label>
                   <FormSelect
@@ -177,7 +177,7 @@ export function OfficialNoticeboardModal({
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                    <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                       Semester
                     </label>
                     <FormSelect
@@ -195,7 +195,7 @@ export function OfficialNoticeboardModal({
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                    <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                       Hari
                     </label>
                     <FormSelect
@@ -211,7 +211,7 @@ export function OfficialNoticeboardModal({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                  <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                     Dosen Pengampu
                   </label>
                   <FormSelect
@@ -224,7 +224,7 @@ export function OfficialNoticeboardModal({
               </div>
 
               {/* Kop Surat & Institusi */}
-              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-3.5 space-y-2.5">
+              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-4 space-y-4">
                 <div className="flex items-center gap-3">
                   <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
                     <Icon name="corporate_fare" size={16} />
@@ -235,44 +235,44 @@ export function OfficialNoticeboardModal({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                  <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                     Nama Universitas
                   </label>
                   <input
                     type="text"
                     value={univName}
                     onChange={(e) => setUnivName(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
+                    className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                  <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                     Fakultas / Jurusan
                   </label>
                   <input
                     type="text"
                     value={facultyName}
                     onChange={(e) => setFacultyName(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
+                    className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                  <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                     Judul Dokumen
                   </label>
                   <input
                     type="text"
                     value={docTitle}
                     onChange={(e) => setDocTitle(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
+                    className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
                   />
                 </div>
               </div>
 
               {/* Pengesahan Tanda Tangan */}
-              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-3.5 space-y-2.5">
+              <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-4 space-y-4">
                 <div className="flex items-center gap-3">
                   <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
                     <Icon name="verified_user" size={16} />
@@ -283,52 +283,52 @@ export function OfficialNoticeboardModal({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                  <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                     Kota & Tanggal
                   </label>
                   <input
                     type="text"
                     value={cityDate}
                     onChange={(e) => setCityDate(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
+                    className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                    <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                       Jabatan
                     </label>
                     <input
                       type="text"
                       value={officialRole}
                       onChange={(e) => setOfficialRole(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
+                      className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                    <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                       Nama Pejabat
                     </label>
                     <input
                       type="text"
                       value={officialName}
                       onChange={(e) => setOfficialName(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
+                      className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                  <label className="block text-label-caps font-bold text-on-surface-variant uppercase mb-1">
                     NIP / NIDN
                   </label>
                   <input
                     type="text"
                     value={officialNip}
                     onChange={(e) => setOfficialNip(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
+                    className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-body-xs text-on-surface focus:outline-none focus:border-primary dark:bg-surface-container-high"
                   />
                 </div>
               </div>
@@ -340,7 +340,7 @@ export function OfficialNoticeboardModal({
                 <p className="text-label-caps uppercase tracking-wider text-on-surface-variant">
                   Pratinjau Lembar Mading (A4 Landscape)
                 </p>
-                <span className="text-[11px] font-bold text-on-surface-variant">
+                <span className="text-label-caps font-bold text-on-surface-variant">
                   {sortedSchedules.length} Sesi Terjadwal
                 </span>
               </div>
@@ -348,7 +348,7 @@ export function OfficialNoticeboardModal({
               {/* Landscape Paper Simulation Wrapper */}
               <div className="w-full max-h-[580px] overflow-y-auto rounded-2xl border border-outline-variant/35 bg-neutral-300/80 dark:bg-neutral-900/90 p-3 tablet:p-5 shadow-inner">
                 <div
-                  className="w-full max-w-[800px] mx-auto bg-white text-neutral-900 p-6 rounded-lg shadow-md font-serif text-[10px] leading-normal border border-neutral-300 isolate"
+                  className="w-full max-w-[800px] mx-auto bg-white text-neutral-900 p-6 rounded-lg shadow-level-2 font-serif text-label-caps leading-normal border border-neutral-300 isolate"
                   style={{ backgroundColor: '#ffffff', color: '#171717' }}
                 >
                   {/* Kop Surat Formal */}
@@ -359,16 +359,16 @@ export function OfficialNoticeboardModal({
                     <h1 className="text-sm font-extrabold tracking-wide uppercase text-neutral-900 mt-0.5">
                       {facultyName}
                     </h1>
-                    <div className="text-[10px] font-bold text-neutral-800 mt-1 uppercase tracking-tight">
+                    <div className="text-label-caps font-bold text-neutral-800 mt-1 uppercase tracking-tight">
                       {docTitle} {currentTA ? `· TAHUN AKADEMIK ${currentTA}` : ''}
                     </div>
                     {prodiFilter && (
-                      <p className="text-[10px] font-semibold text-neutral-700 mt-0.5">
+                      <p className="text-label-caps font-semibold text-neutral-700 mt-0.5">
                         PROGRAM STUDI: {prodiFilter.toUpperCase()} {semesterFilter ? `(SEMESTER ${semesterFilter})` : ''}
                       </p>
                     )}
                     {dosenFilter && (
-                      <p className="text-[10px] font-semibold text-neutral-700 mt-0.5">
+                      <p className="text-label-caps font-semibold text-neutral-700 mt-0.5">
                         DOSEN PENGAMPU: {dosenFilter.toUpperCase()}
                       </p>
                     )}
@@ -380,18 +380,18 @@ export function OfficialNoticeboardModal({
                       Tidak ada jadwal yang sesuai dengan filter pilihan.
                     </div>
                   ) : (
-                    <table className="w-full border-collapse border border-neutral-800 text-left text-[9.5px] font-sans">
+                    <table className="w-full border-collapse border border-neutral-800 text-left text-label-caps font-sans">
                       <thead>
                         <tr className="bg-neutral-100 border-b border-neutral-800 font-bold text-center text-neutral-900">
-                          <th className="border-r border-neutral-800 py-1.5 px-1.5 w-[30px]">NO</th>
-                          <th className="border-r border-neutral-800 py-1.5 px-2 w-[55px]">HARI</th>
-                          <th className="border-r border-neutral-800 py-1.5 px-2 w-[85px]">WAKTU (WIB)</th>
-                          <th className="border-r border-neutral-800 py-1.5 px-2 w-[65px]">KODE</th>
-                          <th className="border-r border-neutral-800 py-1.5 px-2">MATA KULIAH</th>
-                          <th className="border-r border-neutral-800 py-1.5 px-1.5 w-[35px]">SKS</th>
-                          <th className="border-r border-neutral-800 py-1.5 px-2 w-[50px]">KELAS</th>
-                          <th className="border-r border-neutral-800 py-1.5 px-2 w-[90px]">RUANGAN</th>
-                          <th className="py-1.5 px-2">DOSEN PENGAMPU</th>
+                          <th className="border-r border-neutral-800 py-2 px-2 w-[30px]">NO</th>
+                          <th className="border-r border-neutral-800 py-2 px-2 w-[55px]">HARI</th>
+                          <th className="border-r border-neutral-800 py-2 px-2 w-[85px]">WAKTU (WIB)</th>
+                          <th className="border-r border-neutral-800 py-2 px-2 w-[65px]">KODE</th>
+                          <th className="border-r border-neutral-800 py-2 px-2">MATA KULIAH</th>
+                          <th className="border-r border-neutral-800 py-2 px-2 w-[35px]">SKS</th>
+                          <th className="border-r border-neutral-800 py-2 px-2 w-[50px]">KELAS</th>
+                          <th className="border-r border-neutral-800 py-2 px-2 w-[90px]">RUANGAN</th>
+                          <th className="py-2 px-2">DOSEN PENGAMPU</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -399,7 +399,7 @@ export function OfficialNoticeboardModal({
                           const course = courseMap.get(item.kodeMK)
                           return (
                             <tr key={item.id || idx} className="border-b border-neutral-300 last:border-0 hover:bg-neutral-50">
-                              <td className="border-r border-neutral-800 py-1 px-1.5 text-center font-medium">
+                              <td className="border-r border-neutral-800 py-1 px-2 text-center font-medium">
                                 {idx + 1}
                               </td>
                               <td className="border-r border-neutral-800 py-1 px-2 font-bold text-neutral-900">
@@ -414,7 +414,7 @@ export function OfficialNoticeboardModal({
                               <td className="border-r border-neutral-800 py-1 px-2 font-semibold text-neutral-900">
                                 {course?.namaMK || item.kodeMK}
                               </td>
-                              <td className="border-r border-neutral-800 py-1 px-1.5 text-center font-bold">
+                              <td className="border-r border-neutral-800 py-1 px-2 text-center font-bold">
                                 {course?.sks || 2}
                               </td>
                               <td className="border-r border-neutral-800 py-1 px-2 text-center font-semibold">
@@ -436,15 +436,15 @@ export function OfficialNoticeboardModal({
                   {/* Sign-off Section */}
                   <div className="mt-6 flex justify-end font-sans">
                     <div className="text-center w-[220px]">
-                      <p className="text-[9.5px] text-neutral-800">{cityDate}</p>
-                      <p className="text-[9.5px] font-bold text-neutral-900 mt-0.5">{officialRole},</p>
+                      <p className="text-label-caps text-neutral-800">{cityDate}</p>
+                      <p className="text-label-caps font-bold text-neutral-900 mt-0.5">{officialRole},</p>
                       <div className="h-14 flex items-center justify-center">
-                        <span className="text-[9px] text-neutral-300 italic">(Tanda Tangan & Cap)</span>
+                        <span className="text-label-caps text-neutral-300 italic">(Tanda Tangan & Cap)</span>
                       </div>
-                      <p className="text-[10px] font-bold text-neutral-900 underline underline-offset-2">
+                      <p className="text-label-caps font-bold text-neutral-900 underline underline-offset-2">
                         {officialName}
                       </p>
-                      <p className="text-[9px] text-neutral-700 mt-0.5">{officialNip}</p>
+                      <p className="text-label-caps text-neutral-700 mt-0.5">{officialNip}</p>
                     </div>
                   </div>
                 </div>
@@ -453,8 +453,8 @@ export function OfficialNoticeboardModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/20 px-5 py-3.5 bg-surface-container-low/40 dark:bg-surface-container-high/30 shrink-0">
-            <div className="flex items-center gap-1.5 text-[11px] text-on-surface-variant font-medium">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/20 px-5 py-4 bg-surface-container-low/40 dark:bg-surface-container-high/30 shrink-0">
+            <div className="flex items-center gap-2 text-label-caps text-on-surface-variant font-medium">
               <Icon name="info" size={14} className="text-teal-700 dark:text-teal-400" />
               <span>Format cetak otomatis berorientasi A4 Landscape</span>
             </div>
@@ -469,7 +469,7 @@ export function OfficialNoticeboardModal({
               <button
                 type="button"
                 onClick={handleTriggerPrint}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white text-body-xs font-bold shadow-sm active:scale-98 transition-all cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white text-body-xs font-bold shadow-level-1 active:scale-98 transition-all cursor-pointer"
               >
                 <Icon name="print" size={16} />
                 <span>Cetak Dokumen Mading / Simpan PDF</span>
@@ -534,15 +534,15 @@ export function OfficialNoticeboardModal({
         <table className="w-full border-collapse border border-neutral-900 text-left text-xs font-sans">
           <thead>
             <tr className="bg-neutral-100 border-b border-neutral-900 font-bold text-center text-neutral-900">
-              <th className="border-r border-neutral-900 py-1.5 px-1 w-[35px]">NO</th>
-              <th className="border-r border-neutral-900 py-1.5 px-2 w-[65px]">HARI</th>
-              <th className="border-r border-neutral-900 py-1.5 px-2 w-[100px]">WAKTU (WIB)</th>
-              <th className="border-r border-neutral-900 py-1.5 px-2 w-[80px]">KODE</th>
-              <th className="border-r border-neutral-900 py-1.5 px-2">MATA KULIAH</th>
-              <th className="border-r border-neutral-900 py-1.5 px-1.5 w-[40px]">SKS</th>
-              <th className="border-r border-neutral-900 py-1.5 px-2 w-[60px]">KELAS</th>
-              <th className="border-r border-neutral-900 py-1.5 px-2 w-[110px]">RUANGAN</th>
-              <th className="py-1.5 px-2">DOSEN PENGAMPU</th>
+              <th className="border-r border-neutral-900 py-2 px-1 w-[35px]">NO</th>
+              <th className="border-r border-neutral-900 py-2 px-2 w-[65px]">HARI</th>
+              <th className="border-r border-neutral-900 py-2 px-2 w-[100px]">WAKTU (WIB)</th>
+              <th className="border-r border-neutral-900 py-2 px-2 w-[80px]">KODE</th>
+              <th className="border-r border-neutral-900 py-2 px-2">MATA KULIAH</th>
+              <th className="border-r border-neutral-900 py-2 px-2 w-[40px]">SKS</th>
+              <th className="border-r border-neutral-900 py-2 px-2 w-[60px]">KELAS</th>
+              <th className="border-r border-neutral-900 py-2 px-2 w-[110px]">RUANGAN</th>
+              <th className="py-2 px-2">DOSEN PENGAMPU</th>
             </tr>
           </thead>
           <tbody>
@@ -550,31 +550,31 @@ export function OfficialNoticeboardModal({
               const course = courseMap.get(item.kodeMK)
               return (
                 <tr key={item.id || idx} className="border-b border-neutral-300 last:border-0">
-                  <td className="border-r border-neutral-900 py-1.5 px-1 text-center font-medium">
+                  <td className="border-r border-neutral-900 py-2 px-1 text-center font-medium">
                     {idx + 1}
                   </td>
-                  <td className="border-r border-neutral-900 py-1.5 px-2 font-bold text-neutral-900">
+                  <td className="border-r border-neutral-900 py-2 px-2 font-bold text-neutral-900">
                     {item.hari}
                   </td>
-                  <td className="border-r border-neutral-900 py-1.5 px-2 whitespace-nowrap font-mono font-medium">
+                  <td className="border-r border-neutral-900 py-2 px-2 whitespace-nowrap font-mono font-medium">
                     {item.jamMulai} - {item.jamSelesai}
                   </td>
-                  <td className="border-r border-neutral-900 py-1.5 px-2 font-bold text-neutral-900">
+                  <td className="border-r border-neutral-900 py-2 px-2 font-bold text-neutral-900">
                     {item.kodeMK}
                   </td>
-                  <td className="border-r border-neutral-900 py-1.5 px-2 font-semibold text-neutral-900">
+                  <td className="border-r border-neutral-900 py-2 px-2 font-semibold text-neutral-900">
                     {course?.namaMK || item.kodeMK}
                   </td>
-                  <td className="border-r border-neutral-900 py-1.5 px-1.5 text-center font-bold">
+                  <td className="border-r border-neutral-900 py-2 px-2 text-center font-bold">
                     {course?.sks || 2}
                   </td>
-                  <td className="border-r border-neutral-900 py-1.5 px-2 text-center font-semibold">
+                  <td className="border-r border-neutral-900 py-2 px-2 text-center font-semibold">
                     {item.tipeKelas || 'K1'}
                   </td>
-                  <td className="border-r border-neutral-900 py-1.5 px-2 text-neutral-800 whitespace-nowrap">
+                  <td className="border-r border-neutral-900 py-2 px-2 text-neutral-800 whitespace-nowrap">
                     {formatRuang(item.ruang, item.tipeKelas)}
                   </td>
-                  <td className="py-1.5 px-2 text-neutral-800">
+                  <td className="py-2 px-2 text-neutral-800">
                     {course?.dosen || '-'}
                   </td>
                 </tr>
@@ -589,12 +589,12 @@ export function OfficialNoticeboardModal({
             <p className="text-xs text-neutral-800">{cityDate}</p>
             <p className="text-xs font-bold text-neutral-900 mt-0.5">{officialRole},</p>
             <div className="h-16 flex items-center justify-center">
-              <span className="text-[10px] text-neutral-300 italic">(Tanda Tangan & Cap)</span>
+              <span className="text-label-caps text-neutral-300 italic">(Tanda Tangan & Cap)</span>
             </div>
             <p className="text-xs font-bold text-neutral-900 underline underline-offset-4">
               {officialName}
             </p>
-            <p className="text-[10px] text-neutral-700 mt-0.5">{officialNip}</p>
+            <p className="text-label-caps text-neutral-700 mt-0.5">{officialNip}</p>
           </div>
         </div>
       </div>

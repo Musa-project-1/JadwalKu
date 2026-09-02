@@ -78,7 +78,7 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
   return (
     <form
       onSubmit={handleSaveCalendar}
-      className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm dark:bg-surface-container-low dark:border-outline-variant/15 space-y-5"
+      className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15 space-y-5"
     >
       <div className="flex flex-col gap-2 tablet:flex-row tablet:items-center tablet:justify-between">
         <div>
@@ -91,10 +91,10 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-bold text-primary">
+          <span className="rounded-full bg-primary/10 px-3 py-1 text-label-caps font-bold text-primary">
             TA Aktif: {currentComputedTA}
           </span>
-          <span className="rounded-full bg-secondary/10 px-3 py-1 text-[11px] font-bold text-secondary">
+          <span className="rounded-full bg-secondary/10 px-3 py-1 text-label-caps font-bold text-secondary">
             Term: {getTermLabel(currentComputedTerm)}
           </span>
         </div>
@@ -109,15 +109,15 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
           </h4>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">Mulai (Tgl & Bln)</label>
-              <div className="flex gap-1.5 items-center">
+              <label className="text-label-caps font-semibold text-on-surface-variant block mb-1">Mulai (Tgl & Bln)</label>
+              <div className="flex gap-2 items-center">
                 <input
                   type="number"
                   min="1"
                   max="31"
                   value={customCal.ganjilStartDay}
                   onChange={(e) => setCustomCal((c) => ({ ...c, ganjilStartDay: e.target.value }))}
-                  className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-center text-body-sm font-bold text-on-surface"
+                  className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-2 text-center text-body-sm font-bold text-on-surface"
                 />
                 <FormSelect
                   value={customCal.ganjilStartMonth}
@@ -128,15 +128,15 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
               </div>
             </div>
             <div>
-              <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">Selesai (Tgl & Bln)</label>
-              <div className="flex gap-1.5 items-center">
+              <label className="text-label-caps font-semibold text-on-surface-variant block mb-1">Selesai (Tgl & Bln)</label>
+              <div className="flex gap-2 items-center">
                 <input
                   type="number"
                   min="1"
                   max="31"
                   value={customCal.ganjilEndDay}
                   onChange={(e) => setCustomCal((c) => ({ ...c, ganjilEndDay: e.target.value }))}
-                  className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-center text-body-sm font-bold text-on-surface"
+                  className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-2 text-center text-body-sm font-bold text-on-surface"
                 />
                 <FormSelect
                   value={customCal.ganjilEndMonth}
@@ -157,15 +157,15 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
           </h4>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">Mulai (Tgl & Bln)</label>
-              <div className="flex gap-1.5 items-center">
+              <label className="text-label-caps font-semibold text-on-surface-variant block mb-1">Mulai (Tgl & Bln)</label>
+              <div className="flex gap-2 items-center">
                 <input
                   type="number"
                   min="1"
                   max="31"
                   value={customCal.genapStartDay}
                   onChange={(e) => setCustomCal((c) => ({ ...c, genapStartDay: e.target.value }))}
-                  className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-center text-body-sm font-bold text-on-surface"
+                  className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-2 text-center text-body-sm font-bold text-on-surface"
                 />
                 <FormSelect
                   value={customCal.genapStartMonth}
@@ -176,15 +176,15 @@ function AcademicCalendarForm({ calDoc, actor, setBanner }) {
               </div>
             </div>
             <div>
-              <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">Selesai (Tgl & Bln)</label>
-              <div className="flex gap-1.5 items-center">
+              <label className="text-label-caps font-semibold text-on-surface-variant block mb-1">Selesai (Tgl & Bln)</label>
+              <div className="flex gap-2 items-center">
                 <input
                   type="number"
                   min="1"
                   max="31"
                   value={customCal.genapEndDay}
                   onChange={(e) => setCustomCal((c) => ({ ...c, genapEndDay: e.target.value }))}
-                  className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-1.5 text-center text-body-sm font-bold text-on-surface"
+                  className="w-14 rounded-xl border border-outline-variant/30 bg-surface px-2 py-2 text-center text-body-sm font-bold text-on-surface"
                 />
                 <FormSelect
                   value={customCal.genapEndMonth}
@@ -287,15 +287,15 @@ export default function ManageHolidays() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-x-hidden min-h-0 flex-1">
+    <div className="h-full flex flex-col gap-4 tablet:gap-4 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-x-hidden min-h-0 flex-1">
       <header className="shrink-0">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-tertiary-container/60 text-tertiary shadow-xs dark:bg-tertiary-container/30">
+          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-tertiary-container/60 text-tertiary shadow-level-1 dark:bg-tertiary-container/30">
             <Icon name="event_note" size={22} />
           </span>
           <div className="min-w-0">
             <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">Kelola Libur & Kalender Akademik</h2>
-            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">Atur batas tanggal semester dan hari libur perkuliahan.</p>
+            <p className="text-label-caps tablet:text-body-xs font-normal text-on-surface-variant truncate">Atur batas tanggal semester dan hari libur perkuliahan.</p>
           </div>
         </div>
       </header>
@@ -319,7 +319,7 @@ export default function ManageHolidays() {
       {/* Form tambah libur */}
       <form
         onSubmit={handleAdd}
-        className="shrink-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low"
+        className="shrink-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-level-1 dark:bg-surface-container-low"
       >
         <h3 className="text-body-sm tablet:text-title-sm font-bold text-on-surface shrink-0 mb-2.5">Tambah Hari Libur Kuliah</h3>
         <div className="grid gap-3 tablet:grid-cols-[auto_1fr_auto] tablet:items-end">

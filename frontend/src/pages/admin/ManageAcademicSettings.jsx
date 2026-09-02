@@ -564,7 +564,7 @@ export default function ManageAcademicSettings() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
+    <div className="h-full flex flex-col gap-4 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
       {/* ── 1. Header & Live Quick Stats ── */}
       <AcademicSettingsHeader
         programsCount={programs.length}
@@ -577,13 +577,13 @@ export default function ManageAcademicSettings() {
       />
 
       {/* Tab Switcher: Master Prodi & Libur vs Master Denah Ruangan */}
-      <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-surface-container-low border border-outline-variant/20 shadow-2xs w-fit">
+      <div className="flex items-center gap-2 p-1 rounded-2xl bg-surface-container-low border border-outline-variant/20 shadow-level-1 w-fit">
         <button
           type="button"
           onClick={() => setActiveTab('prodi-libur')}
-          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
             activeTab === 'prodi-libur'
-              ? 'bg-primary text-on-primary shadow-xs'
+              ? 'bg-primary text-on-primary shadow-level-1'
               : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
@@ -594,15 +594,15 @@ export default function ManageAcademicSettings() {
         <button
           type="button"
           onClick={() => setActiveTab('rooms')}
-          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
             activeTab === 'rooms'
-              ? 'bg-primary text-on-primary shadow-xs'
+              ? 'bg-primary text-on-primary shadow-level-1'
               : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
           <Icon name="meeting_room" size={15} />
           <span>Master Denah & Ruangan</span>
-          <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+          <span className={`rounded-full px-2 py-0.5 text-label-caps font-bold ${
             activeTab === 'rooms' ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-container-high text-on-surface-variant'
           }`}>
             {rooms.length}
@@ -620,7 +620,7 @@ export default function ManageAcademicSettings() {
 
       {/* ── 2. Master Content (Prodi & Libur ATAU Master Ruangan) ── */}
       {activeTab === 'prodi-libur' ? (
-        <div className="flex-1 flex flex-col min-h-0 grid grid-cols-1 desktop:grid-cols-2 gap-4 tablet:gap-4.5 desktop:items-stretch">
+        <div className="flex-1 flex flex-col min-h-0 grid grid-cols-1 desktop:grid-cols-2 gap-4 tablet:gap-4 desktop:items-stretch">
           {/* Panel 1: Master Program Studi */}
           <ProgramListPanel
             programs={sortedProdi}

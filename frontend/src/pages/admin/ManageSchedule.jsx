@@ -788,7 +788,7 @@ export default function ManageSchedule() {
   const draftCount = rawSchedule.filter((s) => (s.status || 'published') === 'draft').length
 
   return (
-    <div className="h-full flex flex-col space-y-2.5 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
+    <div className="h-full flex flex-col space-y-4 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
       {/* ── 1. Page Header ── */}
       <ScheduleHeader
         currentTA={currentTA}
@@ -817,7 +817,7 @@ export default function ManageSchedule() {
       )}
 
       {/* ── 2. Live Database Schedule Management ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-visible">
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-4 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-4 overflow-visible">
         <ScheduleToolbar
           search={search}
           setSearch={setSearch}
@@ -896,7 +896,7 @@ export default function ManageSchedule() {
             {/* Pagination Controls */}
             <div className="shrink-0 pt-1.5 border-t border-outline-variant/15 flex flex-wrap items-center justify-between gap-2">
               {groupingStats.isGrouped && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-label-caps font-bold text-amber-700 dark:text-amber-300">
                   <Icon name="compress" size={13} />
                   {groupingStats.totalSesi} sesi → {groupingStats.totalGrup} baris (hemat{' '}
                   {groupingStats.hemat})

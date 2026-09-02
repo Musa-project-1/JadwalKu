@@ -163,22 +163,22 @@ export default function ManageProdi() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-x-hidden min-h-0 flex-1">
-      <header className="flex flex-col gap-2.5 tablet:flex-row tablet:items-center tablet:justify-between shrink-0">
+    <div className="h-full flex flex-col gap-4 tablet:gap-4 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-x-hidden min-h-0 flex-1">
+      <header className="flex flex-col gap-2 tablet:flex-row tablet:items-center tablet:justify-between shrink-0">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-container/50 dark:bg-primary-container/25 text-primary shadow-xs">
+          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-container/50 dark:bg-primary-container/25 text-primary shadow-level-1">
             <Icon name="list_alt" size={22} />
           </span>
           <div className="min-w-0">
             <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">Kelola Daftar Prodi</h2>
-            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">Daftar prodi & rentang semesternya.</p>
+            <p className="text-label-caps tablet:text-body-xs font-normal text-on-surface-variant truncate">Daftar prodi & rentang semesternya.</p>
           </div>
         </div>
         <Button
           variant="secondary"
           onClick={handleSync}
           disabled={syncing}
-          className="shrink-0 gap-1.5 self-start tablet:self-auto"
+          className="shrink-0 gap-2 self-start tablet:self-auto"
         >
           <Icon name="sync" size={18} className={syncing ? 'animate-spin' : ''} />
           Sinkronkan dari Jadwal & MK
@@ -196,7 +196,7 @@ export default function ManageProdi() {
       {/* Form tambah */}
       <form
         onSubmit={handleAdd}
-        className="shrink-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low"
+        className="shrink-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-level-1 dark:bg-surface-container-low"
       >
         <h3 className="text-body-sm tablet:text-title-sm font-bold text-on-surface shrink-0 mb-2.5">Tambah Prodi</h3>
         <div className="grid gap-3 tablet:grid-cols-[1fr_1fr_auto_auto_auto] tablet:items-end">
@@ -261,14 +261,14 @@ export default function ManageProdi() {
               <h4 className="flex items-center gap-2 text-body-xs font-bold tracking-widest uppercase text-on-surface-variant px-1">
                 <span className="h-px flex-1 bg-outline-variant/30" />
                 {fid === '__tanpa__' ? 'Tanpa Fakultas' : (fakultasNameMap.get(fid) || fid)}
-                <span className="rounded-full bg-surface-container px-2 py-0.5 text-[10px] font-bold border border-outline-variant/20">{prodis.length}</span>
+                <span className="rounded-full bg-surface-container px-2 py-0.5 text-label-caps font-bold border border-outline-variant/20">{prodis.length}</span>
                 <span className="h-px flex-1 bg-outline-variant/30" />
               </h4>
               <ul className="flex flex-col gap-2">
                 {prodis.map((program) => (
                   <li
                     key={program.id}
-                    className="flex flex-wrap items-center gap-3 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low"
+                    className="flex flex-wrap items-center gap-3 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-level-1 dark:bg-surface-container-low"
                   >
               {editingId === program.id ? (
                 <div className="grid flex-1 gap-2 tablet:grid-cols-[1fr_1fr_auto_auto_auto] tablet:items-center">

@@ -692,7 +692,7 @@ function HistoryModal({ onClose }) {
             </div>
           ) : (
             grouped.map(([dateLabel, entries]) => (
-              <section key={dateLabel} className="space-y-2.5">
+              <section key={dateLabel} className="space-y-4">
                 <h4 className="text-label-caps font-bold uppercase tracking-wider text-on-surface-variant/80 border-b border-outline-variant/15 pb-1">
                   {dateLabel}
                 </h4>

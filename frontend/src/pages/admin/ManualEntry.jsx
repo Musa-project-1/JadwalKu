@@ -171,15 +171,15 @@ export default function ManualEntry() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-x-hidden min-h-0 flex-1">
+    <div className="h-full flex flex-col gap-4 tablet:gap-4 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-x-hidden min-h-0 flex-1">
       <header className="shrink-0">
         <div className="flex items-center gap-md">
-          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-xs dark:bg-secondary-container/30">
+          <span className="flex h-10 w-10 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary-container/60 text-secondary shadow-level-1 dark:bg-secondary-container/30">
             <Icon name="edit_note" size={22} />
           </span>
           <div className="min-w-0">
             <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">Input Jadwal Manual</h2>
-            <p className="text-[11.5px] tablet:text-body-xs font-normal text-on-surface-variant truncate">Tambah satu per satu sesi kelas tanpa upload file — kumpulkan lalu simpan/publish.</p>
+            <p className="text-label-caps tablet:text-body-xs font-normal text-on-surface-variant truncate">Tambah satu per satu sesi kelas tanpa upload file — kumpulkan lalu simpan/publish.</p>
           </div>
         </div>
       </header>
@@ -193,7 +193,7 @@ export default function ManualEntry() {
       )}
 
       {/* Form mata kuliah baru */}
-      <section className="shrink-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low">
+      <section className="shrink-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-level-1 dark:bg-surface-container-low">
         <button
           type="button"
           onClick={() => setCourseOpen((open) => !open)}
@@ -231,7 +231,7 @@ export default function ManualEntry() {
       {/* Form sesi */}
       <form
         onSubmit={addSession}
-        className="shrink-0 grid gap-3 tablet:gap-4 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low tablet:grid-cols-4 desktop:grid-cols-8"
+        className="shrink-0 grid gap-3 tablet:gap-4 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-level-1 dark:bg-surface-container-low tablet:grid-cols-4 desktop:grid-cols-8"
       >
         <h3 className="col-span-full text-body-sm tablet:text-title-sm font-bold text-on-surface">Sesi Kelas</h3>
         <div>
@@ -283,7 +283,7 @@ export default function ManualEntry() {
 
       {/* Daftar sesi yang dikumpulkan */}
       {sessions.length > 0 && (
-        <section className="flex-1 flex flex-col min-h-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low">
+        <section className="flex-1 flex flex-col min-h-0 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-level-1 dark:bg-surface-container-low">
           <h3 className="text-body-sm tablet:text-title-sm font-bold text-on-surface shrink-0 pb-3 border-b border-outline-variant/15">
             Sesi Siap Simpan ({sessions.length})
           </h3>
@@ -296,7 +296,7 @@ export default function ManualEntry() {
                 <button
                   type="button"
                   onClick={() => setSessions((list) => list.filter((s) => s._id !== session._id))}
-                  className="shrink-0 rounded-full p-1.5 text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer"
+                  className="shrink-0 rounded-full p-2 text-on-surface-variant hover:bg-error/10 hover:text-error cursor-pointer"
                   aria-label={`Hapus sesi ${session.kodeMK}`}
                 >
                   <Icon name="close" size={18} />

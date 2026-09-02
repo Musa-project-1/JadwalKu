@@ -164,7 +164,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
+    <div className="h-full flex flex-col gap-4 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
       {/* ── 1. Page Header ── */}
       <DashboardHeader onOpenDocs={() => setDocsModalOpen(true)} />
 
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
             type="button"
             onClick={handleSyncProdi}
             disabled={syncingProdi}
-            className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-primary px-3 py-1.5 text-body-xs font-bold text-on-primary shadow-xs cursor-pointer hover:bg-primary/90"
+            className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-primary px-3 py-2 text-body-xs font-bold text-on-primary shadow-level-1 cursor-pointer hover:bg-primary/90"
           >
             <Icon name="sync" size={14} className={syncingProdi ? 'animate-spin' : ''} />
             <span>Sinkronkan Prodi</span>
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
       />
 
       {/* ── 3. Main 2-Column Balanced & Aligned Grid ── */}
-      <div className="flex-1 flex flex-col min-h-0 grid gap-3.5 tablet:gap-4 desktop:grid-cols-12 desktop:items-stretch">
+      <div className="flex-1 flex flex-col min-h-0 grid gap-4 tablet:gap-4 desktop:grid-cols-12 desktop:items-stretch">
         {/* Kolom Kiri: Riwayat Perubahan Data */}
         <RecentActivityTimeline
           history={history}

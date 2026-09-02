@@ -24,7 +24,7 @@ function AdminNavItem({ item, onNavigate, isPinned }) {
       {({ isActive }) => (
         <span
           title={item.label}
-          className={`flex w-full items-center rounded-full h-12 px-3.5 transition-colors duration-200 ${
+          className={`flex w-full items-center rounded-full h-12 px-4 transition-colors duration-200 ${
             isActive
               ? 'bg-primary/10 font-medium text-primary'
               : 'text-on-surface-variant hover:bg-surface-container-high'
@@ -48,18 +48,18 @@ function AdminAccount({ isPinned }) {
   if (!user) return null
 
   return (
-    <div className="px-3.5">
+    <div className="px-4">
       <div className="border-t border-outline-variant/40 pt-2 space-y-1">
         {/* Account info row + logout */}
-        <div className="flex w-full items-center rounded-full h-12 px-3.5 transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-high">
+        <div className="flex w-full items-center rounded-full h-12 px-4 transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-high">
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container">
             <Icon name="account_circle" size={18} />
           </span>
           <div className={labelCls(!isPinned, 'ml-3.5')}>
-            <p className="truncate text-[12px] font-semibold text-on-surface leading-tight">
+            <p className="truncate text-body-xs font-semibold text-on-surface leading-tight">
               {user.email}
             </p>
-            <p className="text-[10px] text-on-surface-variant leading-none mt-0.5">
+            <p className="text-label-caps text-on-surface-variant leading-none mt-0.5">
               Administrator
             </p>
           </div>
@@ -68,7 +68,7 @@ function AdminAccount({ isPinned }) {
             type="button"
             onClick={signOutAdmin}
             title="Keluar"
-            className={`ml-auto shrink-0 h-7 w-7 items-center justify-center rounded-full text-on-surface-variant/60 hover:bg-error/10 hover:text-error transition-colors ${
+            className={`ml-auto shrink-0 h-7 w-7 items-center justify-center rounded-full text-on-surface-variant/70 hover:bg-error/10 hover:text-error transition-colors ${
               isPinned ? 'flex' : 'hidden group-hover:flex'
             }`}
           >
@@ -79,7 +79,7 @@ function AdminAccount({ isPinned }) {
           to="/pengaturan"
           title="Pengaturan"
           className={({ isActive }) =>
-            `flex w-full items-center rounded-full h-12 px-3.5 transition-colors duration-200 ${
+            `flex w-full items-center rounded-full h-12 px-4 transition-colors duration-200 ${
               isActive
                 ? 'bg-primary/10 font-medium text-primary'
                 : 'text-on-surface-variant hover:bg-surface-container-high'
@@ -97,7 +97,7 @@ function AdminAccount({ isPinned }) {
           to="/"
           viewTransition
           title="Mode Mahasiswa"
-          className="flex w-full items-center rounded-full h-12 px-3.5 transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-high group/link"
+          className="flex w-full items-center rounded-full h-12 px-4 transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-high group/link"
         >
           <span className="flex h-6 w-6 shrink-0 items-center justify-center text-primary">
             <Icon name="school" size={22} />
@@ -158,7 +158,7 @@ export function AdminLayout() {
       {/* Sidebar — permanently fixed to viewport at all scroll positions */}
       <aside
         className={`group fixed left-0 top-0 h-screen hidden tablet:block z-50 transition-[width] duration-300 ease-in-out ${
-          isPinned ? 'w-[280px] shadow-lg' : 'w-20 hover:w-[280px] hover:shadow-2xl'
+          isPinned ? 'w-[280px] shadow-level-2' : 'w-20 hover:w-[280px] hover:shadow-level-3'
         }`}
       >
         <nav
@@ -174,7 +174,7 @@ export function AdminLayout() {
                   <span className="text-on-surface">Jadwal</span>
                   <span className="text-primary">Ku</span>
                 </h1>
-                <p className="font-brand font-medium text-[10.5px] tracking-[0.09em] uppercase text-on-surface-variant/80 truncate mt-0.5">
+                <p className="font-brand font-medium text-body-xs tracking-wider uppercase text-on-surface-variant/80 truncate mt-0.5">
                   ADMIN CONSOLE
                 </p>
               </div>
@@ -195,7 +195,7 @@ export function AdminLayout() {
               <Icon name="push_pin" size={18} filled={isPinned} className={isPinned ? '-rotate-45 text-primary' : ''} />
             </button>
           </div>
-          <ul className="flex-1 space-y-1.5 px-3.5">
+          <ul className="flex-1 space-y-1.5 px-4">
             {ADMIN_NAV.map((item) => (
               <li key={item.to}>
                 <AdminNavItem item={item} isPinned={isPinned} />
@@ -208,21 +208,21 @@ export function AdminLayout() {
 
       <div className="flex min-h-screen min-w-0 w-full flex-1 flex-col">
         {/* Top app bar — Sticky Header (Matching AppLayout h-[72px]) */}
-        <header className="shrink-0 sticky top-0 z-40 h-[72px] flex items-center bg-surface-container-lowest/95 dark:bg-surface-container-low/95 px-md tablet:px-lg desktop:px-xl backdrop-blur-md border-b border-outline-variant/30 shadow-xs transition-colors">
+        <header className="shrink-0 sticky top-0 z-40 h-[72px] flex items-center bg-surface-container-lowest/95 dark:bg-surface-container-low/95 px-md tablet:px-lg desktop:px-xl backdrop-blur-md border-b border-outline-variant/30 shadow-level-1 transition-colors">
           <div className="mx-auto flex w-full max-w-container-max items-center justify-between gap-md relative">
             {/* Left: Mobile Logo + Live Clock or Desktop Admin Console Status Badge */}
-            <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 min-w-0">
+            <div className="flex items-center gap-2 tablet:gap-2 shrink-0 min-w-0">
               {/* Mobile Header: Logo + Live Clock Chip (Matching Student view) */}
               <div className="flex items-center gap-2 tablet:hidden">
                 <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="JadwalKu" className="h-9 w-9 shrink-0" />
-                <div className="flex items-center gap-1 rounded-full bg-surface-container-high/70 dark:bg-surface-container-high/60 border border-outline-variant/30 px-2.5 py-1 text-label-caps font-bold text-on-surface shadow-2xs">
+                <div className="flex items-center gap-1 rounded-full bg-surface-container-high/70 dark:bg-surface-container-high/60 border border-outline-variant/30 px-2.5 py-1 text-label-caps font-bold text-on-surface shadow-level-1">
                   <Icon name="schedule" size={13} className="text-primary shrink-0" />
-                  <span className="text-[11px] tracking-tight">{timeString} WIB</span>
+                  <span className="text-label-caps tracking-tight">{timeString} WIB</span>
                 </div>
               </div>
 
               {/* Desktop Left: Admin Console Status Pill (Matching Student Pill dimensions) */}
-              <div className="hidden tablet:flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-4 py-2 text-body-sm font-semibold text-on-surface shadow-xs">
+              <div className="hidden tablet:flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-4 py-2 text-body-sm font-semibold text-on-surface shadow-level-1">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="font-bold text-primary">Admin Console</span>
               </div>
@@ -233,23 +233,23 @@ export function AdminLayout() {
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="group flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-full border border-outline-variant/35 bg-surface-container/70 dark:bg-surface-container-high/60 hover:bg-surface-container hover:border-primary/50 px-3.5 text-body-sm text-on-surface-variant transition-all shadow-xs cursor-pointer text-left"
+                className="group flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-full border border-outline-variant/35 bg-surface-container/70 dark:bg-surface-container-high/60 hover:bg-surface-container hover:border-primary/50 px-4 text-body-sm text-on-surface-variant transition-all shadow-level-1 cursor-pointer text-left"
                 aria-label="Pencarian Cepat (Ctrl+K)"
               >
                 <div className="flex min-w-0 items-center gap-2 text-on-surface-variant/75 group-hover:text-on-surface">
                   <Icon name="search" size={18} className="group-hover:text-primary transition-colors shrink-0" />
                   <span className="text-body-sm font-medium truncate whitespace-nowrap">Cari MK, dosen, ruang...</span>
                 </div>
-                <kbd className="hidden desktop:inline-flex shrink-0 items-center gap-0.5 rounded-md border border-outline-variant/40 bg-surface-container-highest/80 px-2 py-0.5 text-[11px] font-mono font-semibold text-on-surface-variant">
+                <kbd className="hidden desktop:inline-flex shrink-0 items-center gap-0.5 rounded-md border border-outline-variant/40 bg-surface-container-highest/80 px-2 py-0.5 text-label-caps font-mono font-semibold text-on-surface-variant">
                   Ctrl K
                 </kbd>
               </button>
             </div>
 
             {/* Right: Date & Clock + Switch Mode + Mobile Search + Theme Toggle */}
-            <div className="flex items-center gap-1.5 tablet:gap-2 shrink-0">
-              {/* Today's Date & Live Clock Chip (Matching Student View, text-sm, px-3.5 py-1.5) */}
-              <div className="hidden desktop:flex items-center gap-1.5 whitespace-nowrap rounded-full bg-surface-container-high/60 px-3.5 py-1.5 text-body-sm font-semibold text-on-surface-variant border border-outline-variant/25 shadow-xs shrink-0">
+            <div className="flex items-center gap-2 tablet:gap-2 shrink-0">
+              {/* Today's Date & Live Clock Chip (Matching Student View, text-sm, px-4 py-2) */}
+              <div className="hidden desktop:flex items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high/60 px-4 py-2 text-body-sm font-semibold text-on-surface-variant border border-outline-variant/25 shadow-level-1 shrink-0">
                 <Icon name="schedule" size={16} className="text-primary shrink-0" />
                 <span>{todayString}</span>
                 <span className="text-outline-variant/50">·</span>
@@ -262,7 +262,7 @@ export function AdminLayout() {
                 viewTransition
                 title="Beralih ke Mode Mahasiswa"
                 aria-label="Mode Mahasiswa"
-                className="tablet:hidden flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-colors shadow-xs"
+                className="tablet:hidden flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-colors shadow-level-1"
               >
                 <Icon name="school" size={19} />
               </NavLink>
@@ -275,7 +275,7 @@ export function AdminLayout() {
                 title="Pencarian Cepat (Ctrl+K)"
                 className={`tablet:hidden relative flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
                   searchOpen
-                    ? 'bg-primary text-on-primary shadow-xs'
+                    ? 'bg-primary text-on-primary shadow-level-1'
                     : 'bg-primary/10 text-primary hover:bg-primary-container hover:text-on-primary-container'
                 }`}
               >
@@ -288,7 +288,7 @@ export function AdminLayout() {
                 onClick={() => setTheme(nextTheme)}
                 aria-label={`Ganti ke mode ${nextTheme === 'dark' ? 'gelap' : 'terang'}`}
                 title={`Mode ${nextTheme === 'dark' ? 'Gelap' : 'Terang'}`}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface shadow-xs"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface shadow-level-1"
               >
                 <Icon name={nextTheme === 'dark' ? 'dark_mode' : 'light_mode'} size={18} />
               </button>

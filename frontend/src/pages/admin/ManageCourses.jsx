@@ -254,11 +254,11 @@ export default function ManageCourses() {
   }
 
   return (
-    <div className="h-full flex flex-col space-y-2.5 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
+    <div className="h-full flex flex-col space-y-4 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
       {/* ── 1. Page Header ── */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
             <Icon name="menu_book" size={24} />
           </div>
           <div className="min-w-0">
@@ -266,7 +266,7 @@ export default function ManageCourses() {
               <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
                 Kelola MK & Dosen
               </h1>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
                 Master Kurikulum
               </span>
             </div>
@@ -277,23 +277,23 @@ export default function ManageCourses() {
         </div>
 
         {/* Right side: Live Quick Stat Chips + Primary Action Button */}
-        <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 flex-wrap tablet:flex-nowrap">
-          <div className="grid grid-cols-3 tablet:flex tablet:w-auto gap-1.5 tablet:gap-2">
-            <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 shadow-2xs min-w-0">
+        <div className="flex items-center gap-2 tablet:gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
+          <div className="grid grid-cols-3 tablet:flex tablet:w-auto gap-2 tablet:gap-2">
+            <div className="flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 shadow-level-1 min-w-0">
               <Icon name="library_books" size={14} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
-              <span className="text-[11.5px] font-bold text-emerald-700 dark:text-emerald-300 truncate">
+              <span className="text-label-caps font-bold text-emerald-700 dark:text-emerald-300 truncate">
                 {stats.totalCourses} MK
               </span>
             </div>
-            <div className="flex items-center gap-1.5 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 shadow-2xs min-w-0">
+            <div className="flex items-center gap-2 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 shadow-level-1 min-w-0">
               <Icon name="person" size={14} className="text-blue-700 dark:text-blue-400 shrink-0" />
-              <span className="text-[11.5px] font-bold text-blue-700 dark:text-blue-300 truncate">
+              <span className="text-label-caps font-bold text-blue-700 dark:text-blue-300 truncate">
                 {stats.totalLecturers} Dosen
               </span>
             </div>
-            <div className="flex items-center gap-1.5 rounded-full border border-purple-500/25 bg-purple-500/10 px-3 py-1 shadow-2xs min-w-0">
+            <div className="flex items-center gap-2 rounded-full border border-purple-500/25 bg-purple-500/10 px-3 py-1 shadow-level-1 min-w-0">
               <Icon name="workspace_premium" size={14} className="text-purple-700 dark:text-purple-400 shrink-0" />
-              <span className="text-[11.5px] font-bold text-purple-700 dark:text-purple-300 truncate">
+              <span className="text-label-caps font-bold text-purple-700 dark:text-purple-300 truncate">
                 {stats.totalSks} SKS
               </span>
             </div>
@@ -301,7 +301,7 @@ export default function ManageCourses() {
 
           <Button
             onClick={openAddModal}
-            className="rounded-full px-4 py-1.5 font-bold shadow-xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
+            className="rounded-full px-4 py-2 font-bold shadow-level-1 cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
             title="Tambah Mata Kuliah"
             aria-label="Tambah MK"
           >
@@ -322,9 +322,9 @@ export default function ManageCourses() {
       )}
 
       {/* ── 2. Live Database Course Management (Unified Card Container) ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-4 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-4">
         {/* 1-Row Integrated Search & Dropdowns Toolbar (Matching Kelola Jadwal layout) */}
-        <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5 overflow-visible">
+        <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5 overflow-visible">
           {/* Compact Search Bar */}
           <div className="relative flex-1 min-w-[200px] max-w-sm shrink-0 tablet:shrink">
             <Icon
@@ -338,7 +338,7 @@ export default function ManageCourses() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari kode MK, nama mata kuliah, dosen…"
               aria-label="Cari mata kuliah"
-              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 py-1.5 pl-8 pr-7 text-[12px] font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-2xs"
+              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 py-2 pl-8 pr-7 text-body-xs font-medium text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-level-1"
             />
             {search && (
               <button
@@ -353,7 +353,7 @@ export default function ManageCourses() {
           </div>
 
           {/* Filters Group */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <ProdiFilterDropdown
               selected={prodiFilter}
               onSelect={setProdiFilter}
@@ -389,7 +389,7 @@ export default function ManageCourses() {
               <button
                 type="button"
                 onClick={resetAllFilters}
-                className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-error/30 bg-error/10 px-2 py-1 text-[11px] font-bold text-error hover:bg-error/20 cursor-pointer transition-colors shadow-2xs"
+                className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-error/30 bg-error/10 px-2 py-1 text-label-caps font-bold text-error hover:bg-error/20 cursor-pointer transition-colors shadow-level-1"
               >
                 <Icon name="refresh" size={12} />
                 <span>Reset</span>
@@ -399,7 +399,7 @@ export default function ManageCourses() {
             <button
               type="button"
               onClick={exportCoursesToExcel}
-              className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1 text-[11px] font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
+              className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1 text-label-caps font-bold text-on-surface shadow-level-1 hover:border-primary hover:text-primary cursor-pointer transition-colors"
               title="Ekspor Kurikulum Mata Kuliah ke Excel"
             >
               <Icon name="file_download" size={13} className="text-secondary" />

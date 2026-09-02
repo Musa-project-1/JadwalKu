@@ -323,7 +323,7 @@ export function UniversalImportModal({
       />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 overflow-hidden">
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl border border-outline-variant/25 bg-surface-container-lowest shadow-level-3 dark:bg-surface-container-low animate-fade-up max-[599px]:rounded-t-3xl max-[599px]:rounded-b-none max-[599px]:border-x-0 max-[599px]:border-b-0 overflow-hidden">
         {/* Mobile Drag Handle */}
         <div aria-hidden="true" className="hidden max-[599px]:flex justify-center pt-3 pb-1 -mx-2 shrink-0">
           <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
@@ -336,7 +336,7 @@ export function UniversalImportModal({
             <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-level-1">
                     <Icon name="upload_file" size={22} />
                   </div>
                   <div className="min-w-0">
@@ -344,7 +344,7 @@ export function UniversalImportModal({
                       <h3 className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
                         Impor Jadwal Kuliah Universal
                       </h3>
-                      <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                      <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wider border border-white/25 shadow-level-1">
                         Multi-Format & OCR
                       </span>
                     </div>
@@ -368,8 +368,8 @@ export function UniversalImportModal({
 
             <div className="p-5 tablet:p-6 space-y-4">
             {/* Global Tahun Ajaran Selector (Top of Modal 1) */}
-            <div className="rounded-2xl bg-surface-container-high/50 border border-outline-variant/25 p-3.5 flex flex-col tablet:flex-row tablet:items-center justify-between gap-3 shrink-0">
-              <div className="flex items-center gap-2.5">
+            <div className="rounded-2xl bg-surface-container-high/50 border border-outline-variant/25 p-4 flex flex-col tablet:flex-row tablet:items-center justify-between gap-3 shrink-0">
+              <div className="flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25 shrink-0 font-bold">
                   <Icon name="calendar_month" size={17} />
                 </span>
@@ -377,7 +377,7 @@ export function UniversalImportModal({
                   <p className="text-body-sm font-bold text-on-surface leading-tight">
                     Tahun Ajaran (TA) Target
                   </p>
-                  <p className="text-[11px] font-medium text-on-surface-variant">
+                  <p className="text-label-caps font-medium text-on-surface-variant">
                     Berlaku serentak untuk seluruh jadwal dalam berkas ini
                   </p>
                 </div>
@@ -399,13 +399,13 @@ export function UniversalImportModal({
                     />
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <input
                       type="text"
                       placeholder="mis. 2026/2027"
                       value={customTAInput}
                       onChange={(e) => setCustomTAInput(e.target.value)}
-                      className="w-36 rounded-xl border border-teal-600 bg-surface-container-lowest p-2 text-body-xs font-bold text-on-surface focus:outline-none dark:bg-surface-container-low shadow-2xs"
+                      className="w-36 rounded-xl border border-teal-600 bg-surface-container-lowest p-2 text-body-xs font-bold text-on-surface focus:outline-none dark:bg-surface-container-low shadow-level-1"
                     />
                     <button
                       type="button"
@@ -413,7 +413,7 @@ export function UniversalImportModal({
                         setIsCustomTA(false)
                         setCustomTAInput('')
                       }}
-                      className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container cursor-pointer"
+                      className="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container cursor-pointer"
                       title="Batal TA Baru"
                     >
                       <Icon name="close" size={16} />
@@ -436,7 +436,7 @@ export function UniversalImportModal({
               onClick={() => fileInputRef.current?.click()}
               className={`group flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-7 text-center transition-all cursor-pointer ${
                 dragOver
-                  ? 'border-primary bg-primary/10 shadow-md'
+                  ? 'border-primary bg-primary/10 shadow-level-2'
                   : 'border-outline-variant/40 bg-surface-container-low/40 hover:border-primary/60 hover:bg-surface-container-low'
               }`}
             >
@@ -451,7 +451,7 @@ export function UniversalImportModal({
                 }}
               />
 
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors shadow-xs">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors shadow-level-1">
                 <Icon name="cloud_upload" size={30} />
               </div>
 
@@ -461,7 +461,7 @@ export function UniversalImportModal({
               </p>
 
               {/* Supported Format Badges */}
-              <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3">
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
                 <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1 text-label-caps font-bold text-emerald-800 dark:text-emerald-300">
                   📊 Excel .xlsx/.xls
                 </span>
@@ -498,15 +498,15 @@ export function UniversalImportModal({
 
             {/* Error Message */}
             {errorMsg && (
-              <div className="rounded-2xl bg-error/10 border border-error/25 p-3.5 text-body-xs font-semibold text-error flex items-start gap-2 animate-fade-in">
+              <div className="rounded-2xl bg-error/10 border border-error/25 p-4 text-body-xs font-semibold text-error flex items-start gap-2 animate-fade-in">
                 <Icon name="error" size={18} className="shrink-0 mt-0.5" />
                 <p>{errorMsg}</p>
               </div>
             )}
 
             {/* Information Tips */}
-            <div className="rounded-2xl bg-surface-container-high/40 border border-outline-variant/20 p-3.5 space-y-1.5 text-body-xs text-on-surface-variant">
-              <p className="flex items-center gap-1.5 font-bold text-on-surface">
+            <div className="rounded-2xl bg-surface-container-high/40 border border-outline-variant/20 p-4 space-y-1.5 text-body-xs text-on-surface-variant">
+              <p className="flex items-center gap-2 font-bold text-on-surface">
                 <Icon name="lightbulb" size={16} className="text-amber-500 shrink-0" />
                 Tips Penggunaan:
               </p>
@@ -527,7 +527,7 @@ export function UniversalImportModal({
             <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-level-1">
                     <Icon name="tune" size={22} />
                   </div>
                   <div className="min-w-0">
@@ -535,7 +535,7 @@ export function UniversalImportModal({
                       <h3 className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
                         Petakan Kolom Berkas
                       </h3>
-                      <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                      <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wider border border-white/25 shadow-level-1">
                         {autoMatchedCount} Kolom Cocok
                       </span>
                     </div>
@@ -560,22 +560,22 @@ export function UniversalImportModal({
             <div className="p-5 tablet:p-6 space-y-4">
 
             {/* Global File Settings Badge (Tahun Ajaran, Prodi, Semester) */}
-            <div className="p-3 rounded-2xl bg-surface-container-high/40 border border-outline-variant/20 space-y-2.5">
+            <div className="p-3 rounded-2xl bg-surface-container-high/40 border border-outline-variant/20 space-y-4">
               <p className="text-label-caps uppercase font-bold text-on-surface-variant">
                 Berlaku untuk seluruh berkas ini:
               </p>
-              <div className="grid grid-cols-1 tablet:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-1 tablet:grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">
+                  <label className="text-label-caps font-semibold text-on-surface-variant block mb-1">
                     Tahun Ajaran (TA)
                   </label>
-                  <span className="inline-flex items-center gap-1.5 font-mono text-body-xs font-bold text-primary bg-primary/10 border border-primary/25 px-2.5 py-1.5 rounded-xl w-full">
+                  <span className="inline-flex items-center gap-2 font-mono text-body-xs font-bold text-primary bg-primary/10 border border-primary/25 px-2.5 py-2 rounded-xl w-full">
                     <Icon name="calendar_today" size={14} />
                     TA {effectiveTA}
                   </span>
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">
+                  <label className="text-label-caps font-semibold text-on-surface-variant block mb-1">
                     Default Program Studi
                   </label>
                   <FormSelect
@@ -585,7 +585,7 @@ export function UniversalImportModal({
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-on-surface-variant block mb-1">
+                  <label className="text-label-caps font-semibold text-on-surface-variant block mb-1">
                     Default Semester
                   </label>
                   <FormSelect
@@ -598,19 +598,19 @@ export function UniversalImportModal({
             </div>
 
             {/* Column Mapping Table */}
-            <div className="rounded-2xl border border-outline-variant/20 overflow-hidden bg-surface-container-lowest dark:bg-surface-container-low shadow-2xs">
+            <div className="rounded-2xl border border-outline-variant/20 overflow-hidden bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1">
               <div className="divide-y divide-outline-variant/10 max-h-[360px] overflow-y-auto">
                 {SYSTEM_FIELDS.map((field) => {
                   const isMapped = Boolean(columnMapping[field.key])
                   return (
                     <div key={field.key} className="flex items-center justify-between p-3 gap-3 hover:bg-surface-container-low/40 transition-colors">
-                      <div className="flex items-center gap-2.5 min-w-[220px]">
+                      <div className="flex items-center gap-2 min-w-[220px]">
                         <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-surface-container text-on-surface-variant shrink-0">
                           <Icon name={field.icon} size={16} />
                         </span>
                         <div>
                           <p className="text-body-sm font-bold text-on-surface leading-tight">{field.label}</p>
-                          <p className="text-[10.5px] font-mono text-on-surface-variant">{field.key}</p>
+                          <p className="text-body-xs font-mono text-on-surface-variant">{field.key}</p>
                         </div>
                       </div>
 
@@ -618,7 +618,7 @@ export function UniversalImportModal({
                         <select
                           value={columnMapping[field.key] || ''}
                           onChange={(e) => setColumnMapping((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                          className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/70 py-1.5 px-2.5 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/40 cursor-pointer"
+                          className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/70 py-2 px-2.5 text-body-xs font-semibold text-on-surface focus:border-primary focus:outline-none dark:bg-surface-container-high/40 cursor-pointer"
                         >
                           <option value="">-- Tidak Dipetakan / Kosong --</option>
                           {rawHeaders.map((header) => (
@@ -629,11 +629,11 @@ export function UniversalImportModal({
                         </select>
                         <span className="shrink-0">
                           {isMapped ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
+                            <span className="inline-flex items-center gap-1 text-label-caps font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
                               <Icon name="check" size={12} /> Cocok
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">
+                            <span className="inline-flex items-center gap-1 text-label-caps font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">
                               Manual
                             </span>
                           )}
@@ -678,7 +678,7 @@ export function UniversalImportModal({
             <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-level-1">
                     <Icon name="fact_check" size={22} />
                   </div>
                   <div className="min-w-0">
@@ -686,7 +686,7 @@ export function UniversalImportModal({
                       <h3 className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
                         Pratinjau & Validasi Data Jadwal ({parsedData.scheduleEntries.length} Sesi)
                       </h3>
-                      <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
+                      <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wider border border-white/25 shadow-level-1">
                         TA {effectiveTA}
                       </span>
                     </div>
@@ -707,28 +707,28 @@ export function UniversalImportModal({
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col min-h-0 p-5 tablet:p-6 space-y-3.5 overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-0 p-5 tablet:p-6 space-y-4 overflow-hidden">
 
             {/* Metrics Chips */}
             <div className="flex items-center gap-2 flex-wrap shrink-0">
-              <div className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-1 text-body-xs font-bold text-emerald-800 dark:text-emerald-300">
+              <div className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-1 text-body-xs font-bold text-emerald-800 dark:text-emerald-300">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 <span>{previewMetrics.valid} Baris Valid</span>
               </div>
               {previewMetrics.review > 0 && (
-                <div className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500/15 border border-amber-500/25 px-2.5 py-1 text-body-xs font-bold text-amber-800 dark:text-amber-300">
+                <div className="inline-flex items-center gap-2 rounded-xl bg-amber-500/15 border border-amber-500/25 px-2.5 py-1 text-body-xs font-bold text-amber-800 dark:text-amber-300">
                   <span className="h-2 w-2 rounded-full bg-amber-500" />
                   <span>{previewMetrics.review} Perlu Review (OCR)</span>
                 </div>
               )}
               {previewMetrics.invalid > 0 && (
-                <div className="inline-flex items-center gap-1.5 rounded-xl bg-error/15 border border-error/25 px-2.5 py-1 text-body-xs font-bold text-error">
+                <div className="inline-flex items-center gap-2 rounded-xl bg-error/15 border border-error/25 px-2.5 py-1 text-body-xs font-bold text-error">
                   <span className="h-2 w-2 rounded-full bg-error" />
                   <span>{previewMetrics.invalid} Error / Tidak Lengkap</span>
                 </div>
               )}
               {previewMetrics.conflictsCount > 0 && (
-                <div className="inline-flex items-center gap-1.5 rounded-xl bg-red-500/15 border border-red-500/25 px-2.5 py-1 text-body-xs font-bold text-error">
+                <div className="inline-flex items-center gap-2 rounded-xl bg-red-500/15 border border-red-500/25 px-2.5 py-1 text-body-xs font-bold text-error">
                   <Icon name="warning" size={14} />
                   <span>{previewMetrics.conflictsCount} Bentrok Terdeteksi</span>
                 </div>
@@ -736,9 +736,9 @@ export function UniversalImportModal({
             </div>
 
             {/* Interactive Live Preview Table */}
-            <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xs">
+            <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1">
               <table className="w-full table-fixed text-left border-collapse text-body-xs min-w-[750px]">
-                <thead className="sticky top-0 z-10 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md border-b border-outline-variant/15 shadow-2xs">
+                <thead className="sticky top-0 z-10 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md border-b border-outline-variant/15 shadow-level-1">
                   <tr>
                     <th className="w-[10%] px-3 py-2 text-label-caps uppercase font-bold text-on-surface-variant">Hari</th>
                     <th className="w-[14%] px-3 py-2 text-label-caps uppercase font-bold text-on-surface-variant">Jam</th>
@@ -822,7 +822,7 @@ export function UniversalImportModal({
                               <p className="font-bold text-on-surface truncate leading-tight hover:underline">
                                 {entry.namaMK || entry.kodeMK}
                               </p>
-                              <span className="font-mono text-[10px] font-bold text-teal-800 dark:text-teal-300 bg-teal-500/15 px-1.5 py-0.5 rounded-md inline-block mt-0.5">
+                              <span className="font-mono text-label-caps font-bold text-teal-800 dark:text-teal-300 bg-teal-500/15 px-2 py-0.5 rounded-md inline-block mt-0.5">
                                 {entry.kodeMK}
                               </span>
                             </div>
@@ -879,7 +879,7 @@ export function UniversalImportModal({
                             <span
                               onClick={() => setEditingRowId(entry.id)}
                               title={classTypeLabel(entry.tipeKelas)}
-                              className="inline-flex items-center rounded-md bg-surface-container-high px-2 py-0.5 text-[10.5px] font-bold text-on-surface cursor-pointer hover:bg-surface-container-highest"
+                              className="inline-flex items-center rounded-md bg-surface-container-high px-2 py-0.5 text-body-xs font-bold text-on-surface cursor-pointer hover:bg-surface-container-highest"
                             >
                               {entry.tipeKelas || 'K1'}
                             </span>
@@ -889,15 +889,15 @@ export function UniversalImportModal({
                         {/* Akurasi Status */}
                         <td className="px-2 py-2 text-center">
                           {errors.length > 0 ? (
-                            <span className="inline-flex items-center gap-0.5 rounded-full bg-error/15 px-2 py-0.5 text-[10px] font-bold text-error" title={errors.join(', ')}>
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-error/15 px-2 py-0.5 text-label-caps font-bold text-error" title={errors.join(', ')}>
                               🔴 Error
                             </span>
                           ) : isLowConfidence ? (
-                            <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300" title="Skor kepercayaan OCR sedang">
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-2 py-0.5 text-label-caps font-bold text-amber-700 dark:text-amber-300" title="Skor kepercayaan OCR sedang">
                               🟡 {entry.confidence}%
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-label-caps font-bold text-emerald-700 dark:text-emerald-300">
                               🟢 {entry.confidence || 98}%
                             </span>
                           )}
@@ -921,7 +921,7 @@ export function UniversalImportModal({
               </table>
             </div>
 
-            <p className="text-[11px] font-medium text-on-surface-variant shrink-0">
+            <p className="text-label-caps font-medium text-on-surface-variant shrink-0">
               💡 Klik langsung pada teks di tabel jika ingin mengoreksi salah eja secara cepat.
             </p>
 
@@ -935,7 +935,7 @@ export function UniversalImportModal({
                 type="button"
                 onClick={handleFinalSave}
                 disabled={busySaving || parsedData.scheduleEntries.length === 0}
-                className="font-bold shadow-xs cursor-pointer"
+                className="font-bold shadow-level-1 cursor-pointer"
               >
                 <Icon name="check_circle" size={18} className="mr-1.5" />
                 {busySaving ? 'Menyimpan ke Database...' : 'Simpan Jadwal ke Database'}

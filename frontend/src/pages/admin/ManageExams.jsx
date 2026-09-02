@@ -447,7 +447,7 @@ export default function ManageExams() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-3.5 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
+    <div className="h-full flex flex-col gap-4 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
       {/* Hidden File Input */}
       <input
         ref={fileInputRef}
@@ -509,7 +509,7 @@ export default function ManageExams() {
       )}
 
       {/* ── 2. Master Exams Management ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3.5 tablet:p-4 shadow-xs dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5">
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-4 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-4">
         <ExamToolbar
           search={search}
           setSearch={setSearch}
@@ -533,7 +533,7 @@ export default function ManageExams() {
 
         {/* Main Content Area */}
         {loading ? (
-          <div className="space-y-2.5">
+          <div className="space-y-4">
             <Skeleton className="h-14 w-full rounded-2xl" />
             <Skeleton className="h-14 w-full rounded-2xl" />
             <Skeleton className="h-14 w-full rounded-2xl" />
@@ -567,7 +567,7 @@ export default function ManageExams() {
               <div className="flex items-center justify-center gap-2 pt-1">
                 <Button
                   onClick={openAdd}
-                  className="rounded-2xl px-3.5 py-2 font-bold shadow-xs cursor-pointer text-body-xs"
+                  className="rounded-2xl px-4 py-2 font-bold shadow-level-1 cursor-pointer text-body-xs"
                 >
                   <Icon name="add" size={16} className="mr-1.5" />
                   <span>Tambah Ujian Manual</span>
@@ -575,7 +575,7 @@ export default function ManageExams() {
                 <Button
                   variant="secondary"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-2xl px-3.5 py-2 font-bold shadow-2xs cursor-pointer text-body-xs"
+                  className="rounded-2xl px-4 py-2 font-bold shadow-level-1 cursor-pointer text-body-xs"
                 >
                   <Icon name="upload_file" size={16} className="mr-1.5 text-primary" />
                   <span>Impor CSV/XLSX</span>

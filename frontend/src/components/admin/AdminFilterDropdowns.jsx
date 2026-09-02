@@ -50,7 +50,7 @@ function PortalMenu({ open, triggerRef, widthClass = 'w-56', align = 'left', chi
     <div
       data-portal-menu
       style={{ position: 'fixed', top: pos.top, left, width: w, zIndex: 9999 }}
-      className={`rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-2xl dark:bg-surface-container-high animate-fade-up ${widthClass.includes('w-72') || widthClass.includes('w-80') ? 'rounded-3xl p-3' : ''}`}
+      className={`rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-2 shadow-level-3 dark:bg-surface-container-high animate-fade-up ${widthClass.includes('w-72') || widthClass.includes('w-80') ? 'rounded-3xl p-3' : ''}`}
     >
       {children}
     </div>,
@@ -428,7 +428,7 @@ export function DosenFilterDropdown({ lecturers = [], selected, onSelect }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari dosen..."
-              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 py-1.5 pl-9 pr-3 text-body-xs font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/60 py-1.5 pl-9 pr-3 text-body-xs font-medium text-on-surface placeholder:text-on-surface-variant/70 focus:border-primary focus:outline-none"
               autoFocus
             />
           </div>
