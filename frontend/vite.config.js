@@ -13,10 +13,11 @@ export default defineConfig({
         manualChunks(id) {
           const nid = id.replace(/\\/g, '/')
           if (!nid.includes('node_modules')) return undefined
-          // Heavy, rarely-needed spreadsheet parser → own chunk
+          // Heavy, rarely-needed doc parsers → own lazy chunks (keep out of initial)
           if (nid.includes('xlsx') || nid.includes('cpexcel')) return 'xlsx'
-          // Heavy PDF parser (pdfjs-dist) → own chunk
           if (nid.includes('pdfjs-dist')) return 'pdf'
+          if (nid.includes('mammoth')) return 'mammoth'
+          if (nid.includes('tesseract')) return 'tesseract'
           // Firebase SDKs split so no single chunk exceeds the 500 kB budget
           if (nid.includes('/firebase/firestore') || nid.includes('@firebase/firestore')) return 'firebase-firestore'
           if (nid.includes('/firebase/auth') || nid.includes('@firebase/auth')) return 'firebase-auth'
