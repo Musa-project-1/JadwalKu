@@ -15,11 +15,9 @@ import { DAYS } from '../../lib/uploadValidator'
 import { getTodayName, sortByTime, formatRuang, detectClassTransitions } from '../../lib/scheduleUtils'
 import {
   TONE_BG_CLASSES,
-  TONE_BORDER_CLASSES,
   TONE_TEXT_CLASSES,
   TONE_SUBTEXT_CLASSES,
   TONE_ICONS,
-  TONE_CHIP_BG_CLASSES,
   TONE_SHADOW_CLASSES,
   TONE_CARD_BORDER_CLASSES,
   TONE_TIME_PILL_CLASSES,

@@ -19,7 +19,7 @@ import { ExamFormModal } from '../../components/admin/manageExams/ExamFormModal'
 // Hooks & Libs
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
-import { useCampus } from '../../context/CampusContext'
+import { useCampus } from '../../context/useCampus'
 import { addDocument, deleteDocument, updateDocument } from '../../lib/adminData'
 import { publishDocuments, appendHistory } from '../../lib/publishHelpers'
 import { parseWorkbook } from '../../lib/xlsxParser'
@@ -70,6 +70,7 @@ export default function ManageExams() {
     if (!semesterFilter) return
     if (semesterFilter === 'ganjil' || semesterFilter === 'genap') return
     if (!availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))) {
+      // oxlint-disable-next-line react/set-state-in-effect
       setSemesterFilter('')
     }
   }, [availableSemesterOptions, semesterFilter])

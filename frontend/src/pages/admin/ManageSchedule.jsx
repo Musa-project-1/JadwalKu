@@ -22,7 +22,7 @@ import { QuickCourseModal } from '../../components/admin/manageSchedule/QuickCou
 // Hooks & Libs
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
-import { useCampus } from '../../context/CampusContext'
+import { useCampus } from '../../context/useCampus'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory, publishDocuments, saveSettings } from '../../lib/publishHelpers'
 import { deriveTahunAjaran, expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
@@ -133,7 +133,10 @@ export default function ManageSchedule() {
   useEffect(() => {
     if (!taFilter) return
     const ok = availableTaOptions.some((o) => String(o.value) === String(taFilter))
-    if (!ok) setTaFilter('')
+    if (!ok) {
+      // oxlint-disable-next-line react/set-state-in-effect
+      setTaFilter('')
+    }
   }, [availableTaOptions, taFilter])
 
   // Opsi B + cascade: kalau TA dipilih, semester cuma yang ada di TA itu
@@ -146,7 +149,10 @@ export default function ManageSchedule() {
     if (!semesterFilter) return
     if (semesterFilter === 'ganjil' || semesterFilter === 'genap') return
     const ok = availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))
-    if (!ok) setSemesterFilter('')
+    if (!ok) {
+      // oxlint-disable-next-line react/set-state-in-effect
+      setSemesterFilter('')
+    }
   }, [availableSemesterOptions, semesterFilter])
 
   const availableFakultasOptions = useMemo(() => {
@@ -308,6 +314,7 @@ export default function ManageSchedule() {
 
   // Reset expand kalau filter berubah
   useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect
     setExpandedGroups(new Set())
   }, [
     search,

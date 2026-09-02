@@ -20,7 +20,7 @@ import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory } from '../../lib/publishHelpers'
 import { validateCourseEntry } from '../../lib/uploadValidator'
-import { useCampus } from '../../context/CampusContext'
+import { useCampus } from '../../context/useCampus'
 import { filterCourses, getCourseSemester, BASE_SEMESTER_GROUPS, EMPTY_COURSE_FORM } from '../../lib/courseUtils'
 
 // Match the SksFilterDropdown's DEFAULT_SKS values (numeric). The filter logic and the
@@ -71,7 +71,10 @@ export default function ManageCourses() {
   }, [courses])
   useEffect(() => {
     if (!taFilter) return
-    if (!availableTaOptions.some((o) => String(o.value) === String(taFilter))) setTaFilter('')
+    if (!availableTaOptions.some((o) => String(o.value) === String(taFilter))) {
+      // oxlint-disable-next-line react/set-state-in-effect
+      setTaFilter('')
+    }
   }, [availableTaOptions, taFilter])
 
   // Opsi B: semester hanya yang ada data (support >8: 9,10,14 dst) — pool difilter TA dulu biar cascade TA→Semester
@@ -83,7 +86,10 @@ export default function ManageCourses() {
   useEffect(() => {
     if (!semesterFilter) return
     if (semesterFilter === 'ganjil' || semesterFilter === 'genap') return
-    if (!availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))) setSemesterFilter('')
+    if (!availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))) {
+      // oxlint-disable-next-line react/set-state-in-effect
+      setSemesterFilter('')
+    }
   }, [availableSemesterOptions, semesterFilter])
 
   const stats = useMemo(() => {

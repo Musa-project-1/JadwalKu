@@ -878,7 +878,9 @@ function PremiumDeadlineField({ deadline, setDeadline, pickerOpen, setPickerOpen
     if (deadline) {
       const d = parseLocalDate(deadline)
       if (!Number.isNaN(d.getTime())) {
+        // oxlint-disable-next-line react/set-state-in-effect
         setViewYear(d.getFullYear())
+        // oxlint-disable-next-line react/set-state-in-effect
         setViewMonth(d.getMonth())
       }
     }
@@ -898,7 +900,7 @@ function PremiumDeadlineField({ deadline, setDeadline, pickerOpen, setPickerOpen
       document.removeEventListener('mousedown', onDocClick)
       window.removeEventListener('keydown', onEsc)
     }
-  }, [pickerOpen])
+  }, [pickerOpen, setPickerOpen])
 
   const displayText = deadline
     ? (() => {

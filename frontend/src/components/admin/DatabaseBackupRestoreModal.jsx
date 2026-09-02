@@ -60,13 +60,13 @@ export function DatabaseBackupRestoreModal({
           try {
             const snap = await getDocs(collection(db, col.id))
             counts[col.id] = snap.size
-          } catch (colErr) {
+          } catch {
             // Jika koleksi dibatasi Firestore security rules, beri fallback 0 tanpa spam console error
             counts[col.id] = 0
           }
         }
         if (isMounted) setDbCounts(counts)
-      } catch (err) {
+      } catch {
         // Fallback silent
       } finally {
         if (isMounted) setLoadingStats(false)

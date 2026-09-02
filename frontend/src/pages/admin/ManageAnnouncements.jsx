@@ -1,20 +1,13 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Icon } from '../../components/Icon'
 import { Button } from '../../components/Button'
-import { Input } from '../../components/Input'
 import { FormSelect } from '../../components/FormSelect'
 import { CustomDatePicker } from '../../components/CustomDatePicker'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { EmptyState } from '../../components/EmptyState'
 import { useFirestore } from '../../hooks/useFirestore'
 import { addDocument, updateDocument, deleteDocument } from '../../lib/adminData'
-import { useCampus } from '../../context/CampusContext'
-
-const CATEGORY_OPTIONS = [
-  { value: 'info', label: '🔵 Info Umum (Akademik/KRS/Umum)' },
-  { value: 'warning', label: '🟡 Penting / Kuliah Pengganti' },
-  { value: 'urgent', label: '🔴 Darurat / Perubahan Ruangan' },
-]
+import { useCampus } from '../../context/useCampus'
 
 export default function ManageAnnouncements() {
   const { data: announcements, loading } = useFirestore('announcements')

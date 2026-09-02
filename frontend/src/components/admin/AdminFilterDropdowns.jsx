@@ -1,11 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '../Icon'
 
 /* ── Portal helper: render dropdown menu in body to escape overflow:hidden parents ── */
 function usePortalPosition(open, triggerRef) {
   const [pos, setPos] = useState(null)
-  const update = () => {
+  const update = useCallback(() => {
     const el = triggerRef.current
     if (!el) return
     const r = el.getBoundingClientRect()
@@ -22,8 +22,8 @@ function usePortalPosition(open, triggerRef) {
     // estimate menu height ~240; if overflow, show above trigger
     const estH = 260
     if (top + estH > vh - 8) top = Math.max(8, r.top - estH - gap)
-    setPos({ top, left, width: menuW, triggerWidth: r.width })
-  }
+    setPos({ top, left, width: menuW, triggerWidth: r.width, triggerRight: r.right })
+  }, [triggerRef])
   useLayoutEffect(() => {
     if (!open) return
     update()
@@ -33,7 +33,7 @@ function usePortalPosition(open, triggerRef) {
       window.removeEventListener('scroll', update, true)
       window.removeEventListener('resize', update)
     }
-  }, [open])
+  }, [open, update])
   return pos
 }
 
@@ -44,7 +44,7 @@ function PortalMenu({ open, triggerRef, widthClass = 'w-56', align = 'left', chi
   const wMap = { 'w-56': 224, 'w-48': 192, 'w-44': 176, 'w-72': 288, 'w-80': 320 }
   const w = wMap[widthClass] || 224
   const left = align === 'right'
-    ? Math.max(8, (triggerRef.current?.getBoundingClientRect().right || pos.left + w) - w)
+    ? Math.max(8, (pos.triggerRight || pos.left + w) - w)
     : pos.left
   return createPortal(
     <div
@@ -865,4 +865,3 @@ export function FakultasFilterDropdown({ selected, onSelect, fakultasOptions = [
     </div>
   )
 }
-

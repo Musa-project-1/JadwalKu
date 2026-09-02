@@ -3,7 +3,7 @@ import { Icon } from '../../Icon'
 import { Button } from '../../Button'
 import { FormSelect } from '../../FormSelect'
 import { CustomDatePicker } from '../../CustomDatePicker'
-import { useCampus } from '../../../context/CampusContext'
+import { useCampus } from '../../../context/useCampus'
 
 export function ExamFormModal({
   open,

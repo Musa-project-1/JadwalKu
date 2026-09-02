@@ -190,32 +190,32 @@ export default function Home() {
   const greeting = getGreetingData()
 
   return (
-    <div className="flex flex-col gap-3.5 w-full max-w-full overflow-x-hidden min-h-0 animate-fade-in">
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3.5 w-full">
+    <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden min-h-0 animate-fade-in">
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4 w-full">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <div
-            className={`flex h-11 w-11 tablet:h-11 shrink-0 items-center justify-center rounded-2xl ${greeting.iconBg} shadow-xs`}
+            className={`flex h-11 w-11 tablet:h-11 shrink-0 items-center justify-center rounded-2xl ${greeting.iconBg} shadow-level-1`}
             aria-hidden="true"
           >
             <Icon name={greeting.icon} size={22} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className={`font-bold text-xl tablet:text-2xl leading-tight tracking-tight bg-gradient-to-r ${greeting.textGradient} bg-clip-text text-transparent drop-shadow-xs whitespace-nowrap`}>
+              <h2 className={`font-bold text-xl tablet:text-2xl leading-tight tracking-tight bg-gradient-to-r ${greeting.textGradient} bg-clip-text supports-[background-clip:text]:text-transparent text-primary drop-shadow-xs whitespace-nowrap`}>
                 {greeting.text}!
               </h2>
                 {isCustomMode ? (
                   <button
                     type="button"
                     onClick={() => navigate('/jadwal')}
-                    className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 dark:text-amber-300 shadow-2xs hover:bg-amber-500/25 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-label-caps font-bold text-amber-900 dark:text-amber-300 shadow-level-1 hover:bg-amber-500/25 transition-colors cursor-pointer"
                     title="Klik untuk melihat atau mengatur Jadwal Kustom"
                   >
                     <Icon name="star" size={13} className="text-amber-500" />
                     <span>Jadwal Kustom ({scheduleSource.length} MK)</span>
                   </button>
                 ) : program ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 dark:bg-emerald-500/15 border border-primary/25 dark:border-emerald-500/30 px-3 py-0.5 text-[11px] font-bold text-primary dark:text-emerald-300 shadow-2xs">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 dark:bg-emerald-500/15 border border-primary/25 dark:border-emerald-500/30 px-3 py-0.5 text-label-caps font-bold text-primary dark:text-emerald-300 shadow-level-1">
                     <Icon name="school" size={13} className="text-primary dark:text-emerald-300 shrink-0" />
                     <span>{program} · Sem. {semester}{dataTA ? ` · TA ${dataTA}` : ''}</span>
                   </span>
@@ -231,7 +231,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => navigate('/jadwal')}
-              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 px-3 py-1.5 shadow-2xs cursor-pointer group"
+              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 px-3 py-1.5 shadow-level-1 cursor-pointer group"
               title="Total SKS Semester Ini"
             >
               <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold group-hover:bg-emerald-500/30 transition-colors shrink-0">
@@ -239,13 +239,13 @@ export default function Home() {
               </span>
               <div className="text-left">
                 <p className="text-body-sm font-bold text-emerald-950 dark:text-emerald-100 leading-none">{stats.totalSks}</p>
-                <p className="text-[9.5px] font-bold text-emerald-800/80 dark:text-emerald-300 uppercase tracking-wide leading-none mt-0.5">SKS</p>
+                <p className="text-label-caps font-bold text-emerald-800/80 dark:text-emerald-300 uppercase tracking-wide leading-none mt-0.5">SKS</p>
               </div>
             </button>
             <button
               type="button"
               onClick={() => navigate('/jadwal')}
-              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-blue-500/10 border border-blue-500/25 px-3 py-1.5 shadow-2xs cursor-pointer group"
+              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-blue-500/10 border border-blue-500/25 px-3 py-1.5 shadow-level-1 cursor-pointer group"
               title="Total Sesi Kelas Mingguan"
             >
               <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-blue-500/15 text-blue-700 dark:text-blue-300 font-bold group-hover:bg-blue-500/30 transition-colors shrink-0">
@@ -253,13 +253,13 @@ export default function Home() {
               </span>
               <div className="text-left">
                 <p className="text-body-sm font-bold text-blue-950 dark:text-blue-100 leading-none">{stats.totalKelas}</p>
-                <p className="text-[9.5px] font-bold text-blue-800/80 dark:text-blue-300 uppercase tracking-wide leading-none mt-0.5">Kelas</p>
+                <p className="text-label-caps font-bold text-blue-800/80 dark:text-blue-300 uppercase tracking-wide leading-none mt-0.5">Kelas</p>
               </div>
             </button>
             <button
               type="button"
               onClick={() => navigate('/tugas')}
-              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-purple-500/10 border border-purple-500/25 px-3 py-1.5 shadow-2xs cursor-pointer group"
+              className="flex items-center justify-center desktop:justify-start gap-2 rounded-2xl bg-purple-500/10 border border-purple-500/25 px-3 py-1.5 shadow-level-1 cursor-pointer group"
               title="Tugas Tertunda"
             >
               <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-500/15 text-purple-700 dark:text-purple-300 font-bold group-hover:bg-purple-500/30 transition-colors shrink-0">
@@ -267,7 +267,7 @@ export default function Home() {
               </span>
               <div className="text-left">
                 <p className="text-body-sm font-bold text-purple-950 dark:text-purple-100 leading-none">{stats.tugasOpen}</p>
-                <p className="text-[9.5px] font-bold text-purple-800/80 dark:text-purple-300 uppercase tracking-wide leading-none mt-0.5">Tugas</p>
+                <p className="text-label-caps font-bold text-purple-800/80 dark:text-purple-300 uppercase tracking-wide leading-none mt-0.5">Tugas</p>
               </div>
             </button>
           </div>
@@ -275,7 +275,7 @@ export default function Home() {
       </header>
 
       {needsTaMigration && (
-        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 flex items-center justify-between gap-3">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 flex items-center justify-between gap-3">
           <p className="text-body-xs font-semibold text-amber-900 dark:text-amber-200">
             Tahun ajaran berubah — jadwal semester {semester} sekarang TA {expectedTA}. Tap untuk sinkron.
           </p>
@@ -284,19 +284,19 @@ export default function Home() {
       )}
 
       <AnnouncementBanner currentProgram={program} currentSemester={semester} />
-      <div className="grid grid-cols-1 desktop:grid-cols-12 gap-3.5 desktop:items-stretch">
-        <section className="desktop:col-span-7 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-xs flex flex-col flex-1 self-stretch min-h-0">
+      <div className="grid grid-cols-1 desktop:grid-cols-12 gap-4 desktop:items-stretch">
+        <section className="desktop:col-span-7 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-6 tablet:p-6 shadow-level-1 flex flex-col flex-1 self-stretch min-h-0">
             <div className="flex flex-col flex-1 min-h-0">
               <div className="flex items-center justify-between pb-3 border-b border-outline-variant/15 mb-3 gap-2">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/20">
                     <Icon name="event_available" size={18} />
                   </span>
-                  <h3 className="text-body-sm tablet:text-body-md font-bold text-on-surface truncate">
-                    Jadwal Kuliah Hari Ini (<span className="text-primary\">{todayName}</span>)
+                  <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface truncate">
+                    Jadwal Kuliah Hari Ini (<span className="text-primary">{todayName}</span>)
                   </h3>
                 </div>
-                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 border border-primary/20 shrink-0">
+                <span className="text-label-caps font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 border border-primary/20 shrink-0">
                   {todayEntries.length} Sesi
                 </span>
               </div>
@@ -336,14 +336,14 @@ export default function Home() {
                         className="w-full text-left rounded-2xl border border-outline-variant/20 bg-surface-container-low/40 dark:bg-surface-container-high/20 hover:bg-surface-container-low dark:hover:bg-surface-container-high/40 p-3 flex items-center justify-between gap-3 transition-colors"
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="text-[11px] font-bold tracking-wide uppercase text-on-surface-variant">{i === 0 ? 'Selanjutnya' : i === 1 ? 'Setelah itu' : 'Berikutnya'}</p>
+                          <p className="text-label-caps font-bold uppercase text-on-surface-variant">{i === 0 ? 'Selanjutnya' : i === 1 ? 'Setelah itu' : 'Berikutnya'}</p>
                           <p className="text-body-sm font-bold text-on-surface truncate">{c?.namaMK ?? entry.kodeMK}</p>
-                          <p className="text-[11px] text-on-surface-variant flex items-center gap-1 truncate">
+                          <p className="text-label-caps text-on-surface-variant flex items-center gap-1 truncate">
                             <Icon name="schedule" size={12} className="shrink-0 opacity-70" />
                             {entry.jamMulai} - {entry.jamSelesai} · {formatRuang(entry.ruang, entry.tipeKelas)}
                           </p>
                         </div>
-                        <span className="shrink-0 inline-flex items-center rounded-lg bg-surface-container dark:bg-surface-container-high border border-outline-variant/20 px-2 py-1 font-mono text-[11px] font-bold text-on-surface-variant">
+                        <span className="shrink-0 inline-flex items-center rounded-lg bg-surface-container dark:bg-surface-container-high border border-outline-variant/20 px-2 py-1 font-mono text-label-caps font-bold text-on-surface-variant">
                           {entry.kodeMK}
                         </span>
                       </button>
@@ -377,9 +377,9 @@ export default function Home() {
               </div>
             )}
           </section>
-        <aside className="desktop:col-span-5 flex flex-col gap-3.5 h-full min-h-0">
-          <section className="rounded-3xl border border-amber-500/25 dark:border-amber-500/20 bg-gradient-to-br from-amber-500/15 via-[#FFF4E5] to-amber-500/10 dark:from-amber-950/30 dark:via-warning-container/20 dark:to-amber-900/15 border-l-4 border-l-amber-500 p-3 tablet:p-3.5 shadow-xs flex flex-col">
-              <h3 className="mb-1 flex items-center gap-2 text-body-sm font-bold text-[#92400E] dark:text-warning">
+        <aside className="desktop:col-span-5 flex flex-col gap-4 h-full min-h-0">
+          <section className="rounded-3xl border border-amber-500/25 dark:border-amber-500/20 bg-gradient-to-br from-amber-500/15 via-[#FFF4E5] to-amber-500/10 dark:from-amber-950/30 dark:via-warning-container/20 dark:to-amber-900/15 border-l-4 border-l-amber-500 p-3 tablet:p-4 shadow-level-1 flex flex-col">
+              <h3 className="mb-1 flex items-center gap-2 text-title-sm font-bold text-[#92400E] dark:text-warning">
                 <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-amber-500/20 text-[#D97706]">
                   <Icon name="edit_note" size={15} />
                 </span>
@@ -392,12 +392,12 @@ export default function Home() {
                 value={dailyNote}
                 onChange={(e) => handleNoteChange(e.target.value)}
                 placeholder="Tulis catatan cepat untuk hari ini..."
-                className="h-12 w-full resize-none bg-transparent p-0 text-body-xs text-[#92400E] dark:text-warning placeholder:text-[#92400E]/60 dark:placeholder:text-warning/60 focus:outline-none"
+                className="h-12 w-full resize-none bg-transparent p-0 text-body-xs text-[#92400E] dark:text-warning placeholder:text-[#92400E] dark:placeholder:text-warning focus:outline-none"
               />
             </section>
-          <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:p-3.5 shadow-xs flex flex-col">
+          <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:p-4 shadow-level-1 flex flex-col">
               <div className="flex items-center justify-between pb-1.5 border-b border-outline-variant/15 mb-2">
-                <h3 className="flex items-center gap-1.5 text-body-sm font-bold text-on-surface">
+                <h3 className="flex items-center gap-1.5 text-title-sm font-bold text-on-surface">
                   <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-300">
                     <Icon name="checklist" size={14} />
                   </span>
@@ -406,7 +406,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => navigate('/tugas')}
-                  className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                  className="text-label-caps font-bold text-primary hover:underline cursor-pointer"
                 >
                   Lihat Semua
                 </button>
@@ -417,7 +417,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => navigate('/tugas')}
-                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/20 text-[10.5px] font-bold transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/20 text-body-xs font-bold transition-colors cursor-pointer"
                   >
                     <Icon name="add" size={13} />
                     <span>Tugas</span>
@@ -431,16 +431,19 @@ export default function Home() {
                     .map((t) => (
                       <li
                         key={t.id}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => navigate('/tugas')}
-                        className="flex items-center justify-between p-2 rounded-2xl bg-surface-container-low/70 hover:bg-surface-container-high cursor-pointer transition-colors border border-outline-variant/15 shadow-2xs"
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/tugas') } }}
+                        className="flex items-center justify-between p-2 rounded-2xl bg-surface-container-low/70 hover:bg-surface-container-high cursor-pointer transition-colors border border-outline-variant/15 shadow-level-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
                       >
                         <div className="min-w-0 flex-1 pr-2">
                           <p className="truncate text-body-xs font-bold text-on-surface">{t.judul}</p>
-                          <p className="text-[10px] text-on-surface-variant font-medium">
+                          <p className="text-label-caps text-on-surface-variant font-medium">
                             {t.kodeMK ? `${t.kodeMK} • ` : ''}{t.deadline}
                           </p>
                         </div>
-                        <span className="shrink-0 text-[9px] uppercase font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/25">
+                        <span className="shrink-0 text-label-caps uppercase font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/25">
                           {t.prioritas}
                         </span>
                       </li>
@@ -448,18 +451,18 @@ export default function Home() {
                 </ul>
               )}
             </section>
-          <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 tablet:p-4 shadow-xs flex flex-col">
+          <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-4 shadow-level-1 flex flex-col">
               <div>
                 <div className="flex items-center justify-between pb-2 border-b border-outline-variant/15 mb-2.5">
                   <div className="flex items-center gap-2">
                     <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-300">
                       <Icon name="next_plan" size={16} />
                     </span>
-                    <h3 className="text-body-sm font-bold text-on-surface">
+                    <h3 className="text-title-sm font-bold text-on-surface">
                       Jadwal Besok (<span className="text-blue-600 dark:text-blue-400">{tomorrowName}</span>)
                     </h3>
                   </div>
-                  <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/25">
+                  <span className="text-body-xs font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/25">
                     {tomorrowEntries.length} Sesi
                   </span>
                 </div>
@@ -467,23 +470,24 @@ export default function Home() {
                   <div className="py-4 text-center text-body-xs text-on-surface-variant font-medium space-y-1">
                     <Icon name="beach_access" size={24} className="mx-auto text-emerald-500" />
                     <p>Tidak ada perkuliahan untuk hari besok ({tomorrowName}).</p>
-                    <p className="text-[11px] text-on-surface-variant/80">Waktu yang baik untuk mengerjakan tugas &amp; istirahat.</p>
+                    <p className="text-label-caps text-on-surface-variant/80">Waktu yang baik untuk mengerjakan tugas &amp; istirahat.</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     {tomorrowEntries.map((item) => {
                       const course = courseMap.get(item.kodeMK)
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={item.id}
                           onClick={() => navigate('/jadwal', { state: { openKodeMK: item.kodeMK } })}
-                          className="p-2.5 rounded-2xl bg-surface-container-low/60 hover:bg-surface-container-high/80 border border-outline-variant/20 transition-all cursor-pointer shadow-2xs group"
+                          className="w-full text-left p-2.5 rounded-2xl bg-surface-container-low/60 hover:bg-surface-container-high/80 border border-outline-variant/20 transition-all cursor-pointer shadow-level-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
                           <div className="flex items-center justify-between gap-2 mb-1">
-                            <span className="inline-flex items-center rounded-lg bg-teal-500/15 text-teal-900 dark:bg-teal-400/20 dark:text-teal-200 px-2 py-0.5 font-mono text-[11px] font-extrabold tracking-wider border border-teal-500/30 dark:border-teal-400/40 shadow-2xs">
+                            <span className="inline-flex items-center rounded-lg bg-teal-500/15 text-teal-900 dark:bg-teal-400/20 dark:text-teal-200 px-2 py-0.5 font-mono text-label-caps font-extrabold tracking-wider border border-teal-500/30 dark:border-teal-400/40 shadow-level-1">
                               {item.kodeMK}
                             </span>
-                            <span className="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
+                            <span className="text-label-caps font-semibold text-on-surface-variant flex items-center gap-1">
                               <Icon name="schedule" size={12} className="text-on-surface-variant/70" />
                               {item.jamMulai} - {item.jamSelesai}
                             </span>
@@ -491,18 +495,18 @@ export default function Home() {
                           <p className="text-body-xs font-bold text-on-surface line-clamp-1 group-hover:text-primary transition-colors">
                             {course?.namaMK || item.kodeMK}
                           </p>
-                          <div className="flex items-center justify-between text-[10.5px] text-on-surface-variant/80 mt-1 font-medium">
+                          <div className="flex items-center justify-between text-body-xs text-on-surface-variant/80 mt-1 font-medium">
                             <span className="truncate max-w-[150px]">{course?.dosen || 'Dosen Pengampu'}</span>
                             <span className="truncate text-emerald-700 dark:text-emerald-300 font-semibold">{item.ruang || 'Online'}</span>
                           </div>
-                        </div>
+                        </button>
                       )
                     })}
                   </div>
                 )}
               </div>
               {upcomingAgenda.length > 0 && (
-                <div className="mt-2 pt-2 border-t border-outline-variant/15 flex items-center gap-2 text-[11px] text-on-surface-variant font-medium truncate">
+                <div className="mt-2 pt-2 border-t border-outline-variant/15 flex items-center gap-2 text-label-caps text-on-surface-variant font-medium truncate">
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-secondary/15 text-secondary">
                     <Icon name="celebration" size={13} />
                   </span>

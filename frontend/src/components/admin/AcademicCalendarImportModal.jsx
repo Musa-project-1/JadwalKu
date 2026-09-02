@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
-import { FormSelect } from '../FormSelect'
-import { CustomDatePicker } from '../CustomDatePicker'
 import { parseAcademicCalendarFile, deriveBoundsFromEvents } from '../../lib/academicCalendarParser'
 import { MADANI_CALENDAR_PRESET } from '../../constants/academicCalendarPreset'
 
@@ -18,7 +16,7 @@ export function AcademicCalendarImportModal({
   const [loading, setLoading] = useState(false)
   const [progressState, setProgressState] = useState({ stage: '', progress: 0 })
   const [errorMsg, setErrorMsg] = useState('')
-  const [warnings, setWarnings] = useState([])
+  const [, setWarnings] = useState([])
   const [fileName, setFileName] = useState('')
   const [detectedFormat, setDetectedFormat] = useState('')
 
@@ -30,6 +28,7 @@ export function AcademicCalendarImportModal({
   // Reset modal state saat dibuka/tutup.
   useEffect(() => {
     if (!open) {
+      // oxlint-disable-next-line react/set-state-in-effect
       setFileName('')
       setErrorMsg('')
       setLoading(false)

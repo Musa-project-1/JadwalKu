@@ -32,9 +32,6 @@ export function ClassTimelineItem({
   const borderClass = TONE_BORDER_CLASSES[classType.tone] ?? TONE_BORDER_CLASSES.neutral
 
   const dotIcon = isPast ? 'check' : (TONE_ICONS[classType.tone] ?? 'school')
-  const dotBg = isPast
-    ? 'bg-surface-variant text-on-surface-variant'
-    : 'bg-primary-container text-on-primary-container'
 
   return (
     <>

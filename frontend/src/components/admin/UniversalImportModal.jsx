@@ -5,7 +5,7 @@ import { FormSelect } from '../FormSelect'
 import { classTypeLabel, CLASS_TYPE_CODES } from '../../lib/classTypes'
 import { parseUniversalFile, applyColumnMapping } from '../../lib/universalParser'
 import { validateScheduleEntry, findConflicts } from '../../lib/uploadValidator'
-import { useCampus } from '../../context/CampusContext'
+import { useCampus } from '../../context/useCampus'
 
 const PRESET_STORAGE_KEY = 'jadwalku_import_mapping_preset'
 
@@ -32,7 +32,7 @@ export function UniversalImportModal({
   existingTAs = ['2025/2026', '2024/2025'],
 }) {
   // Konfigurasi kampus aktif (prodi, tipe kelas, preset impor per-kampus).
-  const { prodiNames, campus, classTypeCodes, roomMap } = useCampus()
+  const { prodiNames, campus, classTypeCodes } = useCampus()
   const effectiveProdiOptions = prodiNames.length > 0 ? prodiNames : prodiOptions
   const effectiveClassTypeCodes = classTypeCodes.length > 0 ? classTypeCodes : CLASS_TYPE_CODES
 

@@ -111,7 +111,7 @@ export function OnboardingWizard() {
   const { data: allPublishedJadwal } = useFirestore('jadwal', [['status', '==', 'published']])
   const { data: mataKuliah } = useFirestore('mataKuliah')
 
-  const now = new Date()
+  const now = useMemo(() => new Date(), [])
   const calDoc = useMemo(() => settingsDocs.find((d) => d.id === 'academicCalendar'), [settingsDocs])
   const currentTA = useMemo(() => deriveTahunAjaran(now, calDoc), [now, calDoc])
   const currentTerm = useMemo(() => deriveTerm(now, calDoc), [now, calDoc])
@@ -144,9 +144,13 @@ export function OnboardingWizard() {
 
   // Sync invite prefill after mount if URL has values but state empty
   useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect
     if (invitePrefill.fakultasId && !fakultasId) setFakultasIdLocal(invitePrefill.fakultasId)
+    // oxlint-disable-next-line react/set-state-in-effect
     if (invitePrefill.prodi && !prodi) setProdiLocal(invitePrefill.prodi)
+    // oxlint-disable-next-line react/set-state-in-effect
     if (invitePrefill.semester && !semester) setSemesterLocal(invitePrefill.semester)
+    // oxlint-disable-next-line react/set-state-in-effect
     if (invitePrefill.ta && !taOverride) setTaOverride(invitePrefill.ta)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -175,6 +179,7 @@ export function OnboardingWizard() {
   // Auto-skip if only 1 fakultas (#1)
   useEffect(() => {
     if (fakultasList.length === 1 && !fakultasId) {
+      // oxlint-disable-next-line react/set-state-in-effect
       setFakultasIdLocal(fakultasList[0].id)
     }
   }, [fakultasList, fakultasId])
@@ -206,6 +211,7 @@ export function OnboardingWizard() {
 
   useEffect(() => {
     if (filteredPrograms.length === 1 && !prodi) {
+      // oxlint-disable-next-line react/set-state-in-effect
       setProdiLocal(filteredPrograms[0].nama)
     }
   }, [filteredPrograms, prodi])
@@ -219,7 +225,10 @@ export function OnboardingWizard() {
   }, [selectedProgram])
 
   useEffect(() => {
-    if (semester != null && !semesters.includes(semester)) setSemesterLocal(null)
+    if (semester != null && !semesters.includes(semester)) {
+      // oxlint-disable-next-line react/set-state-in-effect
+      setSemesterLocal(null)
+    }
   }, [semesters, semester])
 
   const expectedTA = useMemo(() => semester ? expectedTahunAjaranForSemester(semester, now, calDoc) : currentTA, [semester, now, calDoc, currentTA])
@@ -502,5 +511,3 @@ export function OnboardingWizard() {
 export default function Onboarding() {
   return <RoleSelection />
 }
-
-

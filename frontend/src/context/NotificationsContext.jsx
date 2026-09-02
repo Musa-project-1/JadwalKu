@@ -110,8 +110,23 @@ export function NotificationsProvider({ children }) {
     // Merge di luar updater
     const merged = mergeNotifications(itemsRef.current, incoming).slice(0, MAX_ITEMS)
     const prev = itemsRef.current
+    // Bandingkan konten, bukan referensi. `mergeNotifications` selalu membuat
+    // objek baru untuk tiap item yang ada di `incoming`, sehingga perbandingan
+    // `item !== prev[i]` selalu true → `persist()` dipanggil tiap tick meski
+    // tidak ada perubahan nyata (menyebabkan re-render + tulis localStorage
+    // yang tidak perlu setiap 60 detik).
     const changed =
-      merged.length !== prev.length || merged.some((item, i) => item !== prev[i])
+      merged.length !== prev.length ||
+      merged.some((item, i) => {
+        const prior = prev[i]
+        return (
+          item.id !== prior.id ||
+          item.type !== prior.type ||
+          item.title !== prior.title ||
+          item.description !== prior.description ||
+          item.read !== prior.read
+        )
+      })
     if (!changed) return
     persist(merged)
   }, [jadwal, mataKuliah, ujian, riwayat, persist])

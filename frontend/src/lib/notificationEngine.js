@@ -92,10 +92,16 @@ export async function sendBrowserNotification(title, options = {}) {
   }
 
   try {
-    // Check if Service Worker is active and can show notification
+    // Check if Service Worker is active and can show notification.
+    // `serviceWorker.ready` never resolves if no worker becomes active (e.g. the page
+    // isn't controlled by a SW), which would hang this function forever. Bound the wait
+    // with getRegistration() + a timeout and fall back to the Notification constructor.
     if ('serviceWorker' in navigator) {
-      const reg = await navigator.serviceWorker.ready
-      if (reg && reg.showNotification) {
+      const reg = await Promise.race([
+        navigator.serviceWorker.getRegistration(),
+        new Promise((resolve) => setTimeout(() => resolve(undefined), 2000)),
+      ])
+      if (reg && reg.active && reg.showNotification) {
         await reg.showNotification(title, defaultOptions)
         return true
       }

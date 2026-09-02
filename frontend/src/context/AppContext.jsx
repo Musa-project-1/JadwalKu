@@ -38,7 +38,7 @@ function updatePreferencesWithTransition(prefs) {
     } else {
       clearMarker()
     }
-  } catch (err) {
+  } catch {
     root.classList.remove('theme-transition')
     applyDocumentPreferences(prefs)
   }

@@ -1,10 +1,9 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore'
+import { useEffect, useMemo, useState } from 'react'
+import { collection, doc, onSnapshot } from 'firebase/firestore'
 import { db, firebaseReady } from '../lib/firebaseClient'
+import { CampusContext } from './campusContext'
 import { DEFAULT_CAMPUS, normalizeCampus, getProdiNames, getClassTypeCodes, getRoomMap } from '../lib/campusConfig'
 import { getItem, setItem, STORAGE_KEYS } from '../lib/storage'
-
-const CampusContext = createContext(null)
 
 /**
  * Penyedia konfigurasi kampus universal.
@@ -21,22 +20,24 @@ export function CampusProvider({ children, kampusId: initialKampusId = null }) {
   const [campus, setCampus] = useState(DEFAULT_CAMPUS)
   const [loading, setLoading] = useState(Boolean(firebaseReady))
 
-  // Pindah kampus → simpan di localStorage + reset state ke default dulu.
+  // Pindah kampus → simpan di localStorage + reset state ke default dulu,
+  // supaya config kampus lama (prodi/ruang/tipe kelas) tidak sempat terlihat
+  // saat kampus baru sedang dimuat.
   const setKampusId = (nextId) => {
     const clean = String(nextId || '').trim()
     if (!clean) return
     setKampusIdState(clean)
+    setCampus(DEFAULT_CAMPUS)
     setItem(STORAGE_KEYS.kampusId, clean)
   }
 
   useEffect(() => {
     if (!firebaseReady || !db) {
-      setCampus(DEFAULT_CAMPUS)
-      setLoading(false)
       return undefined
     }
 
     const ref = doc(collection(db, 'kampus'), kampusId)
+    // oxlint-disable-next-line react/set-state-in-effect
     setLoading(true)
 
     const unsubscribe = onSnapshot(
@@ -71,24 +72,4 @@ export function CampusProvider({ children, kampusId: initialKampusId = null }) {
   )
 
   return <CampusContext.Provider value={value}>{children}</CampusContext.Provider>
-}
-
-/** Akses konfigurasi kampus aktif. */
-export function useCampus() {
-  const ctx = useContext(CampusContext)
-  if (!ctx) {
-    throw new Error('useCampus must be used within CampusProvider')
-  }
-  return ctx
-}
-
-/** Helper: ambil config kampus sekali (untuk parser/export non-React). */
-export async function fetchCampusConfig(kampusId = DEFAULT_CAMPUS.id) {
-  if (!firebaseReady || !db) return DEFAULT_CAMPUS
-  try {
-    const snap = await getDoc(doc(collection(db, 'kampus'), kampusId))
-    return snap.exists() ? normalizeCampus({ id: snap.id, ...snap.data() }) : DEFAULT_CAMPUS
-  } catch {
-    return DEFAULT_CAMPUS
-  }
 }

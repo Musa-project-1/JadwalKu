@@ -29,7 +29,7 @@ export function NextClassCard({
     return (
       <div className="relative overflow-hidden rounded-3xl bg-surface-container-lowest dark:bg-surface-container-low p-6 text-on-surface shadow-level-1 border border-outline-variant/30 transition-all duration-300">
         <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary dark:bg-primary/20">
               <Icon name="check_circle" size={28} />
             </div>
@@ -73,7 +73,7 @@ export function NextClassCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl p-5 tablet:p-6 shadow-level-2 transition-all duration-300 hover:shadow-level-3 border ${
+      className={`relative overflow-hidden rounded-3xl p-4 tablet:p-6 shadow-level-2 transition-all duration-300 hover:shadow-level-3 border ${
         isOngoing
           ? 'bg-gradient-to-br from-teal-900 via-primary to-emerald-950 text-white border-emerald-500/30'
           : 'bg-surface-container-lowest dark:bg-[#132823] text-on-surface dark:text-white border-teal-500/20 dark:border-teal-500/30'
@@ -88,7 +88,7 @@ export function NextClassCard({
           {/* Status Label Header */}
           <div className="flex items-center gap-2 mb-1.5">
             {isOngoing ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-400/20 border border-emerald-400/40 text-[11px] font-bold text-emerald-300 uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-400/20 border border-emerald-400/40 text-label-caps font-bold text-emerald-300 uppercase tracking-wider">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
@@ -96,14 +96,14 @@ export function NextClassCard({
                 Sedang Berlangsung
               </span>
             ) : (
-              <span className="text-[11px] font-bold tracking-[0.12em] text-teal-600 dark:text-teal-300 uppercase">
+              <span className="text-label-caps font-bold tracking-wider text-teal-600 dark:text-teal-300 uppercase">
                 Kelas Berikutnya
               </span>
             )}
           </div>
 
           {/* Nama Mata Kuliah */}
-          <h3 className={`text-[18px] tablet:text-[20px] font-bold leading-tight mb-2.5 truncate ${isOngoing ? 'text-white' : 'text-on-surface dark:text-white'}`}>
+          <h3 className={`text-title-md tablet:text-title-lg font-bold leading-tight mb-2.5 truncate ${isOngoing ? 'text-white' : 'text-on-surface dark:text-white'}`}>
             {course?.namaMK ?? entry.kodeMK}
           </h3>
 
@@ -125,7 +125,7 @@ export function NextClassCard({
                 if (onLocation) onLocation(entry, course)
                 else if (onDetail) onDetail()
               }}
-              className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 border transition-colors cursor-pointer ${isOngoing ? 'bg-white/15 hover:bg-white/25 text-white border-white/20 backdrop-blur-sm' : 'bg-teal-500/10 hover:bg-teal-500/15 dark:bg-teal-500/15 text-teal-800 dark:text-teal-200 border-teal-500/20 dark:border-teal-500/25'}`}
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${isOngoing ? 'bg-white/15 hover:bg-white/25 text-white border-white/20 backdrop-blur-sm' : 'bg-teal-500/10 hover:bg-teal-500/15 dark:bg-teal-500/15 text-teal-800 dark:text-teal-200 border-teal-500/20 dark:border-teal-500/25'}`}
               title="Lihat Panduan Lokasi Ruangan & Denah Lantai"
             >
               <Icon name="location_on" size={14} />
@@ -137,7 +137,7 @@ export function NextClassCard({
         {/* Live Badge / Countdown Pill — MULAI DALAM like mockup */}
         {isOngoing ? (
           <div className="px-3 py-1.5 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 flex flex-col items-center justify-center shrink-0 whitespace-nowrap shadow-sm">
-            <span className="text-[9px] font-bold uppercase tracking-wide text-emerald-200">
+            <span className="text-label-caps font-bold uppercase tracking-wide text-emerald-200">
               Sisa Waktu
             </span>
             <span className="font-bold text-xs tablet:text-sm text-emerald-100">
@@ -152,10 +152,10 @@ export function NextClassCard({
                 : 'bg-teal-500/10 dark:bg-teal-500/15 border border-teal-500/20 dark:border-teal-500/25'
             }`}
           >
-            <span className={`text-[9px] font-bold uppercase tracking-[0.10em] ${urgent ? 'text-white/90' : 'text-teal-600 dark:text-teal-300'}`}>
+            <span className={`text-label-caps font-bold uppercase tracking-wider ${urgent ? 'text-white/90' : 'text-teal-600 dark:text-teal-300'}`}>
               Mulai Dalam
             </span>
-            <span className={`font-bold text-xs tablet:text-[13px] leading-tight ${urgent ? 'text-white' : 'text-teal-800 dark:text-white'}`}>
+            <span className={`font-bold text-xs tablet:text-body-sm leading-tight ${urgent ? 'text-white' : 'text-teal-800 dark:text-white'}`}>
               {countdownText}
             </span>
           </div>
@@ -165,7 +165,7 @@ export function NextClassCard({
       {/* Progress Bar Khusus Sedang Berlangsung */}
       {isOngoing && (
         <div className="mt-2 mb-4">
-          <div className="flex justify-between items-center text-[10px] text-emerald-200/80 mb-1">
+          <div className="flex justify-between items-center text-label-caps text-emerald-200/80 mb-1">
             <span>Progress Kuliah</span>
             <span>{elapsedPercent}%</span>
           </div>

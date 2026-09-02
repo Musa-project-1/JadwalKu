@@ -37,6 +37,7 @@ const COURSE_ALIASES = {
 const SCHEDULE_FIELD_ALIASES = {
   hari: ['hari', 'day', 'days'],
   jamMulai: ['jam mulai', 'mulai', 'start', 'start time', 'waktu mulai', 'jam'],
+  jamRange: ['jam', 'waktu', 'time', 'sesi', 'pukul', 'jam pelajaran'],
   jamSelesai: ['jam selesai', 'selesai', 'end', 'end time', 'waktu selesai', 'sampai'],
   prodi: ['prodi', 'program studi', 'program', 'study program', 'jurusan'],
   semester: ['semester', 'sem', 'smt'],
@@ -155,7 +156,7 @@ function flatOrMatrix(rows, campusConfig = {}) {
   // Punya kolom hari + jam eksplisit/rentang → tabel datar.
   const hasDayCol = headers.some((h) => matches(h, SCHEDULE_FIELD_ALIASES.hari))
   const hasTimeCol = headers.some(
-    (h) => matches(h, SCHEDULE_FIELD_ALIASES.jamMulai) || matches(h, SCHEDULE_FIELD_ALIASES.jamRangeAlias || ['jam', 'waktu', 'time', 'sesi', 'pukul']),
+    (h) => matches(h, SCHEDULE_FIELD_ALIASES.jamMulai) || matches(h, SCHEDULE_FIELD_ALIASES.jamRange),
   )
 
   if (hasDayCol && hasTimeCol) {
@@ -164,7 +165,7 @@ function flatOrMatrix(rows, campusConfig = {}) {
 
   // Matriks kampus: baris hari + rentang jam di kolom awal.
   if (!hasDayCol && !hasTimeCol && headers.length >= 3) {
-    const matrix = parseMatrix(rows, campusConfig)
+    const matrix = parseMatrix(rows)
     if (matrix.length > 0) return { scheduleEntries: matrix, detectedFormat: 'matrix' }
   }
 
@@ -211,6 +212,7 @@ function parseTwoColumn(rows, campusConfig = {}) {
       prodi: prodiFromConfig,
       semester: NaN,
       kodeMK,
+      namaMK,
       ruang: '',
       tipeKelas: '',
     })
@@ -554,17 +556,6 @@ function sheetToRows(sheet) {
   return XLSX.utils.sheet_to_json(sheet, { defval: '', raw: true })
 }
 
-/** Deteksi layout matriks: tidak ada kolom hari/jam eksplisit tapi banyak kolom isi. */
-function isMatrixLayout(rows, campusConfig = {}) {
-  if (!rows.length) return false
-  const headers = Object.keys(rows[0]).map(normalizeHeader)
-  const hasDayCol = headers.some((h) => matches(h, SCHEDULE_FIELD_ALIASES.hari))
-  const hasTimeCol = headers.some(
-    (h) => matches(h, SCHEDULE_FIELD_ALIASES.jamMulai) || /\d{1,2}[.:]\d{2}/.test(h),
-  )
-  return !hasDayCol && !hasTimeCol && headers.length >= 3
-}
-
 /** Layout tabular datar dengan alias kolom fleksibel. */
 function parseFlat(rows, campusConfig = {}) {
   if (!rows.length) return []
@@ -595,7 +586,7 @@ function parseFlat(rows, campusConfig = {}) {
 }
 
 /** Layout matriks kampus: kolom 0 = hari, kolom 1 = rentang jam, sisanya per prodi. */
-function parseMatrix(rows, campusConfig = {}) {
+function parseMatrix(rows) {
   const entries = []
   let currentDay = ''
 

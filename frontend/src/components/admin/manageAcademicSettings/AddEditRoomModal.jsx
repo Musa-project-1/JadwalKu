@@ -28,26 +28,42 @@ export function AddEditRoomModal({
 
   useEffect(() => {
     if (editingRoom) {
+      // oxlint-disable-next-line react/set-state-in-effect
       setNamaRuang(editingRoom.namaRuang || '')
+      // oxlint-disable-next-line react/set-state-in-effect
       setAliases(Array.isArray(editingRoom.aliases) ? editingRoom.aliases.join(', ') : '')
+      // oxlint-disable-next-line react/set-state-in-effect
       setGedung(editingRoom.gedung || '')
+      // oxlint-disable-next-line react/set-state-in-effect
       setLantai(editingRoom.lantai || 1)
+      // oxlint-disable-next-line react/set-state-in-effect
       setKapasitas(editingRoom.kapasitas || 40)
+      // oxlint-disable-next-line react/set-state-in-effect
       setTipeRuang(editingRoom.tipeRuang || 'kelas')
+      // oxlint-disable-next-line react/set-state-in-effect
       setPetunjukArah(editingRoom.petunjukArah || '')
+      // oxlint-disable-next-line react/set-state-in-effect
       setSelectedFacilities(
         Array.isArray(editingRoom.fasilitas) && editingRoom.fasilitas.length > 0
           ? editingRoom.fasilitas
           : DEFAULT_FACILITIES.slice(0, 4),
       )
     } else {
+      // oxlint-disable-next-line react/set-state-in-effect
       setNamaRuang('')
+      // oxlint-disable-next-line react/set-state-in-effect
       setAliases('')
+      // oxlint-disable-next-line react/set-state-in-effect
       setGedung('Gedung Utama')
+      // oxlint-disable-next-line react/set-state-in-effect
       setLantai(1)
+      // oxlint-disable-next-line react/set-state-in-effect
       setKapasitas(40)
+      // oxlint-disable-next-line react/set-state-in-effect
       setTipeRuang('kelas')
+      // oxlint-disable-next-line react/set-state-in-effect
       setPetunjukArah('')
+      // oxlint-disable-next-line react/set-state-in-effect
       setSelectedFacilities([
         'AC Ruangan',
         'Proyektor LCD',
