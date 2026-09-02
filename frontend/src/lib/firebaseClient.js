@@ -7,10 +7,11 @@ import {
   persistentMultipleTabManager,
 } from 'firebase/firestore'
 
-// Konfigurasi dibaca dari env VITE_FIREBASE_*. Fallback publik HANYA dipakai
-// di build produksi (GitHub Pages tidak punya env) supaya app tetap terhubung.
-// Di mode dev tanpa env kita TIDAK diam-diam memakai proyek publik — beri
-// peringatan agar salah konfigurasi cepat terlihat.
+// Semua nilai Firebase WAJIB via env VITE_FIREBASE_*.
+// Jangan hardcode apiKey/projectId di source — GitHub Secret Scanning akan
+// flag pattern AIza* sebagai Public leak dan key tidak bisa dirotasi via
+// GitHub Secrets. Untuk GitHub Pages, set secrets di repo Settings ->
+// Secrets and variables -> Actions -> VITE_FIREBASE_* (lihat .env.example).
 const envConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -22,18 +23,9 @@ const envConfig = {
 
 const hasEnvConfig = Boolean(envConfig.apiKey && envConfig.projectId)
 
-const firebaseConfig = hasEnvConfig
-  ? envConfig
-  : import.meta.env.PROD
-    ? {
-        apiKey: 'AIzaSyC5GAJuDdkAsBPoSZpgnj8DwY2vk3euL18',
-        authDomain: 'scheduleuni-89887.firebaseapp.com',
-        projectId: 'scheduleuni-89887',
-        storageBucket: 'scheduleuni-89887.firebasestorage.app',
-        messagingSenderId: '550134333073',
-        appId: '1:550134333073:web:5bfa0995a26159c8b90930',
-      }
-    : null
+// Tanpa env yang lengkap, jangan coba inisialisasi Firebase — biarkan app
+// jalan dalam mode offline/empty dengan firebaseReady=false.
+const firebaseConfig = hasEnvConfig ? envConfig : null
 
 const isConfigured = Boolean(firebaseConfig?.apiKey && firebaseConfig?.projectId)
 
