@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
 import { NotificationsProvider } from './context/NotificationsContext'
 import { Skeleton } from './components/Skeleton'
-import { getItem, STORAGE_KEYS } from './lib/storage'
+import { getItem, setItem, STORAGE_KEYS } from './lib/storage'
 import { RequireAdmin } from './components/admin/RequireAdmin'
 import { AdminLayout } from './components/admin/AdminLayout'
 
@@ -30,6 +30,11 @@ const ManageAcademicSettings = lazy(() => import('./pages/admin/ManageAcademicSe
 const ManageAnnouncements = lazy(() => import('./pages/admin/ManageAnnouncements'))
 
 function RequireOnboarding({ children }) {
+  // ?audit=1 di URL: set onboardingDone otomatis untuk Lighthouse / audit tools
+  // sehingga audit tidak terjebak di halaman onboarding
+  if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('audit') === '1') {
+    setItem(STORAGE_KEYS.onboardingDone, true)
+  }
   const done = getItem(STORAGE_KEYS.onboardingDone, false)
   if (!done) {
     return <Navigate to="/onboarding" replace />
