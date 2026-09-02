@@ -120,7 +120,7 @@ export default function Exams() {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+              <h2 className="text-headline-lg-mobile tablet:text-headline-lg font-bold tracking-tight text-on-surface">
                 Jadwal Ujian
               </h2>
               <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">

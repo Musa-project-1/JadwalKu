@@ -21,123 +21,163 @@
  */
 @layer base {
   :root {
-    --c-surface: 247 249 251;
-    --c-surface-dim: 216 218 220;
-    --c-surface-bright: 247 249 251;
+    /* ── Surface & neutral (lebih hangat, sedikit teal tint) ── */
+    --c-surface: 244 250 249;
+    --c-surface-dim: 210 220 218;
+    --c-surface-bright: 248 253 252;
     --c-surface-container-lowest: 255 255 255;
-    --c-surface-container-low: 242 244 246;
-    --c-surface-container: 236 238 240;
-    --c-surface-container-high: 230 232 234;
-    --c-surface-container-highest: 224 227 229;
-    --c-on-surface: 25 28 30;
-    --c-on-surface-variant: 62 73 71;
-    --c-inverse-surface: 45 49 51;
-    --c-inverse-on-surface: 239 241 243;
-    --c-outline: 110 121 119;
-    --c-outline-variant: 190 201 198;
-    --c-surface-tint: 6 106 97;
-    --c-primary: 0 78 71;
+    --c-surface-container-low: 237 246 244;
+    --c-surface-container: 228 240 238;
+    --c-surface-container-high: 218 232 230;
+    --c-surface-container-highest: 207 224 221;
+    --c-on-surface: 14 26 24;
+    --c-on-surface-variant: 55 80 76;
+    --c-inverse-surface: 38 54 51;
+    --c-inverse-on-surface: 234 246 244;
+    --c-outline: 95 120 116;
+    --c-outline-variant: 168 196 192;
+    --c-surface-tint: 0 150 136;
+    /* ── Primary: teal lebih cerah & jenuh ── */
+    --c-primary: 0 137 123;
     --c-on-primary: 255 255 255;
-    --c-primary-container: 0 104 95;
-    --c-on-primary-container: 147 228 216;
-    --c-inverse-primary: 133 213 201;
-    --c-secondary: 0 106 98;
+    --c-primary-container: 178 242 234;
+    --c-on-primary-container: 0 42 38;
+    --c-inverse-primary: 107 216 203;
+    /* ── Secondary: cyan-teal ── */
+    --c-secondary: 0 119 111;
     --c-on-secondary: 255 255 255;
-    --c-secondary-container: 134 242 228;
-    --c-on-secondary-container: 0 111 102;
-    --c-tertiary: 44 43 188;
+    --c-secondary-container: 167 243 232;
+    --c-on-secondary-container: 0 37 34;
+    /* ── Tertiary: indigo vibrant ── */
+    --c-tertiary: 79 70 229;
     --c-on-tertiary: 255 255 255;
-    --c-tertiary-container: 71 72 212;
-    --c-on-tertiary-container: 210 209 255;
-    --c-error: 186 26 26;
+    --c-tertiary-container: 199 210 254;
+    --c-on-tertiary-container: 30 27 75;
+    --c-error: 185 28 28;
     --c-on-error: 255 255 255;
-    --c-error-container: 255 218 214;
-    --c-on-error-container: 147 0 10;
-    --c-primary-fixed: 161 241 229;
-    --c-primary-fixed-dim: 133 213 201;
+    --c-error-container: 254 226 226;
+    --c-on-error-container: 127 13 13;
+    --c-primary-fixed: 178 242 234;
+    --c-primary-fixed-dim: 107 216 203;
     --c-on-primary-fixed: 0 32 29;
-    --c-on-primary-fixed-variant: 0 80 73;
-    --c-secondary-fixed: 137 245 231;
-    --c-secondary-fixed-dim: 107 216 203;
+    --c-on-primary-fixed-variant: 0 100 92;
+    --c-secondary-fixed: 167 243 232;
+    --c-secondary-fixed-dim: 94 210 197;
     --c-on-secondary-fixed: 0 32 29;
-    --c-on-secondary-fixed-variant: 0 80 73;
-    --c-tertiary-fixed: 225 224 255;
-    --c-tertiary-fixed-dim: 192 193 255;
-    --c-on-tertiary-fixed: 7 0 108;
-    --c-on-tertiary-fixed-variant: 47 46 190;
-    --c-background: 247 249 251;
-    --c-on-background: 25 28 30;
-    --c-surface-variant: 224 227 229;
-    --c-success: 4 120 87;
-    --c-success-container: 167 243 208;
-    --c-warning: 180 83 9;
-    --c-warning-container: 254 230 190;
-    --c-info: 30 58 138;
+    --c-on-secondary-fixed-variant: 0 95 88;
+    --c-tertiary-fixed: 199 210 254;
+    --c-tertiary-fixed-dim: 165 180 252;
+    --c-on-tertiary-fixed: 24 24 83;
+    --c-on-tertiary-fixed-variant: 55 48 163;
+    --c-background: 244 250 249;
+    --c-on-background: 14 26 24;
+    --c-surface-variant: 218 232 230;
+    /* ── Semantic status ── */
+    --c-success: 5 150 105;
+    --c-success-container: 209 250 229;
+    --c-warning: 217 119 6;
+    --c-warning-container: 254 243 199;
+    --c-info: 37 99 235;
     --c-info-container: 219 234 254;
     /* Aurora */
     --c-aurora-teal: 107 216 203;
     --c-aurora-indigo: 93 95 239;
     --c-aurora-peach: 255 178 139;
+    /* ── Status-kelas tokens (light) — vivid vibrant ── */
+    --c-status-k1: 5 150 105;          /* emerald-600 cerah */
+    --c-status-k1-bg: 209 250 229;     /* emerald-100 */
+    --c-status-k1-border: 52 211 153;  /* emerald-400 */
+    --c-status-k2: 37 99 235;          /* blue-600 cerah */
+    --c-status-k2-bg: 219 234 254;     /* blue-100 */
+    --c-status-k2-border: 96 165 250;  /* blue-400 */
+    --c-status-hb: 124 58 237;         /* violet-600 cerah */
+    --c-status-hb-bg: 237 233 254;     /* violet-100 */
+    --c-status-hb-border: 167 139 250; /* violet-400 */
+    --c-status-gbk: 217 119 6;         /* amber-600 cerah */
+    --c-status-gbk-bg: 254 243 199;    /* amber-100 */
+    --c-status-gbk-border: 251 191 36; /* amber-400 */
+    --c-status-sys: 55 80 76;
+    --c-status-sys-bg: 218 232 230;
+    --c-status-sys-border: 168 196 192;
   }
 
   .dark {
     --c-surface: 14 19 29;
     --c-surface-dim: 14 19 29;
-    --c-surface-bright: 52 57 68;
+    --c-surface-bright: 52 58 72;
     --c-surface-container-lowest: 9 14 24;
-    --c-surface-container-low: 23 28 38;
-    --c-surface-container: 27 32 42;
-    --c-surface-container-high: 37 42 53;
-    --c-surface-container-highest: 48 53 64;
-    --c-on-surface: 222 226 241;
-    --c-on-surface-variant: 188 201 198;
-    --c-inverse-surface: 222 226 241;
-    --c-inverse-on-surface: 43 48 59;
-    --c-outline: 135 147 145;
-    --c-outline-variant: 61 73 71;
-    --c-surface-tint: 107 216 203;
-    --c-primary: 107 216 203;
-    --c-on-primary: 0 56 47;
-    --c-primary-container: 0 80 73;
-    --c-on-primary-container: 137 245 231;
-    --c-inverse-primary: 0 104 95;
-    --c-secondary: 183 200 225;
-    --c-on-secondary: 31 47 63;
-    --c-secondary-container: 56 72 93;
-    --c-on-secondary-container: 211 228 254;
-    --c-tertiary: 255 181 154;
-    --c-on-tertiary: 92 25 0;
-    --c-tertiary-container: 119 50 21;
-    --c-on-tertiary-container: 255 219 206;
-    --c-error: 255 180 171;
-    --c-on-error: 105 0 5;
-    --c-error-container: 147 0 10;
-    --c-on-error-container: 255 218 214;
-    --c-primary-fixed: 137 245 231;
-    --c-primary-fixed-dim: 107 216 203;
+    --c-surface-container-low: 22 30 42;
+    --c-surface-container: 28 37 50;
+    --c-surface-container-high: 38 48 62;
+    --c-surface-container-highest: 50 60 76;
+    --c-on-surface: 220 232 240;
+    --c-on-surface-variant: 180 200 210;
+    --c-inverse-surface: 220 232 240;
+    --c-inverse-on-surface: 40 50 64;
+    --c-outline: 130 152 165;
+    --c-outline-variant: 58 76 90;
+    --c-surface-tint: 94 234 212;
+    /* ── Primary dark: teal cerah & vibrant ── */
+    --c-primary: 94 234 212;
+    --c-on-primary: 0 46 42;
+    --c-primary-container: 0 110 100;
+    --c-on-primary-container: 178 242 234;
+    --c-inverse-primary: 0 137 123;
+    /* ── Secondary dark ── */
+    --c-secondary: 103 232 249;
+    --c-on-secondary: 0 48 56;
+    --c-secondary-container: 0 90 106;
+    --c-on-secondary-container: 179 244 255;
+    /* ── Tertiary dark: indigo/violet ── */
+    --c-tertiary: 167 139 250;
+    --c-on-tertiary: 44 16 120;
+    --c-tertiary-container: 79 60 180;
+    --c-on-tertiary-container: 220 210 255;
+    --c-error: 252 165 165;
+    --c-on-error: 127 13 13;
+    --c-error-container: 153 27 27;
+    --c-on-error-container: 254 202 202;
+    --c-primary-fixed: 178 242 234;
+    --c-primary-fixed-dim: 94 234 212;
     --c-on-primary-fixed: 0 32 29;
-    --c-on-primary-fixed-variant: 0 80 73;
-    --c-secondary-fixed: 225 224 255;
-    --c-secondary-fixed-dim: 193 193 255;
-    --c-on-secondary-fixed: 7 0 108;
-    --c-on-secondary-fixed-variant: 46 43 194;
-    --c-tertiary-fixed: 255 219 203;
-    --c-tertiary-fixed-dim: 255 182 145;
-    --c-on-tertiary-fixed: 52 17 0;
-    --c-on-tertiary-fixed-variant: 109 57 27;
-    --c-background: 14 19 29;
-    --c-on-background: 222 226 241;
-    --c-surface-variant: 48 53 64;
-    --c-success: 110 231 183;
+    --c-on-primary-fixed-variant: 0 100 92;
+    --c-secondary-fixed: 179 244 255;
+    --c-secondary-fixed-dim: 103 232 249;
+    --c-on-secondary-fixed: 0 32 38;
+    --c-on-secondary-fixed-variant: 0 90 106;
+    --c-tertiary-fixed: 220 210 255;
+    --c-tertiary-fixed-dim: 167 139 250;
+    --c-on-tertiary-fixed: 24 14 70;
+    --c-on-tertiary-fixed-variant: 79 60 180;
+    --c-background: 10 16 28;
+    --c-on-background: 220 232 240;
+    --c-surface-variant: 46 58 74;
+    --c-success: 52 211 153;
     --c-success-container: 6 78 59;
-    --c-warning: 252 211 77;
+    --c-warning: 251 191 36;
     --c-warning-container: 120 53 15;
-    --c-info: 147 197 253;
+    --c-info: 96 165 250;
     --c-info-container: 30 58 138;
     /* Aurora */
     --c-aurora-teal: 107 216 203;
     --c-aurora-indigo: 93 95 239;
     --c-aurora-peach: 255 178 139;
+    /* ── Status-kelas tokens (dark) — vivid vibrant ── */
+    --c-status-k1: 52 211 153;        /* emerald-400 cerah */
+    --c-status-k1-bg: 6 78 59;        /* emerald-900 */
+    --c-status-k1-border: 16 185 129; /* emerald-500 */
+    --c-status-k2: 96 165 250;        /* blue-400 cerah */
+    --c-status-k2-bg: 30 58 138;      /* blue-900 */
+    --c-status-k2-border: 59 130 246; /* blue-500 */
+    --c-status-hb: 167 139 250;       /* violet-400 cerah */
+    --c-status-hb-bg: 46 16 101;      /* violet-900 */
+    --c-status-hb-border: 139 92 246; /* violet-500 */
+    --c-status-gbk: 251 191 36;       /* amber-400 cerah */
+    --c-status-gbk-bg: 120 53 15;     /* amber-900 */
+    --c-status-gbk-border: 245 158 11;/* amber-500 */
+    --c-status-sys: 180 200 210;
+    --c-status-sys-bg: 46 58 74;
+    --c-status-sys-border: 58 76 90;
   }
 
   html {

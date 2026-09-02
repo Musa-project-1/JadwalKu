@@ -5,10 +5,10 @@ import { getItem, setItem } from '../lib/storage'
 import { Icon } from './Icon'
 
 const SIDEBAR_LINKS = [
-  { to: '/', label: 'Home', icon: 'home' },
-  { to: '/jadwal', label: 'Jadwal', icon: 'calendar_month' },
-  { to: '/tugas', label: 'Tugas', icon: 'checklist' },
-  { to: '/ujian', label: 'Ujian', icon: 'edit_note' },
+  { to: '/', label: 'Home', icon: 'home', highlight: false },
+  { to: '/jadwal', label: 'Jadwal', icon: 'calendar_month', highlight: true },
+  { to: '/tugas', label: 'Tugas', icon: 'checklist', highlight: false },
+  { to: '/ujian', label: 'Ujian', icon: 'edit_note', highlight: false },
 ]
 
 export function Sidebar() {
@@ -19,7 +19,6 @@ export function Sidebar() {
     setItem('jadwalku:sidebar_pinned', isPinned)
   }, [isPinned])
 
-  // Dynamic label classes for smooth hover expansion / pinned state
   const labelCls = isPinned
     ? 'overflow-hidden whitespace-nowrap ml-3.5 max-w-[180px] opacity-100'
     : 'overflow-hidden whitespace-nowrap transition-[opacity,max-width,margin] duration-300 ease-in-out max-w-0 opacity-0 ml-0 pointer-events-none group-hover:max-w-[180px] group-hover:opacity-100 group-hover:ml-3.5 group-hover:pointer-events-auto'
@@ -30,7 +29,7 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Sidebar spacer — reserves layout width for fixed sidebar */}
+      {/* Sidebar spacer */}
       <div
         aria-hidden="true"
         className={`hidden tablet:block shrink-0 transition-[width] duration-300 ease-in-out ${
@@ -38,7 +37,6 @@ export function Sidebar() {
         }`}
       />
 
-      {/* Sidebar — permanently fixed to viewport at all scroll positions */}
       <aside
         className={`group fixed left-0 top-0 h-screen hidden tablet:block z-50 transition-[width] duration-300 ease-in-out ${
           isPinned ? 'w-[280px] shadow-lg' : 'w-20 hover:w-[280px] hover:shadow-2xl'
@@ -48,8 +46,7 @@ export function Sidebar() {
           style={{ viewTransitionName: 'sidebar' }}
           className="w-full h-full flex flex-col overflow-x-hidden overflow-y-auto border-r border-outline-variant/30 bg-surface-container-low py-lg dark:bg-surface-container-low"
         >
-
-          {/* Logo & Brand Wordmark — fixed anchor point at x = 20px */}
+          {/* Logo & Brand */}
           <div className="relative mb-xl flex items-center px-5 min-h-[48px]">
             <div className="flex items-center min-w-0">
               <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
@@ -64,7 +61,7 @@ export function Sidebar() {
               </div>
             </div>
 
-            {/* Pin Toggle Button — absolute position */}
+            {/* Pin Toggle */}
             <button
               type="button"
               onClick={() => setIsPinned((prev) => !prev)}
@@ -80,42 +77,56 @@ export function Sidebar() {
             </button>
           </div>
 
-          {/* Nav links — fixed coordinate anchor for rock-solid 60 FPS icon stability */}
+          {/* Nav links */}
           <ul className="flex-1 space-y-1.5 px-3.5">
             {SIDEBAR_LINKS.map((item) => (
               <li key={item.to}>
                 <NavLink to={item.to} end={item.to === '/'} viewTransition>
-                  {({ isActive }) => (
-                    <span
-                      title={item.label}
-                      className={`flex w-full items-center rounded-full h-12 px-3.5 transition-colors duration-200 ${
-                        isActive
-                          ? 'bg-primary/10 font-medium text-primary'
-                          : 'text-on-surface-variant hover:bg-surface-container-high'
-                      }`}
-                    >
-                      <span className="relative flex h-6 w-6 shrink-0 items-center justify-center">
-                        <Icon name={item.icon} size={24} filled={isActive} />
+                  {({ isActive }) => {
+                    const isHighlight = item.highlight
+
+                    // Jadwal aktif: solid primary pill
+                    // Jadwal inactive: subtle tinted bg + primary text
+                    // Lainnya: standard M3 nav style
+                    const spanCls = [
+                      'flex w-full items-center rounded-full h-12 px-3.5 transition-all duration-200',
+                      isActive
+                        ? isHighlight
+                          ? 'bg-primary text-on-primary font-bold shadow-[0_2px_16px_rgb(var(--c-primary)/0.35)]'
+                          : 'bg-primary/10 font-medium text-primary'
+                        : isHighlight
+                          ? 'bg-primary/8 text-primary font-medium hover:bg-primary/15'
+                          : 'text-on-surface-variant hover:bg-surface-container-high',
+                    ].join(' ')
+
+                    // Icon size: Jadwal sedikit lebih besar untuk emphasis
+                    const iconSize = isHighlight ? 22 : 24
+
+                    return (
+                      <span title={item.label} className={spanCls}>
+                        <span className="relative flex h-6 w-6 shrink-0 items-center justify-center">
+                          <Icon name={item.icon} size={iconSize} filled={isActive || isHighlight} />
+                          {item.badge && unreadCount > 0 && (
+                            <span className="absolute -right-1.5 -top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-error text-[8px] font-bold text-on-error transition-opacity duration-300 group-hover:opacity-0">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </span>
+                        <span className={labelCls}>{item.label}</span>
                         {item.badge && unreadCount > 0 && (
-                          <span className="absolute -right-1.5 -top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-error text-[8px] font-bold text-on-error transition-opacity duration-300 group-hover:opacity-0">
+                          <span className={`ml-auto flex h-5 min-w-5 overflow-hidden items-center justify-center rounded-full bg-error px-1 text-label-caps text-on-error transition-[opacity,max-width] duration-300 ${isPinned ? 'max-w-[30px] opacity-100' : 'max-w-0 opacity-0 pointer-events-none group-hover:max-w-[30px] group-hover:opacity-100'}`}>
                             {unreadCount}
                           </span>
                         )}
                       </span>
-                      <span className={labelCls}>{item.label}</span>
-                      {item.badge && unreadCount > 0 && (
-                        <span className={`ml-auto flex h-5 min-w-5 overflow-hidden items-center justify-center rounded-full bg-error px-1 text-label-caps text-on-error transition-[opacity,max-width] duration-300 ${isPinned ? 'max-w-[30px] opacity-100' : 'max-w-0 opacity-0 pointer-events-none group-hover:max-w-[30px] group-hover:opacity-100'}`}>
-                          {unreadCount}
-                        </span>
-                      )}
-                    </span>
-                  )}
+                    )
+                  }}
                 </NavLink>
               </li>
             ))}
           </ul>
 
-          {/* Footer — fixed coordinate anchor matching nav items */}
+          {/* Footer links */}
           <div className="px-3.5">
             <div className="border-t border-outline-variant/40 pt-2 space-y-1">
               <NavLink

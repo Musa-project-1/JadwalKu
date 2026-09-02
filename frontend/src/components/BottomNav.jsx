@@ -3,23 +3,22 @@ import { Icon } from './Icon'
 
 /**
  * Floating Pill Nav — kontainer terpusat, blur, border halus
- * (JadwalKu Expressive v2). Mobile only (`tablet:hidden`) — komponen ini
- * tidak pernah dirender >=600px, jadi aman didesain ulang bebas.
+ * (JadwalKu Expressive v2). Mobile only (`tablet:hidden`).
  *
  * 5 Tab Utama Mobile:
  * 1. Home
- * 2. Jadwal
+ * 2. Jadwal  ← highlighted: solid primary pill saat aktif, accent dot saat inactive
  * 3. Tugas
  * 4. Ujian
  * 5. Pengaturan
  */
 
 const PRIMARY_TABS = [
-  { to: '/', label: 'Home', icon: 'home' },
-  { to: '/jadwal', label: 'Jadwal', icon: 'calendar_month' },
-  { to: '/tugas', label: 'Tugas', icon: 'checklist' },
-  { to: '/ujian', label: 'Ujian', icon: 'edit_note' },
-  { to: '/pengaturan', label: 'Pengaturan', icon: 'settings' },
+  { to: '/', label: 'Home', icon: 'home', highlight: false },
+  { to: '/jadwal', label: 'Jadwal', icon: 'calendar_month', highlight: true },
+  { to: '/tugas', label: 'Tugas', icon: 'checklist', highlight: false },
+  { to: '/ujian', label: 'Ujian', icon: 'edit_note', highlight: false },
+  { to: '/pengaturan', label: 'Pengaturan', icon: 'settings', highlight: false },
 ]
 
 export function BottomNav() {
@@ -33,26 +32,44 @@ export function BottomNav() {
         {PRIMARY_TABS.map((item) => (
           <li key={item.to}>
             <NavLink to={item.to} end={item.to === '/'} viewTransition>
-              {({ isActive }) => (
-                <span
-                  className={`flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] transition-all duration-200 active:opacity-80 ${
-                    isActive
+              {({ isActive }) => {
+                const isHighlight = item.highlight
+
+                // Label & wrapper classes
+                const wrapperCls = [
+                  'flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] transition-all duration-200 active:opacity-80',
+                  isActive
+                    ? isHighlight
                       ? 'font-bold text-primary'
-                      : 'font-normal text-on-surface-variant'
-                  }`}
-                >
-                  <span
-                    className={`flex h-7 w-12 items-center justify-center rounded-full transition-all duration-200 ${
-                      isActive
-                        ? 'bg-primary-container/50 shadow-[0_0_16px_rgb(var(--c-primary)/0.25)] dark:bg-primary/15'
-                        : ''
-                    }`}
-                  >
-                    <Icon name={item.icon} size={21} filled={isActive} />
+                      : 'font-bold text-primary'
+                    : isHighlight
+                      ? 'font-semibold text-primary/70'
+                      : 'font-normal text-on-surface-variant',
+                ].join(' ')
+
+                // Icon pill classes
+                const pillCls = [
+                  'flex h-7 items-center justify-center rounded-full transition-all duration-200',
+                  isActive
+                    ? isHighlight
+                      // Jadwal aktif: solid primary background — standout jelas
+                      ? 'w-14 bg-primary text-on-primary shadow-[0_2px_12px_rgb(var(--c-primary)/0.45)]'
+                      : 'w-12 bg-primary-container/50 shadow-[0_0_16px_rgb(var(--c-primary)/0.25)] dark:bg-primary/15'
+                    : isHighlight
+                      // Jadwal inactive: outline pill tipis + warna primary redup
+                      ? 'w-12 ring-1 ring-primary/40 bg-primary/8'
+                      : 'w-12',
+                ].join(' ')
+
+                return (
+                  <span className={wrapperCls}>
+                    <span className={pillCls}>
+                      <Icon name={item.icon} size={21} filled={isActive} />
+                    </span>
+                    {item.label}
                   </span>
-                  {item.label}
-                </span>
-              )}
+                )
+              }}
             </NavLink>
           </li>
         ))}
