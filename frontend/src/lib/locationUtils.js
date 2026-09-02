@@ -70,27 +70,73 @@ export function parseRoomLocation(rawRuang = '', tipeKelas = 'K1', roomMasterLis
     }
   }
 
-  // 3. Fallback Aman & Faktual (Tanpa Data Fiktif) jika belum dikonfigurasi di Master Admin
-  let detectedFloor = 'Lantai 1'
+  // 3. Fallback Aman & Faktual — deteksi tipe ruangan dari nama (lab / auditorium / kelas)
+  const lowerClean = clean.toLowerCase()
+  const isLab = /lab|komputer|laboratorium/i.test(lowerClean)
+  const isAuditorium = /auditorium|aula|serbaguna/i.test(lowerClean)
+
+  let detectedFloorLabel = 'Lantai 1'
+  let detectedFloorNumber = 1
   const numMatch = clean.match(/\d+/)
   if (numMatch) {
     const num = parseInt(numMatch[0], 10)
     if (num >= 100 && num <= 999) {
-      detectedFloor = `Lantai ${Math.floor(num / 100)}`
+      detectedFloorNumber = Math.floor(num / 100)
+      detectedFloorLabel = `Lantai ${detectedFloorNumber}`
     } else if (num >= 1 && num <= 9) {
-      detectedFloor = `Lantai ${num}`
+      detectedFloorNumber = num
+      detectedFloorLabel = `Lantai ${num}`
     }
   }
 
+  // 3a. Laboratorium Komputer / Sains
+  if (isLab) {
+    return {
+      raw: clean,
+      building: 'Gedung Laboratorium / Komputer',
+      buildingCode: 'LAB',
+      floor: detectedFloorLabel,
+      floorNumber: detectedFloorNumber,
+      roomNumber: clean || 'Lab Komputer',
+      roomType: 'Laboratorium Praktikum & Komputer',
+      guidance: `Ruangan lab terletak di ${detectedFloorLabel}, ${clean || 'lab komputer'} — silakan ikuti petunjuk atau tanyakan petugas lab.`,
+      facilities: ['PC / Workstation', 'Software Kebutuhan Praktikum', 'AC Ruangan'],
+      badgeTone: 'bg-purple-500/15 text-purple-800 dark:text-purple-300 border-purple-500/30',
+      icon: 'desktop_windows',
+      isOnline: false,
+      isCustomMaster: false,
+    }
+  }
+
+  // 3b. Auditorium / Aula Serbaguna
+  if (isAuditorium) {
+    return {
+      raw: clean,
+      building: 'Gedung Serbaguna / Auditorium',
+      buildingCode: 'AULA',
+      floor: detectedFloorLabel,
+      floorNumber: detectedFloorNumber,
+      roomNumber: clean || 'Auditorium',
+      roomType: 'Auditorium / Aula Besar',
+      guidance: `Auditorium terletak di ${detectedFloorLabel}, ${clean || 'aula serbaguna'} — ikuti penunjuk arah menuju area ini.`,
+      facilities: ['Sound System', 'AC Ruangan', 'Panggung / Stage'],
+      badgeTone: 'bg-teal-500/15 text-teal-800 dark:text-teal-300 border-teal-500/30',
+      icon: 'theater_comedy',
+      isOnline: false,
+      isCustomMaster: false,
+    }
+  }
+
+  // 3c. Ruang Kelas Perkuliahan (default)
   return {
     raw: clean,
     building: 'Gedung Perkuliahan Kampus',
     buildingCode: clean.slice(0, 4).toUpperCase(),
-    floor: detectedFloor,
-    floorNumber: 1,
+    floor: detectedFloorLabel,
+    floorNumber: detectedFloorNumber,
     roomNumber: clean || 'Ruang Kelas',
     roomType: tipeKelas === 'HB' ? 'Kelas Hybrid' : 'Ruang Kelas Tatap Muka',
-    guidance: `Silakan menuju ${clean || 'ruang kelas'} sesuai denah kampus atau tanyakan petugas akademik jika membutuhkan panduan ruangan.`,
+    guidance: `Ruangan ${clean || 'kelas'} terletak di ${detectedFloorLabel}, sesuai denah kampus atau tanyakan petugas akademik.`,
     facilities: ['Fasilitas Perkuliahan Standar'],
     badgeTone: 'bg-surface-container-high text-on-surface border-outline-variant/30',
     icon: 'meeting_room',
