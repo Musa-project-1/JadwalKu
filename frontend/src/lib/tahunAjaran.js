@@ -16,7 +16,7 @@
  * batas ganjil/genap START & END otomatis DITURUNKAN dari event paling awal /
  * paling akhir per semester — bukan lagi angka mati.
  */
-import { deriveBoundsFromEvents } from './academicCalendarParser'
+import { deriveBoundsFromEvents } from './calendarBounds'
 
 // Batas term default (bulan 0-index: Jan = 0 ... Sep = 8).
 export const ACADEMIC_CALENDAR = {

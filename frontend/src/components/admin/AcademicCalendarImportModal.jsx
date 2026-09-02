@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
-import { parseAcademicCalendarFile, deriveBoundsFromEvents } from '../../lib/academicCalendarParser'
+import { deriveBoundsFromEvents } from '../../lib/calendarBounds'
 import { MADANI_CALENDAR_PRESET } from '../../constants/academicCalendarPreset'
 
 export function AcademicCalendarImportModal({
@@ -68,6 +68,7 @@ export function AcademicCalendarImportModal({
     if (!selectedFile) return
     setErrorMsg('')
     setFileName(selectedFile.name)
+    const { parseAcademicCalendarFile } = await import('../../lib/academicCalendarParser')
     setLoading(true)
     setProgressState({ stage: 'Memulai...', progress: 5 })
 
