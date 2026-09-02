@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import * as XLSX from 'xlsx'
 import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
 import { Button } from '../../components/Button'
@@ -128,7 +127,9 @@ export default function ManageCourses() {
     setSksFilter('')
   }
 
-  function exportCoursesToExcel() {
+  async function exportCoursesToExcel() {
+    let __XLSX; try { __XLSX = await import('xlsx'); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
+    const XLSX = __XLSX.default ?? __XLSX;
     if (filtered.length === 0) {
       setBanner({ ok: false, message: 'Tidak ada data mata kuliah untuk diekspor.' })
       return

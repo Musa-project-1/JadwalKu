@@ -9,7 +9,6 @@ import { appendHistory, syncProdiFromExistingData } from '../../lib/publishHelpe
 import { ACADEMIC_CALENDAR, deriveTahunAjaran, deriveTerm } from '../../lib/tahunAjaran'
 import { NATIONAL_HOLIDAYS_PRESET } from '../../constants/academicConstants'
 import { computeMekStats } from '../../lib/academicCalendar'
-import { exportAcademicSettingsToExcel } from '../../lib/academicExcelExport'
 
 // Modular Components
 import { AcademicSettingsHeader } from '../../components/admin/manageAcademicSettings/AcademicSettingsHeader'
@@ -569,7 +568,8 @@ export default function ManageAcademicSettings() {
     }
   }
 
-  function handleExportExcel() {
+  async function handleExportExcel() {
+    const { exportAcademicSettingsToExcel } = await import('../../lib/academicExcelExport')
     exportAcademicSettingsToExcel({
       currentComputedTA,
       currentComputedTerm,

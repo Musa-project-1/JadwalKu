@@ -1,7 +1,8 @@
+import { memo } from 'react'
 import { Icon } from '../../Icon'
 import { formatRuang } from '../../../lib/scheduleUtils'
 
-export function ScheduleCards({
+function ScheduleCardsImpl({
   paginatedGroups,
   courseMap,
   conflictMap,
@@ -226,3 +227,5 @@ export function ScheduleCards({
     </div>
   )
 }
+
+export const ScheduleCards = memo(ScheduleCardsImpl)

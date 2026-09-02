@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import { Icon } from '../../Icon'
 import { formatWhatsAppUrl, parseLecturers } from '../../../lib/lecturerUtils'
 import { getCourseSemester } from '../../../lib/courseUtils'
 
-export default function CourseCards({ courses, onEdit, onDelete }) {
+function CourseCardsImpl({ courses, onEdit, onDelete }) {
   return (
     <div className="space-y-2.5 tablet:hidden overflow-y-auto flex-1 min-h-0">
       {courses.map((course) => {
@@ -103,3 +104,7 @@ export default function CourseCards({ courses, onEdit, onDelete }) {
     </div>
   )
 }
+
+const CourseCards = memo(CourseCardsImpl)
+export { CourseCards }
+export default CourseCards

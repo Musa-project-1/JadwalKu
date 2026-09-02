@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Icon } from '../../Icon'
 
 const dateFormatter = new Intl.DateTimeFormat('id-ID', {
@@ -7,7 +8,7 @@ const dateFormatter = new Intl.DateTimeFormat('id-ID', {
   year: 'numeric',
 })
 
-export function ExamTable({
+function ExamTableImpl({
   paginatedExams,
   courseMap,
   selectedIds,
@@ -197,3 +198,5 @@ export function ExamTable({
     </div>
   )
 }
+
+export const ExamTable = memo(ExamTableImpl)

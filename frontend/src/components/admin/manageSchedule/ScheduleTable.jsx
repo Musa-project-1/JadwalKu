@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Icon } from '../../Icon'
 import { getClassType, TONE_CLASSES, TONE_DOT_CLASSES } from '../../../lib/classTypes'
 import { formatRuang } from '../../../lib/scheduleUtils'
@@ -16,7 +17,7 @@ const TONE_CODE_BADGE = {
   combined: 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/25',
 }
 
-export function ScheduleTable({
+function ScheduleTableImpl({
   paginatedGroups,
   courseMap,
   conflictMap,
@@ -326,3 +327,5 @@ export function ScheduleTable({
     </div>
   )
 }
+
+export const ScheduleTable = memo(ScheduleTableImpl)

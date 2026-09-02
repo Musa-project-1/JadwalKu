@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Icon } from '../../Icon'
 
 const dateFormatter = new Intl.DateTimeFormat('id-ID', {
@@ -7,7 +8,7 @@ const dateFormatter = new Intl.DateTimeFormat('id-ID', {
   year: 'numeric',
 })
 
-export function ExamCards({
+function ExamCardsImpl({
   paginatedExams,
   courseMap,
   onOpenEdit,
@@ -99,3 +100,5 @@ export function ExamCards({
     </div>
   )
 }
+
+export const ExamCards = memo(ExamCardsImpl)

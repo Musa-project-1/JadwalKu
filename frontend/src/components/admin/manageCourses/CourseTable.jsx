@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import { Icon } from '../../Icon'
 import { formatWhatsAppUrl, parseLecturers } from '../../../lib/lecturerUtils'
 import { getCourseSemester } from '../../../lib/courseUtils'
 
-export default function CourseTable({ courses, onEdit, onDelete }) {
+function CourseTableImpl({ courses, onEdit, onDelete }) {
   return (
     <div className="hidden overflow-x-auto overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low dark:border-outline-variant/15 w-full">
       <table className="w-full table-fixed text-left border-collapse">
@@ -138,3 +139,7 @@ export default function CourseTable({ courses, onEdit, onDelete }) {
     </div>
   )
 }
+
+const CourseTable = memo(CourseTableImpl)
+export { CourseTable }
+export default CourseTable

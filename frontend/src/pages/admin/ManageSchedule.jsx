@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import * as XLSX from 'xlsx'
 import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
@@ -738,7 +737,9 @@ export default function ManageSchedule() {
     setOnlyShowConflicts(false)
   }
 
-  function downloadTemplate() {
+  async function downloadTemplate() {
+    let __XLSX; try { __XLSX = await import('xlsx'); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
+    const XLSX = __XLSX.default ?? __XLSX;
     const templateData = [
       {
         Hari: 'Senin',
@@ -760,7 +761,9 @@ export default function ManageSchedule() {
     XLSX.writeFile(wb, 'Template_Jadwal_JadwalKu.xlsx')
   }
 
-  function exportCurrentSchedule() {
+  async function exportCurrentSchedule() {
+    let __XLSX; try { __XLSX = await import('xlsx'); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
+    const XLSX = __XLSX.default ?? __XLSX;
     const exportData = filteredSchedule.map((item) => {
       const course = courseMap.get(item.kodeMK)
       return {

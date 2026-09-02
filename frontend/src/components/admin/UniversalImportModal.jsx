@@ -3,7 +3,6 @@ import { Icon } from '../Icon'
 import { Button } from '../Button'
 import { FormSelect } from '../FormSelect'
 import { classTypeLabel, CLASS_TYPE_CODES } from '../../lib/classTypes'
-import { parseUniversalFile, applyColumnMapping } from '../../lib/universalParser'
 import { validateScheduleEntry, findConflicts } from '../../lib/uploadValidator'
 import { useCampus } from '../../context/useCampus'
 
@@ -165,6 +164,7 @@ export function UniversalImportModal({
     setProgressState({ stage: 'Memproses berkas...', progress: 10 })
 
     try {
+      const { parseUniversalFile } = await import('../../lib/universalParser')
       const result = await parseUniversalFile(selectedFile, (p) => setProgressState(p), campus)
 
       // KASUS 1: Format resmi kampus (Zero-Click guarantee -> langsung ke Step 3 Preview)
@@ -224,7 +224,7 @@ export function UniversalImportModal({
   }
 
   // Handle Step 2 Apply Mapping -> Step 3 Preview
-  function handleApplyMapping() {
+  async function handleApplyMapping() {
     if (savePreset) {
       try {
         localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(columnMapping))
@@ -233,6 +233,7 @@ export function UniversalImportModal({
       }
     }
 
+    const { applyColumnMapping } = await import('../../lib/universalParser')
     const rawEntries = applyColumnMapping(rawRows, columnMapping, prodiDefault, semesterDefault)
     if (rawEntries.length === 0) {
       setErrorMsg('Tidak ada baris jadwal yang valid dari pemetaan kolom ini.')
