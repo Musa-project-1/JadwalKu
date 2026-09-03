@@ -53,4 +53,5 @@ export const STORAGE_KEYS = {
   attendance: 'attendance',
   courseLinks: 'courseLinks',
   krsPlans: 'krsPlans',
+  showPrayerDividers: 'jadwal:showPrayerDividers',
 }

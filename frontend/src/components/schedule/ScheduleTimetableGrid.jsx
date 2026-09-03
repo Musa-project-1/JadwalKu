@@ -18,6 +18,7 @@ export function ScheduleTimetableGrid({
   onOpenDetail,
   onOpenLocation,
   language = 'id',
+  showPrayerDividers = true,
   selectedDayMobile,
   onSelectDayMobile,
 }) {
@@ -140,13 +141,15 @@ export function ScheduleTimetableGrid({
             />
 
             {/* ── PEMBATAS SHOLAT DZUHUR / SHOLAT JUMAT ── */}
-            <PrayerDividerRow
-              name="Dzuhur"
-              time={prayerTimes.dzuhur}
-              colSpan={days.length + 1}
-              hasFriday={days.includes('Jumat')}
-              language={language}
-            />
+            {showPrayerDividers && (
+              <PrayerDividerRow
+                name="Dzuhur"
+                time={prayerTimes.dzuhur}
+                colSpan={days.length + 1}
+                hasFriday={days.includes('Jumat')}
+                language={language}
+              />
+            )}
 
             {/* 2. SESI SIANG */}
             <SessionRow
@@ -163,12 +166,14 @@ export function ScheduleTimetableGrid({
             />
 
             {/* ── PEMBATAS SHOLAT ASHAR ── */}
-            <PrayerDividerRow
-              name="Ashar"
-              time={prayerTimes.ashar}
-              colSpan={days.length + 1}
-              language={language}
-            />
+            {showPrayerDividers && (
+              <PrayerDividerRow
+                name="Ashar"
+                time={prayerTimes.ashar}
+                colSpan={days.length + 1}
+                language={language}
+              />
+            )}
 
             {/* 3. SESI SORE */}
             <SessionRow
@@ -185,12 +190,14 @@ export function ScheduleTimetableGrid({
             />
 
             {/* ── PEMBATAS SHOLAT MAGHRIB ── */}
-            <PrayerDividerRow
-              name="Maghrib"
-              time={prayerTimes.maghrib}
-              colSpan={days.length + 1}
-              language={language}
-            />
+            {showPrayerDividers && (
+              <PrayerDividerRow
+                name="Maghrib"
+                time={prayerTimes.maghrib}
+                colSpan={days.length + 1}
+                language={language}
+              />
+            )}
 
             {/* 4. SESI MALAM */}
             <SessionRow
@@ -247,12 +254,14 @@ export function ScheduleTimetableGrid({
               />
 
               {/* Pembatas Dzuhur / Sholat Jumat */}
-              <MobilePrayerDivider
-                name={activeDay === 'Jumat' ? 'Jumat' : 'Dzuhur'}
-                time={activeDay === 'Jumat' ? '11.30 – 13.00' : prayerTimes.dzuhur}
-                isFriday={activeDay === 'Jumat'}
-                language={language}
-              />
+              {showPrayerDividers && (
+                <MobilePrayerDivider
+                  name={activeDay === 'Jumat' ? 'Jumat' : 'Dzuhur'}
+                  time={activeDay === 'Jumat' ? '11.30 – 13.00' : prayerTimes.dzuhur}
+                  isFriday={activeDay === 'Jumat'}
+                  language={language}
+                />
+              )}
 
               {/* Sesi Siang Mobile */}
               <MobileSessionSection
@@ -269,7 +278,9 @@ export function ScheduleTimetableGrid({
               />
 
               {/* Pembatas Ashar */}
-              <MobilePrayerDivider name="Ashar" time={prayerTimes.ashar} language={language} />
+              {showPrayerDividers && (
+                <MobilePrayerDivider name="Ashar" time={prayerTimes.ashar} language={language} />
+              )}
 
               {/* Sesi Sore Mobile */}
               <MobileSessionSection
@@ -286,7 +297,9 @@ export function ScheduleTimetableGrid({
               />
 
               {/* Pembatas Maghrib */}
-              <MobilePrayerDivider name="Maghrib" time={prayerTimes.maghrib} language={language} />
+              {showPrayerDividers && (
+                <MobilePrayerDivider name="Maghrib" time={prayerTimes.maghrib} language={language} />
+              )}
 
               {/* Sesi Malam Mobile */}
               <MobileSessionSection

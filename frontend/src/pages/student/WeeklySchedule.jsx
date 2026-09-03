@@ -55,7 +55,7 @@ function localDateKey(d) {
 }
 
 export default function WeeklySchedule() {
-  const { program, semester, language, t } = useApp()
+  const { program, semester, language, t, showPrayerDividers } = useApp()
   const todayName = getTodayName()
   const [selectedDay, setSelectedDay] = useState(todayName)
   const [detailEntry, setDetailEntry] = useState(null)
@@ -767,6 +767,7 @@ export default function WeeklySchedule() {
                 onOpenDetail={openDetail}
                 onOpenLocation={(entry, course) => setDetailEntry({ ...entry, course, autoOpenLocation: true })}
                 language={language}
+                showPrayerDividers={showPrayerDividers}
               />
             </div>
 

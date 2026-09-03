@@ -38,6 +38,8 @@ export default function Settings() {
     fakultasNama,
     program,
     semester,
+    showPrayerDividers,
+    setShowPrayerDividers,
   } = useApp()
 
   const [showDocsModal, setShowDocsModal] = useState(false)
@@ -341,6 +343,35 @@ export default function Settings() {
                 <span
                   className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
                     highContrast ? 'left-[22px]' : 'left-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Toggle Pembatas Waktu Sholat */}
+            <div className="flex items-center justify-between border-t border-outline-variant/15 pt-3 gap-3">
+              <div className="min-w-0">
+                <p className="text-body-sm font-bold text-on-surface">
+                  {language === 'en' ? 'Prayer Time Dividers' : 'Pembatas Waktu Sholat'}
+                </p>
+                <p className="text-body-xs text-on-surface-variant">
+                  {language === 'en'
+                    ? 'Show dynamic Dhuhr, Asr, and Maghrib dividers in matrix schedule'
+                    : 'Tampilkan garis pembatas Dzuhur, Ashar, dan Maghrib pada tabel matriks'}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={showPrayerDividers}
+                onClick={() => setShowPrayerDividers(!showPrayerDividers)}
+                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                  showPrayerDividers ? 'bg-primary' : 'bg-surface-variant'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
+                    showPrayerDividers ? 'left-[22px]' : 'left-0.5'
                   }`}
                 />
               </button>

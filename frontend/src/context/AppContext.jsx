@@ -61,6 +61,9 @@ export function AppProvider({ children }) {
   const [adminSession, setAdminSessionState] = useState(() =>
     getItem(STORAGE_KEYS.adminSession, null),
   )
+  const [showPrayerDividers, setShowPrayerDividersState] = useState(() =>
+    getItem(STORAGE_KEYS.showPrayerDividers, true),
+  )
 
   const isFirstRender = useRef(true)
 
@@ -162,9 +165,14 @@ export function AppProvider({ children }) {
         setAdminSessionState(next)
         setItem(STORAGE_KEYS.adminSession, next)
       },
+      showPrayerDividers,
+      setShowPrayerDividers: (next) => {
+        setShowPrayerDividersState(next)
+        setItem(STORAGE_KEYS.showPrayerDividers, next)
+      },
       firebaseReady,
     }),
-    [theme, language, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession],
+    [theme, language, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession, showPrayerDividers],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
