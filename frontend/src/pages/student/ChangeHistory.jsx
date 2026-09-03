@@ -1,20 +1,22 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFirestore } from '../../hooks/useFirestore'
+import { useApp } from '../../hooks/useApp'
 import { Icon } from '../../components/Icon'
 import { EmptyState } from '../../components/EmptyState'
 import { Skeleton } from '../../components/Skeleton'
 
-const FILTERS = [
-  { value: 'all', label: 'Semua' },
-  { value: 'jadwal', label: 'Jadwal Kuliah' },
-  { value: 'ujian', label: 'Jadwal Ujian' },
-  { value: 'mataKuliah', label: 'Mata Kuliah & Dosen' },
-]
-
 export default function ChangeHistory() {
   const navigate = useNavigate()
+  const { language, t } = useApp()
   const [filter, setFilter] = useState('all')
+
+  const FILTERS = useMemo(() => [
+    { value: 'all', label: language === 'en' ? 'All' : 'Semua' },
+    { value: 'jadwal', label: language === 'en' ? 'Class Schedule' : 'Jadwal Kuliah' },
+    { value: 'ujian', label: language === 'en' ? 'Exam Schedule' : 'Jadwal Ujian' },
+    { value: 'mataKuliah', label: language === 'en' ? 'Courses & Lecturers' : 'Mata Kuliah & Dosen' },
+  ], [language])
 
   const { data: riwayat, loading, error: riwayatError } = useFirestore('riwayat', [], { limit: 100, orderByField: 'timestamp', orderByDir: 'desc' })
 
@@ -35,14 +37,16 @@ export default function ChangeHistory() {
           type="button"
           onClick={() => navigate(-1)}
           className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container"
-          aria-label="Kembali"
+          aria-label={t ? t('action.back') : 'Kembali'}
         >
           <Icon name="arrow_back" size={22} />
         </button>
         <div>
-          <h2 className="text-display text-on-surface">Riwayat Perubahan</h2>
+          <h2 className="text-display text-on-surface">
+            {t ? t('history.title') : 'Riwayat Perubahan'}
+          </h2>
           <p className="text-body-sm text-on-surface-variant">
-            Perubahan jadwal oleh admin
+            {t ? t('history.subtitle') : 'Perubahan jadwal oleh admin'}
           </p>
         </div>
       </header>
@@ -78,8 +82,8 @@ export default function ChangeHistory() {
       ) : grouped.length === 0 ? (
         <EmptyState
           icon="history"
-          title="Belum ada perubahan"
-          description="Riwayat perubahan jadwal akan tampil di sini setelah admin melakukan pembaruan."
+          title={t ? t('history.empty_title') : 'Belum ada perubahan'}
+          description={t ? t('history.empty_desc') : 'Riwayat perubahan jadwal akan tampil di sini setelah admin melakukan pembaruan.'}
         />
       ) : (
         <div className="space-y-lg">

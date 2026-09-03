@@ -200,6 +200,39 @@ export const TRANSLATIONS = {
     'print.action_btn': 'Cetak / Simpan PDF',
     'print.print_date': 'Tanggal Cetak: {date}',
 
+    // ── Notifications Page ──
+    'notifications.title': 'Pengingat & Notifikasi',
+    'notifications.empty_title': 'Tidak ada pengingat',
+    'notifications.empty_desc': 'Pengingat kelas, deadline tugas, ujian, dan perubahan jadwal akan muncul di sini.',
+    'notifications.unread_count': 'Anda memiliki {count} pengingat baru.',
+    'notifications.mark_all_read': 'Tandai semua sudah dibaca',
+    'notifications.clear_all': 'Hapus semua',
+    'notifications.group_today': 'Hari ini',
+    'notifications.group_yesterday': 'Kemarin',
+    'notifications.group_earlier': 'Lebih awal',
+
+    // ── Export & Share Page ──
+    'share.title': 'Bagikan Jadwal',
+    'share.subtitle': 'Ekspor jadwal kuliah ke kalender atau bagikan ke teman sekelas',
+    'share.cal_title': 'Kalender Smartphone (.ics)',
+    'share.cal_desc': 'Sinkronkan jadwal kelas ke Google Calendar, Apple Calendar, atau Outlook',
+    'share.text_title': 'Bagikan Teks',
+    'share.text_desc': 'Salin ringkasan ke clipboard untuk WhatsApp atau Telegram',
+    'share.image_title': 'Bagikan Gambar',
+    'share.image_desc': 'Simpan kartu visual jadwal beresolusi tinggi ke galeri',
+
+    // ── Change History Page ──
+    'history.title': 'Riwayat Perubahan',
+    'history.subtitle': 'Perubahan jadwal oleh administrator kampus',
+    'history.empty_title': 'Belum ada perubahan',
+    'history.empty_desc': 'Riwayat perubahan jadwal akan tampil di sini setelah admin melakukan pembaruan.',
+
+    // ── Shared Modals ──
+    'modal.close': 'Tutup',
+    'modal.cancel': 'Batal',
+    'modal.save': 'Simpan',
+    'modal.confirm': 'Konfirmasi',
+
     // ── Schedule Page ──
     'schedule.title': 'Jadwal Kuliah',
     'schedule.subtitle': 'Jadwal mingguan perkuliahan semester ini',
@@ -411,6 +444,39 @@ export const TRANSLATIONS = {
     'print.preview_title': 'Print Sheet Preview',
     'print.action_btn': 'Print / Save PDF',
     'print.print_date': 'Print Date: {date}',
+
+    // ── Notifications Page ──
+    'notifications.title': 'Reminders & Notifications',
+    'notifications.empty_title': 'No reminders',
+    'notifications.empty_desc': 'Class alerts, assignment deadlines, exams, and schedule updates will appear here.',
+    'notifications.unread_count': 'You have {count} new reminders.',
+    'notifications.mark_all_read': 'Mark all as read',
+    'notifications.clear_all': 'Clear all',
+    'notifications.group_today': 'Today',
+    'notifications.group_yesterday': 'Yesterday',
+    'notifications.group_earlier': 'Earlier',
+
+    // ── Export & Share Page ──
+    'share.title': 'Share Schedule',
+    'share.subtitle': 'Export class schedule to calendar or share with classmates',
+    'share.cal_title': 'Mobile Calendar (.ics)',
+    'share.cal_desc': 'Sync class schedules directly to Google Calendar, Apple Calendar, or Outlook',
+    'share.text_title': 'Share as Text',
+    'share.text_desc': 'Copy clean timetable summary to clipboard for WhatsApp or Telegram',
+    'share.image_title': 'Share as Image',
+    'share.image_desc': 'Save high-resolution visual timetable card to device gallery',
+
+    // ── Change History Page ──
+    'history.title': 'Change History',
+    'history.subtitle': 'Schedule updates published by campus administrator',
+    'history.empty_title': 'No changes recorded',
+    'history.empty_desc': 'Schedule change logs will appear here after updates are published.',
+
+    // ── Shared Modals ──
+    'modal.close': 'Close',
+    'modal.cancel': 'Cancel',
+    'modal.save': 'Save',
+    'modal.confirm': 'Confirm',
 
     // ── Schedule Page ──
     'schedule.title': 'Class Schedule',

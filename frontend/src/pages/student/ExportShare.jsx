@@ -24,7 +24,7 @@ const OPTIONS = [
 
 export default function ExportShare() {
   const navigate = useNavigate()
-  const { program, semester } = useApp()
+  const { program, semester, language, t } = useApp()
   const [scope, setScope] = useState('semester')
   const [shared, setShared] = useState(false)
   const [imageStatus, setImageStatus] = useState(null) // { ok: boolean, text: string }
@@ -100,16 +100,20 @@ export default function ExportShare() {
           type="button"
           onClick={() => navigate(-1)}
           className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container"
-          aria-label="Kembali"
+          aria-label={t ? t('action.back') : 'Kembali'}
         >
           <Icon name="arrow_back" size={22} />
         </button>
-        <h2 className="text-display text-on-surface">Bagikan Jadwal</h2>
+        <h2 className="text-display text-on-surface">
+          {t ? t('share.title') : 'Bagikan Jadwal'}
+        </h2>
       </header>
 
       {/* Pilihan cakupan */}
       <section className="space-y-sm">
-        <p className="text-label-caps uppercase tracking-wider text-on-surface-variant">Pilih Cakupan</p>
+        <p className="text-label-caps uppercase tracking-wider text-on-surface-variant">
+          {language === 'en' ? 'Select Scope' : 'Pilih Cakupan'}
+        </p>
         {OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -138,12 +142,14 @@ export default function ExportShare() {
 
       {/* Opsi export */}
       <section className="space-y-sm">
-        <p className="text-label-caps uppercase tracking-wider text-on-surface-variant">Opsi Ekspor</p>
+        <p className="text-label-caps uppercase tracking-wider text-on-surface-variant">
+          {language === 'en' ? 'Export Options' : 'Opsi Ekspor'}
+        </p>
         <OptionCard
           icon="event"
           iconBg="bg-primary/10 text-primary"
-          title="Kalender Smartphone (.ics)"
-          description="Google Calendar, Apple iCal, Outlook (dengan Alarm Otomatis)"
+          title={t ? t('share.cal_title') : 'Kalender Smartphone (.ics)'}
+          description={t ? t('share.cal_desc') : 'Google Calendar, Apple iCal, Outlook (dengan Alarm Otomatis)'}
           status={null}
           onAction={() =>
             downloadIcs(source, {
@@ -157,16 +163,16 @@ export default function ExportShare() {
         <OptionCard
           icon="share"
           iconBg="bg-tertiary-container/40 text-tertiary"
-          title="Bagikan Teks"
-          description="Salin ringkasan ke clipboard"
-          status={shared ? 'Tersalin!' : null}
+          title={t ? t('share.text_title') : 'Bagikan Teks'}
+          description={t ? t('share.text_desc') : 'Salin ringkasan ke clipboard'}
+          status={shared ? (language === 'en' ? 'Copied!' : 'Tersalin!') : null}
           onAction={handleShare}
         />
         <OptionCard
           icon="image"
-          iconBg="bg-error-container/60 text-error dark:bg-error-container/30"
-          title="Bagikan Gambar"
-          description="Simpan/kirim jadwal sebagai PNG"
+          iconBg="bg-secondary-container/40 text-secondary"
+          title={t ? t('share.image_title') : 'Bagikan Gambar'}
+          description={t ? t('share.image_desc') : 'Simpan/kirim jadwal sebagai PNG'}
           status={imageStatus?.text ?? null}
           statusOk={imageStatus?.ok ?? true}
           onAction={handleShareImage}
@@ -175,7 +181,7 @@ export default function ExportShare() {
 
       <p className="text-center">
         <span className="rounded-full bg-surface-container px-3 py-1.5 text-body-sm text-on-surface-variant dark:bg-surface-container-high">
-          {source.length} kelas akan diekspor
+          {language === 'en' ? `${source.length} classes will be exported` : `${source.length} kelas akan diekspor`}
         </span>
       </p>
     </div>
