@@ -10,17 +10,15 @@ import { formatRuang } from '../lib/scheduleUtils'
  */
 export function NextClassCard({
   liveState,
-  entry: propEntry,
   course,
   countdownText,
-  urgent: propUrgent = false,
+  entry: propEntry,
   onDetail,
   onLocation,
   onViewSchedule,
 }) {
   const status = liveState?.status ?? (propEntry ? 'upcoming' : 'empty')
   const entry = liveState?.entry ?? propEntry
-  const urgent = liveState?.urgent ?? propUrgent
 
   // 1. STATE: Selesai Hari Ini
   if (status === 'finished') {
@@ -95,7 +93,13 @@ export function NextClassCard({
             )}
           </div>
 
-          <h3 className={`text-title-sm tablet:text-title-md font-bold leading-tight mb-2 truncate ${isOngoing ? 'text-white' : 'text-on-surface'}`}>
+          <h3
+            onClick={onDetail ? onDetail : undefined}
+            className={`text-title-sm tablet:text-title-md font-bold leading-tight mb-2 truncate ${
+              isOngoing ? 'text-white' : 'text-on-surface'
+            } ${onDetail ? 'cursor-pointer hover:underline decoration-primary/60 underline-offset-2' : ''}`}
+            title={onDetail ? 'Buka detail mata kuliah di jadwal' : undefined}
+          >
             {course?.namaMK ?? entry.kodeMK}
           </h3>
 
@@ -113,16 +117,23 @@ export function NextClassCard({
                 <span className="truncate">{course.dosen}</span>
               </span>
             )}
-            <span
-              className={`px-2.5 py-0.5 rounded-full text-label-caps font-semibold flex items-center gap-1.5 border ${
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                if (onLocation) onLocation(entry, course)
+                else if (onDetail) onDetail()
+              }}
+              className={`px-2.5 py-0.5 rounded-full text-label-caps font-semibold flex items-center gap-1.5 border transition-all cursor-pointer shadow-2xs hover:opacity-85 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isOngoing
-                  ? 'bg-white/15 text-white border-white/20'
-                  : 'bg-status-k1-bg text-status-k1 border-status-k1-border'
+                  ? 'bg-white/15 text-white border-white/25 hover:bg-white/25'
+                  : 'bg-status-k1-bg text-status-k1 border-status-k1-border hover:border-status-k1'
               }`}
+              title="Lihat Panduan Lokasi Ruangan & Denah Lantai"
             >
               <Icon name="meeting_room" size={13} />
               <span>{formatRuang(entry.ruang, entry.tipeKelas)}</span>
-            </span>
+            </button>
           </div>
         </div>
 
