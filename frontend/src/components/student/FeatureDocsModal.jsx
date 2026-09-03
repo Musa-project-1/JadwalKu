@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon } from '../Icon'
+import { useApp } from '../../hooks/useApp'
+import { FEATURE_DOCS_TRANSLATIONS } from '../../data/featureDocsData'
 
 const FEATURE_DOCS_DATA = [
   // ── PILAR A: MAHASISWA ──
@@ -365,15 +367,24 @@ const FEATURE_DOCS_DATA = [
 
 export function FeatureDocsModal({ isOpen, onClose, mode = 'student' }) {
   const navigate = useNavigate()
+  const { language } = useApp()
   const [activePilar, setActivePilar] = useState(mode === 'all' ? 'all' : mode)
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedId, setExpandedId] = useState(mode === 'admin' ? 14 : 1)
 
+  const rawData = useMemo(() => {
+    const langKey = language === 'en' ? 'en' : 'id'
+    const studentList = FEATURE_DOCS_TRANSLATIONS[langKey] || FEATURE_DOCS_TRANSLATIONS.id
+    // Gabungkan dengan fitur admin dari data bawaan jika mode admin/all
+    const adminList = FEATURE_DOCS_DATA.filter((i) => i.pilar === 'admin')
+    return [...studentList, ...adminList]
+  }, [language])
+
   const baseList = useMemo(() => {
-    if (mode === 'student') return FEATURE_DOCS_DATA.filter((i) => i.pilar === 'student')
-    if (mode === 'admin') return FEATURE_DOCS_DATA.filter((i) => i.pilar === 'admin')
-    return FEATURE_DOCS_DATA
-  }, [mode])
+    if (mode === 'student') return rawData.filter((i) => i.pilar === 'student')
+    if (mode === 'admin') return rawData.filter((i) => i.pilar === 'admin')
+    return rawData
+  }, [mode, rawData])
 
   const filteredFeatures = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
@@ -398,18 +409,26 @@ export function FeatureDocsModal({ isOpen, onClose, mode = 'student' }) {
   }
 
   const modalTitle =
-    mode === 'student'
-      ? 'Pusat Panduan Fitur Mahasiswa'
-      : mode === 'admin'
-      ? 'Pusat Panduan & Tutorial Admin'
-      : 'Pusat Panduan & Tutorial Fitur'
+    language === 'en'
+      ? (mode === 'student' ? 'Student Feature Guides' : mode === 'admin' ? 'Admin Tutorials & Documentation' : 'Feature Documentation & Guides')
+      : (mode === 'student'
+          ? 'Pusat Panduan Fitur Mahasiswa'
+          : mode === 'admin'
+          ? 'Pusat Panduan & Tutorial Admin'
+          : 'Pusat Panduan & Tutorial Fitur')
 
   const modalSubtitle =
-    mode === 'student'
-      ? 'Dokumentasi & panduan lengkap penggunaan seluruh fitur mahasiswa JadwalKu'
-      : mode === 'admin'
-      ? 'Dokumentasi teknis pengelolaan master jadwal, bentrok, pengumuman, dan database'
-      : 'Dokumentasi interaktif & panduan lengkap penggunaan seluruh fitur aplikasi JadwalKu'
+    language === 'en'
+      ? (mode === 'student'
+          ? 'Complete interactive documentation and guides for all JadwalKu student features'
+          : mode === 'admin'
+          ? 'Technical documentation for managing master schedule, conflicts, notices, and database'
+          : 'Interactive documentation & comprehensive user guide for all JadwalKu features')
+      : (mode === 'student'
+          ? 'Dokumentasi & panduan lengkap penggunaan seluruh fitur mahasiswa JadwalKu'
+          : mode === 'admin'
+          ? 'Dokumentasi teknis pengelolaan master jadwal, bentrok, pengumuman, dan database'
+          : 'Dokumentasi interaktif & panduan lengkap penggunaan seluruh fitur aplikasi JadwalKu')
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4">

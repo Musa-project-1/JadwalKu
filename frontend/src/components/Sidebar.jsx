@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useNotifications } from '../hooks/useNotifications'
+import { useApp } from '../hooks/useApp'
 import { getItem, setItem } from '../lib/storage'
 import { Icon } from './Icon'
 
-const SIDEBAR_LINKS = [
-  { to: '/', label: 'Home', icon: 'home', highlight: false },
-  { to: '/jadwal', label: 'Jadwal', icon: 'calendar_month', highlight: true },
-  { to: '/tugas', label: 'Tugas', icon: 'checklist', highlight: false },
-  { to: '/ujian', label: 'Ujian', icon: 'edit_note', highlight: false },
-]
-
 export function Sidebar() {
   const { unreadCount } = useNotifications()
+  const { t } = useApp()
   const [isPinned, setIsPinned] = useState(() => getItem('jadwalku:sidebar_pinned', false))
+
+  const links = [
+    { to: '/', label: t ? t('nav.home') : 'Home', icon: 'home', highlight: false },
+    { to: '/jadwal', label: t ? t('nav.schedule') : 'Jadwal', icon: 'calendar_month', highlight: true },
+    { to: '/tugas', label: t ? t('nav.tasks') : 'Tugas', icon: 'checklist', highlight: false },
+    { to: '/ujian', label: t ? t('nav.exams') : 'Ujian', icon: 'edit_note', highlight: false },
+  ]
 
   useEffect(() => {
     setItem('jadwalku:sidebar_pinned', isPinned)
@@ -79,7 +81,7 @@ export function Sidebar() {
 
           {/* Nav links */}
           <ul className="flex-1 space-y-1.5 px-3.5">
-            {SIDEBAR_LINKS.map((item) => (
+            {links.map((item) => (
               <li key={item.to}>
                 <NavLink to={item.to} end={item.to === '/'} viewTransition>
                   {({ isActive }) => {
@@ -132,7 +134,7 @@ export function Sidebar() {
               <NavLink
                 to="/pengaturan"
                 viewTransition
-                title="Pengaturan"
+                title={t ? t('nav.settings') : 'Pengaturan'}
                 className={({ isActive }) =>
                   `flex w-full items-center rounded-full h-12 px-3.5 transition-colors duration-200 ${
                     isActive
@@ -144,7 +146,7 @@ export function Sidebar() {
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
                   <Icon name="settings" size={24} />
                 </span>
-                <span className={labelCls}>Pengaturan</span>
+                <span className={labelCls}>{t ? t('nav.settings') : 'Pengaturan'}</span>
               </NavLink>
 
               <NavLink

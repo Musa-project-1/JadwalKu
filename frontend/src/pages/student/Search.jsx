@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useDebounce } from '../../hooks/useDebounce'
 import { useTasks } from '../../hooks/useTasks'
+import { useApp } from '../../hooks/useApp'
 import { useFirestore } from '../../hooks/useFirestore'
 import { Icon } from '../../components/Icon'
 import { EmptyState } from '../../components/EmptyState'
@@ -20,6 +21,7 @@ const FILTERS = [
 ]
 
 export default function Search() {
+  const { language } = useApp()
   const { tasks } = useTasks()
   const [queryText, setQueryText] = useState('')
   const debouncedQuery = useDebounce(queryText, 250)
@@ -135,14 +137,14 @@ export default function Search() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
-                Pencarian Kampus
+                {language === 'en' ? 'Campus Search' : 'Pencarian Kampus'}
               </h1>
               <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
-                Global Explorer
+                {language === 'en' ? 'Global Explorer' : 'Global Explorer'}
               </span>
             </div>
             <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-              Cari dosen, jadwal kuliah, mata kuliah terdaftar, dan tugas aktif
+              {language === 'en' ? 'Search lecturers, lecture schedules, courses, and active tasks' : 'Cari dosen, jadwal kuliah, mata kuliah terdaftar, dan tugas aktif'}
             </p>
           </div>
         </div>
@@ -160,7 +162,7 @@ export default function Search() {
           value={queryText}
           onChange={(e) => setQueryText(e.target.value)}
           onKeyDown={handleSearchKeyDown}
-          placeholder="Cari nama dosen, mata kuliah, ruangan, atau judul tugas..."
+          placeholder={language === 'en' ? 'Search lecturer name, course, room, or task...' : 'Cari nama dosen, mata kuliah, ruangan, atau judul tugas...'}
           autoFocus
           className="w-full bg-transparent py-2 pl-11 pr-4 text-body-sm tablet:text-body-md font-semibold text-on-surface focus:outline-none placeholder:text-on-surface-variant"
         />

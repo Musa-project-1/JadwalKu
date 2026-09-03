@@ -20,7 +20,7 @@ const JENIS_STRIPE = {
 }
 
 export default function Exams() {
-  const { program, semester } = useApp()
+  const { program, semester, language, t } = useApp()
   const [jenis, setJenis] = useState('UTS')
   const [roomModalTarget, setRoomModalTarget] = useState(null)
 
@@ -121,14 +121,14 @@ export default function Exams() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-headline-lg-mobile tablet:text-headline-lg font-bold tracking-tight text-on-surface">
-                Jadwal Ujian
+                {t ? t('exams.title') : 'Jadwal Ujian'}
               </h2>
               <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
-                {filtered.length > 0 ? `${filtered.length} Mata Uji` : '0 Mata Uji'}
+                {filtered.length > 0 ? (language === 'en' ? `${filtered.length} Courses` : `${filtered.length} Mata Uji`) : (language === 'en' ? '0 Courses' : '0 Mata Uji')}
               </span>
             </div>
             <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-              {program || 'Informatika'} · Semester {semester || '1'} · TA {selectedTA} · Evaluasi Tengah & Akhir Semester
+              {t ? t('exams.subtitle') : 'Jadwal UTS & UAS semester aktif'}
             </p>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function Exams() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-primary/10 hover:bg-primary/20 text-primary text-body-xs font-bold border border-primary/25 transition-all shadow-level-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             <Icon name="event" size={15} />
-            <span>Kalender HP (.ics)</span>
+            <span>{t ? t('exams.sync_cal') : 'Kalender HP (.ics)'}</span>
           </button>
 
           {/* Tahun Ajaran Dropdown */}

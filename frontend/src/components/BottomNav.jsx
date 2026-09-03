@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { Icon } from './Icon'
+import { useApp } from '../hooks/useApp'
 
 /**
  * Floating Pill Nav — kontainer terpusat, blur, border halus
@@ -13,15 +14,17 @@ import { Icon } from './Icon'
  * 5. Pengaturan
  */
 
-const PRIMARY_TABS = [
-  { to: '/', label: 'Home', icon: 'home', highlight: false },
-  { to: '/jadwal', label: 'Jadwal', icon: 'calendar_month', highlight: true },
-  { to: '/tugas', label: 'Tugas', icon: 'checklist', highlight: false },
-  { to: '/ujian', label: 'Ujian', icon: 'edit_note', highlight: false },
-  { to: '/pengaturan', label: 'Pengaturan', icon: 'settings', highlight: false },
-]
-
 export function BottomNav() {
+  const { t } = useApp()
+
+  const tabs = [
+    { to: '/', label: t ? t('nav.home') : 'Home', icon: 'home', highlight: false },
+    { to: '/jadwal', label: t ? t('nav.schedule') : 'Jadwal', icon: 'calendar_month', highlight: true },
+    { to: '/tugas', label: t ? t('nav.tasks') : 'Tugas', icon: 'checklist', highlight: false },
+    { to: '/ujian', label: t ? t('nav.exams') : 'Ujian', icon: 'edit_note', highlight: false },
+    { to: '/pengaturan', label: t ? t('nav.settings') : 'Pengaturan', icon: 'settings', highlight: false },
+  ]
+
   return (
     <nav
       aria-label="Navigasi utama"
@@ -29,7 +32,7 @@ export function BottomNav() {
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
     >
       <ul className="flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-container-lowest/90 px-2 py-1.5 shadow-level-2 backdrop-blur-xl dark:bg-surface-container-low/90">
-        {PRIMARY_TABS.map((item) => (
+        {tabs.map((item) => (
           <li key={item.to}>
             <NavLink to={item.to} end={item.to === '/'} viewTransition>
               {({ isActive }) => {

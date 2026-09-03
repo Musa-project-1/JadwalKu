@@ -4,6 +4,7 @@ import { db, firebaseReady } from '../lib/firebaseClient'
 import { logError } from '../lib/errorLogger'
 import { getItem, setItem, removeItem, STORAGE_KEYS } from '../lib/storage'
 import { AppContext } from '../hooks/useApp'
+import { translate, formatDayName } from '../lib/translations'
 
 function applyDocumentPreferences({ theme, fontSize, highContrast }) {
   const root = document.documentElement
@@ -47,6 +48,7 @@ function updatePreferencesWithTransition(prefs) {
 
 export function AppProvider({ children }) {
   const [theme, setThemeState] = useState(() => getItem(STORAGE_KEYS.theme, 'system'))
+  const [language, setLanguageState] = useState(() => getItem(STORAGE_KEYS.language, 'id'))
   const [fontSize, setFontSizeState] = useState(() => getItem(STORAGE_KEYS.fontSize, 'md'))
   const [highContrast, setHighContrastState] = useState(() =>
     getItem(STORAGE_KEYS.highContrast, false),
@@ -115,6 +117,13 @@ export function AppProvider({ children }) {
         setThemeState(next)
         setItem(STORAGE_KEYS.theme, next)
       },
+      language,
+      setLanguage: (next) => {
+        setLanguageState(next)
+        setItem(STORAGE_KEYS.language, next)
+      },
+      t: (key, params) => translate(key, language, params),
+      formatDay: (dayIndo) => formatDayName(dayIndo, language),
       fontSize,
       setFontSize: (next) => {
         setFontSizeState(next)
@@ -155,7 +164,7 @@ export function AppProvider({ children }) {
       },
       firebaseReady,
     }),
-    [theme, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession],
+    [theme, language, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

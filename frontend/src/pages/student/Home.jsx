@@ -50,7 +50,7 @@ function saveDailyNote(v) {
 
 export default function Home() {
   const navigate = useNavigate()
-  const { fakultasId, program, semester } = useApp()
+  const { fakultasId, program, semester, t, formatDay, language } = useApp()
   const { tasks } = useTasks()
   const { isCustomMode, customScheduleIds } = useCustomSchedule()
   const todayName = getTodayName()
@@ -185,7 +185,18 @@ export default function Home() {
     }
   }, [scheduleSource, tasks, courseMap])
 
-  const greeting = getGreetingData()
+  const rawGreeting = getGreetingData()
+  const greeting = useMemo(() => {
+    if (language === 'en') {
+      const lower = (rawGreeting.text || '').toLowerCase()
+      let enText = 'Good Morning'
+      if (lower.includes('siang')) enText = 'Good Afternoon'
+      else if (lower.includes('sore')) enText = 'Good Evening'
+      else if (lower.includes('malam')) enText = 'Good Night'
+      return { ...rawGreeting, text: enText }
+    }
+    return rawGreeting
+  }, [rawGreeting, language])
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden min-h-0 animate-fade-in">
@@ -211,7 +222,7 @@ export default function Home() {
                   title="Klik untuk melihat atau mengatur Jadwal Kustom"
                 >
                   <Icon name="star" size={13} className="text-status-gbk" />
-                  <span>Jadwal Kustom ({scheduleSource.length} MK)</span>
+                  <span>{t ? t('home.custom_schedule', { count: scheduleSource.length }) : `Jadwal Kustom (${scheduleSource.length} MK)`}</span>
                 </button>
               ) : program ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-0.5 text-label-caps font-bold text-primary shadow-2xs">
@@ -221,7 +232,7 @@ export default function Home() {
               ) : null}
             </div>
             <p className="text-body-xs font-medium text-on-surface-variant truncate mt-0.5">
-              {formatLongDate()}
+              {formatLongDate(new Date(), language)}
             </p>
           </div>
         </div>
@@ -240,7 +251,7 @@ export default function Home() {
               </span>
               <div className="text-left">
                 <p className="text-body-sm font-bold text-on-surface leading-none">{stats.totalSks}</p>
-                <p className="text-label-caps font-bold text-status-k1 uppercase tracking-wide leading-none mt-1">SKS</p>
+                <p className="text-label-caps font-bold text-status-k1 uppercase tracking-wide leading-none mt-1">{t ? t('home.metric_sks') : 'SKS'}</p>
               </div>
             </button>
             <button
@@ -254,7 +265,7 @@ export default function Home() {
               </span>
               <div className="text-left">
                 <p className="text-body-sm font-bold text-on-surface leading-none">{stats.totalKelas}</p>
-                <p className="text-label-caps font-bold text-status-k2 uppercase tracking-wide leading-none mt-1">Kelas</p>
+                <p className="text-label-caps font-bold text-status-k2 uppercase tracking-wide leading-none mt-1">{t ? t('home.metric_classes') : 'Kelas'}</p>
               </div>
             </button>
             <button
@@ -268,7 +279,7 @@ export default function Home() {
               </span>
               <div className="text-left">
                 <p className="text-body-sm font-bold text-on-surface leading-none">{stats.tugasOpen}</p>
-                <p className="text-label-caps font-bold text-status-hb uppercase tracking-wide leading-none mt-1">Tugas</p>
+                <p className="text-label-caps font-bold text-status-hb uppercase tracking-wide leading-none mt-1">{t ? t('home.metric_tasks') : 'Tugas'}</p>
               </div>
             </button>
           </div>
@@ -278,9 +289,11 @@ export default function Home() {
       {needsTaMigration && (
         <div className="rounded-2xl border border-status-gbk-border bg-status-gbk-bg px-4 py-2.5 flex items-center justify-between gap-3">
           <p className="text-body-xs font-semibold text-status-gbk">
-            Tahun ajaran berubah — jadwal semester {semester} sekarang TA {expectedTA}. Tap untuk sinkron.
+            {t ? t('home.sync_banner', { semester, ta: expectedTA }) : `Tahun ajaran berubah — jadwal semester ${semester} sekarang TA ${expectedTA}. Tap untuk sinkron.`}
           </p>
-          <button type="button" onClick={() => { setItem(STORAGE_KEYS.tahunAjaran, expectedTA); window.location.reload() }} className="shrink-0 rounded-full bg-status-gbk text-white px-3 py-1 text-body-xs font-bold hover:opacity-90 cursor-pointer">Sinkron</button>
+          <button type="button" onClick={() => { setItem(STORAGE_KEYS.tahunAjaran, expectedTA); window.location.reload() }} className="shrink-0 rounded-full bg-status-gbk text-white px-3 py-1 text-body-xs font-bold hover:opacity-90 cursor-pointer">
+            {t ? t('action.sync') : 'Sinkron'}
+          </button>
         </div>
       )}
 
@@ -301,11 +314,11 @@ export default function Home() {
                   <Icon name="event_available" size={18} />
                 </span>
                 <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface truncate">
-                  Jadwal Kuliah Hari Ini (<span className="text-primary">{todayName}</span>)
+                  {t ? t('class.today_schedule_title', { day: formatDay ? formatDay(todayName) : todayName }) : `Jadwal Kuliah Hari Ini (${todayName})`}
                 </h3>
               </div>
               <span className="text-label-caps font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
-                {todayEntries.length} Sesi
+                {t ? t('class.session_count', { count: todayEntries.length }) : `${todayEntries.length} Sesi`}
               </span>
             </div>
 
@@ -317,8 +330,8 @@ export default function Home() {
               <div className="py-8 flex flex-col items-center justify-center">
                 <EmptyState
                   icon="beach_access"
-                  title="Tidak ada perkuliahan hari ini"
-                  description="Nikmati harimu atau cek materi untuk perkuliahan besok."
+                  title={t ? t('class.no_classes_today') : 'Tidak ada perkuliahan hari ini'}
+                  description={t ? t('class.no_classes_today_sub') : 'Nikmati harimu atau cek materi untuk perkuliahan besok.'}
                 />
               </div>
             ) : (
@@ -337,6 +350,8 @@ export default function Home() {
                 />
                 {nextEntries.map((entry, i) => {
                   const c = courseMap.get(entry.kodeMK)
+                  const nextLabelKey = i === 0 ? 'class.next_label_0' : i === 1 ? 'class.next_label_1' : 'class.next_label_2'
+                  const nextLabelDefault = i === 0 ? 'Selanjutnya' : i === 1 ? 'Setelah itu' : 'Berikutnya'
                   return (
                     <button
                       key={entry.id}
@@ -346,7 +361,7 @@ export default function Home() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-label-caps font-bold uppercase text-primary">
-                          {i === 0 ? 'Selanjutnya' : i === 1 ? 'Setelah itu' : 'Berikutnya'}
+                          {t ? t(nextLabelKey) : nextLabelDefault}
                         </p>
                         <p className="text-body-xs font-bold text-on-surface truncate mt-0.5">
                           {c?.namaMK ?? entry.kodeMK}
@@ -374,7 +389,7 @@ export default function Home() {
                 onClick={() => navigate('/jadwal')}
                 className="inline-flex items-center gap-1.5 text-body-xs font-bold text-primary hover:underline underline-offset-4 cursor-pointer"
               >
-                <span>Lihat semua jadwal hari ini</span>
+                <span>{t ? t('class.view_all_today') : 'Lihat semua jadwal hari ini'}</span>
                 <Icon name="arrow_forward" size={15} />
               </button>
             </div>
@@ -386,7 +401,7 @@ export default function Home() {
                 onClick={() => navigate('/jadwal')}
                 className="inline-flex items-center gap-1.5 text-body-xs font-semibold text-on-surface-variant hover:text-primary hover:underline underline-offset-4 cursor-pointer"
               >
-                <span>Lihat jadwal mingguan</span>
+                <span>{t ? t('class.view_weekly_fallback') : 'Lihat jadwal mingguan'}</span>
                 <Icon name="arrow_forward" size={15} />
               </button>
             </div>
@@ -402,10 +417,10 @@ export default function Home() {
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/35 shadow-2xs">
                   <Icon name="edit_note" size={18} />
                 </span>
-                <h3 className="text-title-sm font-bold text-on-surface">Catatan Hari Ini</h3>
+                <h3 className="text-title-sm font-bold text-on-surface">{t ? t('home.note_title') : 'Catatan Hari Ini'}</h3>
               </div>
               <span className="text-label-caps px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/35">
-                Memo
+                {t ? t('home.note_badge') : 'Memo'}
               </span>
             </div>
             <textarea
@@ -414,7 +429,7 @@ export default function Home() {
               aria-label="Tulis catatan cepat untuk hari ini"
               value={dailyNote}
               onChange={(e) => handleNoteChange(e.target.value)}
-              placeholder="Tulis catatan penting atau target belajar hari ini..."
+              placeholder={t ? t('home.note_placeholder') : 'Tulis catatan penting atau target belajar hari ini...'}
               className="h-20 w-full resize-none bg-surface-container-lowest/80 dark:bg-surface-container-high/60 rounded-xl p-2.5 text-body-xs text-on-surface placeholder:text-on-surface-variant/50 border border-amber-500/30 focus:border-amber-500 focus:outline-none transition-all"
             />
           </section>
@@ -426,14 +441,14 @@ export default function Home() {
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/35 shadow-2xs">
                   <Icon name="checklist" size={18} />
                 </span>
-                <h3 className="text-title-sm font-bold text-on-surface">Tugas Terdekat</h3>
+                <h3 className="text-title-sm font-bold text-on-surface">{t ? t('home.tasks_title') : 'Tugas Terdekat'}</h3>
               </div>
               <button
                 type="button"
                 onClick={() => navigate('/tugas')}
                 className="inline-flex items-center gap-1 text-label-caps font-bold text-purple-600 dark:text-purple-400 hover:underline cursor-pointer"
               >
-                <span>Lihat Semua</span>
+                <span>{t ? t('action.view_all') : 'Lihat Semua'}</span>
                 <Icon name="arrow_forward" size={13} />
               </button>
             </div>
@@ -442,7 +457,7 @@ export default function Home() {
               <div className="py-2.5 flex flex-wrap items-center justify-between gap-2 text-body-xs text-on-surface-variant font-medium bg-surface-container-lowest/70 dark:bg-surface-container-high/50 rounded-xl px-3 border border-purple-500/25">
                 <span className="flex items-center gap-1.5 truncate">
                   <span>🎉</span>
-                  <span className="truncate text-on-surface-variant">Tidak ada tugas tertunda</span>
+                  <span className="truncate text-on-surface-variant">{t ? t('home.tasks_empty') : 'Tidak ada tugas tertunda'}</span>
                 </span>
                 <button
                   type="button"
@@ -450,7 +465,7 @@ export default function Home() {
                   className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-label-caps font-bold shadow-2xs transition-colors cursor-pointer shrink-0"
                 >
                   <Icon name="add" size={13} />
-                  <span>Buat Tugas</span>
+                  <span>{t ? t('home.tasks_create') : 'Buat Tugas'}</span>
                 </button>
               </div>
             ) : (
@@ -492,19 +507,23 @@ export default function Home() {
                     <Icon name="next_plan" size={18} />
                   </span>
                   <h3 className="text-title-sm font-bold text-on-surface">
-                    Jadwal Besok (<span className="text-blue-600 dark:text-blue-400 font-bold">{tomorrowName}</span>)
+                    {t ? t('home.tomorrow_title', { day: formatDay ? formatDay(tomorrowName) : tomorrowName }) : `Jadwal Besok (${tomorrowName})`}
                   </h3>
                 </div>
                 <span className="text-label-caps font-bold px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/35 shadow-2xs">
-                  {tomorrowEntries.length} Sesi
+                  {t ? t('class.session_count', { count: tomorrowEntries.length }) : `${tomorrowEntries.length} Sesi`}
                 </span>
               </div>
 
               {tomorrowEntries.length === 0 ? (
                 <div className="py-3 text-center text-body-xs text-on-surface-variant font-medium space-y-1 bg-surface-container-lowest/70 dark:bg-surface-container-high/50 rounded-xl p-3 border border-blue-500/25">
                   <Icon name="beach_access" size={22} className="mx-auto text-emerald-500" />
-                  <p className="font-semibold text-on-surface">Tidak ada perkuliahan besok ({tomorrowName})</p>
-                  <p className="text-label-caps text-on-surface-variant/80">Waktu yang baik untuk istirahat &amp; belajar mandiri.</p>
+                  <p className="font-semibold text-on-surface">
+                    {t ? t('home.tomorrow_empty', { day: formatDay ? formatDay(tomorrowName) : tomorrowName }) : `Tidak ada perkuliahan besok (${tomorrowName})`}
+                  </p>
+                  <p className="text-label-caps text-on-surface-variant/80">
+                    {t ? t('home.tomorrow_empty_sub') : 'Waktu yang baik untuk istirahat & belajar mandiri.'}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2">

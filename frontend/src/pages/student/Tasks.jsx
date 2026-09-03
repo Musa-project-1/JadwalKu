@@ -19,7 +19,7 @@ const PRIORITY_LABEL = {
 }
 
 export default function Tasks() {
-  const { program, semester } = useApp()
+  const { program, semester, language, t } = useApp()
   const { tasks, addTask, toggleDone, removeTask } = useTasks()
   const location = useLocation()
 
@@ -98,14 +98,14 @@ export default function Tasks() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
-                Tugas Kuliah
+                {t ? t('tasks.title') : 'Tugas Kuliah'}
               </h2>
               <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
-                {allActiveCount > 0 ? `${allActiveCount} Aktif` : 'Tuntas'}
+                {allActiveCount > 0 ? (language === 'en' ? `${allActiveCount} Active` : `${allActiveCount} Aktif`) : (language === 'en' ? 'Completed' : 'Tuntas')}
               </span>
             </div>
             <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-              {program || 'Informatika'} · Semester {semester || '1'} · Manajemen tenggat waktu & tugas
+              {t ? t('tasks.subtitle') : 'Kelola tugas kuliah, kuis, dan deadline proyek'}
             </p>
           </div>
         </div>
@@ -123,7 +123,18 @@ export default function Tasks() {
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              Semua ({tasks.length})
+              {language === 'en' ? 'All' : 'Semua'} ({tasks.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setScopeFilter('personal')}
+              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
+                scopeFilter === 'personal'
+                  ? 'bg-surface shadow-level-1 text-primary'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              {language === 'en' ? 'Personal' : 'Pribadi'} ({tasks.filter((t) => !t.isProdi).length})
             </button>
             <button
               type="button"
@@ -134,18 +145,7 @@ export default function Tasks() {
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              Prodi ({prodiCount})
-            </button>
-            <button
-              type="button"
-              onClick={() => setScopeFilter('pribadi')}
-              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
-                scopeFilter === 'pribadi'
-                  ? 'bg-surface shadow-level-1 text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              Pribadi ({personalCount})
+              {language === 'en' ? 'Program' : 'Prodi'} ({tasks.filter((t) => t.isProdi).length})
             </button>
           </div>
 
@@ -159,7 +159,7 @@ export default function Tasks() {
             className="flex items-center gap-1.5 px-4 py-1.5 rounded-2xl bg-primary text-on-primary text-body-xs tablet:text-body-sm font-bold shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
           >
             <Icon name="add" size={16} />
-            <span>Tambah Tugas</span>
+            <span>{t ? t('tasks.add_task') : 'Tambah Tugas'}</span>
           </button>
         </div>
       </header>
@@ -177,7 +177,7 @@ export default function Tasks() {
                 : 'text-on-surface-variant hover:bg-surface-container'
             }`}
           >
-            Belum Selesai ({allActiveCount})
+            {language === 'en' ? 'Pending' : 'Belum Selesai'} ({allActiveCount})
           </button>
           <button
             type="button"
@@ -188,7 +188,7 @@ export default function Tasks() {
                 : 'text-on-surface-variant hover:bg-surface-container'
             }`}
           >
-            Selesai ({allDoneCount})
+            {language === 'en' ? 'Completed' : 'Selesai'} ({allDoneCount})
           </button>
           <button
             type="button"
@@ -199,7 +199,7 @@ export default function Tasks() {
                 : 'text-on-surface-variant hover:bg-surface-container'
             }`}
           >
-            Semua Status ({tasks.length})
+            {language === 'en' ? 'All' : 'Semua'} ({tasks.length})
           </button>
         </div>
 

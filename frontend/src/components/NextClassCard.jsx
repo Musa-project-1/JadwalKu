@@ -1,5 +1,6 @@
 import { Icon } from './Icon'
 import { formatRuang } from '../lib/scheduleUtils'
+import { useApp } from '../hooks/useApp'
 
 /**
  * Hero Card "Status Kelas Live & Countdown"
@@ -17,6 +18,7 @@ export function NextClassCard({
   onLocation,
   onViewSchedule,
 }) {
+  const { t } = useApp()
   const status = liveState?.status ?? (propEntry ? 'upcoming' : 'empty')
   const entry = liveState?.entry ?? propEntry
 
@@ -32,17 +34,17 @@ export function NextClassCard({
             </div>
             <div>
               <span className="text-label-caps text-status-k1 uppercase font-bold tracking-wider block">
-                Kuliah Hari Ini Selesai
+                {t ? t('class.status_finished_title') : 'Kuliah Hari Ini Selesai'}
               </span>
               <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface mt-0.5">
-                Semua kelas hari ini telah selesai! 🎉
+                {t ? t('class.status_finished_desc') : 'Semua kelas hari ini telah selesai! 🎉'}
               </h3>
             </div>
           </div>
         </div>
 
         <p className="mt-2.5 text-body-xs text-on-surface-variant leading-relaxed">
-          Kamu telah menyelesaikan {count > 0 ? `${count} mata kuliah` : 'seluruh perkuliahan'} hari ini. Waktunya istirahat yang cukup atau mengecek daftar tugasmu.
+          {t ? t('class.status_finished_body', { count: count > 0 ? count : 0 }) : `Kamu telah menyelesaikan ${count > 0 ? `${count} mata kuliah` : 'seluruh perkuliahan'} hari ini. Waktunya istirahat yang cukup atau mengecek daftar tugasmu.`}
         </p>
 
         {onViewSchedule && (
@@ -52,7 +54,7 @@ export function NextClassCard({
               onClick={onViewSchedule}
               className="inline-flex items-center gap-1 text-label-caps font-bold text-primary hover:underline cursor-pointer"
             >
-              <span>Lihat Jadwal Mingguan Lengkap</span>
+              <span>{t ? t('class.view_weekly_schedule') : 'Lihat Jadwal Mingguan Lengkap'}</span>
               <Icon name="arrow_forward" size={13} />
             </button>
           </div>
@@ -84,11 +86,11 @@ export function NextClassCard({
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                 </span>
-                Sedang Berlangsung
+                {t ? t('class.status_ongoing') : 'Sedang Berlangsung'}
               </span>
             ) : (
               <span className="text-label-caps font-bold tracking-wider text-primary uppercase">
-                Kelas Berikutnya
+                {t ? t('class.status_next') : 'Kelas Berikutnya'}
               </span>
             )}
           </div>
@@ -159,7 +161,7 @@ export function NextClassCard({
       {isOngoing && (
         <div className="mt-3 pt-2.5 border-t border-white/15">
           <div className="flex justify-between text-[11px] text-emerald-200 mb-1 font-semibold">
-            <span>Sisa {remainingMins} menit</span>
+            <span>{t ? t('class.remaining_mins', { mins: remainingMins }) : `Sisa ${remainingMins} menit`}</span>
             <span>{elapsedPercent}%</span>
           </div>
           <div className="h-1.5 w-full rounded-full bg-white/20 overflow-hidden">

@@ -33,6 +33,7 @@ import { AnnouncementBanner } from '../../components/student/AnnouncementBanner'
 import { CourseNotesModal } from '../../components/student/CourseNotesModal'
 import { PrintScheduleModal } from '../../components/student/PrintScheduleModal'
 import { KrsSimulatorModal } from '../../components/student/KrsSimulatorModal'
+import { ScheduleTimetableGrid } from '../../components/schedule/ScheduleTimetableGrid'
 
 const WEEK_DAYS = DAYS // Senin–Sabtu
 
@@ -54,13 +55,14 @@ function localDateKey(d) {
 }
 
 export default function WeeklySchedule() {
-  const { program, semester } = useApp()
+  const { program, semester, language, t } = useApp()
   const todayName = getTodayName()
   const [selectedDay, setSelectedDay] = useState(todayName)
   const [detailEntry, setDetailEntry] = useState(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [weekOffset, setWeekOffset] = useState(0)
   const [viewDays, setViewDays] = useState(() => getItem('jadwal:viewDays', '5'))
+  const [scheduleViewMode, setScheduleViewMode] = useState(() => getItem('jadwal:scheduleViewMode', 'matrix')) // 'matrix' | 'timeline'
   const location = useLocation()
 
   const activeWeekDays = useMemo(
@@ -348,7 +350,7 @@ export default function WeeklySchedule() {
             }`}
           >
             <Icon name="school" size={15} />
-            <span>Jadwal Paket</span>
+            <span>{language === 'en' ? 'Package Schedule' : 'Jadwal Paket'}</span>
           </button>
           <button
             type="button"
@@ -360,7 +362,7 @@ export default function WeeklySchedule() {
             }`}
           >
             <Icon name="star" size={15} className={isCustomMode ? 'text-amber-500' : ''} />
-            <span>Jadwal Kustom {customScheduleIds.length > 0 ? `(${customScheduleIds.length})` : ''}</span>
+            <span>{language === 'en' ? 'Custom Schedule' : 'Jadwal Kustom'} {customScheduleIds.length > 0 ? `(${customScheduleIds.length})` : ''}</span>
           </button>
         </div>
 
@@ -447,18 +449,20 @@ export default function WeeklySchedule() {
 
   return (
     <div className="flex flex-col gap-3 w-full max-w-full overflow-x-hidden">
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
-        <div className="flex items-center gap-4 min-w-0">
+      {/* ── HEADER UNIVERSAL (Tampil di Mobile, Tablet, dan Desktop) ── */}
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        {/* Kiri: Judul & Info Akademik */}
+        <div className="flex items-center gap-3.5 min-w-0">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
             <Icon name="calendar_month" size={24} />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
-                Jadwal Mingguan
+              <h2 className="text-title-sm tablet:text-title-md font-bold tracking-tight text-on-surface">
+                {t ? t('schedule.title') : 'Jadwal Mingguan'}
               </h2>
               <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
-                Aktif
+                {language === 'en' ? 'Active' : 'Aktif'}
               </span>
             </div>
             <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
@@ -468,22 +472,23 @@ export default function WeeklySchedule() {
           </div>
         </div>
 
-        {/* Controls Desktop & Tablet */}
-        <div className="hidden tablet:flex items-center gap-2 shrink-0">
-          <div className="hidden desktop:inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
+        {/* Kanan: Seluruh Navigasi & Switcher */}
+        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-between tablet:justify-end">
+          {/* Switcher 5/6 Hari */}
+          <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
             <button
               type="button"
               onClick={() => {
                 setViewDays('5')
                 setItem('jadwal:viewDays', '5')
               }}
-              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
+              className={`rounded-full px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer ${
                 viewDays === '5'
                   ? 'bg-surface shadow-level-1 text-primary'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              5 Hari
+              {language === 'en' ? '5 Days' : '5 Hari'}
             </button>
             <button
               type="button"
@@ -491,35 +496,69 @@ export default function WeeklySchedule() {
                 setViewDays('6')
                 setItem('jadwal:viewDays', '6')
               }}
-              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
+              className={`rounded-full px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer ${
                 viewDays === '6'
                   ? 'bg-surface shadow-level-1 text-primary'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              6 Hari
+              {language === 'en' ? '6 Days' : '6 Hari'}
+            </button>
+          </div>
+
+          {/* Switcher Matriks vs Timeline */}
+          <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setScheduleViewMode('matrix')
+                setItem('jadwal:scheduleViewMode', 'matrix')
+              }}
+              className={`rounded-full px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                scheduleViewMode === 'matrix'
+                  ? 'bg-surface shadow-level-1 text-primary'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+              title="Tampilan Matriks Sesi & Sholat"
+            >
+              <Icon name="grid_view" size={14} />
+              <span>{language === 'en' ? 'Matrix' : 'Matriks'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setScheduleViewMode('timeline')
+                setItem('jadwal:scheduleViewMode', 'timeline')
+              }}
+              className={`rounded-full px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                scheduleViewMode === 'timeline'
+                  ? 'bg-surface shadow-level-1 text-primary'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+              title="Tampilan Timeline Jam Klasik"
+            >
+              <Icon name="view_timeline" size={14} />
+              <span>Timeline</span>
             </button>
           </div>
 
           {/* Desktop Week Navigator */}
-          <div className="flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-1 py-1 shadow-level-1 min-w-0">
+          <div className="hidden tablet:flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-1 py-1 shadow-level-1 min-w-0">
             <button
               type="button"
               onClick={() => setWeekOffset((prev) => prev - 1)}
               title="Minggu Sebelumnya"
-              aria-label="Minggu Sebelumnya"
               className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
             >
               <Icon name="chevron_left" size={17} />
             </button>
-            <span className="px-2.5 text-label-caps font-bold text-on-surface whitespace-nowrap">
+            <span className="px-2 text-label-caps font-bold text-on-surface whitespace-nowrap">
               {weekRangeLabel}
             </span>
             <button
               type="button"
               onClick={() => setWeekOffset((prev) => prev + 1)}
               title="Minggu Berikutnya"
-              aria-label="Minggu Berikutnya"
               className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
             >
               <Icon name="chevron_right" size={17} />
@@ -530,7 +569,7 @@ export default function WeeklySchedule() {
                 onClick={() => setWeekOffset(0)}
                 className="ml-1 rounded-full bg-primary/15 px-2 py-0.5 text-label-caps font-bold text-primary hover:bg-primary/25 transition-colors shrink-0 cursor-pointer"
               >
-                Hari Ini
+                {language === 'en' ? 'Today' : 'Hari Ini'}
               </button>
             )}
           </div>
@@ -616,7 +655,7 @@ export default function WeeklySchedule() {
                   onClick={() => setWeekOffset(0)}
                   className="rounded-full bg-primary/15 px-2 py-0.5 text-label-caps font-bold text-primary hover:bg-primary/25 transition-colors shrink-0"
                 >
-                  Hari Ini
+                  {language === 'en' ? 'Today' : 'Hari Ini'}
                 </button>
               )}
             </div>
@@ -704,227 +743,421 @@ export default function WeeklySchedule() {
           <div className="mb-3 flex items-center gap-sm rounded-2xl bg-info-container/40 px-md py-sm text-body-sm text-info dark:bg-info-container/20">
             <Icon name="info" size={20} className="shrink-0" />
             {isCustomMode
-              ? `Belum ada kelas kustom dipilih. Klik "Atur Matkul Kustom" untuk memilih mata kuliah.`
+              ? (language === 'en' ? 'No custom courses selected. Click "Custom Schedule" to pick courses.' : 'Belum ada kelas kustom dipilih. Klik "Atur Matkul Kustom" untuk memilih mata kuliah.')
               : viewingArchive
-              ? `Belum ada arsip jadwal ${program} · Semester ${semester} untuk TA ${selectedTA}.`
-              : `Belum ada jadwal terpublikasi untuk ${program} · Semester ${semester}. Admin dapat mengunggahnya lewat Panel Admin.`}
+              ? (language === 'en' ? `No archived schedule found for ${program} · Sem ${semester} in AY ${selectedTA}.` : `Belum ada arsip jadwal ${program} · Semester ${semester} untuk TA ${selectedTA}.`)
+              : (language === 'en' ? `No published schedule yet for ${program} · Sem ${semester}.` : `Belum ada jadwal terpublikasi untuk ${program} · Semester ${semester}. Admin dapat mengunggahnya lewat Panel Admin.`)}
           </div>
         )}
-        <div
-          ref={gridScrollRef}
-          className="overflow-hidden h-[calc(100vh-190px)] min-h-[460px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 relative flex flex-col"
-        >
-          {/* Mode Switcher, Actions & Legend (Desktop) */}
-          {toolbarContent}
-            <div
-              className="grid sticky top-0 z-30 shrink-0 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 border-b border-outline-variant/40"
-              style={{ gridTemplateColumns: `64px repeat(${activeWeekDays.length}, minmax(0, 1fr))` }}
-            >
-              <div className="p-3 text-center text-body-xs font-bold uppercase tracking-wider text-on-surface-variant/70 flex items-center justify-center sticky left-0 z-40 bg-surface-container-lowest dark:bg-surface-container-low border-r border-outline-variant/30 select-none">
-                GMT+7
-              </div>
-              {weekDates.map(({ day, dateNum, monthShort, iso }) => {
-                const isTodayCol = day === todayName && iso === todayISO
-                const isHoliday = holidayDates.has(iso)
-                return (
-                  <div
-                    key={day}
-                    className={`p-3 text-center flex flex-col items-center justify-center border-l border-outline-variant/30 transition-colors ${
-                      isHoliday
-                        ? 'opacity-60'
-                        : isTodayCol
-                        ? 'bg-surface-container-low dark:bg-surface-container-high/60 rounded-t-2xl'
-                        : ''
-                    }`}
-                  >
-                    {isTodayCol ? (
-                      <span className="rounded-full bg-primary text-on-primary px-4 py-1 text-label-caps font-bold shadow-level-1 inline-block">
-                        {day}
-                      </span>
-                    ) : (
-                      <span className="text-title-md font-semibold text-on-surface">{day}</span>
-                    )}
-                    <div className="text-body-sm text-on-surface-variant font-medium mt-0.5">
-                      {dateNum} {monthShort}
-                      {isHoliday && (
-                        <span className="ml-1 font-bold text-error">· LIBUR</span>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
+
+        {scheduleViewMode === 'matrix' ? (
+          <div className="w-full flex rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 overflow-hidden">
+            {/* ── TABEL MATRIKS UTAMA (KIRI - MENYAMBUNG LANGSUNG DENGAN HEADER) ── */}
+            <div className="flex-1 min-w-0 border-r border-outline-variant/20">
+              <ScheduleTimetableGrid
+                borderless
+                days={activeWeekDays}
+                dayDates={weekDates.reduce((acc, curr) => {
+                  acc[curr.day] = `${curr.dateNum} ${curr.monthShort}`
+                  return acc
+                }, {})}
+                todayName={todayName}
+                scheduleEntries={scheduleSource}
+                courseMap={courseMap}
+                onOpenDetail={openDetail}
+                onOpenLocation={(entry, course) => setDetailEntry({ ...entry, course, autoOpenLocation: true })}
+                language={language}
+              />
             </div>
 
-            <div className="flex-1 min-h-0 overflow-hidden relative">
-              <div
-                ref={gridBodyRef}
-                className="relative grid h-full w-full"
-                style={{
-                  gridTemplateColumns: `64px repeat(${activeWeekDays.length}, minmax(0, 1fr))`
-                }}
-              >
-                <div className="relative border-r border-outline-variant/30 sticky left-0 z-20 bg-surface-container-lowest/95 dark:bg-surface-container-low/95 backdrop-blur-xs select-none">
-                  {hourMarks.map((m) => {
-                    const isFirst = m === rangeStart
-                    const top = ((m - rangeStart) / 60) * pxPerHour
-                    return (
-                      <div
-                        key={m}
-                        className={`absolute inset-x-0 flex items-center justify-end pr-2.5 pointer-events-none ${
-                          isFirst ? 'top-1.5' : '-translate-y-1/2'
-                        }`}
-                        style={isFirst ? undefined : { top }}
-                      >
-                        <span className="text-label-caps font-normal text-on-surface-variant/70 tabular-nums leading-none tracking-tight">
-                          {String(Math.floor(m / 60)).padStart(2, '0')}:00
-                        </span>
-                      </div>
-                    )
-                  })}
+            {/* ── KOTAK ULTRA RAMPING DI SISI KANAN TABEL (ICON-ONLY ULTRA-SLIM) ── */}
+            <aside className="w-12 shrink-0 flex flex-col justify-between py-2.5 px-1 bg-surface-container-low/30 dark:bg-surface-container-high/20">
+              <div className="flex flex-col gap-2 items-center">
+                {/* Mode Switcher: Icon Only (Paket vs Kustom) */}
+                <div className="flex flex-col rounded-xl bg-surface-container-high/60 dark:bg-surface-container-highest/40 p-0.5 border border-outline-variant/30 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setScheduleMode('regular')}
+                    title={language === 'en' ? 'Package Schedule' : 'Jadwal Paket'}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all cursor-pointer ${
+                      !isCustomMode
+                        ? 'bg-surface shadow-level-1 text-primary'
+                        : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    <Icon name="school" size={17} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setScheduleMode('custom')}
+                    title={language === 'en' ? 'Custom Schedule' : 'Jadwal Kustom'}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all cursor-pointer ${
+                      isCustomMode
+                        ? 'bg-amber-500/20 text-amber-900 dark:text-amber-300 shadow-level-1 border border-amber-500/30'
+                        : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    <Icon name="star" size={17} className={isCustomMode ? 'text-amber-500' : ''} />
+                  </button>
                 </div>
 
-                {weekDates.map(({ day, iso }) => {
-                  const isHoliday = holidayDates.has(iso)
+                {/* Tombol Atur Matkul jika mode kustom (Icon Only) */}
+                {isCustomMode && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomModalOpen(true)}
+                    title={language === 'en' ? 'Select Courses' : 'Atur Matkul Kustom'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-slate-900 shadow-level-1 hover:bg-amber-400 active:opacity-80 transition-all cursor-pointer"
+                  >
+                    <Icon name="tune" size={15} />
+                  </button>
+                )}
+
+                {/* 4 Tombol Aksi Vertikal Minimalis (Icon Only) */}
+                <div className="w-full pt-1.5 border-t border-outline-variant/20 flex flex-col gap-1 items-center">
+                  <button
+                    type="button"
+                    onClick={() => setAttendanceModalOpen(true)}
+                    title={language === 'en' ? 'Attendance' : 'Rekap Presensi'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
+                  >
+                    <Icon name="fact_check" size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNotesModalOpen(true)}
+                    title={language === 'en' ? 'Course Notes' : 'Semua Catatan'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
+                  >
+                    <Icon name="sticky_note_2" size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPrintModalOpen(true)}
+                    title={language === 'en' ? 'Print PDF' : 'Cetak PDF'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
+                  >
+                    <Icon name="print" size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKrsSimulatorOpen(true)}
+                    title={language === 'en' ? 'KRS Simulator' : 'Simulator KRS'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
+                  >
+                    <Icon name="science" size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Mini Indicator Bawah */}
+              <div className="pt-1.5 border-t border-outline-variant/15 flex flex-col items-center justify-center text-center">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+            </aside>
+          </div>
+        ) : (
+          <div className="w-full flex rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 overflow-hidden">
+            {/* ── TABEL TIMELINE UTAMA (KIRI - MENYAMBUNG LANGSUNG DENGAN HEADER) ── */}
+            <div
+              ref={gridScrollRef}
+              className="flex-1 min-w-0 border-r border-outline-variant/20 overflow-hidden h-[calc(100vh-190px)] min-h-[460px] relative flex flex-col"
+            >
+              <div
+                className="grid sticky top-0 z-30 shrink-0 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 border-b border-outline-variant/40"
+                style={{ gridTemplateColumns: `64px repeat(${activeWeekDays.length}, minmax(0, 1fr))` }}
+              >
+                <div className="p-3 text-center text-body-xs font-bold uppercase tracking-wider text-on-surface-variant/70 flex items-center justify-center sticky left-0 z-40 bg-surface-container-lowest dark:bg-surface-container-low border-r border-outline-variant/30 select-none">
+                  GMT+7
+                </div>
+                {weekDates.map(({ day, dateNum, monthShort, iso }) => {
                   const isTodayCol = day === todayName && iso === todayISO
-                  const entries = sortByTime(scheduleSource.filter((e) => e.hari === day))
+                  const isHoliday = holidayDates.has(iso)
                   return (
                     <div
                       key={day}
-                      className={`relative border-l border-outline-variant/40 transition-colors ${
+                      className={`p-2.5 text-center flex items-center justify-center gap-1.5 border-l border-outline-variant/30 transition-colors ${
                         isHoliday
-                          ? 'holiday-stripes'
+                          ? 'opacity-60'
                           : isTodayCol
-                          ? 'bg-surface-container-low/70 dark:bg-surface-container-high/30'
+                          ? 'bg-surface-container-low dark:bg-surface-container-high/60 rounded-t-2xl'
                           : ''
                       }`}
                     >
-                      {isHoliday && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
-                          <span className="text-label-caps uppercase tracking-widest text-on-surface-variant/70 -rotate-90 font-bold">
-                            LIBUR
-                          </span>
-                        </div>
+                      {isTodayCol ? (
+                        <span className="rounded-full bg-primary text-on-primary px-3 py-0.5 text-label-caps font-bold shadow-level-1 inline-block">
+                          {day}
+                        </span>
+                      ) : (
+                        <span className="text-title-sm font-semibold text-on-surface">{day}</span>
                       )}
-                      {hourMarks.map((m) => (
-                        <span
-                          key={m}
-                          className="absolute inset-x-0 border-t border-outline-variant/30"
-                          style={{ top: ((m - rangeStart) / 60) * pxPerHour }}
-                        />
-                      ))}
-
-                      {!isHoliday &&
-                        entries.map((entry) => {
-                          const start = toMin(entry.jamMulai)
-                          const end = toMin(entry.jamSelesai)
-                          const top = ((start - rangeStart) / 60) * pxPerHour
-                          const durationHeight = ((end - start) / 60) * pxPerHour - 4
-                          // Opsi 1: min-height 92px berbasis konten aktual (badge + 2 baris judul + ruangan + padding)
-                          const height = Math.max(durationHeight, 92)
-                          const course = courseMap.get(entry.kodeMK)
-                          const conflicted = conflictedIds.has(entry.id)
-                          const noteText = getItem(`${STORAGE_KEYS.courseNotes}:${entry.kodeMK}`, '')
-                          const transition = allTransitions.get(entry.id)
-                          const classType = getClassType(entry.tipeKelas)
-                          const borderClass = TONE_CARD_BORDER_CLASSES[classType.tone] ?? TONE_CARD_BORDER_CLASSES.neutral
-                          const iconName = TONE_ICONS[classType.tone] ?? 'corporate_fare'
-                          const shadowClass = TONE_SHADOW_CLASSES[classType.tone]
-                          const timePillClass = TONE_TIME_PILL_CLASSES[classType.tone]
-                          const iconColor = TONE_ICON_COLOR_CLASSES[classType.tone]
-                          const text = TONE_TEXT_CLASSES[classType.tone]
-                          const subtext = TONE_SUBTEXT_CLASSES[classType.tone]
-                          const isOnline =
-                            entry.tipeKelas === 'K2' ||
-                            String(entry.ruang || '').toLowerCase().includes('zoom') ||
-                            String(entry.ruang || '').toLowerCase().includes('online')
-
-                          return (
-                            <button
-                              key={entry.id}
-                              type="button"
-                              onClick={() => openDetail(entry)}
-                              style={{ top: top + 2, minHeight: height, height: 'auto' }}
-                              className={`absolute inset-x-1 z-10 rounded-2xl p-2.5 text-left transition-shadow duration-200 hover:z-30 hover:shadow-level-2 flex flex-col justify-between cursor-pointer ${
-                                TONE_BG_CLASSES[classType.tone]
-                              } ${borderClass} ${shadowClass} ${conflicted ? 'ring-2 ring-error/60' : ''}`}
-                              title={`${course?.namaMK ?? entry.kodeMK} · ${entry.jamMulai}-${entry.jamSelesai} · ${formatRuang(entry.ruang, entry.tipeKelas)}`}
-                            >
-                              {/* 1. Baris Pertama: Ikon tipe kelas di kiri & Badge Jam (pill solid) di kanan */}
-                              <div className="flex items-center justify-between w-full shrink-0">
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                  <Icon name={iconName} size={16} className={iconColor} />
-                                  <span className={`text-label-caps font-bold uppercase tracking-wider ${iconColor}`}>
-                                    {entry.tipeKelas || 'K1'}
-                                  </span>
-                                </div>
-
-                                <div className="flex items-center gap-1 shrink-0">
-                                  {transition && (
-                                    <span
-                                      className="flex h-4 items-center gap-0.5 px-1 rounded-full bg-orange-500/20 text-orange-800 dark:text-orange-300 text-label-caps font-bold border border-orange-500/30"
-                                      title={transition.message}
-                                    >
-                                      <Icon name="directions_run" size={9} />
-                                    </span>
-                                  )}
-                                  {noteText && (
-                                    <span
-                                      className="flex h-4 w-4 items-center justify-center rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300"
-                                      title={`Catatan: ${noteText}`}
-                                    >
-                                      <Icon name="sticky_note_2" size={9} />
-                                    </span>
-                                  )}
-                                  {conflicted && <Icon name="warning" size={13} className="shrink-0 text-error" />}
-                                  <span className={`px-2 py-0.5 rounded-full text-body-xs font-bold tracking-tight shadow-level-1 ${timePillClass}`}>
-                                    {entry.jamMulai} - {entry.jamSelesai}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* 2. Baris Kedua: Nama Mata Kuliah Rata Tengah (14-15px font-bold, 2 baris wrap tanpa tertimpa) */}
-                              <h3 className={`my-auto py-1 text-center text-title-sm tablet:text-title-md font-bold tracking-tight leading-snug whitespace-normal break-words line-clamp-2 ${text}`}>
-                                {course?.namaMK ?? entry.kodeMK}
-                              </h3>
-
-                              {/* 3. Baris Terakhir: Ikon Lokasi + Nama Ruang Kelas */}
-                              <div className={`flex items-center justify-center gap-1 text-label-caps font-normal leading-tight opacity-90 shrink-0 ${subtext}`}>
-                                <Icon name={isOnline ? 'videocam' : 'location_on'} size={12} className="shrink-0" />
-                                <span className="truncate">{formatRuang(entry.ruang, entry.tipeKelas)}</span>
-                              </div>
-                            </button>
-                          )
-                        })}
-
-                      {isTodayCol && (
-                        (() => {
-                          const clampedMinute = Math.max(rangeStart, Math.min(nowMinute, rangeEnd))
-                          const isClampedTop = nowMinute < rangeStart
-                          const isClampedBottom = nowMinute > rangeEnd
-                          const topPos = isClampedTop
-                            ? 6
-                            : isClampedBottom
-                            ? gridHeight - 6
-                            : ((clampedMinute - rangeStart) / 60) * pxPerHour
-
-                          return (
-                            <div
-                              style={{ top: topPos }}
-                              className="pointer-events-none absolute inset-x-0 z-20 transition-all duration-300 ease-out"
-                            >
-                              <span className="absolute -left-1 -top-[4px] h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-primary/20 animate-pulse" />
-                              <div className="h-[2px] w-full bg-primary/70 shadow-level-1" />
-                            </div>
-                          )
-                        })()
-                      )}
+                      <span className="text-body-sm text-on-surface-variant font-medium whitespace-nowrap">
+                        {dateNum} {monthShort}
+                        {isHoliday && (
+                          <span className="ml-1 font-bold text-error">· LIBUR</span>
+                        )}
+                      </span>
                     </div>
                   )
                 })}
               </div>
+
+              <div className="flex-1 min-h-0 overflow-hidden relative">
+                <div
+                  ref={gridBodyRef}
+                  className="relative grid h-full w-full"
+                  style={{
+                    gridTemplateColumns: `64px repeat(${activeWeekDays.length}, minmax(0, 1fr))`
+                  }}
+                >
+                  <div className="relative border-r border-outline-variant/30 sticky left-0 z-20 bg-surface-container-lowest/95 dark:bg-surface-container-low/95 backdrop-blur-xs select-none">
+                    {hourMarks.map((m) => {
+                      const isFirst = m === rangeStart
+                      const top = ((m - rangeStart) / 60) * pxPerHour
+                      return (
+                        <div
+                          key={m}
+                          className={`absolute inset-x-0 flex items-center justify-end pr-2.5 pointer-events-none ${
+                            isFirst ? 'top-1.5' : '-translate-y-1/2'
+                          }`}
+                          style={isFirst ? undefined : { top }}
+                        >
+                          <span className="text-label-caps font-normal text-on-surface-variant/70 tabular-nums leading-none tracking-tight">
+                            {String(Math.floor(m / 60)).padStart(2, '0')}:00
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {weekDates.map(({ day, iso }) => {
+                    const isHoliday = holidayDates.has(iso)
+                    const isTodayCol = day === todayName && iso === todayISO
+                    const entries = sortByTime(scheduleSource.filter((e) => e.hari === day))
+                    return (
+                      <div
+                        key={day}
+                        className={`relative border-l border-outline-variant/40 transition-colors ${
+                          isHoliday
+                            ? 'holiday-stripes'
+                            : isTodayCol
+                            ? 'bg-surface-container-low/70 dark:bg-surface-container-high/30'
+                            : ''
+                        }`}
+                      >
+                        {isHoliday && (
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
+                            <span className="text-label-caps uppercase tracking-widest text-on-surface-variant/70 -rotate-90 font-bold">
+                              LIBUR
+                            </span>
+                          </div>
+                        )}
+                        {hourMarks.map((m) => (
+                          <span
+                            key={m}
+                            className="absolute inset-x-0 border-t border-outline-variant/30"
+                            style={{ top: ((m - rangeStart) / 60) * pxPerHour }}
+                          />
+                        ))}
+
+                        {!isHoliday &&
+                          entries.map((entry) => {
+                            const start = toMin(entry.jamMulai)
+                            const end = toMin(entry.jamSelesai)
+                            const top = ((start - rangeStart) / 60) * pxPerHour
+                            const durationHeight = ((end - start) / 60) * pxPerHour - 4
+                            const height = Math.max(durationHeight, 92)
+                            const course = courseMap.get(entry.kodeMK)
+                            const conflicted = conflictedIds.has(entry.id)
+                            const noteText = getItem(`${STORAGE_KEYS.courseNotes}:${entry.kodeMK}`, '')
+                            const transition = allTransitions.get(entry.id)
+                            const classType = getClassType(entry.tipeKelas)
+                            const borderClass = TONE_CARD_BORDER_CLASSES[classType.tone] ?? TONE_CARD_BORDER_CLASSES.neutral
+                            const iconName = TONE_ICONS[classType.tone] ?? 'corporate_fare'
+                            const shadowClass = TONE_SHADOW_CLASSES[classType.tone]
+                            const timePillClass = TONE_TIME_PILL_CLASSES[classType.tone]
+                            const iconColor = TONE_ICON_COLOR_CLASSES[classType.tone]
+                            const text = TONE_TEXT_CLASSES[classType.tone]
+                            const subtext = TONE_SUBTEXT_CLASSES[classType.tone]
+                            const isOnline =
+                              entry.tipeKelas === 'K2' ||
+                              String(entry.ruang || '').toLowerCase().includes('zoom') ||
+                              String(entry.ruang || '').toLowerCase().includes('online')
+
+                            return (
+                              <button
+                                key={entry.id}
+                                type="button"
+                                onClick={() => openDetail(entry)}
+                                style={{ top: top + 2, minHeight: height, height: 'auto' }}
+                                className={`absolute inset-x-1 z-10 rounded-2xl p-2.5 text-left transition-shadow duration-200 hover:z-30 hover:shadow-level-2 flex flex-col justify-between cursor-pointer ${
+                                  TONE_BG_CLASSES[classType.tone]
+                                } ${borderClass} ${shadowClass} ${conflicted ? 'ring-2 ring-error/60' : ''}`}
+                                title={`${course?.namaMK ?? entry.kodeMK} · ${entry.jamMulai}-${entry.jamSelesai} · ${formatRuang(entry.ruang, entry.tipeKelas)}`}
+                              >
+                                <div className="flex items-center justify-between w-full shrink-0">
+                                  <div className="flex items-center gap-1.5 min-w-0">
+                                    <Icon name={iconName} size={16} className={iconColor} />
+                                    <span className={`text-label-caps font-bold uppercase tracking-wider ${iconColor}`}>
+                                      {entry.tipeKelas || 'K1'}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    {transition && (
+                                      <span
+                                        className="flex h-4 items-center gap-0.5 px-1 rounded-full bg-orange-500/20 text-orange-800 dark:text-orange-300 text-label-caps font-bold border border-orange-500/30"
+                                        title={transition.message}
+                                      >
+                                        <Icon name="directions_run" size={9} />
+                                      </span>
+                                    )}
+                                    {noteText && (
+                                      <span
+                                        className="flex h-4 w-4 items-center justify-center rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300"
+                                        title={`Catatan: ${noteText}`}
+                                      >
+                                        <Icon name="sticky_note_2" size={9} />
+                                      </span>
+                                    )}
+                                    {conflicted && <Icon name="warning" size={13} className="shrink-0 text-error" />}
+                                    <span className={`px-2 py-0.5 rounded-full text-body-xs font-bold tracking-tight shadow-level-1 ${timePillClass}`}>
+                                      {entry.jamMulai} - {entry.jamSelesai}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <h3 className={`my-2 text-center text-body-xs font-bold tracking-tight leading-snug whitespace-normal break-words line-clamp-2 w-full ${text}`}>
+                                  {course?.namaMK ?? entry.kodeMK}
+                                </h3>
+
+                                <div className={`flex items-center justify-center gap-1 text-[11px] font-normal leading-tight opacity-90 w-full ${subtext}`}>
+                                  <Icon name={isOnline ? 'videocam' : 'location_on'} size={13} className="shrink-0" />
+                                  <span className="truncate">{formatRuang(entry.ruang, entry.tipeKelas)}</span>
+                                </div>
+                              </button>
+                            )
+                          })}
+
+                        {isTodayCol && (
+                          (() => {
+                            const clampedMinute = Math.max(rangeStart, Math.min(nowMinute, rangeEnd))
+                            const isClampedTop = nowMinute < rangeStart
+                            const isClampedBottom = nowMinute > rangeEnd
+                            const topPos = isClampedTop
+                              ? 6
+                              : isClampedBottom
+                              ? gridHeight - 6
+                              : ((clampedMinute - rangeStart) / 60) * pxPerHour
+
+                            return (
+                              <div
+                                style={{ top: topPos }}
+                                className="pointer-events-none absolute inset-x-0 z-20 transition-all duration-300 ease-out"
+                              >
+                                <span className="absolute -left-1 -top-[4px] h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-primary/20 animate-pulse" />
+                                <div className="h-[2px] w-full bg-primary/70 shadow-level-1" />
+                              </div>
+                            )
+                          })()
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
+
+            {/* ── KOTAK ULTRA RAMPING DI SISI KANAN TABEL (TIMELINE VIEW) ── */}
+            <aside className="w-12 shrink-0 flex flex-col justify-between py-2.5 px-1 bg-surface-container-low/30 dark:bg-surface-container-high/20">
+              <div className="flex flex-col gap-2 items-center">
+                {/* Mode Switcher: Icon Only (Paket vs Kustom) */}
+                <div className="flex flex-col rounded-xl bg-surface-container-high/60 dark:bg-surface-container-highest/40 p-0.5 border border-outline-variant/30 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setScheduleMode('regular')}
+                    title={language === 'en' ? 'Package Schedule' : 'Jadwal Paket'}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all cursor-pointer ${
+                      !isCustomMode
+                        ? 'bg-surface shadow-level-1 text-primary'
+                        : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    <Icon name="school" size={17} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setScheduleMode('custom')}
+                    title={language === 'en' ? 'Custom Schedule' : 'Jadwal Kustom'}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all cursor-pointer ${
+                      isCustomMode
+                        ? 'bg-amber-500/20 text-amber-900 dark:text-amber-300 shadow-level-1 border border-amber-500/30'
+                        : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    <Icon name="star" size={17} className={isCustomMode ? 'text-amber-500' : ''} />
+                  </button>
+                </div>
+
+                {/* Tombol Atur Matkul jika mode kustom (Icon Only) */}
+                {isCustomMode && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomModalOpen(true)}
+                    title={language === 'en' ? 'Select Courses' : 'Atur Matkul Kustom'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-slate-900 shadow-level-1 hover:bg-amber-400 active:opacity-80 transition-all cursor-pointer"
+                  >
+                    <Icon name="tune" size={15} />
+                  </button>
+                )}
+
+                {/* 4 Tombol Aksi Vertikal Minimalis (Icon Only) */}
+                <div className="w-full pt-1.5 border-t border-outline-variant/20 flex flex-col gap-1 items-center">
+                  <button
+                    type="button"
+                    onClick={() => setAttendanceModalOpen(true)}
+                    title={language === 'en' ? 'Attendance' : 'Rekap Presensi'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
+                  >
+                    <Icon name="fact_check" size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNotesModalOpen(true)}
+                    title={language === 'en' ? 'Course Notes' : 'Semua Catatan'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
+                  >
+                    <Icon name="sticky_note_2" size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPrintModalOpen(true)}
+                    title={language === 'en' ? 'Print PDF' : 'Cetak PDF'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
+                  >
+                    <Icon name="print" size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKrsSimulatorOpen(true)}
+                    title={language === 'en' ? 'KRS Simulator' : 'Simulator KRS'}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
+                  >
+                    <Icon name="science" size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Mini Indicator Bawah */}
+              <div className="pt-1.5 border-t border-outline-variant/15 flex flex-col items-center justify-center text-center">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+            </aside>
           </div>
-        </div>
+        )}
+      </div>
 
       {conflictedIds.size > 0 && (
         <div className="flex items-center gap-sm rounded-2xl bg-error-container/40 p-md text-body-sm text-error">

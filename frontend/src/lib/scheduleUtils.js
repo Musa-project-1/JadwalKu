@@ -109,9 +109,10 @@ export function getTodayName(date = new Date()) {
   return DAY_NAMES[date.getDay()]
 }
 
-/** Format tanggal panjang Indonesia, misal "Senin, 14 Oktober 2024". */
-export function formatLongDate(date = new Date()) {
-  return new Intl.DateTimeFormat('id-ID', {
+/** Format tanggal panjang lokal ('id' atau 'en'), misal "Senin, 14 Oktober 2024" atau "Monday, October 14, 2024". */
+export function formatLongDate(date = new Date(), lang = 'id') {
+  const locale = lang === 'en' ? 'en-US' : 'id-ID'
+  return new Intl.DateTimeFormat(locale, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
