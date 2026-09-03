@@ -252,11 +252,14 @@ export default function Search() {
       ) : !results ? (
         <EmptyState
           icon="search"
-          title="Mulai mencari"
-          description="Ketik kata kunci untuk mencari mata kuliah, dosen, atau tugas."
+          title={language === 'en' ? 'Start Searching' : 'Mulai mencari'}
+          description={language === 'en' ? 'Type keywords to search courses, lecturers, or tasks.' : 'Ketik kata kunci untuk mencari mata kuliah, dosen, atau tugas.'}
         />
       ) : !hasResults ? (
-        <EmptyState icon="search_off" title="Tidak ada hasil ditemukan" />
+        <EmptyState
+          icon="search_off"
+          title={language === 'en' ? 'No results found' : 'Tidak ada hasil ditemukan'}
+        />
       ) : (
         <div className="space-y-lg">
           {(filter === 'all' || filter === 'dosen') && results.lecturerHits.length > 0 && (
