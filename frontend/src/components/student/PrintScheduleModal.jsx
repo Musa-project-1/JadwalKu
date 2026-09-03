@@ -210,10 +210,10 @@ export function PrintScheduleModal({
               <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 space-y-2.5 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <label className="block text-[11px] uppercase tracking-wider text-on-surface-variant font-extrabold">
-                    Informasi Disertakan
+                    {t ? t('print.info_included') : 'Informasi Disertakan'}
                   </label>
                   <span className="text-[10px] font-extrabold text-teal-800 dark:text-teal-300 bg-teal-500/15 border border-teal-500/25 px-2 py-0.5 rounded-full">
-                    {activeOptionsCount}/5 Aktif
+                    {t ? t('print.active_options', { count: activeOptionsCount }) : `${activeOptionsCount}/5 Aktif`}
                   </span>
                 </div>
 
@@ -231,7 +231,7 @@ export function PrintScheduleModal({
                     />
                     <div className="flex items-center gap-1.5 min-w-0">
                       <Icon name="person" size={15} className={showLecturer ? 'text-teal-700 dark:text-teal-400' : 'text-on-surface-variant'} />
-                      <span className="text-[11.5px] truncate">Dosen</span>
+                      <span className="text-[11.5px] truncate">{t ? t('print.lecturer') : 'Dosen'}</span>
                     </div>
                   </label>
 
@@ -248,7 +248,7 @@ export function PrintScheduleModal({
                     />
                     <div className="flex items-center gap-1.5 min-w-0">
                       <Icon name="meeting_room" size={15} className={showRoom ? 'text-teal-700 dark:text-teal-400' : 'text-on-surface-variant'} />
-                      <span className="text-[11.5px] truncate">Ruangan</span>
+                      <span className="text-[11.5px] truncate">{t ? t('print.room') : 'Ruangan'}</span>
                     </div>
                   </label>
 
@@ -265,7 +265,7 @@ export function PrintScheduleModal({
                     />
                     <div className="flex items-center gap-1.5 min-w-0">
                       <Icon name="menu_book" size={15} className={showSks ? 'text-teal-700 dark:text-teal-400' : 'text-on-surface-variant'} />
-                      <span className="text-[11.5px] truncate">Beban SKS</span>
+                      <span className="text-[11.5px] truncate">{t ? t('print.sks') : 'Beban SKS'}</span>
                     </div>
                   </label>
 

@@ -17,7 +17,7 @@ const FILTERS = [
 
 export function SearchModal({ open, onClose }) {
   const navigate = useNavigate()
-  const { program, semester } = useApp()
+  const { program, semester, language, t } = useApp()
   const { tasks } = useTasks()
   const [queryText, setQueryText] = useState('')
   const [filter, setFilter] = useState('all')
@@ -113,7 +113,7 @@ export function SearchModal({ open, onClose }) {
             type="text"
             value={queryText}
             onChange={(e) => setQueryText(e.target.value)}
-            placeholder="Cari jadwal, dosen, tugas..."
+            placeholder={t ? t('search_modal.placeholder') : 'Cari jadwal, dosen, tugas...'}
             className="flex-1 min-w-0 bg-transparent text-body-md tablet:text-body-lg text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none"
           />
           {queryText && (

@@ -23,7 +23,7 @@ const SCOPE_OPTIONS = [
 ]
 
 export function ShareModal({ open, onClose }) {
-  const { program, semester } = useApp()
+  const { program, semester, language, t } = useApp()
   const [scope, setScope] = useState('semester')
   const [copied, setCopied] = useState(false)
   const [imageStatus, setImageStatus] = useState(null) // { ok: boolean, text: string }
@@ -121,7 +121,7 @@ export function ShareModal({ open, onClose }) {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
                     <h2 id="share-modal-title" className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
-                      Bagikan Jadwal
+                      {t ? t('share_modal.title') : 'Bagikan Jadwal'}
                     </h2>
                     <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
                       Export & Sync
@@ -137,7 +137,7 @@ export function ShareModal({ open, onClose }) {
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Tutup modal"
+                aria-label={t ? t('action.close') : 'Tutup modal'}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
               >
                 <Icon name="close" size={20} />
@@ -288,14 +288,14 @@ export function ShareModal({ open, onClose }) {
           {/* Footer Bar */}
           <footer className="flex items-center justify-between p-4 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0">
             <span className="text-[11px] font-extrabold text-teal-800 dark:text-teal-300 bg-teal-500/15 border border-teal-500/25 px-2.5 py-1 rounded-xl shadow-2xs">
-              {source.length} kelas akan diekspor
+              {language === 'en' ? `${source.length} classes will be exported` : `${source.length} kelas akan diekspor`}
             </span>
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-1.5 rounded-xl text-body-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer"
             >
-              Tutup
+              {t ? t('modal.close') : 'Tutup'}
             </button>
           </footer>
         </div>

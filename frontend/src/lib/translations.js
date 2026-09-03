@@ -188,17 +188,50 @@ export const TRANSLATIONS = {
     'search.results_course': 'Mata Kuliah',
     'search.empty_query': 'Ketik nama dosen, mata kuliah, atau kode MK',
 
-    // ── Print Modal ──
-    'print.modal_title': 'Cetak Jadwal Kuliah',
-    'print.layout_wall': 'Meja (Tabel A4)',
-    'print.layout_wall_sub': 'Tabel Lengkap',
-    'print.layout_matrix': 'Matriks Sesi',
-    'print.layout_matrix_sub': 'Pagi – Malam',
-    'print.layout_pocket': 'Kartu Saku Lipat',
-    'print.layout_pocket_sub': 'Ukuran Saku Praktis',
-    'print.preview_title': 'Pratinjau Lembar Cetak',
-    'print.action_btn': 'Cetak / Simpan PDF',
-    'print.print_date': 'Tanggal Cetak: {date}',
+    // ── Print Modal Options ──
+    'print.info_included': 'Informasi Disertakan',
+    'print.active_options': '{count}/5 Aktif',
+    'print.lecturer': 'Dosen',
+    'print.room': 'Ruangan',
+    'print.sks': 'Beban SKS',
+    'print.notes': 'Catatan / Tugas',
+    'print.memo_space': 'Ruang Memo Tangan',
+    'print.tips_title': 'Tips Hasil Cetak Tajam & Hemat Tinta',
+    'print.tips_desc': 'Pilih opsi cetak "Save as PDF" atau atur printer ke "Monochrome / Grayscale" untuk hasil paling bersih dan hemat tinta.',
+    'print.ready_a4': 'Siap dicetak pada ukuran kertas A4',
+    'print.memo_box_hint': '(Ruang catatan tangan / tugas penting semester ini)',
+
+    // ── Lecturer Timetable Modal ──
+    'lecturer_modal.no_schedule_today': 'Tidak ada jadwal mengajar hari ini',
+    'lecturer_modal.teaching_now': 'Sedang mengajar {course} di {room} (s.d. {time} WIB)',
+    'lecturer_modal.class_today': 'Ada kelas hari ini: {course} pukul {time} WIB di {room}',
+    'lecturer_modal.finished_today': 'Seluruh jadwal mengajar hari ini telah selesai',
+    'lecturer_modal.empty_teaching': 'Belum ada jadwal mengajar terpublikasi untuk dosen ini.',
+    'lecturer_modal.classes_count': '{count} Kelas Mengajar',
+    'lecturer_modal.courses_count': '{count} Mata Kuliah',
+    'lecturer_modal.students_count': '{count} Mahasiswa Terdaftar',
+    'lecturer_modal.contact_wa': 'Hubungi via WhatsApp',
+
+    // ── Class Detail Panel ──
+    'class_detail.title': 'Detail Perkuliahan',
+    'class_detail.no_wa': 'Kontak WhatsApp dosen belum tersedia',
+    'class_detail.reminder_15m': 'Pengingat 15m sebelum kelas',
+    'class_detail.notes_ph': 'Tulis catatan penting perkuliahan, instruksi dosen, tugas, atau kuis...',
+    'class_detail.save_notes': 'Simpan Catatan',
+    'class_detail.delete_notes': 'Hapus',
+    'class_detail.online_meeting': 'Tautan Kuliah Online',
+    'class_detail.add_link': 'Atur Link',
+
+    // ── Search & Share Modal ──
+    'search_modal.placeholder': 'Cari jadwal, dosen, tugas...',
+    'search_modal.empty_desc': 'Cari jadwal kuliah, nama dosen pengampu, atau tugas yang sedang aktif.',
+    'share_modal.title': 'Bagikan Jadwal Kuliah',
+    'share_modal.scope_current': 'Semester ini saja',
+    'share_modal.scope_current_sub': 'Hanya jadwal sesuai prodi & semester aktif',
+    'share_modal.scope_all': 'Semua kelas prodi',
+    'share_modal.scope_all_sub': 'Seluruh jadwal yang terpublikasi',
+    'share_modal.cal_desc': 'Sinkron otomatis via file kalender .ics',
+    'share_modal.image_desc': 'Simpan / kirim kartu grafis visual jadwal',
 
     // ── Notifications Page ──
     'notifications.title': 'Pengingat & Notifikasi',
@@ -493,17 +526,50 @@ export const TRANSLATIONS = {
     'search.results_course': 'Courses',
     'search.empty_query': 'Type lecturer name, course title, or course code',
 
-    // ── Print Modal ──
-    'print.modal_title': 'Print Class Schedule',
-    'print.layout_wall': 'Desk (A4 Table)',
-    'print.layout_wall_sub': 'Full Table',
-    'print.layout_matrix': 'Session Matrix',
-    'print.layout_matrix_sub': 'Morning – Evening',
-    'print.layout_pocket': 'Folded Pocket Card',
-    'print.layout_pocket_sub': 'Compact Pocket Size',
-    'print.preview_title': 'Print Sheet Preview',
-    'print.action_btn': 'Print / Save PDF',
-    'print.print_date': 'Print Date: {date}',
+    // ── Print Modal Options ──
+    'print.info_included': 'Included Information',
+    'print.active_options': '{count}/5 Active',
+    'print.lecturer': 'Lecturer',
+    'print.room': 'Classroom',
+    'print.sks': 'Credits',
+    'print.notes': 'Notes / Tasks',
+    'print.memo_space': 'Handwritten Memo Space',
+    'print.tips_title': 'Tips for Sharp Print & Ink Saving',
+    'print.tips_desc': 'Select "Save as PDF" or set printer to "Monochrome / Grayscale" for cleanest layout and minimal ink usage.',
+    'print.ready_a4': 'Ready to print on A4 paper size',
+    'print.memo_box_hint': '(Handwritten notes / important deadlines for this semester)',
+
+    // ── Lecturer Timetable Modal ──
+    'lecturer_modal.no_schedule_today': 'No teaching schedule today',
+    'lecturer_modal.teaching_now': 'Currently teaching {course} at {room} (until {time} WIB)',
+    'lecturer_modal.class_today': 'Class today: {course} at {time} WIB in {room}',
+    'lecturer_modal.finished_today': 'All teaching sessions for today are finished',
+    'lecturer_modal.empty_teaching': 'No published teaching schedule found for this lecturer.',
+    'lecturer_modal.classes_count': '{count} Teaching Classes',
+    'lecturer_modal.courses_count': '{count} Courses',
+    'lecturer_modal.students_count': '{count} Enrolled Students',
+    'lecturer_modal.contact_wa': 'Contact via WhatsApp',
+
+    // ── Class Detail Panel ──
+    'class_detail.title': 'Lecture Details',
+    'class_detail.no_wa': 'Lecturer WhatsApp contact is not available',
+    'class_detail.reminder_15m': 'Reminder 15m before class',
+    'class_detail.notes_ph': 'Write important lecture notes, lecturer instructions, assignments, or quizzes...',
+    'class_detail.save_notes': 'Save Notes',
+    'class_detail.delete_notes': 'Delete',
+    'class_detail.online_meeting': 'Online Meeting Link',
+    'class_detail.add_link': 'Configure Link',
+
+    // ── Search & Share Modal ──
+    'search_modal.placeholder': 'Search schedule, lecturers, tasks...',
+    'search_modal.empty_desc': 'Search lecture schedules, course lecturers, or pending assignments.',
+    'share_modal.title': 'Share Class Schedule',
+    'share_modal.scope_current': 'Current semester only',
+    'share_modal.scope_current_sub': 'Only classes matching active program & semester',
+    'share_modal.scope_all': 'All program classes',
+    'share_modal.scope_all_sub': 'All published classes for this program',
+    'share_modal.cal_desc': 'Automatic sync via .ics calendar file',
+    'share_modal.image_desc': 'Save / send visual graphic schedule card',
 
     // ── Notifications Page ──
     'notifications.title': 'Reminders & Notifications',

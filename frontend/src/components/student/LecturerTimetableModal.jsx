@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
+import { useApp } from '../../hooks/useApp'
 import { DAYS } from '../../lib/uploadValidator'
 import { formatRuang, getTodayName, sortByTime } from '../../lib/scheduleUtils'
 import { formatWhatsAppUrl, getLecturerInitials } from '../../lib/lecturerUtils'
@@ -20,6 +21,7 @@ export function LecturerTimetableModal({
   allSchedules = [],
   courses = [],
 }) {
+  const { language, t } = useApp()
   const [copied, setCopied] = useState(false)
 
   const courseMap = useMemo(() => {
@@ -93,37 +95,49 @@ export function LecturerTimetableModal({
     const todayClasses = lecturerSchedules.filter((s) => s.hari === todayName)
     if (todayClasses.length === 0) {
       return {
-        type: 'free',
-        message: 'Tidak ada jadwal mengajar hari ini',
+        status: 'idle',
+        message: t ? t('lecturer_modal.no_schedule_today') : 'Tidak ada jadwal mengajar hari ini',
       }
     }
 
-    // Cek apakah sedang berlangsung saat ini
+    // Cek apakah sedang ada kelas berlangsung sekarang
     for (const c of todayClasses) {
       const start = toMin(c.jamMulai)
       const end = toMin(c.jamSelesai)
-      if (nowMin >= start && nowMin <= end) {
+      if (nowMinutes >= start && nowMinutes <= end) {
         const course = courseMap.get(c.kodeMK)
         return {
-          type: 'ongoing',
-          message: `Sedang mengajar ${course?.namaMK || c.kodeMK} di ${formatRuang(c.ruang, c.tipeKelas)} (s.d. ${c.jamSelesai} WIB)`,
-          currentClass: c,
+          status: 'ongoing',
+          message: t
+            ? t('lecturer_modal.teaching_now', {
+                course: course?.namaMK || c.kodeMK,
+                room: formatRuang(c.ruang, c.tipeKelas),
+                time: c.jamSelesai,
+              })
+            : `Sedang mengajar ${course?.namaMK || c.kodeMK} di ${formatRuang(c.ruang, c.tipeKelas)} (s.d. ${c.jamSelesai} WIB)`,
         }
       }
     }
 
     // Cek kelas berikutnya hari ini
-    const upcoming = todayClasses
-      .filter((c) => toMin(c.jamMulai) > nowMin)
-      .sort((a, b) => toMin(a.jamMulai) - toMin(b.jamMulai))[0]
-
+    const upcoming = todayClasses.find((c) => toMin(c.jamMulai) > nowMinutes)
     if (upcoming) {
       const course = courseMap.get(upcoming.kodeMK)
       return {
-        type: 'upcoming',
-        message: `Ada kelas hari ini: ${course?.namaMK || upcoming.kodeMK} pukul ${upcoming.jamMulai} WIB di ${formatRuang(upcoming.ruang, upcoming.tipeKelas)}`,
-        upcomingClass: upcoming,
+        status: 'upcoming',
+        message: t
+          ? t('lecturer_modal.class_today', {
+              course: course?.namaMK || upcoming.kodeMK,
+              room: formatRuang(upcoming.ruang, upcoming.tipeKelas),
+              time: upcoming.jamMulai,
+            })
+          : `Ada kelas hari ini: ${course?.namaMK || upcoming.kodeMK} pukul ${upcoming.jamMulai} WIB di ${formatRuang(upcoming.ruang, upcoming.tipeKelas)}`,
       }
+    }
+
+    return {
+      status: 'done',
+      message: t ? t('lecturer_modal.finished_today') : 'Seluruh jadwal mengajar hari ini telah selesai',
     }
 
     return {
@@ -333,7 +347,7 @@ export function LecturerTimetableModal({
         {/* Footer */}
         <footer className="flex items-center justify-end p-4 border-t border-outline-variant/15 bg-surface-container/20 shrink-0">
           <Button type="button" onClick={onClose} className="font-bold">
-            Tutup
+            {t ? t('modal.close') : 'Tutup'}
           </Button>
         </footer>
       </div>
