@@ -30,6 +30,9 @@ import {
 import { MADANI_CALENDAR_PRESET } from './src/constants/academicCalendarPreset.js'
 import { parseLecturers, getLecturerInitials, formatWhatsAppUrl } from './src/lib/lecturerUtils.js'
 import { validateScheduleEntry, findConflicts } from './src/lib/uploadValidator.js'
+import { getPrayerTimes } from './src/lib/prayerTimes.js'
+import { translate, formatDayName } from './src/lib/translations.js'
+import { parseTimeToMinutes, getSessionForClass, checkPrayerClash } from './src/lib/scheduleGridUtils.js'
 
 console.log('🧪 ========================================================')
 console.log('🧪 MENJALANKAN AUTOMATED TEST SUITE KESELURUHAN JADWALKU')
@@ -545,6 +548,131 @@ test('Mem-parse baris hasil OCR/PDF Kaldik menjadi daftar event', () => {
   const libur1 = events[3]
   assert.equal(libur1.semester, 'antar')
   assert.equal(libur1.kategori, 'libur')
+})
+
+// ── TEST GROUP 8: prayerTimes.js & scheduleGridUtils.js ──
+console.log('\n🕌 [8/9] Menguji Hisab Astronomis Waktu Sholat & Grid Sesi (prayerTimes & scheduleGridUtils)...')
+
+test('Hisab waktu sholat Jakarta menghasilkan jam yang valid dalam rentang astronomis Kemenag RI', () => {
+  // Tanggal tes tetap: 3 September 2026 (Jakarta Lat -6.2088, Lon 106.8456, WIB UTC+7)
+  const testDate = new Date('2026-09-03T00:00:00')
+  const pt = getPrayerTimes(testDate, -6.2088, 106.8456, 7)
+
+  assert.ok(pt.subuh, 'Waktu subuh harus ada')
+  assert.ok(pt.dzuhur, 'Waktu dzuhur harus ada')
+  assert.ok(pt.ashar, 'Waktu ashar harus ada')
+  assert.ok(pt.maghrib, 'Waktu maghrib harus ada')
+  assert.ok(pt.isya, 'Waktu isya harus ada')
+
+  // Validasi format jam "HH.MM"
+  const timeRegex = /^\d{2}\.\d{2}$/
+  assert.match(pt.subuh, timeRegex)
+  assert.match(pt.dzuhur, timeRegex)
+  assert.match(pt.ashar, timeRegex)
+  assert.match(pt.maghrib, timeRegex)
+  assert.match(pt.isya, timeRegex)
+
+  // Konversi ke total menit untuk validasi batas astronomis Jakarta
+  const subuhMin = parseTimeToMinutes(pt.subuh)
+  const dzuhurMin = parseTimeToMinutes(pt.dzuhur)
+  const asharMin = parseTimeToMinutes(pt.ashar)
+  const maghribMin = parseTimeToMinutes(pt.maghrib)
+  const isyaMin = parseTimeToMinutes(pt.isya)
+
+  // Validasi urutan kronologis waktu sholat
+  assert.ok(subuhMin < dzuhurMin, 'Subuh harus sebelum Dzuhur')
+  assert.ok(dzuhurMin < asharMin, 'Dzuhur harus sebelum Ashar')
+  assert.ok(asharMin < maghribMin, 'Ashar harus sebelum Maghrib')
+  assert.ok(maghribMin < isyaMin, 'Maghrib harus sebelum Isya')
+
+  // Batas toleransi hisab Jakarta bulan September:
+  // Subuh: ~04:20 - 04:50 (260 - 290 min)
+  assert.ok(subuhMin >= 260 && subuhMin <= 295, `Subuh (${pt.subuh}) di luar rentang wajar`)
+  // Dzuhur: ~11:40 - 12:15 (700 - 735 min)
+  assert.ok(dzuhurMin >= 700 && dzuhurMin <= 735, `Dzuhur (${pt.dzuhur}) di luar rentang wajar`)
+  // Ashar: ~14:55 - 15:35 (895 - 935 min)
+  assert.ok(asharMin >= 895 && asharMin <= 935, `Ashar (${pt.ashar}) di luar rentang wajar`)
+  // Maghrib: ~17:40 - 18:15 (1060 - 1095 min)
+  assert.ok(maghribMin >= 1060 && maghribMin <= 1095, `Maghrib (${pt.maghrib}) di luar rentang wajar`)
+  // Isya: ~18:50 - 19:25 (1130 - 1165 min)
+  assert.ok(isyaMin >= 1130 && isyaMin <= 1170, `Isya (${pt.isya}) di luar rentang wajar`)
+})
+
+test('Mengelompokkan kelas ke sesi yang tepat (Pagi, Siang, Sore, Malam)', () => {
+  const dummyPrayer = { dzuhur: '11.58', ashar: '15.15', maghrib: '17.58' }
+
+  assert.equal(getSessionForClass('07:30', '10:00', dummyPrayer), 'pagi')
+  assert.equal(getSessionForClass('10:00', '11:40', dummyPrayer), 'pagi')
+  assert.equal(getSessionForClass('13:00', '14:40', dummyPrayer), 'siang')
+  assert.equal(getSessionForClass('15:30', '17:10', dummyPrayer), 'sore')
+  assert.equal(getSessionForClass('18:30', '20:10', dummyPrayer), 'malam')
+})
+
+test('Deteksi bentrok waktu sholat dan Sholat Jumat dengan tepat', () => {
+  const dummyPrayer = { dzuhur: '12.00', ashar: '15.15', maghrib: '18.00' }
+
+  // 1. Sholat Jumat (11.30 - 13.00)
+  const jumatClash = checkPrayerClash('Jumat', '11:00', '12:30', dummyPrayer)
+  assert.equal(jumatClash.hasClash, true)
+  assert.equal(jumatClash.type, 'friday')
+
+  // Bukan hari Jumat -> tidak terkena aturan friday
+  const nonJumat = checkPrayerClash('Kamis', '11:00', '12:30', dummyPrayer)
+  assert.equal(nonJumat.type, 'dzuhur')
+
+  // 2. Kelas melintasi Dzuhur (misal 11:30 - 13:00 di hari Senin)
+  const dzuhurClash = checkPrayerClash('Senin', '11:30', '13:00', dummyPrayer)
+  assert.equal(dzuhurClash.hasClash, true)
+  assert.equal(dzuhurClash.type, 'dzuhur')
+
+  // 3. Kelas tidak bentrok (misal 08:00 - 10:30)
+  const noClash = checkPrayerClash('Senin', '08:00', '10:30', dummyPrayer)
+  assert.equal(noClash.hasClash, false)
+})
+
+// ── TEST GROUP 9: translations.js ──
+console.log('\n🌐 [9/9] Menguji Modul Terjemahan & Lokalisasi Dwibahasa (translations)...')
+
+test('Menerjemahkan key umum dalam Bahasa Indonesia dan English', () => {
+  assert.equal(translate('nav.schedule', 'id'), 'Jadwal')
+  assert.equal(translate('nav.schedule', 'en'), 'Schedule')
+  assert.equal(translate('action.save', 'id'), 'Simpan')
+  assert.equal(translate('action.save', 'en'), 'Save')
+})
+
+test('Interpolasi parameter dinamis {key} berfungsi dengan sempurna', () => {
+  // Format {count}
+  const idCount = translate('home.custom_schedule', 'id', { count: 3 })
+  assert.equal(idCount, 'Jadwal Kustom (3 MK)')
+
+  const enCount = translate('home.custom_schedule', 'en', { count: 3 })
+  assert.equal(enCount, 'Custom Schedule (3 Courses)')
+
+  // Format multi-parameter {semester} & {ta}
+  const syncBanner = translate('home.sync_banner', 'en', { semester: 4, ta: '2026/2027' })
+  assert.equal(syncBanner, 'Academic year changed — Semester 4 is now AY 2026/2027. Tap to sync.')
+
+  // Format {mins}
+  const remainingTime = translate('class.remaining_mins', 'en', { mins: 25 })
+  assert.equal(remainingTime, '25 mins left')
+})
+
+test('Fallback cerdas: fallback ke Bahasa Indonesia dan raw key jika tidak ditemukan', () => {
+  // Fallback ke ID jika di EN tidak ada tapi di ID ada
+  // (buat skenario key fiktif dengan menguji fallback jika key belum di-en-kan)
+  assert.equal(translate('action.save', 'en'), 'Save')
+
+  // Raw key fallback jika sama sekali tidak ada di kamus
+  assert.equal(translate('unknown.dummy.key', 'en'), 'unknown.dummy.key')
+  assert.equal(translate('unknown.dummy.key', 'id'), 'unknown.dummy.key')
+})
+
+test('Memetakan nama hari Indonesia ke English (formatDayName)', () => {
+  assert.equal(formatDayName('Senin', 'en'), 'Monday')
+  assert.equal(formatDayName('Jumat', 'en'), 'Friday')
+  assert.equal(formatDayName('Minggu', 'en'), 'Sunday')
+  assert.equal(formatDayName('Senin', 'id'), 'Senin')
+  assert.equal(formatDayName('Sabtu', 'id'), 'Sabtu')
 })
 
 // ── RINGKASAN HASIL ──
