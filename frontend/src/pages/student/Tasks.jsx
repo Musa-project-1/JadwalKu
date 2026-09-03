@@ -171,7 +171,7 @@ export default function Tasks() {
           <button
             type="button"
             onClick={() => setStatusFilter('active')}
-            className={`px-3 py-1 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-body-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'active'
                 ? 'bg-primary/10 text-primary border border-primary/25 shadow-level-1'
                 : 'text-on-surface-variant hover:bg-surface-container'
@@ -182,7 +182,7 @@ export default function Tasks() {
           <button
             type="button"
             onClick={() => setStatusFilter('done')}
-            className={`px-3 py-1 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-body-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'done'
                 ? 'bg-primary/10 text-primary border border-primary/25 shadow-level-1'
                 : 'text-on-surface-variant hover:bg-surface-container'
@@ -193,7 +193,7 @@ export default function Tasks() {
           <button
             type="button"
             onClick={() => setStatusFilter('all')}
-            className={`px-3 py-1 rounded-xl text-body-xs font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-body-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'all'
                 ? 'bg-primary/10 text-primary border border-primary/25 shadow-level-1'
                 : 'text-on-surface-variant hover:bg-surface-container'

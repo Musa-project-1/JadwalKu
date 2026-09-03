@@ -159,7 +159,7 @@ export default function Exams() {
             onClick={handleExportExamIcs}
             disabled={filtered.length === 0}
             title={`Tambahkan Jadwal Ujian ${jenis} ke Kalender Smartphone (.ics)`}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-primary/10 hover:bg-primary/20 text-primary text-body-xs font-bold border border-primary/25 transition-all shadow-level-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-body-xs font-bold border border-primary/25 transition-all shadow-level-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             <Icon name="event" size={15} />
             <span>{t ? t('exams.sync_cal') : 'Kalender HP (.ics)'}</span>
