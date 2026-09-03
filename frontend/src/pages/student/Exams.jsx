@@ -196,7 +196,12 @@ export default function Exams() {
           </div>
           <span className="hidden tablet:inline h-4 w-px bg-outline-variant/30 shrink-0" />
           <span className="hidden tablet:inline text-on-surface-variant/70 whitespace-nowrap">
-            {jenis === 'UTS' ? 'Tengah Semester' : 'Akhir Semester'} · {filtered.length} terfilter
+            {t
+              ? t('exams.filtered_summary', {
+                  jenisLabel: jenis === 'UTS' ? (language === 'en' ? 'Midterm' : 'Tengah Semester') : (language === 'en' ? 'Final Exam' : 'Akhir Semester'),
+                  count: filtered.length,
+                })
+              : `${jenis === 'UTS' ? 'Tengah Semester' : 'Akhir Semester'} · ${filtered.length} terfilter`}
           </span>
         </div>
 
@@ -206,15 +211,15 @@ export default function Exams() {
             <div className="flex items-center gap-2 text-body-xs font-semibold text-on-surface-variant bg-primary/10 border border-primary/20 px-3 py-1 rounded-xl shadow-level-1">
               <Icon name="timer" size={15} className="text-primary shrink-0" />
               <span className="text-on-surface font-bold truncate max-w-[14ch] tablet:max-w-none">
-                Terdekat: {nextExam.namaMK ?? nextExam.kodeMK}
+                {t ? t('exams.upcoming', { course: nextExam.namaMK ?? nextExam.kodeMK }) : `Terdekat: ${nextExam.namaMK ?? nextExam.kodeMK}`}
               </span>
               <span className="hidden tablet:inline text-primary">·</span>
               <span className="text-primary font-extrabold whitespace-nowrap">
                 {(() => {
                   const d = daysUntil(nextExam.tanggal)
-                  if (d === 0) return 'Hari ini'
-                  if (d === 1) return 'Besok'
-                  return `${d} hari lagi`
+                  if (d === 0) return t ? t('exams.today') : 'Hari ini'
+                  if (d === 1) return language === 'en' ? 'Tomorrow' : 'Besok'
+                  return t ? t('exams.days_left', { days: d }) : `${d} hari lagi`
                 })()}
               </span>
             </div>
@@ -277,9 +282,16 @@ export default function Exams() {
           <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary border border-primary/20 shadow-level-1 mb-3">
             <Icon name={jenis === 'UTS' ? 'quiz' : 'school'} size={36} />
           </div>
-          <h3 className="text-title-md font-bold text-on-surface">Belum ada data ujian {jenis}</h3>
+          <h3 className="text-title-md font-bold text-on-surface">
+            {t ? t('exams.empty_title', { jenis }) : `Belum ada data ujian ${jenis}`}
+          </h3>
           <p className="mt-1.5 text-body-xs text-on-surface-variant max-w-md mx-auto leading-relaxed">
-            Jadwal {jenis === 'UTS' ? 'Ujian Tengah Semester (UTS)' : 'Ujian Akhir Semester (UAS)'} untuk TA {selectedTA} akan ditampilkan secara otomatis setelah dipublikasikan oleh Bagian Akademik.
+            {t
+              ? t('exams.empty_desc', {
+                  jenisFull: jenis === 'UTS' ? (language === 'en' ? 'Midterm Exam (UTS)' : 'Ujian Tengah Semester (UTS)') : (language === 'en' ? 'Final Exam (UAS)' : 'Ujian Akhir Semester (UAS)'),
+                  ta: selectedTA,
+                })
+              : `Jadwal ${jenis === 'UTS' ? 'Ujian Tengah Semester (UTS)' : 'Ujian Akhir Semester (UAS)'} untuk TA ${selectedTA} akan ditampilkan secara otomatis setelah dipublikasikan oleh Bagian Akademik.`}
           </p>
         </div>
       ) : (
@@ -292,7 +304,7 @@ export default function Exams() {
                   <span>{formatExamDate(dateLabel)}</span>
                 </span>
                 <span className="text-label-caps font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
-                  {exams.length} Ujian
+                  {t ? t('exams.count_badge', { count: exams.length }) : `${exams.length} Ujian`}
                 </span>
               </div>
               <div className="space-y-3">

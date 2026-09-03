@@ -211,7 +211,7 @@ export default function Tasks() {
               onChange={(e) => setCourseFilter(e.target.value)}
               className="px-2.5 py-1 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 text-body-xs text-on-surface font-semibold focus:outline-none focus:border-primary dark:bg-surface-container-high cursor-pointer"
             >
-              <option value="all">Semua Mata Kuliah</option>
+              <option value="all">{t ? t('tasks.all_courses') : 'Semua Mata Kuliah'}</option>
               {availableCourseCodes.map((kode) => (
                 <option key={kode} value={kode}>
                   {kode}
@@ -222,7 +222,7 @@ export default function Tasks() {
 
           {tasks.length > 0 && (
             <div className="flex items-center gap-2 text-body-xs font-semibold text-on-surface-variant">
-              <span>Progres: <strong className="text-on-surface">{progress}%</strong></span>
+              <span>{t ? t('tasks.progress_label') : 'Progres'}: <strong className="text-on-surface">{progress}%</strong></span>
               <div className="w-16 h-2 bg-surface-container-highest rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary rounded-full transition-all duration-300"
@@ -239,7 +239,7 @@ export default function Tasks() {
         <div className="rounded-2xl border border-error/30 bg-error/10 dark:bg-error/15 p-4 space-y-2 shadow-level-1">
           <div className="flex items-center gap-2 text-error font-extrabold text-body-xs">
             <Icon name="priority_high" size={17} className="shrink-0 animate-bounce" />
-            <span>Tugas Mendesak Mendekati Tenggat Waktu</span>
+            <span>{t ? t('tasks.urgent_banner') : 'Tugas Mendesak Mendekati Tenggat Waktu'}</span>
           </div>
           <div className="grid grid-cols-1 tablet:grid-cols-3 gap-2">
             {highPriority.map((t) => (
@@ -265,9 +265,9 @@ export default function Tasks() {
           <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary border border-primary/20 shadow-level-1 mb-3">
             <Icon name="assignment" size={36} />
           </div>
-          <h3 className="text-title-md font-bold text-on-surface">Belum ada tugas kuliah</h3>
+          <h3 className="text-title-md font-bold text-on-surface">{t ? t('tasks.empty_title') : 'Belum ada tugas kuliah'}</h3>
           <p className="mt-1.5 text-body-xs text-on-surface-variant max-w-md mx-auto leading-relaxed">
-            Catat tugas individu, PR mingguan, laporan praktikum, atau tugas kelompok bersama prodi agar tidak terlewat tenggat waktu.
+            {t ? t('tasks.empty_desc') : 'Catat tugas individu, PR mingguan, laporan praktikum, atau tugas kelompok bersama prodi agar tidak terlewat tenggat waktu.'}
           </p>
           <button
             type="button"
@@ -278,14 +278,14 @@ export default function Tasks() {
             className="mt-5 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary text-body-sm font-bold shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
           >
             <Icon name="add" size={18} />
-            <span>Tambah Tugas Baru</span>
+            <span>{t ? t('tasks.add_modal_title') : 'Tambah Tugas Baru'}</span>
           </button>
         </div>
       ) : filteredTasks.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-outline-variant/35 bg-surface-container-lowest dark:bg-surface-container-low p-8 text-center shadow-level-1">
           <Icon name="filter_list_off" size={36} className="mx-auto text-outline-variant mb-2" />
-          <h4 className="text-body-sm font-bold text-on-surface">Tidak ada tugas yang sesuai filter</h4>
-          <p className="text-body-xs text-on-surface-variant mt-1">Coba ubah status atau kategori tugas di atas.</p>
+          <h4 className="text-body-sm font-bold text-on-surface">{t ? t('tasks.empty_filter_title') : 'Tidak ada tugas yang sesuai filter'}</h4>
+          <p className="text-body-xs text-on-surface-variant mt-1">{t ? t('tasks.empty_filter_desc') : 'Coba ubah status atau kategori tugas di atas.'}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -294,7 +294,7 @@ export default function Tasks() {
             <div className="space-y-2">
               <div className="flex items-center gap-2 px-1">
                 <span className="text-label-caps font-extrabold uppercase tracking-wider text-on-surface-variant">
-                  Tenggat Minggu Ini ({thisWeek.length})
+                  {t ? t('tasks.due_this_week', { count: thisWeek.length }) : `Tenggat Minggu Ini (${thisWeek.length})`}
                 </span>
               </div>
               <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3">

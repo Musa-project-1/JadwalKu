@@ -111,7 +111,7 @@ export function PrintScheduleModal({
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
                     <h2 id="print-schedule-title" className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
-                      Cetak Jadwal Kuliah
+                      {t ? t('print.modal_title') : 'Cetak Jadwal Kuliah'}
                     </h2>
                     <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
                       A4 Ready
@@ -127,7 +127,7 @@ export function PrintScheduleModal({
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Tutup modal"
+                aria-label={t ? t('action.close') : 'Tutup modal'}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
               >
                 <Icon name="close" size={20} />
@@ -557,7 +557,7 @@ export function PrintScheduleModal({
                 onClick={onClose}
                 className="px-4 py-2 rounded-xl text-body-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer"
               >
-                Batal
+                {t ? t('action.cancel') : 'Batal'}
               </button>
               <button
                 type="button"
@@ -565,7 +565,7 @@ export function PrintScheduleModal({
                 className="flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-800 hover:bg-teal-700 text-white text-body-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer"
               >
                 <Icon name="print" size={16} />
-                <span>Cetak / Simpan PDF</span>
+                <span>{t ? t('print.action_btn') : 'Cetak / Simpan PDF'}</span>
               </button>
             </div>
           </div>

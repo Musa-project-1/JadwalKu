@@ -12,22 +12,22 @@ import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 import { LecturerTimetableModal } from '../../components/student/LecturerTimetableModal'
 import { getLecturerInitials } from '../../lib/lecturerUtils'
 
-const FILTERS = [
-  { value: 'all', label: 'Semua' },
-  { value: 'dosen', label: '👨‍🏫 Dosen & Jadwal' },
-  { value: 'mk', label: 'Mata Kuliah' },
-  { value: 'tugas', label: 'Tugas' },
-  { value: 'jadwal', label: 'Jadwal Kelas' },
-]
-
 export default function Search() {
-  const { language } = useApp()
+  const { language, t } = useApp()
   const { tasks } = useTasks()
   const [queryText, setQueryText] = useState('')
   const debouncedQuery = useDebounce(queryText, 250)
   const [filter, setFilter] = useState('all')
   const [recents, setRecents] = useState(() => getItem(STORAGE_KEYS.recentSearches, []))
   const [selectedLecturer, setSelectedLecturer] = useState(null)
+
+  const FILTERS = useMemo(() => [
+    { value: 'all', label: t ? t('search.filter_all') : 'Semua' },
+    { value: 'dosen', label: t ? t('search.filter_lecturer') : '👨‍🏫 Dosen & Jadwal' },
+    { value: 'mk', label: t ? t('search.filter_course') : 'Mata Kuliah' },
+    { value: 'tugas', label: language === 'en' ? 'Tasks' : 'Tugas' },
+    { value: 'jadwal', label: language === 'en' ? 'Class Schedule' : 'Jadwal Kelas' },
+  ], [t, language])
 
   const { data: allPublishedJadwal } = useFirestore('jadwal', [
     ['status', '==', 'published'],
@@ -172,7 +172,7 @@ export default function Search() {
       {!results && recents.length > 0 && (
         <section>
           <h3 className="mb-sm text-label-caps uppercase text-on-surface-variant">
-            Pencarian Terakhir
+            {t ? t('search.recent') : 'Pencarian Terakhir'}
           </h3>
           <div className="flex flex-wrap gap-xs">
             {recents.map((r) => (
@@ -232,10 +232,10 @@ export default function Search() {
           <div className="flex items-center justify-between">
             <h3 className="flex items-center gap-2 text-label-caps uppercase text-on-surface-variant font-bold">
               <Icon name="person" size={18} className="text-primary" />
-              Direktori Dosen Pengampu ({allLecturers.length})
+              {t ? t('search.lecturer_dir', { count: allLecturers.length }) : `Direktori Dosen Pengampu (${allLecturers.length})`}
             </h3>
             <span className="text-body-xs text-on-surface-variant">
-              Klik nama dosen untuk melihat jadwal mengajar
+              {language === 'en' ? 'Click lecturer to view teaching schedule' : 'Klik nama dosen untuk melihat jadwal mengajar'}
             </span>
           </div>
 
@@ -260,7 +260,7 @@ export default function Search() {
       ) : (
         <div className="space-y-lg">
           {(filter === 'all' || filter === 'dosen') && results.lecturerHits.length > 0 && (
-            <ResultSection title="Dosen & Jadwal Mengajar" icon="person">
+            <ResultSection title={t ? t('search.results_lecturer') : 'Dosen & Jadwal Mengajar'} icon="person">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {results.lecturerHits.map((lec) => (
                   <LecturerCard
@@ -274,7 +274,7 @@ export default function Search() {
           )}
 
           {(filter === 'all' || filter === 'mk') && results.courseHits.length > 0 && (
-            <ResultSection title="Mata Kuliah" icon="menu_book">
+            <ResultSection title={t ? t('search.results_course') : 'Mata Kuliah'} icon="menu_book">
               {results.courseHits.map((c) => (
                 <ResultRow
                   key={c.kodeMK}
