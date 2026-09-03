@@ -792,8 +792,8 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                     : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
-                <span>Mendesak</span>
-                <span className="text-label-caps opacity-75 font-medium">Prioritas Tinggi</span>
+                <span>{t ? t('task_form.urgent') : 'Mendesak'}</span>
+                <span className="text-label-caps opacity-75 font-medium">{t ? t('task_form.priority_high') : 'Prioritas Tinggi'}</span>
               </button>
 
               <button
@@ -805,8 +805,8 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                     : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
-                <span>Segera</span>
-                <span className="text-label-caps opacity-75 font-medium">Prioritas Sedang</span>
+                <span>{t ? t('task_form.medium') : 'Segera'}</span>
+                <span className="text-label-caps opacity-75 font-medium">{t ? t('task_form.priority_med') : 'Prioritas Sedang'}</span>
               </button>
 
               <button
@@ -818,8 +818,8 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
                     : 'border-outline-variant/30 bg-surface-container-low/40 text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
-                <span>Masih Lama</span>
-                <span className="text-label-caps opacity-75 font-medium">Prioritas Rendah</span>
+                <span>{t ? t('task_form.low') : 'Masih Lama'}</span>
+                <span className="text-label-caps opacity-75 font-medium">{t ? t('task_form.priority_low') : 'Prioritas Rendah'}</span>
               </button>
             </div>
           </fieldset>
@@ -844,10 +844,10 @@ function AddTaskForm({ initialKodeMK = '', onSubmit, onCancel }) {
         {/* Footer Actions */}
         <footer className="flex items-center justify-end gap-2.5 p-4 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0">
           <Button type="button" variant="secondary" onClick={onCancel} className="px-5 py-2 font-semibold">
-            Batal
+            {t ? t('modal.cancel') : 'Batal'}
           </Button>
           <Button type="submit" className="px-6 py-2 font-bold shadow-level-1">
-            Simpan Tugas
+            {t ? t('task_form.save_btn') : 'Simpan Tugas'}
           </Button>
         </footer>
       </form>

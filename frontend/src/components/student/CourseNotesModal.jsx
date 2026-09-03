@@ -133,7 +133,7 @@ export function CourseNotesModal({
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari isi catatan, nama mata kuliah, dosen, atau kode MK..."
+              placeholder={t ? t('notes_modal.search_ph') : 'Cari isi catatan, nama mata kuliah, dosen, atau kode MK...'}
               className="w-full pl-10 pr-4 py-2 rounded-xl bg-surface-container-lowest border border-outline-variant/30 text-body-xs text-on-surface focus:outline-none focus:border-amber-600 dark:bg-surface-container-high shadow-2xs"
             />
           </div>
@@ -147,10 +147,12 @@ export function CourseNotesModal({
                 <Icon name="description" size={36} />
               </div>
               <h4 className="text-body-md font-bold text-on-surface">
-                {searchQuery ? 'Tidak ada catatan yang cocok' : 'Belum ada catatan kuliah'}
+                {searchQuery ? (t ? t('notes_modal.empty_search') : 'Tidak ada catatan yang cocok') : (t ? t('notes_modal.empty_title') : 'Belum ada catatan kuliah')}
               </h4>
               <p className="text-body-xs text-on-surface-variant leading-relaxed">
-                Buka salah satu jadwal mata kuliah pada grid mingguan dan isi catatan di panel detail untuk menyimpannya secara otomatis di sini.
+                {searchQuery
+                  ? (language === 'en' ? 'Try other keywords or check course code spelling.' : 'Coba gunakan kata kunci lain atau periksa ejaan kode mata kuliah.')
+                  : (t ? t('notes_modal.empty_desc') : 'Buka salah satu jadwal mata kuliah pada grid mingguan dan isi catatan di panel detail untuk menyimpannya secara otomatis di sini.')}
               </p>
             </div>
           ) : (

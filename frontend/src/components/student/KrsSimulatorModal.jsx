@@ -348,10 +348,10 @@ export function KrsSimulatorModal({
             {/* Course List Header */}
             <div className="flex items-center justify-between px-1">
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant">
-                Katalog Kelas ({filtered.length} Tersedia)
+                {language === 'en' ? `Class Catalog (${filtered.length} Available)` : `Katalog Kelas (${filtered.length} Tersedia)`}
               </span>
               <span className="text-[11px] font-semibold text-on-surface-variant">
-                Klik kartu untuk memilih / membatalkan
+                {t ? t('krs.click_to_toggle') : 'Klik kartu untuk memilih / membatalkan'}
               </span>
             </div>
 
@@ -360,7 +360,9 @@ export function KrsSimulatorModal({
               {filtered.length === 0 ? (
                 <div className="text-center py-12 text-on-surface-variant bg-surface-container-lowest rounded-2xl border border-dashed border-outline-variant/30 p-6">
                   <Icon name="search_off" size={36} className="opacity-40 mb-2" />
-                  <p className="text-body-sm font-semibold">Tidak ada jadwal yang cocok dengan filter</p>
+                  <p className="text-body-sm font-semibold">
+                    {t ? t('krs.empty_catalog') : 'Tidak ada jadwal yang cocok dengan filter'}
+                  </p>
                 </div>
               ) : (
                 filtered.map((entry) => {
@@ -529,10 +531,10 @@ export function KrsSimulatorModal({
               <div className="p-3.5 rounded-2xl border border-error/35 bg-error/10 dark:bg-error/15 space-y-2 shadow-xs">
                 <div className="flex items-center gap-2 text-error font-extrabold text-body-xs">
                   <Icon name="error" size={17} className="shrink-0 animate-bounce" />
-                  <span>Deteksi {selectedClashMap.size} Jadwal Bentrok Waktu!</span>
+                  <span>{t ? t('krs.clash_banner_title') : 'Bentrok Jadwal Terdeteksi'}</span>
                 </div>
                 <p className="text-[11px] text-error/90 leading-relaxed font-medium">
-                  Beberapa mata kuliah yang Anda pilih bertabrakan pada jam yang sama. Hapus salah satu jadwal di bawah agar KRS valid.
+                  {t ? t('krs.clash_banner_desc') : 'Beberapa mata kuliah yang Anda pilih bertabrakan pada jam yang sama. Hapus salah satu jadwal di bawah agar KRS valid.'}
                 </p>
               </div>
             ) : selectedScheduleList.length > 0 ? (
@@ -556,10 +558,14 @@ export function KrsSimulatorModal({
               </div>
 
               {selectedScheduleList.length === 0 ? (
-                <div className="text-center py-8 text-on-surface-variant bg-surface-container-low/30 rounded-2xl border border-dashed border-outline-variant/30 p-4">
-                  <Icon name="playlist_add" size={32} className="opacity-40 mb-1" />
-                  <p className="text-body-xs font-semibold">Belum ada kelas yang dipilih untuk {activePlan.name}</p>
-                  <p className="text-[11px] opacity-75 mt-0.5">Pilih kelas dari katalog di sisi kiri</p>
+                <div className="text-center py-10 text-on-surface-variant bg-surface-container-lowest rounded-2xl border border-dashed border-outline-variant/30 p-4">
+                  <Icon name="event_busy" size={32} className="opacity-40 mb-1.5" />
+                  <p className="text-body-xs font-semibold">
+                    {t ? t('krs.empty_plan', { plan: activePlan.name }) : `Belum ada kelas yang dipilih untuk ${activePlan.name}`}
+                  </p>
+                  <p className="text-[11px] opacity-75 mt-0.5">
+                    {t ? t('krs.empty_plan_sub') : 'Pilih kelas dari katalog di sisi kiri'}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
@@ -617,22 +623,22 @@ export function KrsSimulatorModal({
             <div className="pt-2 border-t border-outline-variant/20 space-y-2">
               <button
                 type="button"
-                onClick={handleCopySiakadFormat}
-                disabled={selectedIds.size === 0}
+                onClick={handleCopySiakadText}
+                disabled={selectedScheduleList.length === 0}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-purple-500/35 bg-purple-500/10 hover:bg-purple-500/20 text-purple-900 dark:text-purple-200 text-body-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
               >
                 <Icon name={copied ? 'check' : 'content_copy'} size={15} />
-                <span>{copied ? 'Tersalin untuk SIAKAD!' : 'Salin Format SIAKAD'}</span>
+                <span>{copied ? (t ? t('krs.copied_siakad') : 'Tersalin untuk SIAKAD!') : (t ? t('krs.copy_siakad') : 'Salin Format SIAKAD')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleApplyToSchedule}
-                disabled={selectedIds.size === 0 || isOverLimit}
+                disabled={selectedScheduleList.length === 0}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-purple-600 text-white text-body-xs font-bold shadow-xs hover:bg-purple-700 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
               >
-                <Icon name={appliedSuccess ? 'check' : 'rocket_launch'} size={16} />
-                <span>{appliedSuccess ? 'Berhasil Diterapkan!' : `Terapkan ${activePlan.name}`}</span>
+                <Icon name="check_circle" size={16} />
+                <span>{t ? t('krs.apply_to_schedule') : 'Terapkan ke Jadwal Utama'}</span>
               </button>
             </div>
           </div>
