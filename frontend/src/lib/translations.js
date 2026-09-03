@@ -232,6 +232,45 @@ export const TRANSLATIONS = {
     'modal.cancel': 'Batal',
     'modal.save': 'Simpan',
     'modal.confirm': 'Konfirmasi',
+    'modal.clean': 'Bersihkan',
+    'modal.copy': 'Salin',
+    'modal.delete': 'Hapus',
+
+    // ── Room Location Modal ──
+    'room.modal_title': 'Informasi Lokasi & Denah Lantai',
+    'room.building': 'Gedung Kampus',
+    'room.floor': 'Posisi Lantai',
+    'room.guidance_title': 'Panduan Arah Mahasiswa',
+    'room.facilities_title': 'Fasilitas Ruangan',
+
+    // ── Custom Schedule Modal ──
+    'custom_modal.title': 'Kustomisasi Jadwal Kuliah Mandiri',
+    'custom_modal.subtitle': 'Pilih mata kuliah & kelas dari berbagai semester (KRS Mandiri / Mengulang / Semester Pendek)',
+    'custom_modal.selected_classes': '{count} Kelas Terpilih',
+    'custom_modal.total_sks': 'Total Beban: {sks} SKS',
+    'custom_modal.clash_warning': 'Ada Bentrok Waktu ({count} sesi)',
+    'custom_modal.copy_package': 'Salin Paket Sem. {semester}',
+    'custom_modal.copy_tooltip': 'Pilih seluruh jadwal sesuai semester dan prodi Anda saat ini',
+    'custom_modal.search_placeholder': 'Cari mata kuliah, kode MK, nama dosen, atau ruangan...',
+    'custom_modal.save_btn': 'Simpan Jadwal Kustom',
+
+    // ── Task Modal Body ──
+    'task_modal.title': 'Tambah Tugas Baru',
+    'task_modal.subtitle': 'Catat tugas kuliah, format pengumpulan, & pantau tenggat waktu',
+    'task_modal.type_label': 'Tipe Tugas',
+    'task_modal.type_personal': 'Tugas Pribadi',
+    'task_modal.type_prodi': 'Bersama Prodi',
+    'task_modal.desc_prodi': 'Tugas ini akan tersinkronisasi ke seluruh mahasiswa di prodi & semester yang sama.',
+    'task_modal.desc_personal': 'Tugas ini hanya tersimpan di perangkat lokal Anda.',
+    'task_modal.title_field': 'Judul Tugas *',
+    'task_modal.course_field': 'Kode Mata Kuliah (Opsional)',
+    'task_modal.deadline_field': 'Tenggat Waktu *',
+    'task_modal.shortcuts': 'Pintasan:',
+    'task_modal.due_label': 'Jatuh tempo:',
+    'task_modal.priority_label': 'Tingkat Prioritas',
+    'task_modal.notes_label': 'Catatan / Instruksi Tugas',
+    'task_modal.notes_placeholder': 'Tulis instruksi pengerjaan, format PDF/Word, nama kelompok, atau link submission...',
+    'task_modal.save_btn': 'Simpan Tugas',
 
     // ── Schedule Page ──
     'schedule.title': 'Jadwal Kuliah',
@@ -477,6 +516,45 @@ export const TRANSLATIONS = {
     'modal.cancel': 'Cancel',
     'modal.save': 'Save',
     'modal.confirm': 'Confirm',
+    'modal.clean': 'Clear',
+    'modal.copy': 'Copy',
+    'modal.delete': 'Delete',
+
+    // ── Room Location Modal ──
+    'room.modal_title': 'Location & Floor Map Guide',
+    'room.building': 'Campus Building',
+    'room.floor': 'Floor Level',
+    'room.guidance_title': 'Student Directions & Wayfinding',
+    'room.facilities_title': 'Room Facilities',
+
+    // ── Custom Schedule Modal ──
+    'custom_modal.title': 'Customize Self-Study Schedule',
+    'custom_modal.subtitle': 'Pick courses & classes across semesters (Independent KRS / Retakes / Short Semester)',
+    'custom_modal.selected_classes': '{count} Classes Selected',
+    'custom_modal.total_sks': 'Total Load: {sks} Credits',
+    'custom_modal.clash_warning': 'Time Clash Detected ({count} sessions)',
+    'custom_modal.copy_package': 'Copy Sem. {semester} Package',
+    'custom_modal.copy_tooltip': 'Select all classes matching your current program and semester',
+    'custom_modal.search_placeholder': 'Search courses, course codes, lecturers, or rooms...',
+    'custom_modal.save_btn': 'Save Custom Schedule',
+
+    // ── Task Modal Body ──
+    'task_modal.title': 'Add New Task',
+    'task_modal.subtitle': 'Track assignments, submission formats, & monitor deadlines',
+    'task_modal.type_label': 'Task Type',
+    'task_modal.type_personal': 'Personal Task',
+    'task_modal.type_prodi': 'Shared with Program',
+    'task_modal.desc_prodi': 'This task will sync to all students in the same program and semester.',
+    'task_modal.desc_personal': 'This task is saved privately on your device.',
+    'task_modal.title_field': 'Task Title *',
+    'task_modal.course_field': 'Course Code (Optional)',
+    'task_modal.deadline_field': 'Due Date *',
+    'task_modal.shortcuts': 'Shortcuts:',
+    'task_modal.due_label': 'Due:',
+    'task_modal.priority_label': 'Priority Level',
+    'task_modal.notes_label': 'Task Notes / Instructions',
+    'task_modal.notes_placeholder': 'Write submission instructions, PDF/Word format, group members, or link...',
+    'task_modal.save_btn': 'Save Task',
 
     // ── Schedule Page ──
     'schedule.title': 'Class Schedule',

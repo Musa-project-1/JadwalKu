@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
+import { useApp } from '../../hooks/useApp'
 import { parseRoomLocation } from '../../lib/locationUtils'
 import { useFirestore } from '../../hooks/useFirestore'
 
@@ -12,6 +13,7 @@ export function RoomLocationModal({
   scheduleEntries = [],
   currentCourseName = '',
 }) {
+  const { language, t } = useApp()
   const [copied, setCopied] = useState(false)
   const { data: roomMasterList } = useFirestore('rooms', [], { limit: 200 })
 
@@ -72,14 +74,14 @@ export function RoomLocationModal({
                 </span>
               </div>
               <p className="text-[11.5px] text-white/80 font-medium truncate mt-0.5">
-                {currentCourseName ? `${currentCourseName} · ` : ''}Informasi Lokasi & Denah Lantai
+                {currentCourseName ? `${currentCourseName} · ` : ''}{t ? t('room.modal_title') : 'Informasi Lokasi & Denah Lantai'}
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Tutup modal"
+            aria-label={t ? t('action.close') : 'Tutup modal'}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all border border-white/20 cursor-pointer"
           >
             <Icon name="close" size={18} />
@@ -187,7 +189,7 @@ export function RoomLocationModal({
             onClick={onClose}
             className="rounded-full px-5 py-1.5 text-body-xs font-semibold cursor-pointer"
           >
-            Tutup
+            {t ? t('modal.close') : 'Tutup'}
           </Button>
         </div>
       </div>

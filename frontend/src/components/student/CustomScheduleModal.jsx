@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
 import { FormSelect } from '../FormSelect'
+import { useApp } from '../../hooks/useApp'
 import { formatRuang } from '../../lib/scheduleUtils'
 import { getClassType, TONE_CLASSES, TONE_DOT_CLASSES } from '../../lib/classTypes'
 
@@ -15,6 +16,7 @@ export function CustomScheduleModal({
   currentCustomIds = [],
   onSave,
 }) {
+  const { language, t } = useApp()
   const [selectedIds, setSelectedIds] = useState(() => new Set(currentCustomIds))
   const [search, setSearch] = useState('')
   const [prodiFilter, setProdiFilter] = useState(currentProgram || '')
@@ -170,27 +172,27 @@ export function CustomScheduleModal({
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-0.5">
                   <h3 id="custom-schedule-title" className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
-                    Atur Jadwal Kustom Saya
+                    {t ? t('custom_modal.title') : 'Kustomisasi Jadwal Kuliah Mandiri'}
                   </h3>
-                  <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
-                    KRS Mandiri
+                  <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wider border border-white/25 shadow-level-1">
+                    KRS Builder
                   </span>
-                </div>
-                <p className="text-body-xs text-white/80 font-medium truncate">
-                  Pilih mata kuliah & kelas dari berbagai semester (KRS Mandiri / Mengulang / Semester Pendek)
-                </p>
-              </div>
-            </div>
+                  </div>
+                  <p className="text-body-xs text-white/80 font-medium truncate">
+                  {t ? t('custom_modal.subtitle') : 'Pilih mata kuliah & kelas dari berbagai semester (KRS Mandiri / Mengulang / Semester Pendek)'}
+                  </p>
+                  </div>
+                  </div>
 
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Tutup modal"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
-            >
-              <Icon name="close" size={20} />
-            </button>
+                  {/* Close Button */}
+                  <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label={t ? t('action.close') : 'Tutup modal'}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+                  >
+                  <Icon name="close" size={20} />
+                  </button>
           </div>
         </header>
 
@@ -199,16 +201,16 @@ export function CustomScheduleModal({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 px-3 py-1 text-body-xs font-extrabold border border-emerald-500/30 shadow-2xs">
               <Icon name="check_circle" size={15} className="text-emerald-600 dark:text-emerald-400" />
-              <span>{selectedIds.size} Kelas Terpilih</span>
+              <span>{t ? t('custom_modal.selected_classes', { count: selectedIds.size }) : `${selectedIds.size} Kelas Terpilih`}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-500/15 text-indigo-900 dark:text-indigo-200 px-3 py-1 text-body-xs font-extrabold border border-indigo-500/30 shadow-2xs">
               <Icon name="school" size={15} className="text-indigo-600 dark:text-indigo-400" />
-              <span>Total Beban: {totalSks} SKS</span>
+              <span>{t ? t('custom_modal.total_sks', { sks: totalSks }) : `Total Beban: ${totalSks} SKS`}</span>
             </span>
             {selectedClashMap.size > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-xl bg-error/15 text-error px-3 py-1 text-body-xs font-extrabold border border-error/30 animate-pulse shadow-2xs">
                 <Icon name="warning" size={15} />
-                <span>Ada Bentrok Waktu ({selectedClashMap.size / 2 || selectedClashMap.size} sesi)</span>
+                <span>{t ? t('custom_modal.clash_warning', { count: selectedClashMap.size / 2 || selectedClashMap.size }) : `Ada Bentrok Waktu (${selectedClashMap.size / 2 || selectedClashMap.size} sesi)`}</span>
               </span>
             )}
           </div>
@@ -218,10 +220,10 @@ export function CustomScheduleModal({
               type="button"
               onClick={handleCopyFromCurrentPackage}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-900 dark:text-amber-200 text-body-xs font-extrabold border border-amber-500/30 transition-all cursor-pointer shadow-2xs"
-              title="Pilih seluruh jadwal sesuai semester dan prodi Anda saat ini"
+              title={t ? t('custom_modal.copy_tooltip') : 'Pilih seluruh jadwal sesuai semester dan prodi Anda saat ini'}
             >
               <Icon name="content_copy" size={14} />
-              <span>Salin Paket Sem. {currentSemester}</span>
+              <span>{t ? t('custom_modal.copy_package', { semester: currentSemester }) : `Salin Paket Sem. ${currentSemester}`}</span>
             </button>
             <span className="text-outline-variant/40">|</span>
             <button
@@ -229,7 +231,7 @@ export function CustomScheduleModal({
               onClick={handleClearAll}
               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl hover:bg-surface-container text-on-surface-variant hover:text-error text-body-xs font-bold transition-colors cursor-pointer"
             >
-              <span>Bersihkan</span>
+              <span>{t ? t('modal.clean') : 'Bersihkan'}</span>
             </button>
           </div>
         </div>
@@ -380,11 +382,11 @@ export function CustomScheduleModal({
           </div>
           <div className="flex items-center gap-2">
             <Button type="button" variant="secondary" onClick={onClose}>
-              Batal
+              {t ? t('modal.cancel') : 'Batal'}
             </Button>
             <Button type="button" onClick={handleSave} className="font-bold">
               <Icon name="check" size={18} className="mr-1" />
-              Terapkan Jadwal Kustom
+              {t ? t('custom_modal.save_btn') : 'Terapkan Jadwal Kustom'}
             </Button>
           </div>
         </footer>
