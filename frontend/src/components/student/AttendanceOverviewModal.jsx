@@ -2,6 +2,7 @@ import { useMemo, useEffect } from 'react'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
 import { useAttendance } from '../../hooks/useAttendance'
+import { useApp } from '../../hooks/useApp'
 
 export function AttendanceOverviewModal({
   isOpen,
@@ -10,6 +11,7 @@ export function AttendanceOverviewModal({
   courses = [],
   onSelectCourse,
 }) {
+  const { language, t } = useApp()
   const { getCourseAttendance } = useAttendance()
 
   const courseMap = useMemo(() => {
@@ -93,17 +95,17 @@ export function AttendanceOverviewModal({
             </div>
             <div className="min-w-0">
               <h3 id="attendance-overview-title" className="text-title-sm tablet:text-title-md font-bold text-white tracking-tight truncate">
-                Rekap Presensi & Sisa Jatah Absen
+                {language === 'en' ? 'Attendance & Absence Allowance' : 'Rekap Presensi & Sisa Jatah Absen'}
               </h3>
               <p className="text-body-xs text-white/80 font-medium truncate mt-0.5">
-                Syarat kelulusan UAS: Minimal 75% kehadiran (Maksimal 4x absen dari 16 pertemuan)
+                {language === 'en' ? 'Final exam eligibility: Min 75% attendance (Max 4 absences of 16 sessions)' : 'Syarat kelulusan UAS: Minimal 75% kehadiran (Maksimal 4x absen dari 16 pertemuan)'}
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Tutup modal"
+            aria-label={t ? t('action.close') : 'Tutup modal'}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
           >
             <Icon name="close" size={20} />
@@ -266,7 +268,7 @@ export function AttendanceOverviewModal({
             Ketuk &quot;Catat Presensi&quot; untuk membuka panel perkuliahan lengkap
           </span>
           <Button type="button" onClick={onClose} className="font-bold">
-            Tutup
+            {t ? t('modal.close') : 'Tutup'}
           </Button>
         </footer>
       </div>

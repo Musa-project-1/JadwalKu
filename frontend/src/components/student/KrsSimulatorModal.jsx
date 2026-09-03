@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { Icon } from '../Icon'
+import { useApp } from '../../hooks/useApp'
 import { formatRuang } from '../../lib/scheduleUtils'
 import { getClassType, TONE_CLASSES } from '../../lib/classTypes'
+import { parseTimeToMinutes } from '../../lib/scheduleGridUtils'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 
 const SKS_LIMIT_OPTIONS = [18, 20, 22, 24]
@@ -22,6 +24,7 @@ export function KrsSimulatorModal({
   currentSemester = 1,
   onApplyToSchedule,
 }) {
+  const { language, t } = useApp()
   const modalRef = useRef(null)
 
   // 1. Multi-Plan state
@@ -131,15 +134,10 @@ export function KrsSimulatorModal({
         const a = selectedList[i]
         const b = selectedList[j]
         if (a.hari === b.hari) {
-          const [aStartH, aStartM] = String(a.jamMulai).split(':').map(Number)
-          const [aEndH, aEndM] = String(a.jamSelesai).split(':').map(Number)
-          const [bStartH, bStartM] = String(b.jamMulai).split(':').map(Number)
-          const [bEndH, bEndM] = String(b.jamSelesai).split(':').map(Number)
-
-          const aStart = aStartH * 60 + aStartM
-          const aEnd = aEndH * 60 + aEndM
-          const bStart = bStartH * 60 + bStartM
-          const bEnd = bEndH * 60 + bEndM
+          const aStart = parseTimeToMinutes(a.jamMulai)
+          const aEnd = parseTimeToMinutes(a.jamSelesai)
+          const bStart = parseTimeToMinutes(b.jamMulai)
+          const bEnd = parseTimeToMinutes(b.jamSelesai)
 
           if (aStart < bEnd && bStart < aEnd) {
             const courseB = courseMap.get(b.kodeMK)?.namaMK || b.kodeMK

@@ -271,14 +271,15 @@ export default function WeeklySchedule() {
     if (weekDates.length === 0) return ''
     const first = weekDates[0]
     const last = weekDates[weekDates.length - 1]
+    const thisWeekPrefix = language === 'en' ? 'This Week' : 'Minggu Ini'
     if (weekOffset === 0) {
-      return `Minggu Ini · ${first.dateNum} - ${last.dateNum} ${last.monthShort}`
+      return `${thisWeekPrefix} · ${first.dateNum} - ${last.dateNum} ${last.monthShort}`
     }
     if (first.monthShort === last.monthShort) {
       return `${first.dateNum} - ${last.dateNum} ${last.monthShort}`
     }
     return `${first.dateNum} ${first.monthShort} - ${last.dateNum} ${last.monthShort}`
-  }, [weekDates, weekOffset])
+  }, [weekDates, weekOffset, language])
 
   const [rangeStart, rangeEnd] = useMemo(() => {
     let min = 8 * 60

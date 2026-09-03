@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
+import { useApp } from '../../hooks/useApp'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 
 export function CourseNotesModal({
@@ -9,6 +10,7 @@ export function CourseNotesModal({
   courses = [],
   onOpenCourseDetail,
 }) {
+  const { language, t } = useApp()
   const [searchQuery, setSearchQuery] = useState('')
   const [copiedId, setCopiedId] = useState(null)
   const [notesVersion, setNotesVersion] = useState(0)
@@ -95,14 +97,14 @@ export function CourseNotesModal({
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-0.5">
                   <h3 id="course-notes-title" className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
-                    Semua Catatan Kuliah
+                    {language === 'en' ? 'All Course Notes' : 'Semua Catatan Kuliah'}
                   </h3>
                   <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
-                    {notesList.length} Catatan Aktif
+                    {language === 'en' ? `${notesList.length} Active Notes` : `${notesList.length} Catatan Aktif`}
                   </span>
                 </div>
                 <p className="text-body-xs text-white/80 font-medium truncate">
-                  Kompilasi catatan kuliah, instruksi tugas, materi penting, dan pengingat kuis
+                  {language === 'en' ? 'Compilation of course notes, assignment instructions, and exam reminders' : 'Kompilasi catatan kuliah, instruksi tugas, materi penting, dan pengingat kuis'}
                 </p>
               </div>
             </div>
@@ -111,7 +113,7 @@ export function CourseNotesModal({
             <button
               type="button"
               onClick={onClose}
-              aria-label="Tutup modal"
+              aria-label={t ? t('action.close') : 'Tutup modal'}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
             >
               <Icon name="close" size={20} />
@@ -243,7 +245,7 @@ export function CourseNotesModal({
             Catatan disimpan secara lokal pada perangkat Anda
           </span>
           <Button type="button" onClick={onClose} className="font-bold">
-            Tutup
+            {t ? t('modal.close') : 'Tutup'}
           </Button>
         </footer>
       </div>

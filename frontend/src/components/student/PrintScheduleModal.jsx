@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from '../Icon'
+import { useApp } from '../../hooks/useApp'
 import { DAYS } from '../../lib/uploadValidator'
 import { formatRuang, sortByTime } from '../../lib/scheduleUtils'
+import { parseTimeToMinutes } from '../../lib/scheduleGridUtils'
 import { getItem, STORAGE_KEYS } from '../../lib/storage'
 
 export function PrintScheduleModal({
@@ -13,6 +15,7 @@ export function PrintScheduleModal({
   semester = 1,
   tahunAjaran = '',
 }) {
+  const { language, t } = useApp()
   const modalRef = useRef(null)
   const [layoutFormat, setLayoutFormat] = useState('wall') // 'wall' | 'pocket'
   const [showLecturer, setShowLecturer] = useState(true)
@@ -442,7 +445,7 @@ export function PrintScheduleModal({
                               </td>
                               {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].map((d) => {
                                 const dayEntries = (groupedByDay.get(d) || []).filter((e) => {
-                                  const startMin = parseInt(e.jamMulai.split(':')[0], 10) * 60 + parseInt(e.jamMulai.split(':')[1] || '0', 10)
+                                  const startMin = parseTimeToMinutes(e.jamMulai)
                                   if (sess.id === 'pagi') return startMin < 12 * 60
                                   if (sess.id === 'siang') return startMin >= 12 * 60 && startMin < 15 * 60 + 15
                                   if (sess.id === 'sore') return startMin >= 15 * 60 + 15 && startMin < 18 * 60

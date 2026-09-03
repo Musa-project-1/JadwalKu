@@ -102,7 +102,7 @@ function getFakultasMeta(nama) {
 // ── Single-page Wizard B + all ──
 export function OnboardingWizard() {
   const navigate = useNavigate()
-  const { setProgram, setSemester: setSemesterContext, setFakultas } = useApp()
+  const { setProgram, setSemester: setSemesterContext, setFakultas, language, t } = useApp()
   const [searchParams] = useSearchParams()
 
   const { data: prodiDocs } = useFirestore('prodi')
@@ -328,12 +328,12 @@ export function OnboardingWizard() {
             <section>
               <div className="flex items-center gap-2 mb-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-violet-500/15 text-violet-600 dark:text-violet-300"><Icon name="account_balance" size={16} /></span>
-                <h2 className="text-body-sm font-bold text-on-surface">Fakultas</h2>
-                {fakultasId && <span className="ml-auto text-label-caps font-bold text-violet-600 dark:text-violet-300">Terpilih</span>}
+                <h2 className="text-body-sm font-bold text-on-surface">{language === 'en' ? 'Faculty' : 'Fakultas'}</h2>
+                {fakultasId && <span className="ml-auto text-label-caps font-bold text-violet-600 dark:text-violet-300">{language === 'en' ? 'Selected' : 'Terpilih'}</span>}
               </div>
               {fakultasList.length > 4 && (
                 <div className="mb-2">
-                  <Input placeholder="Cari fakultas..." value={searchFakultas} onChange={(e) => setSearchFakultas(e.target.value)} className="rounded-2xl text-body-sm" />
+                  <Input placeholder={language === 'en' ? 'Search faculty...' : 'Cari fakultas...'} value={searchFakultas} onChange={(e) => setSearchFakultas(e.target.value)} className="rounded-2xl text-body-sm" />
                 </div>
               )}
               <div className="grid grid-cols-1 gap-2">
@@ -369,12 +369,12 @@ export function OnboardingWizard() {
           <section>
             <div className="flex items-center gap-2 mb-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"><Icon name="school" size={16} /></span>
-              <h2 className="text-body-sm font-bold text-on-surface">Jurusan / Prodi</h2>
-              {prodi && <span className="ml-auto text-label-caps font-bold text-emerald-600 dark:text-emerald-300">Terpilih: {prodi}</span>}
+              <h2 className="text-body-sm font-bold text-on-surface">{language === 'en' ? 'Study Program' : 'Jurusan / Prodi'}</h2>
+              {prodi && <span className="ml-auto text-label-caps font-bold text-emerald-600 dark:text-emerald-300">{language === 'en' ? `Selected: ${prodi}` : `Terpilih: ${prodi}`}</span>}
             </div>
             {filteredPrograms.length > 4 && (
               <div className="mb-2">
-                <Input placeholder="Cari prodi..." value={searchProdi} onChange={(e) => setSearchProdi(e.target.value)} className="rounded-2xl text-body-sm" />
+                <Input placeholder={language === 'en' ? 'Search program...' : 'Cari prodi...'} value={searchProdi} onChange={(e) => setSearchProdi(e.target.value)} className="rounded-2xl text-body-sm" />
               </div>
             )}
             <div className="space-y-2">
