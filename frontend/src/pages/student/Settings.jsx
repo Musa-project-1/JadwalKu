@@ -42,6 +42,7 @@ export default function Settings() {
     setShowPrayerDividers,
   } = useApp()
 
+  const [activeTab, setActiveTab] = useState('appearance') // 'appearance' | 'academic' | 'notifications' | 'storage' | 'about'
   const [showDocsModal, setShowDocsModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showAboutModal, setShowAboutModal] = useState(false)
@@ -71,6 +72,14 @@ export default function Settings() {
       window.location.reload()
     }
   }
+
+  const TABS = useMemo(() => [
+    { id: 'appearance', label: language === 'en' ? 'Appearance' : 'Tampilan', icon: 'palette', badge: null },
+    { id: 'academic', label: language === 'en' ? 'Academic Profile' : 'Profil Akademik', icon: 'school', badge: program ? `${program}` : null },
+    { id: 'notifications', label: language === 'en' ? 'Reminders & Push' : 'Pengingat & Suara', icon: 'notifications_active', badge: null },
+    { id: 'storage', label: language === 'en' ? 'Data & Storage' : 'Data & Cache', icon: 'database', badge: 'PWA' },
+    { id: 'about', label: language === 'en' ? 'Guides & About' : 'Panduan & FAQ', icon: 'help_outline', badge: '13 Fitur' },
+  ], [language, program])
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
@@ -179,245 +188,438 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* 3. Main Grid — 1:1 with Tasks/Exams card grid (rounded-3xl, shadow-level-1) */}
-      <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4 items-stretch">
-        {/* ROW 1 - LEFT: Setelan Saat Ini */}
-        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-level-1 flex flex-col justify-between">
-          <div>
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-label-caps uppercase font-extrabold tracking-wider text-on-surface-variant">
-                  {language === 'en' ? 'Current Settings' : 'Setelan Saat Ini'}
-                </p>
-                <h3 className="mt-1 text-title-md font-bold text-on-surface leading-snug truncate">
-                  {fakultasNama ? `${fakultasNama} · ` : ''}{program ?? (language === 'en' ? 'Not selected' : 'Belum dipilih')} · {language === 'en' ? `Semester ${semester ?? '-'}` : `Semester ${semester ?? '-'}`}
+      {/* ── 3. MASTER-DETAIL SETTINGS LAYOUT (Linear / Notion / macOS Benchmark) ── */}
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 overflow-hidden flex flex-col desktop:flex-row min-h-[580px]">
+        {/* ── SISI KIRI: Sidebar Navigasi Kategori (~260px di Desktop, Horizontal Scroll di Mobile) ── */}
+        <aside className="w-full desktop:w-64 shrink-0 border-b desktop:border-b-0 desktop:border-r border-outline-variant/20 bg-surface-container-low/30 dark:bg-surface-container-high/15 p-3 desktop:p-4 flex flex-row desktop:flex-col justify-between gap-1 overflow-x-auto no-scrollbar">
+          <div className="flex flex-row desktop:flex-col gap-1 w-full">
+            <span className="hidden desktop:block text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant/70 px-3 py-2">
+              {language === 'en' ? 'Preferences' : 'Kategori Setelan'}
+            </span>
+
+            {TABS.map((tab) => {
+              const isActive = activeTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-2xl text-body-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? 'bg-primary text-on-primary shadow-level-1'
+                      : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon name={tab.icon} size={18} className={isActive ? 'text-on-primary' : 'text-primary'} />
+                    <span>{tab.label}</span>
+                  </div>
+                  {tab.badge && (
+                    <span className={`hidden tablet:inline-block px-2 py-0.5 rounded-full text-[10px] font-extrabold truncate max-w-[10ch] ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-surface-container-high text-on-surface-variant'
+                    }`}>
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Quick Footer info di sidebar desktop */}
+          <div className="hidden desktop:flex flex-col gap-1 pt-3 border-t border-outline-variant/15 text-[11px] text-on-surface-variant/70 px-2">
+            <span>JadwalKu PWA v1.3.0</span>
+            <span>Made with precision for students</span>
+          </div>
+        </aside>
+
+        {/* ── SISI KANAN: Konten Detail Kategori Aktif ── */}
+        <main className="flex-1 min-w-0 p-4 tablet:p-6 space-y-6">
+          {activeTab === 'appearance' && (
+            <div className="space-y-6 animate-fade-in">
+              <div>
+                <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface">
+                  {language === 'en' ? 'Appearance & Theme' : 'Tampilan & Suasana'}
                 </h3>
-                {taLabel && (
-                  <span className="inline-block mt-2 text-body-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-                    {language === 'en' ? `Academic Year ${taLabel}` : `Tahun Ajaran ${taLabel}`}
-                  </span>
-                )}
-              </div>
-              <Button
-                variant="secondary"
-                onClick={() => navigate('/onboarding/wizard')}
-                className="shrink-0 px-4 py-2 text-body-xs font-bold shadow-level-1 cursor-pointer rounded-2xl"
-              >
-                {language === 'en' ? 'Change' : 'Ganti'}
-              </Button>
-            </div>
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-2.5 border-t border-outline-variant/15 pt-4 text-body-xs text-on-surface-variant font-medium">
-            <span className="flex items-center gap-1.5">
-              <Icon name="history_toggle_off" size={16} className="text-secondary shrink-0" />
-              <span>
-                Update: <strong className="text-on-surface font-semibold">{formatLastUpdated(appSettings)}</strong>
-              </span>
-            </span>
-            <span className="flex items-center gap-1.5 text-body-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 dark:bg-emerald-500/15 px-3 py-0.5 rounded-full border border-emerald-500/20">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Offline PWA</span>
-            </span>
-          </div>
-        </section>
-
-        {/* ROW 1 - RIGHT: Tampilan */}
-        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-level-1 flex flex-col">
-          <h3 className="mb-3 flex items-center gap-2 text-title-sm font-bold text-on-surface">
-            <Icon name="dark_mode" size={18} className="text-primary" />
-            {language === 'en' ? 'Appearance' : 'Tampilan'}
-          </h3>
-          <div className="space-y-4">
-            {/* Mode Gelap */}
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <span className="text-body-sm font-bold text-on-surface">
-                  {language === 'en' ? 'Appearance Theme' : 'Mode Tampilan'}
-                </span>
-                <p className="text-body-xs text-on-surface-variant">
-                  {language === 'en' ? 'Select visual theme for the app' : 'Pilih tema visual aplikasi'}
+                <p className="text-body-xs text-on-surface-variant mt-0.5">
+                  {language === 'en' ? 'Customize visual theme, language, contrast, and time markers' : 'Sesuaikan tema visual, bahasa, ukuran font, kontras, dan garis penanda waktu'}
                 </p>
               </div>
-              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1 shrink-0">
-                {[
-                  { value: 'light', icon: 'light_mode', label: language === 'en' ? 'Light' : 'Terang' },
-                  { value: 'dark', icon: 'dark_mode', label: language === 'en' ? 'Dark' : 'Gelap' },
-                  { value: 'system', icon: 'settings_brightness', label: language === 'en' ? 'System' : 'Sistem' },
-                ].map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setTheme(opt.value)}
-                    title={`Tema ${opt.label}`}
-                    aria-label={`Tema ${opt.label}`}
-                    className={`flex h-8 w-11 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:opacity-80 ${
-                      theme === opt.value
-                        ? 'bg-surface text-primary shadow-level-1'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    <Icon name={opt.icon} size={18} />
-                  </button>
-                ))}
-              </div>
-            </div>
 
-            {/* Bahasa / Language */}
-            <div className="border-t border-outline-variant/15 pt-3">
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-body-sm font-bold text-on-surface">{t ? t('settings.language') : 'Bahasa / Language'}</span>
-                <span className="text-body-xs font-semibold text-primary uppercase">{language || 'id'}</span>
-              </div>
-              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1">
-                {[
-                  { value: 'id', label: '🇮🇩 Indonesia' },
-                  { value: 'en', label: '🇬🇧 English' },
-                ].map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setLanguage(opt.value)}
-                    className={`flex-1 rounded-full py-1.5 text-body-xs font-bold transition-all duration-200 cursor-pointer active:opacity-80 ${
-                      (language || 'id') === opt.value
-                        ? 'bg-surface text-primary shadow-level-1'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Ukuran Font */}
-            <div className="border-t border-outline-variant/15 pt-3">
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-body-sm font-bold text-on-surface">
-                  {language === 'en' ? 'Font Size' : 'Ukuran Font'}
-                </span>
-                <span className="text-body-xs font-semibold text-primary capitalize">{fontSize}</span>
-              </div>
-              <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1">
-                {[
-                  { value: 'sm', label: language === 'en' ? 'Small' : 'Kecil' },
-                  { value: 'md', label: language === 'en' ? 'Medium' : 'Sedang' },
-                  { value: 'lg', label: language === 'en' ? 'Large' : 'Besar' },
-                  { value: 'xl', label: language === 'en' ? 'Extra' : 'Sangat Besar' },
-                ].map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setFontSize(opt.value)}
-                    className={`flex-1 rounded-full py-1.5 text-body-xs font-bold transition-all duration-200 cursor-pointer active:opacity-80 ${
-                      fontSize === opt.value
-                        ? 'bg-surface text-primary shadow-level-1'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Kontras Tinggi */}
-            <div className="flex items-center justify-between border-t border-outline-variant/15 pt-3 gap-3">
-              <div className="min-w-0">
-                <p className="text-body-sm font-bold text-on-surface">
-                  {language === 'en' ? 'High Contrast (WCAG AAA)' : 'Kontras Tinggi'}
-                </p>
-                <p className="text-body-xs text-on-surface-variant">
-                  {language === 'en' ? 'Enhance borders and text clarity for maximum readability' : 'Perkuat kontras teks dan garis'}
-                </p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={highContrast}
-                onClick={() => setHighContrast(!highContrast)}
-                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
-                  highContrast ? 'bg-primary' : 'bg-surface-variant'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
-                    highContrast ? 'left-[22px]' : 'left-0.5'
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Toggle Pembatas Waktu Sholat */}
-            <div className="flex items-center justify-between border-t border-outline-variant/15 pt-3 gap-3">
-              <div className="min-w-0">
-                <p className="text-body-sm font-bold text-on-surface">
-                  {language === 'en' ? 'Prayer Time Dividers' : 'Pembatas Waktu Sholat'}
-                </p>
-                <p className="text-body-xs text-on-surface-variant">
-                  {language === 'en'
-                    ? 'Show dynamic Dhuhr, Asr, and Maghrib dividers in matrix schedule'
-                    : 'Tampilkan garis pembatas Dzuhur, Ashar, dan Maghrib pada tabel matriks'}
-                </p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={showPrayerDividers}
-                onClick={() => setShowPrayerDividers(!showPrayerDividers)}
-                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
-                  showPrayerDividers ? 'bg-primary' : 'bg-surface-variant'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
-                    showPrayerDividers ? 'left-[22px]' : 'left-0.5'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* ROW 2 - LEFT: Keterangan Warna Kelas */}
-        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-level-1 flex flex-col">
-          <h3 className="mb-2.5 flex items-center gap-2 text-title-sm font-bold text-on-surface">
-            <Icon name="palette" size={18} className="text-primary" />
-            {language === 'en' ? 'Class Color Legend' : 'Keterangan Warna Kelas'}
-          </h3>
-          <p className="text-body-xs text-on-surface-variant font-medium mb-3">
-            {language === 'en' ? 'Identify lecture format types on the weekly schedule:' : 'Identifikasi jenis format perkuliahan pada jadwal mingguan:'}
-          </p>
-          <ul className="grid grid-cols-2 gap-2.5">
-            {[
-              { code: 'K1', label: language === 'en' ? 'Offline Class' : 'Kelas Offline', dot: 'bg-status-offline' },
-              { code: 'K2', label: language === 'en' ? 'Online Class' : 'Kelas Online', dot: 'bg-status-online' },
-              { code: 'HB', label: language === 'en' ? 'Hybrid Class' : 'Hybrid', dot: 'bg-status-hybrid' },
-              { code: 'GBK', label: language === 'en' ? 'Combined Class' : 'Kelas Gabungan', dot: 'bg-status-combined' },
-            ].map((item) => (
-              <li
-                key={item.code}
-                className="flex items-center gap-3 rounded-2xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-3 border border-outline-variant/20 shadow-level-1"
-              >
-                <span className={`h-3 w-3 rounded-full shrink-0 ${item.dot}`} />
-                <div className="min-w-0">
-                  <span className="block font-bold text-body-sm text-on-surface">{item.code}</span>
-                  <span className="text-body-xs text-on-surface-variant font-medium truncate block">{item.label}</span>
+              {/* Inset Group: Visual Controls */}
+              <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 space-y-4 shadow-2xs divide-y divide-outline-variant/15">
+                {/* 1. Mode Gelap */}
+                <div className="flex items-center justify-between gap-4 pt-1 first:pt-0">
+                  <div className="min-w-0">
+                    <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                      <Icon name="dark_mode" size={17} className="text-primary" />
+                      <span>{language === 'en' ? 'Appearance Theme' : 'Mode Tampilan'}</span>
+                    </span>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      {language === 'en' ? 'Select visual theme for the application' : 'Pilih tema visual aplikasi (Terang, Gelap, atau Otomatis)'}
+                    </p>
+                  </div>
+                  <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1 shrink-0">
+                    {[
+                      { value: 'light', icon: 'light_mode', label: language === 'en' ? 'Light' : 'Terang' },
+                      { value: 'dark', icon: 'dark_mode', label: language === 'en' ? 'Dark' : 'Gelap' },
+                      { value: 'system', icon: 'settings_brightness', label: language === 'en' ? 'System' : 'Sistem' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setTheme(opt.value)}
+                        title={`Tema ${opt.label}`}
+                        aria-label={`Tema ${opt.label}`}
+                        className={`flex h-8 w-11 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:opacity-80 ${
+                          theme === opt.value
+                            ? 'bg-surface text-primary shadow-level-1'
+                            : 'text-on-surface-variant hover:text-on-surface'
+                        }`}
+                      >
+                        <Icon name={opt.icon} size={18} />
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-label-caps text-on-surface-variant/70 font-medium border-t border-outline-variant/15 pt-3">
-            {language === 'en'
-              ? 'K1 Emerald = Offline · K2 Blue = Online · HB Violet = Hybrid · GBK Amber = Inter-program combined'
-              : 'K1 Emerald = Offline · K2 Blue = Online · HB Violet = Hybrid · GBK Amber = Gabungan lintas prodi'}
-          </p>
-        </section>
 
-        {/* ROW 2 - RIGHT: Pengingat & Notifikasi Web Push */}
-        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 tablet:p-6 shadow-level-1 flex flex-col">
-          <NotificationSettingsSection navigate={navigate} language={language} t={t} />
-        </section>
+                {/* 2. Bahasa / Language */}
+                <div className="flex flex-col tablet:flex-row tablet:items-center justify-between gap-3 pt-4">
+                  <div className="min-w-0">
+                    <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                      <Icon name="language" size={17} className="text-secondary" />
+                      <span>{t ? t('settings.language') : 'Bahasa / Language'}</span>
+                    </span>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      {language === 'en' ? 'Select interface language (Indonesian or English)' : 'Pilih bahasa antarmuka aplikasi (Bahasa Indonesia atau English)'}
+                    </p>
+                  </div>
+                  <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1 shrink-0 min-w-[200px]">
+                    {[
+                      { value: 'id', label: '🇮🇩 Indonesia' },
+                      { value: 'en', label: '🇬🇧 English' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setLanguage(opt.value)}
+                        className={`flex-1 rounded-full py-1.5 px-3 text-body-xs font-bold transition-all duration-200 cursor-pointer active:opacity-80 ${
+                          (language || 'id') === opt.value
+                            ? 'bg-surface text-primary shadow-level-1'
+                            : 'text-on-surface-variant hover:text-on-surface'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Ukuran Font */}
+                <div className="flex flex-col tablet:flex-row tablet:items-center justify-between gap-3 pt-4">
+                  <div className="min-w-0">
+                    <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                      <Icon name="format_size" size={17} className="text-primary" />
+                      <span>{language === 'en' ? 'Font Size' : 'Ukuran Font'}</span>
+                    </span>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      {language === 'en' ? 'Adjust typography size across schedules and cards' : 'Atur ukuran skala tulisan pada jadwal dan kartu'}
+                    </p>
+                  </div>
+                  <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1 shrink-0 min-w-[240px]">
+                    {[
+                      { value: 'sm', label: language === 'en' ? 'Small' : 'Kecil' },
+                      { value: 'md', label: language === 'en' ? 'Medium' : 'Sedang' },
+                      { value: 'lg', label: language === 'en' ? 'Large' : 'Besar' },
+                      { value: 'xl', label: language === 'en' ? 'Extra' : 'Sangat Besar' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setFontSize(opt.value)}
+                        className={`flex-1 rounded-full py-1.5 text-body-xs font-bold transition-all duration-200 cursor-pointer active:opacity-80 ${
+                          fontSize === opt.value
+                            ? 'bg-surface text-primary shadow-level-1'
+                            : 'text-on-surface-variant hover:text-on-surface'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 4. Kontras Tinggi */}
+                <div className="flex items-center justify-between gap-4 pt-4">
+                  <div className="min-w-0">
+                    <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                      <Icon name="contrast" size={17} className="text-primary" />
+                      <span>{language === 'en' ? 'High Contrast (WCAG AAA)' : 'Kontras Tinggi'}</span>
+                    </span>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      {language === 'en' ? 'Enhance borders and text clarity for maximum readability' : 'Perkuat batas border dan ketajaman teks untuk kenyamanan mata'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={highContrast}
+                    onClick={() => setHighContrast(!highContrast)}
+                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                      highContrast ? 'bg-primary' : 'bg-surface-variant'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
+                        highContrast ? 'left-[22px]' : 'left-0.5'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* 5. Pembatas Sholat */}
+                <div className="flex items-center justify-between gap-4 pt-4">
+                  <div className="min-w-0">
+                    <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                      <Icon name="mosque" size={17} className="text-secondary" />
+                      <span>{language === 'en' ? 'Prayer Time Dividers' : 'Pembatas Waktu Sholat'}</span>
+                    </span>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      {language === 'en'
+                        ? 'Show dynamic Dhuhr, Asr, and Maghrib dividers in matrix schedule'
+                        : 'Tampilkan garis pembatas Dzuhur, Ashar, dan Maghrib pada tabel matriks'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={showPrayerDividers}
+                    onClick={() => setShowPrayerDividers(!showPrayerDividers)}
+                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                      showPrayerDividers ? 'bg-primary' : 'bg-surface-variant'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
+                        showPrayerDividers ? 'left-[22px]' : 'left-0.5'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'academic' && (
+            <div className="space-y-6 animate-fade-in">
+              <div>
+                <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface">
+                  {language === 'en' ? 'Academic Profile & Program' : 'Profil Akademik & Program'}
+                </h3>
+                <p className="text-body-xs text-on-surface-variant mt-0.5">
+                  {language === 'en' ? 'Active study program, enrolled semester, and academic year' : 'Program studi, semester aktif, dan penetapan tahun ajaran Anda'}
+                </p>
+              </div>
+
+              {/* Academic Hero Card */}
+              <div className="rounded-2xl border border-outline-variant/20 bg-gradient-to-br from-primary/10 via-primary/5 to-surface-container-high/40 p-5 tablet:p-6 shadow-2xs space-y-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-level-1">
+                      <Icon name="school" size={26} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-label-caps uppercase font-extrabold tracking-wider text-primary">
+                        {fakultasNama || (language === 'en' ? 'Campus Faculty' : 'Fakultas')}
+                      </p>
+                      <h4 className="text-title-md font-bold text-on-surface leading-snug truncate">
+                        {program || (language === 'en' ? 'Not selected' : 'Belum dipilih')}
+                      </h4>
+                      <p className="text-body-xs text-on-surface-variant font-medium mt-0.5">
+                        {language === 'en' ? `Semester ${semester || '-'}` : `Semester ${semester || '-'}`} {taLabel ? `· Tahun Ajaran ${taLabel}` : ''}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="primary"
+                    onClick={() => navigate('/onboarding/wizard')}
+                    className="shrink-0 px-4 py-2 text-body-xs font-bold shadow-level-1 cursor-pointer rounded-2xl"
+                  >
+                    <Icon name="edit" size={14} className="mr-1.5" />
+                    <span>{language === 'en' ? 'Change Program' : 'Ganti Prodi'}</span>
+                  </Button>
+                </div>
+
+                <div className="pt-3 border-t border-outline-variant/20 flex flex-wrap items-center justify-between text-label-caps text-on-surface-variant gap-2 font-medium">
+                  <span>Sistem Otomasi: Kalender Akademik (Kaldik)</span>
+                  <span className="text-primary font-bold">Terintegrasi Sinkron</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'notifications' && (
+            <div className="space-y-6 animate-fade-in">
+              <div>
+                <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface">
+                  {language === 'en' ? 'Reminders & Notifications' : 'Pengingat & Suara'}
+                </h3>
+                <p className="text-body-xs text-on-surface-variant mt-0.5">
+                  {language === 'en' ? 'Configure class alerts, task deadlines, and audio chime' : 'Atur waktu alarm sebelum kelas, peringatan deadline tugas, dan nada dering'}
+                </p>
+              </div>
+
+              <NotificationSettingsSection navigate={navigate} language={language} t={t} />
+            </div>
+          )}
+
+          {activeTab === 'storage' && (
+            <div className="space-y-6 animate-fade-in">
+              <div>
+                <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface">
+                  {language === 'en' ? 'Data, Cache & Storage' : 'Data & Penyimpanan'}
+                </h3>
+                <p className="text-body-xs text-on-surface-variant mt-0.5">
+                  {language === 'en' ? 'Manage local offline PWA cache and cloud synchronization' : 'Kelola cache offline PWA, sinkronisasi data cloud, dan pembersihan memori'}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 space-y-4 shadow-2xs divide-y divide-outline-variant/15">
+                {/* Baris 1: Status Offline PWA */}
+                <div className="flex items-center justify-between gap-4 pt-1 first:pt-0">
+                  <div className="min-w-0">
+                    <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                      <Icon name="cloud_done" size={17} className="text-emerald-600 dark:text-emerald-400" />
+                      <span>Progressive Web App (PWA)</span>
+                    </span>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      Aplikasi terpasang dan dapat beroperasi 100% tanpa internet
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 text-label-caps font-bold border border-emerald-500/25 shrink-0">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Tersedia Offline</span>
+                  </span>
+                </div>
+
+                {/* Baris 2: Sinkronisasi Cloud */}
+                <div className="flex items-center justify-between gap-4 pt-4">
+                  <div className="min-w-0">
+                    <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                      <Icon name="sync" size={17} className="text-primary" />
+                      <span>Sinkronisasi Data Kampus</span>
+                    </span>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      Perbarui jadwal kuliah & ujian langsung dari server akademik
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleManualSync}
+                    disabled={isSyncing}
+                    className="px-4 py-2 rounded-xl bg-primary text-on-primary text-body-xs font-bold shadow-level-1 hover:bg-primary/90 transition-all cursor-pointer shrink-0"
+                  >
+                    {isSyncing ? 'Menyinkronkan...' : 'Sinkronkan Sekarang'}
+                  </button>
+                </div>
+
+                {/* Baris 3: Reset Cache */}
+                <div className="flex items-center justify-between gap-4 pt-4">
+                  <div className="min-w-0">
+                    <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                      <Icon name="delete_sweep" size={17} className="text-error" />
+                      <span>Reset Cache Lokal</span>
+                    </span>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      Bersihkan data tersimpan di browser jika jadwal mengalami bentrok tampilan
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleClearCache}
+                    className="px-4 py-2 rounded-xl border border-error/30 bg-error/10 hover:bg-error/20 text-error text-body-xs font-bold transition-all cursor-pointer shrink-0"
+                  >
+                    Reset Cache
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'about' && (
+            <div className="space-y-6 animate-fade-in">
+              <div>
+                <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface">
+                  {language === 'en' ? 'Guides, FAQ & Documentation' : 'Panduan & Bantuan'}
+                </h3>
+                <p className="text-body-xs text-on-surface-variant mt-0.5">
+                  {language === 'en' ? 'Learn all features, class color schemes, and frequently asked questions' : 'Pelajari panduan 13 fitur mahasiswa, keterangan warna, dan tanya jawab'}
+                </p>
+              </div>
+
+              {/* Quick Actions Grid */}
+              <div className="grid grid-cols-1 tablet:grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDocsModal(true)}
+                  className="flex flex-col items-start p-4 rounded-2xl border border-primary/25 bg-primary/10 hover:bg-primary/15 transition-all text-left cursor-pointer shadow-2xs group"
+                >
+                  <Icon name="menu_book" size={24} className="text-primary mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="font-bold text-body-sm text-on-surface">Pusat Tutorial Fitur</span>
+                  <span className="text-[11px] text-on-surface-variant mt-0.5">Buka panduan interaktif 13 fitur</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowHistoryModal(true)}
+                  className="flex flex-col items-start p-4 rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 hover:bg-surface-container transition-all text-left cursor-pointer shadow-2xs group"
+                >
+                  <Icon name="history" size={24} className="text-secondary mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="font-bold text-body-sm text-on-surface">Riwayat Perubahan</span>
+                  <span className="text-[11px] text-on-surface-variant mt-0.5">Lihat pembaruan jadwal admin</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAboutModal(true)}
+                  className="flex flex-col items-start p-4 rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 hover:bg-surface-container transition-all text-left cursor-pointer shadow-2xs group"
+                >
+                  <Icon name="help_outline" size={24} className="text-primary mb-2 group-hover:scale-110 transition-transform" />
+                  <span className="font-bold text-body-sm text-on-surface">Tentang & FAQ</span>
+                  <span className="text-[11px] text-on-surface-variant mt-0.5">Tanya jawab & info platform</span>
+                </button>
+              </div>
+
+              {/* Legenda Warna */}
+              <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 space-y-3 shadow-2xs">
+                <h4 className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                  <Icon name="palette" size={17} className="text-primary" />
+                  <span>Keterangan Warna Format Perkuliahan</span>
+                </h4>
+                <ul className="grid grid-cols-2 tablet:grid-cols-4 gap-2.5">
+                  {[
+                    { code: 'K1', label: language === 'en' ? 'Offline Class' : 'Kelas Offline', dot: 'bg-status-offline' },
+                    { code: 'K2', label: language === 'en' ? 'Online Class' : 'Kelas Online', dot: 'bg-status-online' },
+                    { code: 'HB', label: language === 'en' ? 'Hybrid Class' : 'Hybrid', dot: 'bg-status-hybrid' },
+                    { code: 'GBK', label: language === 'en' ? 'Combined Class' : 'Kelas Gabungan', dot: 'bg-status-combined' },
+                  ].map((item) => (
+                    <li
+                      key={item.code}
+                      className="flex items-center gap-2.5 rounded-xl bg-surface-container-low/50 dark:bg-surface-container-high/40 p-2.5 border border-outline-variant/20"
+                    >
+                      <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${item.dot}`} />
+                      <div className="min-w-0">
+                        <span className="block font-bold text-[11px] text-on-surface leading-tight">{item.code}</span>
+                        <span className="text-[10px] text-on-surface-variant font-medium truncate block">{item.label}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </main>
       </div>
 
       {/* Modals */}

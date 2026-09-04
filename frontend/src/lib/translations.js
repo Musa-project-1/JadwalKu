@@ -475,7 +475,7 @@ export const TRANSLATIONS = {
     'tasks.filter_all': 'All',
     'tasks.filter_pending': 'Pending',
     'tasks.filter_completed': 'Completed',
-    'tasks.add_task': '+ New Task',
+    'tasks.add_task': 'New Task',
     'tasks.empty_title': 'No assignments yet',
     'tasks.empty_desc': 'Track individual assignments, weekly homework, lab reports, or group projects so you never miss a deadline.',
     'tasks.empty_filter_title': 'No tasks match the filter',
