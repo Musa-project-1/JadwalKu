@@ -90,10 +90,17 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
   const [deleteHolidayTarget, setDeleteHolidayTarget] = useState(null)
   const [savingHoliday, setSavingHoliday] = useState(false)
 
-  const sortedHolidays = useMemo(
-    () => (holidays ? [...holidays].sort((a, b) => (a.mulai || '').localeCompare(b.mulai || '')) : []),
-    [holidays],
-  )
+  const [holidayTypeFilter, setHolidayTypeFilter] = useState('semua')
+  const [holidayProdiFilter, setHolidayProdiFilter] = useState('')
+  const { data: programsList } = useFirestore('prodi')
+
+  const filteredHolidays = useMemo(() => {
+    return sortedHolidays.filter((h) => {
+      if (holidayTypeFilter !== 'semua' && h.tipe !== holidayTypeFilter) return false
+      if (holidayProdiFilter && h.prodi && h.prodi !== 'Semua' && h.prodi !== holidayProdiFilter) return false
+      return true
+    })
+  }, [sortedHolidays, holidayTypeFilter, holidayProdiFilter])
 
   async function handleSaveCalendar(e) {
     if (e?.preventDefault) e.preventDefault()
@@ -524,8 +531,14 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
 
                   <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 shadow-2xs">
                     <HolidayListPanel
-                      holidays={sortedHolidays}
+                      filteredHolidays={filteredHolidays}
+                      totalHolidaysCount={sortedHolidays.length}
                       loadingHolidays={false}
+                      programs={programsList || []}
+                      holidayTypeFilter={holidayTypeFilter}
+                      setHolidayTypeFilter={setHolidayTypeFilter}
+                      holidayProdiFilter={holidayProdiFilter}
+                      setHolidayProdiFilter={setHolidayProdiFilter}
                       onOpenAddModal={() => setAddHolidayModalOpen(true)}
                       onOpenSyncModal={() => setSyncHolidayModalOpen(true)}
                       onDeleteTarget={(h) => setDeleteHolidayTarget(h)}
