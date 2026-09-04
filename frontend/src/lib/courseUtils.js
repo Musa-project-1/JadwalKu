@@ -1,4 +1,4 @@
-import { getProdiByCodePrefix, getProdiPrefix } from './campusConfig'
+import { getProdiByCodePrefix, getProdiPrefix } from './campusConfig.js'
 
 export const EMPTY_COURSE_FORM = {
   kodeMK: '',

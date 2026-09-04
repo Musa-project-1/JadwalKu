@@ -19,8 +19,8 @@
  * }
  */
 
-import { CLASS_TYPE_CODES } from './classTypes'
-import { PRODIS } from '../constants/academicConstants'
+import { CLASS_TYPE_CODES } from './classTypes.js'
+import { PRODIS } from '../constants/academicConstants.js'
 
 /**
  * Konfigurasi default (dipakai bila Firestore belum berisi dokumen `kampus`
@@ -74,11 +74,30 @@ export function getRoomMap(campus = DEFAULT_CAMPUS) {
     : DEFAULT_CAMPUS.roomMap
 }
 
-/** Turunkan prefix kode MK dari nama prodi (mis. \"Bisnis Digital\" -> \"BD\", \"Teknik Sipil\" -> \"TS\"). */
+const KNOWN_PREFIXES = {
+  informatika: 'IF',
+  'teknik informatika': 'IF',
+  'sistem informasi': 'SI',
+  arsitektur: 'ARS',
+  'bisnis digital': 'BD',
+  kewirausahaan: 'KW',
+  'teknik sipil': 'TS',
+  manajemen: 'MN',
+  akuntansi: 'AK',
+  hukum: 'HK',
+  psikologi: 'PSI',
+}
+
+/** Turunkan prefix kode MK dari nama prodi (mis. "Bisnis Digital" -> "BD", "Teknik Sipil" -> "TS"). */
 export function deriveProdiPrefix(nama = '') {
-  const words = String(nama).trim().split(/\s+/).filter(Boolean)
+  const clean = String(nama).trim().toLowerCase()
+  if (KNOWN_PREFIXES[clean]) return KNOWN_PREFIXES[clean]
+  for (const [key, pfx] of Object.entries(KNOWN_PREFIXES)) {
+    if (clean.includes(key)) return pfx
+  }
+  const words = clean.split(/\s+/).filter(Boolean)
   if (words.length === 0) return ''
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+  if (words.length === 1) return words[0].slice(0, 3).toUpperCase()
   return words.map((w) => w[0].toUpperCase()).join('').slice(0, 4)
 }
 
@@ -90,6 +109,11 @@ export function getProdiPrefix(prodiName = '', campus = DEFAULT_CAMPUS) {
     return String(nama).toLowerCase() === String(prodiName).toLowerCase()
   })
   if (found && typeof found === 'object' && found.prefix) return String(found.prefix).toUpperCase()
+  
+  // Cek juga fallback dari konstanta PRODIS jika campus.prodi berupa array string
+  const fromConstants = PRODIS.find((p) => p.value && p.value.toLowerCase() === String(prodiName).toLowerCase())
+  if (fromConstants?.prefix) return fromConstants.prefix.toUpperCase()
+
   return deriveProdiPrefix(prodiName)
 }
 
