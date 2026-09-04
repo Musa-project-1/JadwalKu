@@ -97,13 +97,11 @@ export function ScheduleToolbar({
             onSelect={setProdiFilter}
           />
 
-          {availableTaOptions.length > 2 && (
-            <TaFilterDropdown
-              selected={taFilter}
-              onSelect={setTaFilter}
-              taOptions={availableTaOptions}
-            />
-          )}
+          <TaFilterDropdown
+            selected={taFilter}
+            onSelect={setTaFilter}
+            taOptions={availableTaOptions}
+          />
 
           <SemesterFilterDropdown
             selected={semesterFilter}
