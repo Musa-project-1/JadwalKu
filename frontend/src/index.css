@@ -21,21 +21,21 @@
  */
 @layer base {
   :root {
-    /* ── Surface & neutral (lebih hangat, sedikit teal tint) ── */
-    --c-surface: 244 250 249;
-    --c-surface-dim: 210 220 218;
-    --c-surface-bright: 248 253 252;
-    --c-surface-container-lowest: 255 255 255;
-    --c-surface-container-low: 237 246 244;
-    --c-surface-container: 228 240 238;
-    --c-surface-container-high: 218 232 230;
-    --c-surface-container-highest: 207 224 221;
-    --c-on-surface: 14 26 24;
-    --c-on-surface-variant: 55 80 76;
+    /* ── Surface & neutral (lembut, tidak terlalu putih/terang) ── */
+    --c-surface: 241 246 245;
+    --c-surface-dim: 212 222 220;
+    --c-surface-bright: 246 250 249;
+    --c-surface-container-lowest: 252 254 253;
+    --c-surface-container-low: 236 244 242;
+    --c-surface-container: 227 238 236;
+    --c-surface-container-high: 218 231 229;
+    --c-surface-container-highest: 208 223 220;
+    --c-on-surface: 20 32 30;
+    --c-on-surface-variant: 60 84 80;
     --c-inverse-surface: 38 54 51;
     --c-inverse-on-surface: 234 246 244;
     --c-outline: 95 120 116;
-    --c-outline-variant: 168 196 192;
+    --c-outline-variant: 172 198 194;
     --c-surface-tint: 0 150 136;
     /* ── Primary: teal lebih cerah & jenuh ── */
     --c-primary: 0 137 123;
@@ -102,20 +102,21 @@
   }
 
   .dark {
-    --c-surface: 14 19 29;
-    --c-surface-dim: 14 19 29;
-    --c-surface-bright: 52 58 72;
-    --c-surface-container-lowest: 9 14 24;
-    --c-surface-container-low: 22 30 42;
-    --c-surface-container: 28 37 50;
-    --c-surface-container-high: 38 48 62;
-    --c-surface-container-highest: 50 60 76;
-    --c-on-surface: 220 232 240;
-    --c-on-surface-variant: 180 200 210;
-    --c-inverse-surface: 220 232 240;
+    /* ── Surface & neutral (elevated dark slate, tidak hitam pekat) ── */
+    --c-surface: 16 24 38;
+    --c-surface-dim: 16 24 38;
+    --c-surface-bright: 56 66 84;
+    --c-surface-container-lowest: 13 20 32;
+    --c-surface-container-low: 24 34 50;
+    --c-surface-container: 30 42 62;
+    --c-surface-container-high: 40 54 78;
+    --c-surface-container-highest: 54 68 94;
+    --c-on-surface: 226 236 244;
+    --c-on-surface-variant: 172 192 206;
+    --c-inverse-surface: 226 236 244;
     --c-inverse-on-surface: 40 50 64;
-    --c-outline: 130 152 165;
-    --c-outline-variant: 58 76 90;
+    --c-outline: 120 144 162;
+    --c-outline-variant: 48 66 88;
     --c-surface-tint: 94 234 212;
     /* ── Primary dark: teal cerah & vibrant ── */
     --c-primary: 94 234 212;
@@ -149,9 +150,9 @@
     --c-tertiary-fixed-dim: 167 139 250;
     --c-on-tertiary-fixed: 24 14 70;
     --c-on-tertiary-fixed-variant: 79 60 180;
-    --c-background: 10 16 28;
-    --c-on-background: 220 232 240;
-    --c-surface-variant: 46 58 74;
+    --c-background: 13 20 32;
+    --c-on-background: 226 236 244;
+    --c-surface-variant: 44 58 78;
     --c-success: 52 211 153;
     --c-success-container: 6 78 59;
     --c-warning: 251 191 36;

@@ -88,7 +88,7 @@ export function CourseNotesModal({
         className="relative w-full max-w-4xl max-h-[92vh] tablet:max-h-[88vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up overflow-hidden"
       >
         {/* Header - Rich Amber/Orange Gradient Hero Header */}
-        <header className="sticky top-0 z-20 bg-gradient-to-r from-amber-900/95 via-amber-800 to-orange-900 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
+        <header className="sticky top-0 z-20 bg-gradient-to-r from-amber-800/95 via-amber-700 to-orange-800 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">

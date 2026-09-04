@@ -173,7 +173,7 @@ export function AcademicCalendarImportModal({
         className="relative flex flex-col w-full max-w-5xl max-h-[92vh] tablet:max-h-[88vh] overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-3 animate-fade-up z-10"
       >
         {/* Header Banner - Rich Full-Width Teal/Emerald Gradient matching the student design system */}
-        <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-4 tablet:p-5 text-white flex items-center justify-between border-b border-white/10 shrink-0 shadow-level-1">
+        <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-900 via-teal-700 to-emerald-800 p-4 tablet:p-5 text-white flex items-center justify-between border-b border-white/10 shrink-0 shadow-level-1">
           <div className="flex items-center gap-4 min-w-0">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-level-1 backdrop-blur-md">
               <Icon name="calendar_month" size={22} />
