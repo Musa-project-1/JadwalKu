@@ -221,7 +221,7 @@ function ScheduleTableImpl({
                 <td className="px-3 py-1.5 align-middle overflow-hidden">
                   <div className="flex items-center gap-1.5 min-w-0 max-w-full">
                     {/* Monospace Badge Kode MK */}
-                    <span className="font-mono text-[10.5px] font-bold px-1.5 py-0.2 rounded-md bg-primary/10 text-primary border border-primary/20 shadow-2xs shrink-0">
+                    <span className="font-mono text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-surface-container-high/70 text-on-surface border border-outline-variant/30 shadow-2xs shrink-0">
                       {item.kodeMK}
                     </span>
                     <span

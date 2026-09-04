@@ -77,7 +77,7 @@ function CourseTableImpl({ courses, onEdit, onDelete }) {
               >
                 {/* Kode MK: Monospace badge rounded-md */}
                 <td className="px-3 py-[9px] align-middle overflow-hidden">
-                  <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-bold text-primary border border-primary/20 shadow-2xs">
+                  <span className="inline-flex items-center rounded-md bg-surface-container-high/70 px-2 py-0.5 font-mono text-[11px] font-bold text-on-surface border border-outline-variant/30 shadow-2xs">
                     {course.kodeMK}
                   </span>
                 </td>

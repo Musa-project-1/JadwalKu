@@ -48,7 +48,7 @@ function ScheduleCardsImpl({
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-mono text-label-caps font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md shrink-0">
+                    <span className="font-mono text-label-caps font-bold text-on-surface bg-surface-container-high/70 border border-outline-variant/30 px-2 py-0.5 rounded-md shrink-0">
                       {item.kodeMK}
                     </span>
                     <span className="font-bold text-body-sm text-on-surface truncate">
