@@ -41,13 +41,26 @@ export function filterCourses(courses, filters, campus) {
     .filter((c) => (dosenFilter ? c.dosen === dosenFilter : true))
     .filter((c) => {
       if (!prodiFilter) return true
+      // Jika dokumen course punya field prodi eksplisit, gunakan langsung
+      if (c.prodi && String(c.prodi).trim()) {
+        return String(c.prodi).trim().toLowerCase() === String(prodiFilter).trim().toLowerCase()
+      }
       // Deteksi prodi dari prefix kode MK via config kampus (derive fallback).
       const prefix = getProdiPrefix(prodiFilter, campus)
-      if (prefix) {
-        return String(c.kodeMK || '').toUpperCase().startsWith(prefix)
+      if (prefix && String(c.kodeMK || '').toUpperCase().startsWith(prefix)) {
+        return true
       }
       // Bandingkan prodi yang terdeteksi dari kode MK (config kampus).
-      return getProdiByCodePrefix(String(c.kodeMK || ''), campus) === prodiFilter
+      const detected = getProdiByCodePrefix(String(c.kodeMK || ''), campus)
+      if (detected && detected.toLowerCase() === String(prodiFilter).toLowerCase()) {
+        return true
+      }
+      // Fallback: cek jika kodeMK mengandung prefix atau prodiFilter
+      const cleanFilter = String(prodiFilter).toLowerCase()
+      if (cleanFilter.includes('informatika') && /^IF/i.test(String(c.kodeMK || ''))) {
+        return true
+      }
+      return false
     })
     .filter((c) => {
       if (!semesterFilter) return true
