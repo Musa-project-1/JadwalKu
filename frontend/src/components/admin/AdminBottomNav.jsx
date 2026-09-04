@@ -19,7 +19,7 @@ const ADMIN_BOTTOM_TABS = [
   { to: '/admin/pengaturan-akademik', label: 'Pengaturan', icon: 'settings' },
 ]
 
-export function AdminBottomNav() {
+export function AdminBottomNav({ onOpenSettings }) {
   return (
     <nav
       aria-label="Navigasi Admin Utama"
@@ -27,7 +27,7 @@ export function AdminBottomNav() {
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
     >
       <ul className="flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-container-lowest/90 px-2 py-1.5 shadow-level-2 backdrop-blur-xl dark:bg-surface-container-low/90">
-        {ADMIN_BOTTOM_TABS.map((item) => (
+        {ADMIN_BOTTOM_TABS.slice(0, 4).map((item) => (
           <li key={item.to}>
             <NavLink to={item.to} end={item.to === '/admin/dashboard'} viewTransition>
               {({ isActive }) => (
@@ -53,6 +53,20 @@ export function AdminBottomNav() {
             </NavLink>
           </li>
         ))}
+
+        {/* Tab ke-5: Pengaturan (Membuka Modal Pengaturan Admin) */}
+        <li>
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            className="flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1 text-label-caps tracking-tight transition-all duration-200 active:opacity-80 font-normal text-on-surface-variant cursor-pointer"
+          >
+            <span className="flex h-7 w-12 items-center justify-center rounded-full transition-all duration-200">
+              <Icon name="settings" size={21} />
+            </span>
+            <span className="whitespace-nowrap text-center leading-tight">Pengaturan</span>
+          </button>
+        </li>
       </ul>
     </nav>
   )

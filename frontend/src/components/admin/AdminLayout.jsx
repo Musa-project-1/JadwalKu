@@ -4,6 +4,7 @@ import { ADMIN_NAV } from '../../lib/navigation'
 import { Icon } from '../Icon'
 import { OfflineBanner } from '../OfflineBanner'
 import { SearchModal } from '../SearchModal'
+import { AdminSettingsModal } from './AdminSettingsModal'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useApp } from '../../hooks/useApp'
 import { getItem, setItem } from '../../lib/storage'
@@ -43,13 +44,26 @@ function AdminNavItem({ item, onNavigate, isPinned }) {
 }
 
 /** Baris akun admin di dasar sidebar: email + tombol keluar. */
-function AdminAccount({ isPinned }) {
+function AdminAccount({ isPinned, onOpenSettings }) {
   const { user, signOutAdmin } = useAdminAuth()
   if (!user) return null
 
   return (
     <div className="px-4">
       <div className="border-t border-outline-variant/40 pt-2 space-y-1">
+        {/* Tombol Pengaturan Admin — Persis posisi di Sidebar Student */}
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          title="Pengaturan"
+          className="flex w-full items-center rounded-full h-12 px-4 transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-high cursor-pointer text-left"
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+            <Icon name="settings" size={24} />
+          </span>
+          <span className={labelCls(!isPinned, 'ml-3.5')}>Pengaturan</span>
+        </button>
+
         {/* Account info row + logout */}
         <div className="flex w-full items-center rounded-full h-12 px-4 transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-high">
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container">
@@ -98,6 +112,7 @@ export function AdminLayout() {
   const { theme, setTheme } = useApp()
   const [isPinned, setIsPinned] = useState(() => getItem('jadwalku:sidebar_pinned', false))
   const [searchOpen, setSearchOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const nextTheme = theme === 'dark' ? 'light' : 'dark'
 
   useEffect(() => {
@@ -186,7 +201,7 @@ export function AdminLayout() {
               </li>
             ))}
           </ul>
-          <AdminAccount isPinned={isPinned} />
+          <AdminAccount isPinned={isPinned} onOpenSettings={() => setSettingsOpen(true)} />
         </nav>
       </aside>
 
@@ -289,8 +304,11 @@ export function AdminLayout() {
         {/* Global Search Dialog Modal */}
         <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
+        {/* Global Admin Settings Modal (2-Column Split Master-Detail 1:1 Student) */}
+        <AdminSettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+
         {/* Floating Bottom Nav untuk Admin Console Mobile */}
-        <AdminBottomNav />
+        <AdminBottomNav onOpenSettings={() => setSettingsOpen(true)} />
       </div>
     </div>
   )
