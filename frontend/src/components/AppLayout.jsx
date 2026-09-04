@@ -6,6 +6,7 @@ import { OfflineBanner } from './OfflineBanner'
 import { Sidebar } from './Sidebar'
 import { SearchModal } from './SearchModal'
 import { NotificationPopover } from './NotificationPopover'
+import { SettingsModal } from './student/SettingsModal'
 import { useNotifications } from '../hooks/useNotifications'
 import { useApp } from '../hooks/useApp'
 
@@ -35,7 +36,7 @@ function BellButton({ active, onToggle }) {
 
 export function AppLayout() {
   const location = useLocation()
-  const { program, semester, theme, setTheme } = useApp()
+  const { program, semester, theme, setTheme, openSettings, settingsModalOpen, closeSettings, settingsModalTab } = useApp()
   const [searchOpen, setSearchOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const nextTheme = theme === 'dark' ? 'light' : 'dark'
@@ -95,10 +96,11 @@ export function AppLayout() {
               </div>
 
               {/* Desktop: Active Academic Program & Semester Pill (text-sm, px-4 py-2) */}
-              <Link
-                to="/pengaturan"
+              <button
+                type="button"
+                onClick={() => openSettings('academic')}
                 title="Ubah program studi / semester di Pengaturan"
-                className="hidden tablet:flex group items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-4 py-2 text-body-sm font-semibold text-on-surface hover:border-primary/50 hover:bg-surface-container-highest transition-all shadow-xs"
+                className="hidden tablet:flex group items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-4 py-2 text-body-sm font-semibold text-on-surface hover:border-primary/50 hover:bg-surface-container-highest transition-all shadow-xs cursor-pointer"
               >
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="font-bold text-primary">
@@ -108,7 +110,7 @@ export function AppLayout() {
                   · Sem {semester || '1'}
                 </span>
                 <Icon name="tune" size={15} className="text-on-surface-variant group-hover:text-primary transition-colors ml-0.5" />
-              </Link>
+              </button>
             </div>
 
             {/* Center: Large & Solid Search Bar (Desktop/Tablet) */}
@@ -187,6 +189,13 @@ export function AppLayout() {
 
         {/* Global Quick Search Modal */}
         <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+
+        {/* Global Floating Settings Modal (Notion / macOS style) */}
+        <SettingsModal
+          isOpen={settingsModalOpen}
+          onClose={closeSettings}
+          initialTab={settingsModalTab}
+        />
 
         <OfflineBanner />
         <main className="mx-auto w-full max-w-container-max flex-1 px-md pb-24 pt-md tablet:pb-md desktop:px-lg overflow-x-hidden">

@@ -7,7 +7,7 @@ import { Icon } from './Icon'
 
 export function Sidebar() {
   const { unreadCount } = useNotifications()
-  const { t } = useApp()
+  const { t, openSettings } = useApp()
   const [isPinned, setIsPinned] = useState(() => getItem('jadwalku:sidebar_pinned', false))
 
   const links = [
@@ -131,23 +131,17 @@ export function Sidebar() {
           {/* Footer links */}
           <div className="px-3.5">
             <div className="border-t border-outline-variant/40 pt-2 space-y-1">
-              <NavLink
-                to="/pengaturan"
-                viewTransition
+              <button
+                type="button"
+                onClick={() => openSettings('appearance')}
                 title={t ? t('nav.settings') : 'Pengaturan'}
-                className={({ isActive }) =>
-                  `flex w-full items-center rounded-full h-12 px-3.5 transition-colors duration-200 ${
-                    isActive
-                      ? 'bg-primary/10 font-medium text-primary'
-                      : 'text-on-surface-variant hover:bg-surface-container-high'
-                  }`
-                }
+                className="flex w-full items-center rounded-full h-12 px-3.5 transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-high cursor-pointer text-left"
               >
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
                   <Icon name="settings" size={24} />
                 </span>
                 <span className={labelCls}>{t ? t('nav.settings') : 'Pengaturan'}</span>
-              </NavLink>
+              </button>
 
               <NavLink
                 to="/admin/login"

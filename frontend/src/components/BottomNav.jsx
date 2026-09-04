@@ -15,14 +15,14 @@ import { useApp } from '../hooks/useApp'
  */
 
 export function BottomNav() {
-  const { t } = useApp()
+  const { t, openSettings } = useApp()
 
   const tabs = [
     { to: '/', label: t ? t('nav.home') : 'Home', icon: 'home', highlight: false },
     { to: '/jadwal', label: t ? t('nav.schedule') : 'Jadwal', icon: 'calendar_month', highlight: true },
     { to: '/tugas', label: t ? t('nav.tasks') : 'Tugas', icon: 'checklist', highlight: false },
     { to: '/ujian', label: t ? t('nav.exams') : 'Ujian', icon: 'edit_note', highlight: false },
-    { to: '/pengaturan', label: t ? t('nav.settings') : 'Pengaturan', icon: 'settings', highlight: false },
+    { to: '#settings', label: t ? t('nav.settings') : 'Pengaturan', icon: 'settings', highlight: false, isSettings: true },
   ]
 
   return (
@@ -33,10 +33,24 @@ export function BottomNav() {
     >
       <ul className="flex items-center gap-0.5 rounded-full border border-white/10 bg-surface-container-lowest/90 px-2 py-1.5 shadow-level-2 backdrop-blur-xl dark:bg-surface-container-low/90">
         {tabs.map((item) => (
-          <li key={item.to}>
-            <NavLink to={item.to} end={item.to === '/'} viewTransition>
-              {({ isActive }) => {
-                const isHighlight = item.highlight
+          <li key={item.label}>
+            {item.isSettings ? (
+              <button
+                type="button"
+                onClick={() => openSettings('appearance')}
+                className="flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] font-normal text-on-surface-variant transition-all duration-200 active:opacity-80 cursor-pointer"
+              >
+                <span className="flex h-7 w-12 items-center justify-center rounded-full transition-all duration-200">
+                  <Icon name={item.icon} size={22} />
+                </span>
+                <span className="text-center font-medium leading-none tracking-tight">
+                  {item.label}
+                </span>
+              </button>
+            ) : (
+              <NavLink to={item.to} end={item.to === '/'} viewTransition>
+                {({ isActive }) => {
+                  const isHighlight = item.highlight
 
                 // Label & wrapper classes
                 const wrapperCls = [
@@ -74,8 +88,9 @@ export function BottomNav() {
                 )
               }}
             </NavLink>
-          </li>
-        ))}
+          )}
+        </li>
+      ))}
       </ul>
     </nav>
   )

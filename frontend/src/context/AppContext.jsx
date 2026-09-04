@@ -64,6 +64,8 @@ export function AppProvider({ children }) {
   const [showPrayerDividers, setShowPrayerDividersState] = useState(() =>
     getItem(STORAGE_KEYS.showPrayerDividers, true),
   )
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false)
+  const [settingsModalTab, setSettingsModalTab] = useState('appearance')
 
   const isFirstRender = useRef(true)
 
@@ -170,9 +172,16 @@ export function AppProvider({ children }) {
         setShowPrayerDividersState(next)
         setItem(STORAGE_KEYS.showPrayerDividers, next)
       },
+      settingsModalOpen,
+      settingsModalTab,
+      openSettings: (tab = 'appearance') => {
+        setSettingsModalTab(tab)
+        setSettingsModalOpen(true)
+      },
+      closeSettings: () => setSettingsModalOpen(false),
       firebaseReady,
     }),
-    [theme, language, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession, showPrayerDividers],
+    [theme, language, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession, showPrayerDividers, settingsModalOpen, settingsModalTab],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
