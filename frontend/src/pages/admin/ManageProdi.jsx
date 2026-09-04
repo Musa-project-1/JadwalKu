@@ -11,7 +11,7 @@ import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { addDocument, deleteDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory, syncProdiFromExistingData } from '../../lib/publishHelpers'
-import { getProdiColorClasses } from '../../lib/prodiColors'
+import { getProdiColorClasses, getProdiTokenMap } from '../../lib/prodiColors'
 
 const SEMESTER_OPTIONS = Array.from({ length: 14 }, (_, i) => i + 1)
 
@@ -396,7 +396,7 @@ export default function ManageProdi() {
                   <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low overflow-hidden shadow-2xs divide-y divide-outline-variant/15">
                     {prodis.map((program) => {
                       const isEditing = editingId === program.id
-                      const colors = getProdiColorClasses(program.nama)
+                      const colors = getProdiTokenMap(program.nama)
                       return (
                         <div
                           key={program.id}
