@@ -112,7 +112,7 @@ export function ExamToolbar({
             className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1 text-[11px] font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
             title="Unduh Template Excel Ujian (.xlsx)"
           >
-            <Icon name="download" size={13} className="text-primary" />
+            <Icon name="description" size={13} className="text-primary" />
             <span className="hidden desktop:inline">Template</span>
           </button>
 
@@ -132,7 +132,7 @@ export function ExamToolbar({
             className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1 text-[11px] font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
             title="Impor Jadwal Ujian (Excel / CSV)"
           >
-            <Icon name="publish" size={13} className="text-tertiary" />
+            <Icon name="upload_file" size={13} className="text-tertiary" />
             <span className="hidden desktop:inline">Impor</span>
           </button>
 

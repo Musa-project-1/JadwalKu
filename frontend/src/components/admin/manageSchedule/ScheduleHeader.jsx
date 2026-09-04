@@ -78,7 +78,7 @@ export function ScheduleHeader({
           title="Import Spreadsheet Master (.xlsx / .csv)"
           aria-label="Import Spreadsheet"
         >
-          <Icon name="upload" size={18} />
+          <Icon name="upload_file" size={18} />
         </button>
 
         {/* Template Download Icon Button */}
@@ -89,7 +89,7 @@ export function ScheduleHeader({
           title="Download Template Spreadsheet (.xlsx)"
           aria-label="Download Template"
         >
-          <Icon name="file_download" size={18} />
+          <Icon name="description" size={18} />
         </button>
 
         {/* Ekspor Excel Icon Button */}
@@ -100,7 +100,7 @@ export function ScheduleHeader({
           title="Ekspor Jadwal ke Excel (.xlsx)"
           aria-label="Ekspor Jadwal"
         >
-          <Icon name="download" size={18} />
+          <Icon name="file_download" size={18} />
         </button>
 
         <div className="h-6 w-px bg-outline-variant/20 mx-0.5" />

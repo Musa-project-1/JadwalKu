@@ -304,7 +304,7 @@ export default function ManageCourses() {
               title="Ekspor Kurikulum Mata Kuliah ke Excel (.xlsx)"
               aria-label="Ekspor Excel"
             >
-              <Icon name="download" size={18} />
+              <Icon name="file_download" size={18} />
             </button>
 
             <div className="h-6 w-px bg-outline-variant/20 mx-0.5" />
