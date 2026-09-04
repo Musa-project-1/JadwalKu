@@ -83,9 +83,9 @@ export default function Settings() {
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
-      {/* 1. Header Halaman — 1:1 with WeeklySchedule / Tasks / Exams */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
-        <div className="flex items-center gap-4 min-w-0">
+      {/* 1. Clean Header Halaman (Linear / macOS Benchmark: No duplicate buttons) */}
+      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 tablet:px-5 tablet:py-4 shadow-level-1 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        <div className="flex items-center gap-3.5 min-w-0">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
             <Icon name="settings" size={24} />
           </div>
@@ -99,96 +99,21 @@ export default function Settings() {
               </span>
             </div>
             <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-              {fakultasNama ? `${fakultasNama} · ` : ''}{program || (language === 'en' ? 'Not selected' : 'Belum dipilih')} · {language === 'en' ? `Semester ${semester || '-'}` : `Semester ${semester || '-'}`} {taLabel ? `· AY ${taLabel}` : ''} · {language === 'en' ? 'Preferences & Integrations' : 'Preferensi & integrasi'}
+              {fakultasNama ? `${fakultasNama} · ` : ''}{program || (language === 'en' ? 'Not selected' : 'Belum dipilih')} · {language === 'en' ? `Semester ${semester || '-'}` : `Semester ${semester || '-'}`} {taLabel ? `· AY ${taLabel}` : ''}
             </p>
           </div>
         </div>
 
-        {/* Controls — matches Tasks/Exams header controls */}
-        <div className="flex items-center gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
-          <button
-            type="button"
-            onClick={() => setShowDocsModal(true)}
-            title="Buka Pusat Panduan & Tutorial 13 Fitur Mahasiswa"
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-on-primary text-body-xs font-bold shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
-          >
-            <Icon name="menu_book" size={15} />
-            <span>{language === 'en' ? 'Guides' : 'Tutorial'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowHistoryModal(true)}
-            title="Buka Riwayat Perubahan Jadwal"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-level-1 transition-all cursor-pointer"
-          >
-            <Icon name="history" size={15} className="text-primary" />
-            <span>{language === 'en' ? 'History' : 'Riwayat'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowAboutModal(true)}
-            title="Buka Tentang & Bantuan (FAQ)"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/60 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface text-body-xs font-bold border border-outline-variant/25 shadow-level-1 transition-all cursor-pointer"
-          >
-            <Icon name="help_outline" size={15} className="text-secondary" />
-            <span>{language === 'en' ? 'About & FAQ' : 'Tentang & FAQ'}</span>
-          </button>
+        {/* Right Status Badge */}
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high/60 border border-outline-variant/25 text-label-caps font-semibold text-on-surface-variant shadow-2xs">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>{language === 'en' ? 'Offline PWA Active' : 'Offline PWA Aktif'}</span>
+          </span>
         </div>
       </header>
 
-      {/* 2. Secondary Toolbar — Status & Quick Actions */}
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-2.5 shadow-level-1 flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3">
-        {/* Left: Status chips */}
-        <div className="flex items-center gap-2.5 tablet:gap-3 shrink-0 text-label-caps font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-3 py-1 rounded-xl border border-outline-variant/20 overflow-x-auto no-scrollbar">
-          <span className="text-label-caps uppercase font-bold text-on-surface-variant/70 tracking-wider shrink-0">Status:</span>
-          <span className="flex items-center gap-1.5 shrink-0" title="Progressive Web App — tersedia offline">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-level-1 shrink-0" />
-            <span className="text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
-              {language === 'en' ? 'Offline PWA Active' : 'Offline PWA Aktif'}
-            </span>
-          </span>
-          <span className="flex items-center gap-1.5 shrink-0">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-level-1 shrink-0" />
-            <span className={`whitespace-nowrap ${syncMessage ? 'text-primary' : ''}`}>
-              {syncMessage || (language === 'en' ? 'Synchronized' : 'Tersinkronisasi')}
-            </span>
-          </span>
-          <span className="hidden tablet:inline h-4 w-px bg-outline-variant/30 shrink-0" />
-          <span className="hidden tablet:inline whitespace-nowrap text-on-surface-variant/80">
-            {language === 'en' ? 'Updated: ' : 'Update: '}{formatLastUpdated(appSettings, language)}
-          </span>
-        </div>
-
-        {/* Right: Quick actions */}
-        <div className="flex items-center gap-2 shrink-0 justify-between tablet:justify-end w-full tablet:w-auto">
-          <span className="tablet:hidden text-body-xs font-medium text-on-surface-variant truncate">
-            {language === 'en' ? 'Updated: ' : 'Update: '}{formatLastUpdated(appSettings, language)}
-          </span>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={handleManualSync}
-              disabled={isSyncing}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary text-body-xs font-bold border border-primary/20 transition-all shadow-level-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            >
-              <Icon name={isSyncing ? 'sync' : 'refresh'} size={14} className={isSyncing ? 'animate-spin' : ''} />
-              <span className="hidden tablet:inline">{isSyncing ? (language === 'en' ? 'Syncing...' : 'Menyinkronkan...') : (language === 'en' ? 'Sync Data' : 'Sinkronkan')}</span>
-              <span className="tablet:hidden">Sync</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleClearCache}
-              title={language === 'en' ? 'Reset local app cache' : 'Reset cache lokal aplikasi'}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-high/60 hover:bg-error/10 hover:text-error hover:border-error/20 text-on-surface-variant text-body-xs font-bold border border-outline-variant/20 transition-all cursor-pointer shrink-0"
-            >
-              <Icon name="delete_outline" size={14} />
-              <span>{language === 'en' ? 'Reset' : 'Reset'}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── 3. MASTER-DETAIL SETTINGS LAYOUT (Linear / Notion / macOS Benchmark) ── */}
+      {/* ── 2. MASTER-DETAIL SETTINGS LAYOUT (Linear / Notion / macOS Benchmark) ── */}
       <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 overflow-hidden flex flex-col desktop:flex-row min-h-[580px]">
         {/* ── SISI KIRI: Sidebar Navigasi Kategori (~260px di Desktop, Horizontal Scroll di Mobile) ── */}
         <aside className="w-full desktop:w-64 shrink-0 border-b desktop:border-b-0 desktop:border-r border-outline-variant/20 bg-surface-container-low/30 dark:bg-surface-container-high/15 p-3 desktop:p-4 flex flex-row desktop:flex-col justify-between gap-1 overflow-x-auto no-scrollbar">
