@@ -7,13 +7,17 @@ import { setDocument } from '../../lib/adminData'
 import { appendHistory } from '../../lib/publishHelpers'
 import { ACADEMIC_CALENDAR, deriveTahunAjaran, deriveTerm } from '../../lib/tahunAjaran'
 import { computeMekStats } from '../../lib/academicCalendar'
+import { NATIONAL_HOLIDAYS_PRESET } from '../../constants/academicConstants'
 import { DatabaseBackupRestoreModal } from './DatabaseBackupRestoreModal'
 import CalendarSettingsModal from './manageAcademicSettings/CalendarSettingsModal'
 import { AcademicCalendarImportModal } from './AcademicCalendarImportModal'
 import { RoomListPanel } from './manageAcademicSettings/RoomListPanel'
 import { AddEditRoomModal } from './manageAcademicSettings/AddEditRoomModal'
+import { HolidayListPanel } from './manageAcademicSettings/HolidayListPanel'
+import AddHolidayModal from './manageAcademicSettings/AddHolidayModal'
+import SyncNationalHolidaysModal from './manageAcademicSettings/SyncNationalHolidaysModal'
 import { ConfirmDialog } from '../ConfirmDialog'
-import { deleteDocument, setDocument as setDocHelper } from '../../lib/adminData'
+import { addDocument, deleteDocument, setDocument as setDocHelper } from '../../lib/adminData'
 
 /**
  * AdminSettingsModal
@@ -78,6 +82,18 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
   const [savingRoom, setSavingRoom] = useState(false)
   const [deleteRoomTarget, setDeleteRoomTarget] = useState(null)
   const { data: rooms, loading: loadingRooms } = useFirestore('rooms')
+
+  const [addHolidayModalOpen, setAddHolidayModalOpen] = useState(false)
+  const [syncHolidayModalOpen, setSyncHolidayModalOpen] = useState(false)
+  const [selectedSyncYear, setSelectedSyncYear] = useState(() => new Date().getFullYear())
+  const [syncingHolidays, setSyncingHolidays] = useState(false)
+  const [deleteHolidayTarget, setDeleteHolidayTarget] = useState(null)
+  const [savingHoliday, setSavingHoliday] = useState(false)
+
+  const sortedHolidays = useMemo(
+    () => (holidays ? [...holidays].sort((a, b) => (a.mulai || '').localeCompare(b.mulai || '')) : []),
+    [holidays],
+  )
 
   async function handleSaveCalendar(e) {
     if (e?.preventDefault) e.preventDefault()
@@ -145,6 +161,7 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
     { id: 'appearance', label: language === 'en' ? 'Appearance' : 'Tampilan', icon: 'palette', badge: null },
     { id: 'admin-profile', label: language === 'en' ? 'Admin Profile' : 'Profil Admin', icon: 'admin_panel_settings', badge: 'Auth' },
     { id: 'academic-master', label: language === 'en' ? 'Academic Master' : 'Master Akademik', icon: 'school', badge: 'Kaldik' },
+    { id: 'holidays-master', label: language === 'en' ? 'Campus Holidays' : 'Hari Libur Kampus', icon: 'event_busy', badge: 'Libur' },
     { id: 'rooms-master', label: language === 'en' ? 'Rooms & Wayfinding' : 'Ruangan Kampus', icon: 'meeting_room', badge: 'Denah' },
     { id: 'database', label: language === 'en' ? 'Database & Backup' : 'Database & Backup', icon: 'database', badge: 'Cloud' },
   ], [language])
@@ -493,7 +510,31 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
                 </div>
               )}
 
-              {/* TAB 4: RUANGAN KAMPUS */}
+              {/* TAB 4: HARI LIBUR KAMPUS */}
+              {activeTab === 'holidays-master' && (
+                <div className="space-y-4 animate-fade-in">
+                  <div>
+                    <h3 className="text-title-sm font-bold text-on-surface">
+                      {language === 'en' ? 'Campus Holiday Calendar' : 'Daftar Hari Libur Kampus'}
+                    </h3>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      {language === 'en' ? 'Manage official campus holidays, breaks, and national calendar sync' : 'Kelola hari libur nasional, jeda perkuliahan, dan agenda libur kampus'}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 shadow-2xs">
+                    <HolidayListPanel
+                      holidays={sortedHolidays}
+                      loadingHolidays={false}
+                      onOpenAddModal={() => setAddHolidayModalOpen(true)}
+                      onOpenSyncModal={() => setSyncHolidayModalOpen(true)}
+                      onDeleteTarget={(h) => setDeleteHolidayTarget(h)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 5: RUANGAN KAMPUS */}
               {activeTab === 'rooms-master' && (
                 <div className="space-y-4 animate-fade-in">
                   <div>
@@ -592,6 +633,55 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
           existingEvents={calDoc?.events || []}
           actor={actor}
           busySaving={savingKaldik}
+        />
+      )}
+
+      {addHolidayModalOpen && (
+        <AddHolidayModal
+          open={addHolidayModalOpen}
+          onClose={() => setAddHolidayModalOpen(false)}
+          onAdd={async (h) => {
+            setSavingHoliday(true)
+            await addDocument('libur', h, actor)
+            setSavingHoliday(false)
+            setAddHolidayModalOpen(false)
+          }}
+          saving={savingHoliday}
+          todayISO={new Date().toISOString().slice(0, 10)}
+        />
+      )}
+
+      {syncHolidayModalOpen && (
+        <SyncNationalHolidaysModal
+          open={syncHolidayModalOpen}
+          onClose={() => setSyncHolidayModalOpen(false)}
+          selectedYear={selectedSyncYear}
+          onYearChange={setSelectedSyncYear}
+          syncing={syncingHolidays}
+          onSync={async () => {
+            setSyncingHolidays(true)
+            const preset = NATIONAL_HOLIDAYS_PRESET[selectedSyncYear] || []
+            for (const h of preset) {
+              await addDocument('libur', h, actor)
+            }
+            setSyncingHolidays(false)
+            setSyncHolidayModalOpen(false)
+          }}
+        />
+      )}
+
+      {deleteHolidayTarget && (
+        <ConfirmDialog
+          open={Boolean(deleteHolidayTarget)}
+          title="Hapus Hari Libur?"
+          description={`Hari libur "${deleteHolidayTarget?.nama}" akan dihapus dari kalender.`}
+          confirmLabel="Hapus Libur"
+          onConfirm={async () => {
+            if (!deleteHolidayTarget) return
+            await deleteDocument('libur', deleteHolidayTarget.id)
+            setDeleteHolidayTarget(null)
+          }}
+          onCancel={() => setDeleteHolidayTarget(null)}
         />
       )}
 
