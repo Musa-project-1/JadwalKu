@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, memo } from 'react'
 import { Icon } from '../../Icon'
 import { getClassType, TONE_CLASSES, TONE_ICONS } from '../../../lib/classTypes'
 import { formatRuang } from '../../../lib/scheduleUtils'
-import { getProdiColorClasses } from '../../../lib/prodiColors'
+import { getProdiColorClasses, getCourseCodeBadgeClass } from '../../../lib/prodiColors'
 
 /**
  * ScheduleTable - Redesigned for zero horizontal scroll & strict visual consistency
@@ -221,7 +221,7 @@ function ScheduleTableImpl({
                 <td className="px-3 py-1.5 align-middle overflow-hidden">
                   <div className="flex items-center gap-1.5 min-w-0 max-w-full">
                     {/* Monospace Badge Kode MK */}
-                    <span className="font-mono text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-surface-container-high/70 text-on-surface border border-outline-variant/30 shadow-2xs shrink-0">
+                    <span className={`font-mono text-[10.5px] font-bold px-2 py-0.5 rounded-md shadow-2xs shrink-0 border ${getCourseCodeBadgeClass(item.prodi, isMultiProdi, item.kodeMK)}`}>
                       {item.kodeMK}
                     </span>
                     <span

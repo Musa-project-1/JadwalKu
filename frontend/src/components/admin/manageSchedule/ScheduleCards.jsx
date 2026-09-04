@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Icon } from '../../Icon'
 import { formatRuang } from '../../../lib/scheduleUtils'
-import { getProdiColorClasses } from '../../../lib/prodiColors'
+import { getProdiColorClasses, getCourseCodeBadgeClass } from '../../../lib/prodiColors'
 
 function ScheduleCardsImpl({
   paginatedGroups,
@@ -48,7 +48,7 @@ function ScheduleCardsImpl({
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-mono text-label-caps font-bold text-on-surface bg-surface-container-high/70 border border-outline-variant/30 px-2 py-0.5 rounded-md shrink-0">
+                    <span className={`font-mono text-label-caps font-bold px-2 py-0.5 rounded-md shrink-0 border shadow-2xs ${getCourseCodeBadgeClass(item.prodi, group.items.length > 1, item.kodeMK)}`}>
                       {item.kodeMK}
                     </span>
                     <span className="font-bold text-body-sm text-on-surface truncate">

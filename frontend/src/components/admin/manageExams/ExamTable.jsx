@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { Icon } from '../../Icon'
+import { getCourseCodeBadgeClass } from '../../../lib/prodiColors'
 
 const dateFormatter = new Intl.DateTimeFormat('id-ID', {
   weekday: 'short',
@@ -91,7 +92,7 @@ function ExamTableImpl({
                 {/* Kode MK + Sesi Badge */}
                 <td className="w-28 px-3 py-2 align-middle">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-mono text-[11px] font-bold text-on-surface bg-surface-container-high/70 px-2 py-0.5 rounded-lg border border-outline-variant/30 shadow-2xs">
+                    <span className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg border shadow-2xs ${getCourseCodeBadgeClass(exam.prodi, false, exam.kodeMK)}`}>
                       {exam.kodeMK}
                     </span>
                     <span

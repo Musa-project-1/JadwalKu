@@ -80,6 +80,19 @@ export function getProdiColorClasses(nama = '') {
 }
 
 /**
+ * Badge warna untuk Kode MK:
+ * - Jika MK Umum / Multi-prodi / MKWK: warna ungu/amber khusus MK Umum.
+ * - Jika MK Prodi: warna diturunkan secara deterministik dari Prodi pemiliknya.
+ */
+export function getCourseCodeBadgeClass(prodi = '', isMultiProdi = false, kodeMK = '') {
+  const cleanCode = String(kodeMK || '').toUpperCase().trim()
+  if (isMultiProdi || cleanCode.startsWith('MKWK') || cleanCode.startsWith('MKN') || cleanCode.startsWith('UMUM') || !prodi) {
+    return 'bg-purple-500/10 text-purple-800 dark:text-purple-300/80 border-purple-500/20 dark:border-purple-500/15 dark:bg-purple-950/40'
+  }
+  return getProdiColorClasses(prodi)
+}
+
+/**
  * Ambil kelas split (bg, text, border) untuk avatar/initial kotak prodi.
  */
 export function getProdiTokenMap(nama = '') {
