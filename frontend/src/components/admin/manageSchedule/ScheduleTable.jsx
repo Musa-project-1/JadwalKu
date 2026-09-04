@@ -257,7 +257,7 @@ function ScheduleTableImpl({
                   </div>
                   <span
                     className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-bold mt-0.5 border shadow-2xs truncate max-w-full ${
-                      TONE_CLASSES[ct.tone] || 'bg-surface-container text-on-surface-variant'
+                      TONE_CLASSES[ct.tone] || 'bg-surface-container text-on-surface-variant border-outline-variant/20'
                     }`}
                     title={ct.label}
                   >
