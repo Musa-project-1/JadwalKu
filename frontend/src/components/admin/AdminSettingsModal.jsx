@@ -1,7 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { Icon } from '../Icon'
 import { useApp } from '../../hooks/useApp'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
+import { useFirestore } from '../../hooks/useFirestore'
+import { setDocument } from '../../lib/adminData'
+import { appendHistory } from '../../lib/publishHelpers'
+import { ACADEMIC_CALENDAR, deriveTahunAjaran, deriveTerm } from '../../lib/tahunAjaran'
+import { computeMekStats } from '../../lib/academicCalendar'
 import { DatabaseBackupRestoreModal } from './DatabaseBackupRestoreModal'
 import CalendarSettingsModal from './manageAcademicSettings/CalendarSettingsModal'
 import { AcademicCalendarImportModal } from './AcademicCalendarImportModal'
@@ -14,11 +19,118 @@ import { AcademicCalendarImportModal } from './AcademicCalendarImportModal'
 export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' }) {
   const { theme, setTheme, language, setLanguage, fontSize, setFontSize, highContrast, setHighContrast, t } = useApp()
   const { user, signOutAdmin } = useAdminAuth()
+  const actor = user?.email || ''
 
+  const { data: settingsDocs } = useFirestore('settings')
+  const { data: holidays } = useFirestore('libur')
+
+  const calDoc = useMemo(
+    () => settingsDocs?.find((s) => s.id === 'academicCalendar'),
+    [settingsDocs],
+  )
+  const currentComputedTA = deriveTahunAjaran(new Date(), calDoc)
+  const currentComputedTerm = deriveTerm(new Date(), calDoc)
+
+  const [customCal, setCustomCal] = useState(() => ({
+    ganjilStartMonth: calDoc?.ganjilStart?.month ?? ACADEMIC_CALENDAR.ganjilStart.month,
+    ganjilStartDay: calDoc?.ganjilStart?.day ?? ACADEMIC_CALENDAR.ganjilStart.day,
+    ganjilEndMonth: calDoc?.ganjilEnd?.month ?? ACADEMIC_CALENDAR.ganjilEnd.month,
+    ganjilEndDay: calDoc?.ganjilEnd?.day ?? ACADEMIC_CALENDAR.ganjilEnd.day,
+    genapStartMonth: calDoc?.genapStart?.month ?? ACADEMIC_CALENDAR.genapStart.month,
+    genapStartDay: calDoc?.genapStart?.day ?? ACADEMIC_CALENDAR.genapStart.day,
+    genapEndMonth: calDoc?.genapEnd?.month ?? ACADEMIC_CALENDAR.genapEnd.month,
+    genapEndDay: calDoc?.genapEnd?.day ?? ACADEMIC_CALENDAR.genapEnd.day,
+  }))
+
+  const calHydratedRef = useRef(false)
+  useEffect(() => {
+    if (calHydratedRef.current || !calDoc) return
+    setCustomCal({
+      ganjilStartMonth: calDoc.ganjilStart?.month ?? ACADEMIC_CALENDAR.ganjilStart.month,
+      ganjilStartDay: calDoc.ganjilStart?.day ?? ACADEMIC_CALENDAR.ganjilStart.day,
+      ganjilEndMonth: calDoc.ganjilEnd?.month ?? ACADEMIC_CALENDAR.ganjilEnd.month,
+      ganjilEndDay: calDoc.ganjilEnd?.day ?? ACADEMIC_CALENDAR.ganjilEnd.day,
+      genapStartMonth: calDoc.genapStart?.month ?? ACADEMIC_CALENDAR.genapStart.month,
+      genapStartDay: calDoc.genapStart?.day ?? ACADEMIC_CALENDAR.genapStart.day,
+      genapEndMonth: calDoc.genapEnd?.month ?? ACADEMIC_CALENDAR.genapEnd.month,
+      genapEndDay: calDoc.genapEnd?.day ?? ACADEMIC_CALENDAR.genapEnd.day,
+    })
+    calHydratedRef.current = true
+  }, [calDoc])
+
+  const mekStats = useMemo(
+    () => computeMekStats({ customCal, currentComputedTerm, holidays: holidays || [] }),
+    [customCal, currentComputedTerm, holidays],
+  )
+
+  const [savingCal, setSavingCal] = useState(false)
+  const [savingKaldik, setSavingKaldik] = useState(false)
   const [activeTab, setActiveTab] = useState(initialTab)
   const [backupRestoreOpen, setBackupRestoreOpen] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [kaldikImportOpen, setKaldikImportOpen] = useState(false)
+
+  async function handleSaveCalendar(e) {
+    if (e?.preventDefault) e.preventDefault()
+    setSavingCal(true)
+    const payload = {
+      ganjilStart: {
+        month: Number(customCal.ganjilStartMonth),
+        day: Number(customCal.ganjilStartDay),
+      },
+      ganjilEnd: {
+        month: Number(customCal.ganjilEndMonth),
+        day: Number(customCal.ganjilEndDay),
+      },
+      genapStart: {
+        month: Number(customCal.genapStartMonth),
+        day: Number(customCal.genapStartDay),
+      },
+      genapEnd: {
+        month: Number(customCal.genapEndMonth),
+        day: Number(customCal.genapEndDay),
+      },
+      updatedAt: new Date().toISOString(),
+    }
+    const result = await setDocument('settings', 'academicCalendar', payload, actor)
+    setSavingCal(false)
+    if (result.ok) {
+      await appendHistory({
+        entitas: 'settings',
+        field: 'academicCalendar',
+        nilaiLama: calDoc ?? null,
+        nilaiBaru: payload,
+        aktor: actor,
+        detail: 'Konfigurasi batas kalender akademik diperbarui',
+      })
+      setCalendarOpen(false)
+    }
+  }
+
+  async function handleImportCalendar({ events, bounds }) {
+    setSavingKaldik(true)
+    const payload = {
+      ganjilStart: bounds?.ganjilStart ?? calDoc?.ganjilStart ?? ACADEMIC_CALENDAR.ganjilStart,
+      ganjilEnd: bounds?.ganjilEnd ?? calDoc?.ganjilEnd ?? ACADEMIC_CALENDAR.ganjilEnd,
+      genapStart: bounds?.genapStart ?? calDoc?.genapStart ?? ACADEMIC_CALENDAR.genapStart,
+      genapEnd: bounds?.genapEnd ?? calDoc?.genapEnd ?? ACADEMIC_CALENDAR.genapEnd,
+      events,
+      updatedAt: new Date().toISOString(),
+    }
+    const result = await setDocument('settings', 'academicCalendar', payload, actor)
+    setSavingKaldik(false)
+    if (result.ok) {
+      await appendHistory({
+        entitas: 'settings',
+        field: 'academicCalendar',
+        nilaiLama: calDoc ?? null,
+        nilaiBaru: payload,
+        aktor: actor,
+        detail: `Impor Kalender Akademik: ${events.length} event`,
+      })
+      setKaldikImportOpen(false)
+    }
+  }
 
   const TABS = useMemo(() => [
     { id: 'appearance', label: language === 'en' ? 'Appearance' : 'Tampilan', icon: 'palette', badge: null },
@@ -421,11 +533,12 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
         <CalendarSettingsModal
           open={calendarOpen}
           onClose={() => setCalendarOpen(false)}
-          customCal={{}}
-          setCustomCal={() => {}}
-          onSave={async () => { setCalendarOpen(false) }}
-          saving={false}
-          actor={user?.email || ''}
+          customCal={customCal}
+          onCustomCalChange={setCustomCal}
+          mekStats={mekStats}
+          currentComputedTA={currentComputedTA}
+          saving={savingCal}
+          onSubmit={handleSaveCalendar}
         />
       )}
 
@@ -433,7 +546,10 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
         <AcademicCalendarImportModal
           open={kaldikImportOpen}
           onClose={() => setKaldikImportOpen(false)}
-          onImportSuccess={() => setKaldikImportOpen(false)}
+          onImport={handleImportCalendar}
+          existingEvents={calDoc?.events || []}
+          actor={actor}
+          busySaving={savingKaldik}
         />
       )}
     </>

@@ -4,7 +4,7 @@ import { Icon } from '../../Icon'
 // Menggunakan token status-kelas yang dark-mode aware (bukan warna Tailwind statis)
 const STAT_ITEMS = [
   {
-    to: '/admin/pengaturan',
+    to: '/admin/prodi',
     key: 'prodi',
     label: 'Prodi Aktif',
     sublabel: 'Program Studi',
