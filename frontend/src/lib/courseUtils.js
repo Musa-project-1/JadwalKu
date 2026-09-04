@@ -33,33 +33,67 @@ export function getCourseSemester(course) {
 }
 
 /** Terapkan seluruh filter mata kuliah dalam satu pass. */
-export function filterCourses(courses, filters, campus) {
+export function filterCourses(courses, filters, campus, schedules = []) {
   const { search, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter } = filters
   const q = search.trim().toLowerCase()
+
+  // Bangun set kodeMK yang diajarkan untuk prodiFilter dari jadwal riil jika ada
+  const scheduleCodesForProdi = new Set()
+  if (prodiFilter && Array.isArray(schedules) && schedules.length > 0) {
+    const cleanPf = String(prodiFilter).trim().toLowerCase()
+    for (const s of schedules) {
+      if (s.prodi && String(s.prodi).trim().toLowerCase() === cleanPf && s.kodeMK) {
+        scheduleCodesForProdi.add(String(s.kodeMK).trim().toUpperCase())
+      }
+    }
+  }
 
   return courses
     .filter((c) => (dosenFilter ? c.dosen === dosenFilter : true))
     .filter((c) => {
       if (!prodiFilter) return true
-      // Jika dokumen course punya field prodi eksplisit, gunakan langsung
+      const cKode = String(c.kodeMK || '').trim().toUpperCase()
+
+      // 1. Jika kodeMK ini ada di jadwal untuk prodi ini -> PASTI cocok!
+      if (scheduleCodesForProdi.has(cKode)) {
+        return true
+      }
+
+      // 2. Jika dokumen course punya field prodi eksplisit, gunakan langsung
       if (c.prodi && String(c.prodi).trim()) {
         return String(c.prodi).trim().toLowerCase() === String(prodiFilter).trim().toLowerCase()
       }
-      // Deteksi prodi dari prefix kode MK via config kampus (derive fallback).
+
+      // 3. Deteksi prodi dari prefix kode MK via config kampus (derive fallback).
       const prefix = getProdiPrefix(prodiFilter, campus)
-      if (prefix && String(c.kodeMK || '').toUpperCase().startsWith(prefix)) {
+      if (prefix && cKode.startsWith(prefix)) {
         return true
       }
-      // Bandingkan prodi yang terdeteksi dari kode MK (config kampus).
-      const detected = getProdiByCodePrefix(String(c.kodeMK || ''), campus)
+
+      // 4. Bandingkan prodi yang terdeteksi dari kode MK (config kampus).
+      const detected = getProdiByCodePrefix(cKode, campus)
       if (detected && detected.toLowerCase() === String(prodiFilter).toLowerCase()) {
         return true
       }
-      // Fallback: cek jika kodeMK mengandung prefix atau prodiFilter
+
+      // 5. Fallback cerdas: cek jika nama prodi atau kode mengandung kecocokan
       const cleanFilter = String(prodiFilter).toLowerCase()
-      if (cleanFilter.includes('informatika') && /^IF/i.test(String(c.kodeMK || ''))) {
+      if (cleanFilter.includes('informatika') && (cKode.startsWith('IF') || cKode.startsWith('TIF') || cKode.startsWith('INF'))) {
         return true
       }
+      if (cleanFilter.includes('arsitektur') && (cKode.startsWith('ARS') || cKode.startsWith('AR'))) {
+        return true
+      }
+      if (cleanFilter.includes('sipil') && (cKode.startsWith('TS') || cKode.startsWith('SIP'))) {
+        return true
+      }
+      if (cleanFilter.includes('digital') && (cKode.startsWith('BD') || cKode.startsWith('MB'))) {
+        return true
+      }
+      if (cleanFilter.includes('wirausaha') && (cKode.startsWith('KW') || cKode.startsWith('PKK'))) {
+        return true
+      }
+
       return false
     })
     .filter((c) => {

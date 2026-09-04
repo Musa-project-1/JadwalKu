@@ -36,6 +36,7 @@ const SKS_OPTIONS = [
 
 export default function ManageCourses() {
   const { data: courses, loading } = useFirestore('mataKuliah')
+  const { data: schedules } = useFirestore('jadwal')
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
   const { campus, prodiNames } = useCampus()
@@ -105,8 +106,8 @@ export default function ManageCourses() {
   }, [courses, lecturers])
 
   const filtered = useMemo(
-    () => filterCourses(courses, { search: debouncedSearch, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter }, campus),
-    [courses, debouncedSearch, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter, campus],
+    () => filterCourses(courses, { search: debouncedSearch, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter }, campus, schedules),
+    [courses, debouncedSearch, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter, campus, schedules],
   )
 
   // ── Paginasi Data Mata Kuliah ──
