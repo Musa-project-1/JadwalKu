@@ -903,14 +903,7 @@ export default function ManageSchedule() {
             />
 
             {/* Pagination Controls */}
-            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15 flex flex-wrap items-center justify-between gap-2">
-              {groupingStats.isGrouped && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-label-caps font-bold text-amber-700 dark:text-amber-300">
-                  <Icon name="compress" size={13} />
-                  {groupingStats.totalSesi} sesi → {groupingStats.totalGrup} baris (hemat{' '}
-                  {groupingStats.hemat})
-                </span>
-              )}
+            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15 flex flex-wrap items-center justify-end gap-2">
               <div className="ml-auto">
                 <Pagination
                   currentPage={safeCurrentPage}
