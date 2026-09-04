@@ -333,7 +333,6 @@ function SessionRow({
   prayerTimes,
   language,
   onOpenDetail,
-  onOpenLocation,
 }) {
   return (
     <tr className="align-top">
@@ -426,7 +425,7 @@ function PrayerDividerRow({ name, time, colSpan, hasFriday = false, language }) 
 // ── SUB-KOMPONEN MOBILE: MobileSessionSection ──
 function MobileSessionSection({
   sessionDef,
-  items = [],
+  items,
   courseMap,
   activeDay,
   todayName,
@@ -434,7 +433,6 @@ function MobileSessionSection({
   prayerTimes,
   language,
   onOpenDetail,
-  onOpenLocation,
 }) {
   const isToday = activeDay === todayName
 

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Skeleton } from '../../components/Skeleton'
@@ -26,8 +25,6 @@ import { useCampus } from '../../context/useCampus'
 import { useDebounce } from '../../hooks/useDebounce'
 import { getXLSXExp } from '../../lib/academicExcelExport'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
-import { writeBatch, doc } from 'firebase/firestore'
-import { db } from '../../lib/firebaseClient'
 import { appendHistory, publishDocuments, saveSettings } from '../../lib/publishHelpers'
 import { deriveTahunAjaran, expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 import { findConflicts, validateCourseEntry, validateScheduleEntry } from '../../lib/uploadValidator'
@@ -289,13 +286,6 @@ export default function ManageSchedule() {
     () => groupSchedule(filteredSchedule, courseMap),
     [filteredSchedule, courseMap],
   )
-
-  const groupingStats = useMemo(() => {
-    const totalSesi = filteredSchedule.length
-    const totalGrup = groupedSchedule.length
-    const hemat = totalSesi - totalGrup
-    return { totalSesi, totalGrup, hemat, isGrouped: hemat > 0 }
-  }, [filteredSchedule.length, groupedSchedule.length])
 
   // Paginasi per GRUP
   const totalPages = pageSize === 0 ? 1 : Math.ceil(groupedSchedule.length / pageSize) || 1
@@ -788,9 +778,6 @@ export default function ManageSchedule() {
     XLSX.utils.book_append_sheet(wb, ws, 'Data_Jadwal')
     XLSX.writeFile(wb, `Jadwal_Kuliah_${new Date().toISOString().slice(0, 10)}.xlsx`)
   }
-
-  const publishedCount = rawSchedule.filter((s) => (s.status || 'published') === 'published').length
-  const draftCount = rawSchedule.filter((s) => (s.status || 'published') === 'draft').length
 
   return (
     <div className="h-full flex flex-col space-y-2 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">

@@ -20,7 +20,7 @@ const PRIORITY_LABEL = {
 }
 
 export default function Tasks() {
-  const { program, semester, language, t } = useApp()
+  const { language, t } = useApp()
   const { tasks, addTask, toggleDone, removeTask } = useTasks()
   const location = useLocation()
 
@@ -75,8 +75,6 @@ export default function Tasks() {
 
   const allActiveCount = useMemo(() => tasks.filter((t) => !t.selesai).length, [tasks])
   const allDoneCount = useMemo(() => tasks.filter((t) => t.selesai).length, [tasks])
-  const prodiCount = useMemo(() => tasks.filter((t) => t.isProdi).length, [tasks])
-  const personalCount = useMemo(() => tasks.filter((t) => !t.isProdi).length, [tasks])
 
   const progress = tasks.length > 0 ? Math.round((allDoneCount / tasks.length) * 100) : 0
   const highPriority = useMemo(

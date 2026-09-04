@@ -623,7 +623,7 @@ export function KrsSimulatorModal({
             <div className="pt-2 border-t border-outline-variant/20 space-y-2">
               <button
                 type="button"
-                onClick={handleCopySiakadText}
+                onClick={handleCopySiakadFormat}
                 disabled={selectedScheduleList.length === 0}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-purple-500/35 bg-purple-500/10 hover:bg-purple-500/20 text-purple-900 dark:text-purple-200 text-body-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
               >
@@ -637,8 +637,8 @@ export function KrsSimulatorModal({
                 disabled={selectedScheduleList.length === 0}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-purple-600 text-white text-body-xs font-bold shadow-xs hover:bg-purple-700 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
               >
-                <Icon name="check_circle" size={16} />
-                <span>{t ? t('krs.apply_to_schedule') : 'Terapkan ke Jadwal Utama'}</span>
+                <Icon name={appliedSuccess ? 'check_circle' : 'check'} size={16} />
+                <span>{appliedSuccess ? (t ? t('krs.applied_success') : 'Berhasil Diterapkan!') : (t ? t('krs.apply_to_schedule') : 'Terapkan ke Jadwal Utama')}</span>
               </button>
             </div>
           </div>

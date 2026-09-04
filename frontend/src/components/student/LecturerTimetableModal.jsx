@@ -18,7 +18,7 @@ export function LecturerTimetableModal({
   allSchedules = [],
   courses = [],
 }) {
-  const { language, t } = useApp()
+  const { t } = useApp()
   const [copied, setCopied] = useState(false)
 
   const courseMap = useMemo(() => {
@@ -87,7 +87,7 @@ export function LecturerTimetableModal({
   const liveStatus = useMemo(() => {
     const todayName = getTodayName()
     const now = new Date()
-    const nowMin = now.getHours() * 60 + now.getMinutes()
+    const nowMinutes = now.getHours() * 60 + now.getMinutes()
 
     const todayClasses = lecturerSchedules.filter((s) => s.hari === todayName)
     if (todayClasses.length === 0) {
@@ -136,12 +136,7 @@ export function LecturerTimetableModal({
       status: 'done',
       message: t ? t('lecturer_modal.finished_today') : 'Seluruh jadwal mengajar hari ini telah selesai',
     }
-
-    return {
-      type: 'done',
-      message: 'Seluruh jadwal mengajar hari ini telah selesai',
-    }
-  }, [lecturerSchedules, courseMap])
+  }, [lecturerSchedules, courseMap, t])
 
   if (!isOpen || !lecturerName) return null
 

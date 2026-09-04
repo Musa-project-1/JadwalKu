@@ -176,18 +176,6 @@ function detectSemesterFromDate(startISO) {
 // Turunkan batas kalender (ganjil/genap start & end) dari events
 // ────────────────────────────────────────────────────────────
 
-function toDate(iso) {
-  if (!iso) return null
-  const [y, m, d] = String(iso).split('-').map(Number)
-  if (!y || !m || !d) return null
-  return new Date(y, m - 1, d)
-}
-
-/**
- * Turunkan 4 batas { month, day } (month 0-index) dari daftar event.
- * Hanya event dengan semester 'ganjil' / 'genap' yang dipakai.
- * Mengembalikan { ganjilStart?, ganjilEnd?, genapStart?, genapEnd? } atau null.
- */
 export { deriveBoundsFromEvents } from './calendarBounds'
 
 // ────────────────────────────────────────────────────────────

@@ -8,7 +8,7 @@ import { Icon } from '../../components/Icon'
 
 export default function Notifications() {
   const { items, unreadCount, markRead, markAllRead, clearAll } = useNotifications()
-  const { language, t } = useApp()
+  const { t } = useApp()
   const groups = useMemo(() => groupByDay(items), [items])
 
   const GROUPS = useMemo(() => [

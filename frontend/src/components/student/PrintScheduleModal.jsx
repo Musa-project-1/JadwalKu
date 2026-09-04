@@ -15,7 +15,7 @@ export function PrintScheduleModal({
   semester = 1,
   tahunAjaran = '',
 }) {
-  const { language, t } = useApp()
+  const { t } = useApp()
   const modalRef = useRef(null)
   const [layoutFormat, setLayoutFormat] = useState('wall') // 'wall' | 'pocket'
   const [showLecturer, setShowLecturer] = useState(true)

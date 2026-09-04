@@ -13,7 +13,7 @@ export function RoomLocationModal({
   scheduleEntries = [],
   currentCourseName = '',
 }) {
-  const { language, t } = useApp()
+  const { t } = useApp()
   const [copied, setCopied] = useState(false)
   const { data: roomMasterList } = useFirestore('rooms', [], { limit: 200 })
 

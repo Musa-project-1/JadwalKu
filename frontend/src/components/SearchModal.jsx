@@ -17,7 +17,7 @@ const FILTERS = [
 
 export function SearchModal({ open, onClose }) {
   const navigate = useNavigate()
-  const { program, semester, language, t } = useApp()
+  const { program, semester, t } = useApp()
   const { tasks } = useTasks()
   const [queryText, setQueryText] = useState('')
   const [filter, setFilter] = useState('all')

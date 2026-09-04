@@ -110,7 +110,7 @@ export default function WeeklySchedule() {
     ['semester', '==', Number(semester) || 0],
     ['status', '==', 'archived'],
   ])
-  const { data: allPublishedJadwal, error: allPublishedError } = useFirestore(isCustomMode ? 'jadwal' : '__noop__', isCustomMode ? [['status', '==', 'published']] : [])
+  const { data: allPublishedJadwal } = useFirestore(isCustomMode ? 'jadwal' : '__noop__', isCustomMode ? [['status', '==', 'published']] : [])
 
   const allTAs = useMemo(() => {
     const set = new Set([currentTA])

@@ -2,7 +2,6 @@ import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 import { useApp } from '../../hooks/useApp'
-import { useFirestore } from '../../hooks/useFirestore'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
 import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
@@ -28,17 +27,17 @@ export function SettingsModal({ isOpen, onClose, initialTab = 'appearance' }) {
   } = useApp()
 
   const [activeTab, setActiveTab] = useState(initialTab)
+  const [prevOpen, setPrevOpen] = useState(isOpen)
   const [showDocsModal, setShowDocsModal] = useState(false)
-  const [showHistoryModal, setShowHistoryModal] = useState(false)
-  const [showAboutModal, setShowAboutModal] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
-  const [syncMessage, setSyncMessage] = useState('')
 
-  useEffect(() => {
+  // Sync activeTab when modal transitions from closed to open (standard React state-during-render pattern)
+  if (isOpen !== prevOpen) {
+    setPrevOpen(isOpen)
     if (isOpen && initialTab) {
       setActiveTab(initialTab)
     }
-  }, [isOpen, initialTab])
+  }
 
   // ESC key to close modal
   useEffect(() => {
@@ -55,19 +54,10 @@ export function SettingsModal({ isOpen, onClose, initialTab = 'appearance' }) {
 
   const taLabel = semester ? expectedTahunAjaranForSemester(semester) : null
 
-  const { data: settingsDocs } = useFirestore('settings', [])
-  const appSettings = useMemo(
-    () => settingsDocs.find((d) => d.id === 'app') ?? null,
-    [settingsDocs],
-  )
-
   function handleManualSync() {
     setIsSyncing(true)
-    setSyncMessage('')
     setTimeout(() => {
       setIsSyncing(false)
-      setSyncMessage('Data berhasil disinkronkan!')
-      setTimeout(() => setSyncMessage(''), 3000)
     }, 800)
   }
 
@@ -402,7 +392,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = 'appearance' }) {
                   </p>
                 </div>
 
-                <NotificationSettingsSection navigate={navigate} language={language} t={t} />
+                <NotificationSettingsSection language={language} />
               </div>
             )}
 
@@ -500,7 +490,10 @@ export function SettingsModal({ isOpen, onClose, initialTab = 'appearance' }) {
 
                   <button
                     type="button"
-                    onClick={() => setShowHistoryModal(true)}
+                    onClick={() => {
+                      onClose()
+                      navigate('/riwayat')
+                    }}
                     className="flex flex-col items-start p-3.5 rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 hover:bg-surface-container transition-all text-left cursor-pointer shadow-2xs group"
                   >
                     <Icon name="history" size={22} className="text-secondary mb-2 group-hover:scale-110 transition-transform" />
@@ -510,7 +503,10 @@ export function SettingsModal({ isOpen, onClose, initialTab = 'appearance' }) {
 
                   <button
                     type="button"
-                    onClick={() => setShowAboutModal(true)}
+                    onClick={() => {
+                      onClose()
+                      navigate('/tentang')
+                    }}
                     className="flex flex-col items-start p-3.5 rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 hover:bg-surface-container transition-all text-left cursor-pointer shadow-2xs group"
                   >
                     <Icon name="help_outline" size={22} className="text-primary mb-2 group-hover:scale-110 transition-transform" />
@@ -552,13 +548,11 @@ export function SettingsModal({ isOpen, onClose, initialTab = 'appearance' }) {
 
       {/* Auxiliary Sub-Modals */}
       <FeatureDocsModal isOpen={showDocsModal} onClose={() => setShowDocsModal(false)} mode="student" />
-      {showHistoryModal && <HistoryModal onClose={() => setShowHistoryModal(false)} />}
-      {showAboutModal && <AboutModal onClose={() => setShowAboutModal(false)} />}
     </div>
   )
 }
 
-function NotificationSettingsSection({ navigate, language, t }) {
+function NotificationSettingsSection({ language }) {
   const [prefs, setPrefs] = useState(() => ({
     kelas: true,
     ujian: true,
@@ -568,13 +562,6 @@ function NotificationSettingsSection({ navigate, language, t }) {
     sound: true,
     ...getItem(STORAGE_KEYS.reminderPrefs, {}),
   }))
-
-  const [permission, setPermission] = useState(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      return Notification.permission
-    }
-    return 'unsupported'
-  })
 
   function updatePref(key, value) {
     const next = { ...prefs, [key]: value }
@@ -637,12 +624,4 @@ function ToggleSwitch({ checked, onChange }) {
       />
     </button>
   )
-}
-
-function HistoryModal({ onClose }) {
-  return null
-}
-
-function AboutModal({ onClose }) {
-  return null
 }

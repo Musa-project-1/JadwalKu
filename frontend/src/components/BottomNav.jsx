@@ -38,12 +38,12 @@ export function BottomNav() {
               <button
                 type="button"
                 onClick={() => openSettings('appearance')}
-                className="flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] font-normal text-on-surface-variant transition-all duration-200 active:opacity-80 cursor-pointer"
+                className="flex w-[58px] min-[390px]:w-[62px] flex-col items-center gap-0.5 rounded-full py-1.5 text-[10.5px] min-[390px]:text-[11px] font-normal text-on-surface-variant transition-all duration-200 active:opacity-80 cursor-pointer"
               >
                 <span className="flex h-7 w-12 items-center justify-center rounded-full transition-all duration-200">
                   <Icon name={item.icon} size={22} />
                 </span>
-                <span className="text-center font-medium leading-none tracking-tight">
+                <span className="text-center font-medium leading-none tracking-tight truncate max-w-[56px]">
                   {item.label}
                 </span>
               </button>
@@ -54,7 +54,7 @@ export function BottomNav() {
 
                 // Label & wrapper classes
                 const wrapperCls = [
-                  'flex w-[62px] flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] transition-all duration-200 active:opacity-80',
+                  'flex w-[58px] min-[390px]:w-[62px] flex-col items-center gap-0.5 rounded-full py-1.5 text-[10.5px] min-[390px]:text-[11px] transition-all duration-200 active:opacity-80',
                   isActive
                     ? isHighlight
                       ? 'font-bold text-primary'
@@ -83,7 +83,9 @@ export function BottomNav() {
                     <span className={pillCls}>
                       <Icon name={item.icon} size={21} filled={isActive} />
                     </span>
-                    {item.label}
+                    <span className="truncate max-w-[56px] text-center leading-none tracking-tight">
+                      {item.label}
+                    </span>
                   </span>
                 )
               }}

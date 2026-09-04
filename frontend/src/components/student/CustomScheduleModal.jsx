@@ -16,7 +16,7 @@ export function CustomScheduleModal({
   currentCustomIds = [],
   onSave,
 }) {
-  const { language, t } = useApp()
+  const { t } = useApp()
   const [selectedIds, setSelectedIds] = useState(() => new Set(currentCustomIds))
   const [search, setSearch] = useState('')
   const [prodiFilter, setProdiFilter] = useState(currentProgram || '')

@@ -102,7 +102,7 @@ function getFakultasMeta(nama) {
 // ── Single-page Wizard B + all ──
 export function OnboardingWizard() {
   const navigate = useNavigate()
-  const { setProgram, setSemester: setSemesterContext, setFakultas, language, t } = useApp()
+  const { setProgram, setSemester: setSemesterContext, setFakultas, language } = useApp()
   const [searchParams] = useSearchParams()
 
   const { data: prodiDocs } = useFirestore('prodi')

@@ -31,8 +31,6 @@ export function ScheduleToolbar({
   availableSemesterOptions,
   conflictsCount,
   onResetFilters,
-  onDownloadTemplate,
-  onExportExcel,
   prodiFakultasMap,
 }) {
   const hasActiveFilter = Boolean(

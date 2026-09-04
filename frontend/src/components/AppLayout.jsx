@@ -20,7 +20,7 @@ function BellButton({ active, onToggle }) {
       onClick={onToggle}
       aria-label={`Notifikasi${unreadCount > 0 ? ` (${unreadCount} belum dibaca)` : ''}`}
       title="Notifikasi"
-      className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+      className={`relative flex h-9 w-9 tablet:h-10 tablet:w-10 items-center justify-center rounded-full transition-colors ${
         active
           ? 'bg-primary text-on-primary shadow-sm'
           : 'bg-primary/10 text-primary hover:bg-primary-container hover:text-on-primary-container'

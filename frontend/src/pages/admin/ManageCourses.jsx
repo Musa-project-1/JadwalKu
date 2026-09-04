@@ -96,15 +96,6 @@ export default function ManageCourses() {
     }
   }, [availableSemesterOptions, semesterFilter])
 
-  const stats = useMemo(() => {
-    const totalSks = courses.reduce((acc, c) => acc + (Number(c.sks) || 0), 0)
-    return {
-      totalCourses: courses.length,
-      totalLecturers: lecturers.length,
-      totalSks,
-    }
-  }, [courses, lecturers])
-
   const filtered = useMemo(
     () => filterCourses(courses, { search: debouncedSearch, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter }, campus, schedules),
     [courses, debouncedSearch, dosenFilter, prodiFilter, semesterFilter, sksFilter, taFilter, campus, schedules],
