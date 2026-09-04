@@ -1,97 +1,114 @@
 import { Icon } from '../../Icon'
 import { Button } from '../../Button'
 
+/**
+ * ScheduleHeader - Redesigned single-line header
+ * Features:
+ * - Title + TA Badge on the left
+ * - Removed '101 Published' and '0 Draft' badges
+ * - Icon-only action cluster (36x36px): Cetak Mading, Import, Template, Ekspor
+ * - Primary 'Tambah Sesi' button on the right
+ */
 export function ScheduleHeader({
   currentTA,
-  publishedCount,
-  draftCount,
   conflictCount,
   onlyShowConflicts,
   onToggleOnlyConflicts,
   onOpenNoticeboard,
   onOpenImport,
+  onDownloadTemplate,
+  onExportExcel,
   onOpenAddSession,
 }) {
   return (
     <header className="p-3 tablet:px-4 tablet:py-2.5 border-b border-outline-variant/15 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
+      {/* Left side: Title + TA Badge */}
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
-          <Icon name="calendar_month" size={24} />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+          <Icon name="calendar_month" size={22} />
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+            <h1 className="text-lg tablet:text-xl font-bold tracking-tight text-on-surface">
               Kelola Jadwal
             </h1>
-            <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20">
+            <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-bold border border-primary/20 shadow-2xs">
               TA {currentTA}
             </span>
+            {conflictCount > 0 && (
+              <button
+                type="button"
+                onClick={onToggleOnlyConflicts}
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-bold border transition-all cursor-pointer shadow-2xs ${
+                  onlyShowConflicts
+                    ? 'bg-error text-on-error border-error ring-1 ring-error/30'
+                    : 'border-error/30 bg-error/10 text-error hover:bg-error/20'
+                }`}
+                title={onlyShowConflicts ? 'Tampilkan Semua Jadwal' : 'Klik untuk Hanya Tampilkan Jadwal Bentrok'}
+              >
+                <Icon name="warning" size={12} className="shrink-0" />
+                <span>{conflictCount} Bentrok</span>
+              </button>
+            )}
           </div>
-          <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
+          <p className="text-[11px] text-on-surface-variant font-medium truncate">
             Unggah spreadsheet master, tambah sesi, atau edit jadwal perkuliahan
           </p>
         </div>
       </div>
 
-      {/* Right side: Stat Chips & Action Buttons */}
-      <div className="flex items-center gap-2 tablet:gap-2.5 shrink-0 flex-wrap tablet:flex-nowrap">
-        <div className="grid grid-cols-2 tablet:flex tablet:w-auto gap-1.5 tablet:gap-2">
-          <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 shadow-2xs min-w-0">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
-            <span className="text-[11.5px] font-bold text-emerald-700 dark:text-emerald-300 truncate">
-              {publishedCount} Published
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5 rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1 shadow-2xs min-w-0">
-            <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
-            <span className="text-[11.5px] font-bold text-amber-700 dark:text-amber-300 truncate">
-              {draftCount} Draft
-            </span>
-          </div>
-
-          {conflictCount > 0 && (
-            <button
-              type="button"
-              onClick={onToggleOnlyConflicts}
-              className={`flex items-center gap-1.5 rounded-full border px-3 py-1 shadow-2xs min-w-0 transition-all cursor-pointer ${
-                onlyShowConflicts
-                  ? 'bg-error text-on-error border-error'
-                  : 'border-error/30 bg-error/10 text-error hover:bg-error/20'
-              }`}
-              title={onlyShowConflicts ? 'Tampilkan Semua Jadwal' : 'Klik untuk Hanya Tampilkan Jadwal Bentrok'}
-            >
-              <Icon name="warning" size={14} className="shrink-0" />
-              <span className="text-[11.5px] font-bold truncate">{conflictCount} Bentrok</span>
-            </button>
-          )}
-        </div>
-
-        <Button
-          variant="secondary"
+      {/* Right side: Icon Action Buttons Cluster + Tambah Sesi */}
+      <div className="flex items-center gap-1.5 tablet:gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
+        {/* Cetak Mading Icon Button */}
+        <button
+          type="button"
           onClick={onOpenNoticeboard}
-          className="rounded-full px-3.5 py-1.5 font-bold shadow-2xs cursor-pointer text-body-xs shrink-0"
-          title="Cetak Jadwal Format Mading A4 Landscape Resmi"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-outline-variant/20 bg-surface-container-low/60 hover:bg-surface-container hover:text-primary transition-colors cursor-pointer shadow-2xs text-on-surface-variant"
+          title="Cetak Mading A4 Landscape Resmi"
           aria-label="Cetak Mading"
         >
-          <Icon name="table_chart" size={16} className="mr-1 text-indigo-600 dark:text-indigo-400" />
-          <span className="hidden tablet:inline">Cetak Mading</span>
-        </Button>
+          <Icon name="print" size={18} />
+        </button>
 
-        <Button
-          variant="secondary"
+        {/* Import Icon Button */}
+        <button
+          type="button"
           onClick={onOpenImport}
-          className="rounded-full px-3.5 py-1.5 font-bold shadow-2xs cursor-pointer text-body-xs shrink-0"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-outline-variant/20 bg-surface-container-low/60 hover:bg-surface-container hover:text-primary transition-colors cursor-pointer shadow-2xs text-on-surface-variant"
           title="Import Spreadsheet Master (.xlsx / .csv)"
           aria-label="Import Spreadsheet"
         >
-          <Icon name="upload_file" size={16} className="mr-1 text-primary" />
-          <span className="hidden tablet:inline">Import</span>
-        </Button>
+          <Icon name="upload" size={18} />
+        </button>
 
+        {/* Template Download Icon Button */}
+        <button
+          type="button"
+          onClick={onDownloadTemplate}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-outline-variant/20 bg-surface-container-low/60 hover:bg-surface-container hover:text-primary transition-colors cursor-pointer shadow-2xs text-on-surface-variant"
+          title="Download Template Spreadsheet (.xlsx)"
+          aria-label="Download Template"
+        >
+          <Icon name="file_download" size={18} />
+        </button>
+
+        {/* Ekspor Excel Icon Button */}
+        <button
+          type="button"
+          onClick={onExportExcel}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-outline-variant/20 bg-surface-container-low/60 hover:bg-surface-container hover:text-primary transition-colors cursor-pointer shadow-2xs text-on-surface-variant"
+          title="Ekspor Jadwal ke Excel (.xlsx)"
+          aria-label="Ekspor Jadwal"
+        >
+          <Icon name="download" size={18} />
+        </button>
+
+        <div className="h-6 w-px bg-outline-variant/20 mx-0.5" />
+
+        {/* Primary Action: Tambah Sesi */}
         <Button
           onClick={onOpenAddSession}
-          className="rounded-full px-4 py-1.5 font-bold shadow-xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
+          className="rounded-full px-3.5 py-1.5 font-bold shadow-xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
           title="Tambah Sesi Manual"
           aria-label="Tambah Sesi"
         >

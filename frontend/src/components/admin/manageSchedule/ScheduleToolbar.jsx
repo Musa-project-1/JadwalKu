@@ -147,26 +147,6 @@ export function ScheduleToolbar({
               <span>Reset</span>
             </button>
           )}
-
-          <button
-            type="button"
-            onClick={onDownloadTemplate}
-            className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1 text-[11px] font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
-            title="Download Template Format Excel"
-          >
-            <Icon name="download" size={13} className="text-primary" />
-            <span className="hidden desktop:inline">Template</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={onExportExcel}
-            className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1 text-[11px] font-bold text-on-surface shadow-2xs hover:border-primary hover:text-primary cursor-pointer transition-colors"
-            title="Ekspor Seluruh Jadwal Tampil ke Excel"
-          >
-            <Icon name="file_download" size={13} className="text-secondary" />
-            <span>Ekspor</span>
-          </button>
         </div>
       </div>
 

@@ -275,50 +275,42 @@ export default function ManageCourses() {
         {/* ── 1. Page Header (Border-b divider inside card) ── */}
         <header className="p-3 tablet:px-4 tablet:py-2.5 border-b border-outline-variant/15 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
-              <Icon name="menu_book" size={24} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+              <Icon name="menu_book" size={22} />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+                <h1 className="text-lg tablet:text-xl font-bold tracking-tight text-on-surface">
                   Kelola MK & Dosen
                 </h1>
                 <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
                   Master Kurikulum
                 </span>
               </div>
-              <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
+              <p className="text-[11px] text-on-surface-variant font-medium truncate">
                 Master mata kuliah, SKS, semester & dosen pengampu
               </p>
             </div>
           </div>
 
-          {/* Right side: Live Quick Stat Chips + Primary Action Button */}
-          <div className="flex items-center gap-2 tablet:gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
-            <div className="grid grid-cols-3 tablet:flex tablet:w-auto gap-1.5 tablet:gap-2">
-              <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 shadow-2xs min-w-0">
-                <Icon name="library_books" size={14} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
-                <span className="text-label-caps font-bold text-emerald-700 dark:text-emerald-300 truncate">
-                  {stats.totalCourses} MK
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 shadow-2xs min-w-0">
-                <Icon name="person" size={14} className="text-blue-700 dark:text-blue-400 shrink-0" />
-                <span className="text-label-caps font-bold text-blue-700 dark:text-blue-300 truncate">
-                  {stats.totalLecturers} Dosen
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-full border border-purple-500/25 bg-purple-500/10 px-3 py-1 shadow-2xs min-w-0">
-                <Icon name="workspace_premium" size={14} className="text-purple-700 dark:text-purple-400 shrink-0" />
-                <span className="text-label-caps font-bold text-purple-700 dark:text-purple-300 truncate">
-                  {stats.totalSks} SKS
-                </span>
-              </div>
-            </div>
+          {/* Right side: Icon Action Buttons Cluster + Primary Action Button */}
+          <div className="flex items-center gap-1.5 tablet:gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
+            {/* Ekspor Excel Icon Button */}
+            <button
+              type="button"
+              onClick={exportCoursesToExcel}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-outline-variant/20 bg-surface-container-low/60 hover:bg-surface-container hover:text-primary transition-colors cursor-pointer shadow-2xs text-on-surface-variant"
+              title="Ekspor Kurikulum Mata Kuliah ke Excel (.xlsx)"
+              aria-label="Ekspor Excel"
+            >
+              <Icon name="download" size={18} />
+            </button>
+
+            <div className="h-6 w-px bg-outline-variant/20 mx-0.5" />
 
             <Button
               onClick={openAddModal}
-              className="rounded-full px-4 py-2 font-bold shadow-2xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
+              className="rounded-full px-3.5 py-1.5 font-bold shadow-xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
               title="Tambah Mata Kuliah"
               aria-label="Tambah MK"
             >
@@ -402,16 +394,6 @@ export default function ManageCourses() {
                 <span>Reset</span>
               </button>
             )}
-
-            <button
-              type="button"
-              onClick={exportCoursesToExcel}
-              className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 px-2.5 py-1 text-label-caps font-bold text-on-surface shadow-level-1 hover:border-primary hover:text-primary cursor-pointer transition-colors"
-              title="Ekspor Kurikulum Mata Kuliah ke Excel"
-            >
-              <Icon name="file_download" size={13} className="text-secondary" />
-              <span>Ekspor</span>
-            </button>
           </div>
         </div>
 

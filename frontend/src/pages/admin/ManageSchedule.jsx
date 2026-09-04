@@ -814,13 +814,13 @@ export default function ManageSchedule() {
         {/* ── 1. Page Header (Border-b divider inside card) ── */}
         <ScheduleHeader
           currentTA={currentTA}
-          publishedCount={publishedCount}
-          draftCount={draftCount}
           conflictCount={conflictMap.size}
           onlyShowConflicts={onlyShowConflicts}
           onToggleOnlyConflicts={() => setOnlyShowConflicts(!onlyShowConflicts)}
           onOpenNoticeboard={() => setNoticeboardModalOpen(true)}
           onOpenImport={() => setImportModalOpen(true)}
+          onDownloadTemplate={downloadTemplate}
+          onExportExcel={exportCurrentSchedule}
           onOpenAddSession={() => {
             setManualForm(EMPTY_SESSION)
             setManualErrors([])
@@ -853,8 +853,6 @@ export default function ManageSchedule() {
           availableSemesterOptions={availableSemesterOptions}
           conflictsCount={conflictsList.length}
           onResetFilters={handleResetFilters}
-          onDownloadTemplate={downloadTemplate}
-          onExportExcel={exportCurrentSchedule}
           prodiFakultasMap={prodiFakultasMap}
         />
 
