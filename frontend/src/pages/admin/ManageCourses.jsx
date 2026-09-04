@@ -259,7 +259,7 @@ export default function ManageCourses() {
   }
 
   return (
-    <div className="h-full flex flex-col space-y-2 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
+    <div className="flex flex-col space-y-2 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden">
       {banner && (
         <div className="shrink-0">
           <StatusBanner
@@ -321,7 +321,7 @@ export default function ManageCourses() {
         </header>
 
         {/* ── 2. Live Database Course Management ── */}
-        <div className="p-3 tablet:p-3.5 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-hidden">
+        <div className="p-3 tablet:p-3.5 flex flex-col space-y-2.5 overflow-hidden">
         {/* 1-Row Integrated Search & Dropdowns Toolbar (Matching Kelola Jadwal layout) */}
         <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5 overflow-visible">
           {/* Compact Search Bar */}

@@ -31,7 +31,7 @@ function CourseTableImpl({ courses, onEdit, onDelete }) {
   }, [activeMenuId])
 
   return (
-    <div className="hidden overflow-hidden flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
+    <div className="hidden overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
       <table className="w-full table-fixed text-left border-collapse">
         <colgroup>
           <col style={{ width: '14%' }} />
