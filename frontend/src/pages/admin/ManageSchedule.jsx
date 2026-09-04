@@ -792,7 +792,7 @@ export default function ManageSchedule() {
   const draftCount = rawSchedule.filter((s) => (s.status || 'published') === 'draft').length
 
   return (
-    <div className="h-full flex flex-col space-y-4 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
+    <div className="h-full flex flex-col space-y-2.5 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
       {/* ── 1. Page Header ── */}
       <ScheduleHeader
         currentTA={currentTA}
@@ -826,7 +826,7 @@ export default function ManageSchedule() {
       )}
 
       {/* ── 2. Live Database Schedule Management ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-4 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-4 overflow-visible">
+      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3 tablet:p-3.5 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-hidden">
         <ScheduleToolbar
           search={search}
           setSearch={setSearch}

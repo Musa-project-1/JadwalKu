@@ -68,7 +68,7 @@ function ScheduleTableImpl({
         </colgroup>
         <thead>
           <tr className="border-b border-outline-variant/15 bg-surface-container-low/90 dark:bg-surface-container-high/90">
-            <th className="px-2 py-2.5 text-center">
+            <th className="px-2 py-2 text-center">
               <input
                 type="checkbox"
                 checked={allSelected}
@@ -77,22 +77,22 @@ function ScheduleTableImpl({
                 aria-label="Pilih Semua"
               />
             </th>
-            <th className="px-2.5 py-2.5 text-[11px] uppercase text-on-surface-variant font-medium tracking-wider">
+            <th className="px-2.5 py-2 text-[10.5px] uppercase text-on-surface-variant font-medium tracking-wider">
               Hari & Waktu
             </th>
-            <th className="px-2.5 py-2.5 text-[11px] uppercase text-on-surface-variant font-medium tracking-wider">
+            <th className="px-2.5 py-2 text-[10.5px] uppercase text-on-surface-variant font-medium tracking-wider">
               Prodi & Sem
             </th>
-            <th className="px-3 py-2.5 text-[11px] uppercase text-on-surface-variant font-medium tracking-wider">
+            <th className="px-3 py-2 text-[10.5px] uppercase text-on-surface-variant font-medium tracking-wider">
               Mata Kuliah & Dosen
             </th>
-            <th className="px-2.5 py-2.5 text-[11px] uppercase text-on-surface-variant font-medium tracking-wider">
+            <th className="px-2.5 py-2 text-[10.5px] uppercase text-on-surface-variant font-medium tracking-wider">
               Ruang / Tipe
             </th>
-            <th className="px-2 py-2.5 text-[11px] uppercase text-on-surface-variant text-center font-medium tracking-wider">
+            <th className="px-2 py-2 text-[10.5px] uppercase text-on-surface-variant text-center font-medium tracking-wider">
               Status
             </th>
-            <th className="px-2.5 py-2.5 text-[11px] uppercase text-on-surface-variant text-right font-medium tracking-wider">
+            <th className="px-2.5 py-2 text-[10.5px] uppercase text-on-surface-variant text-right font-medium tracking-wider">
               Aksi
             </th>
           </tr>
@@ -119,7 +119,7 @@ function ScheduleTableImpl({
                 style={{ borderTop: '0.5px solid var(--color-outline-variant, rgba(120, 120, 120, 0.15))' }}
               >
                 {/* Checkbox */}
-                <td className="px-2 py-[9px] text-center align-middle overflow-hidden">
+                <td className="px-2 py-1.5 text-center align-middle overflow-hidden">
                   <input
                     type="checkbox"
                     checked={isAllGroupSelected}
@@ -133,13 +133,13 @@ function ScheduleTableImpl({
                 </td>
 
                 {/* Hari & Waktu */}
-                <td className="px-2.5 py-[9px] align-middle overflow-hidden">
+                <td className="px-2.5 py-1.5 align-middle overflow-hidden">
                   <div className="flex items-center gap-1.5 flex-nowrap min-w-0">
-                    <span className="font-bold text-body-xs text-on-surface whitespace-nowrap">
+                    <span className="font-bold text-[11px] text-on-surface whitespace-nowrap">
                       {formatHari(item.hari)}
                     </span>
                     <span className="text-outline-variant/50 text-[10px]">·</span>
-                    <span className="font-mono text-[11px] font-semibold text-on-surface-variant whitespace-nowrap">
+                    <span className="font-mono text-[10.5px] font-semibold text-on-surface-variant whitespace-nowrap">
                       {item.jamMulai}-{item.jamSelesai}
                     </span>
                   </div>
@@ -167,7 +167,7 @@ function ScheduleTableImpl({
                 </td>
 
                 {/* Prodi & Sem */}
-                <td className="px-2.5 py-[9px] align-middle overflow-hidden">
+                <td className="px-2.5 py-1.5 align-middle overflow-hidden">
                   {!isMultiProdi ? (
                     // Single Prodi: Badge Nama Prodi langsung
                     <span
@@ -217,23 +217,23 @@ function ScheduleTableImpl({
                 </td>
 
                 {/* Mata Kuliah & Dosen: Ellipsis anti-dorong */}
-                <td className="px-3 py-[9px] align-middle overflow-hidden">
+                <td className="px-3 py-1.5 align-middle overflow-hidden">
                   <div className="flex items-center gap-1.5 min-w-0 max-w-full">
                     {/* Monospace Badge Kode MK */}
-                    <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 shadow-2xs shrink-0">
+                    <span className="font-mono text-[10.5px] font-bold px-1.5 py-0.2 rounded-md bg-primary/10 text-primary border border-primary/20 shadow-2xs shrink-0">
                       {item.kodeMK}
                     </span>
                     <span
-                      className="font-bold text-body-xs text-on-surface truncate"
+                      className="font-bold text-[11.5px] text-on-surface truncate"
                       title={course?.namaMK || item.kodeMK}
                       style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                     >
                       {course?.namaMK || item.kodeMK}
                     </span>
                   </div>
-                  <div className="mt-0.5">
+                  <div className="mt-0.5 leading-none">
                     <span
-                      className="text-[11px] font-medium text-on-surface-variant truncate block min-w-0"
+                      className="text-[10.5px] font-medium text-on-surface-variant truncate block min-w-0"
                       title={course?.dosen || item.dosen || 'Dosen belum ditentukan'}
                       style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                     >
@@ -243,7 +243,7 @@ function ScheduleTableImpl({
                 </td>
 
                 {/* Ruang & Tipe */}
-                <td className="px-2.5 py-[9px] align-middle overflow-hidden">
+                <td className="px-2.5 py-1.5 align-middle overflow-hidden">
                   <div className="flex items-center gap-1 font-semibold text-[11px] text-on-surface min-w-0">
                     <Icon name="meeting_room" size={12} className="text-on-surface-variant shrink-0" />
                     <span
@@ -265,9 +265,9 @@ function ScheduleTableImpl({
                 </td>
 
                 {/* Status */}
-                <td className="px-2 py-[9px] text-center align-middle overflow-hidden">
+                <td className="px-2 py-1.5 text-center align-middle overflow-hidden">
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.2 text-[9.5px] uppercase font-extrabold border shadow-2xs whitespace-nowrap ${
+                    className={`inline-flex items-center rounded-full px-2 py-0.2 text-[9px] uppercase font-extrabold border shadow-2xs whitespace-nowrap ${
                       (item.status || 'published') === 'published'
                         ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/25'
                         : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/25'
@@ -278,7 +278,7 @@ function ScheduleTableImpl({
                 </td>
 
                 {/* Aksi: Single 3-Dots Menu */}
-                <td className="px-2.5 py-[9px] text-right align-middle shrink-0 overflow-visible relative">
+                <td className="px-2.5 py-1.5 text-right align-middle shrink-0 overflow-visible relative">
                   <div className="relative inline-block text-left">
                     <button
                       type="button"
