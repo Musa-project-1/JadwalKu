@@ -76,8 +76,8 @@ function AdminAccount({ isPinned }) {
           </button>
         </div>
         <NavLink
-          to="/pengaturan"
-          title="Pengaturan"
+          to="/admin/pengaturan-akademik"
+          title="Pengaturan Akademik"
           className={({ isActive }) =>
             `flex w-full items-center rounded-full h-12 px-4 transition-colors duration-200 ${
               isActive
@@ -87,9 +87,9 @@ function AdminAccount({ isPinned }) {
           }
         >
           <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-            <Icon name="settings" size={24} />
+            <Icon name="settings_suggest" size={24} />
           </span>
-          <span className={labelCls(!isPinned, 'ml-3.5')}>Pengaturan</span>
+          <span className={labelCls(!isPinned, 'ml-3.5')}>Master Akademik</span>
         </NavLink>
 
         {/* Mode Mahasiswa Switcher — in sidebar below Pengaturan */}
