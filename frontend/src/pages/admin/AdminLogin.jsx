@@ -50,7 +50,7 @@ export default function AdminLogin() {
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-teal-500/20 blur-[100px] dark:bg-teal-500/15"
+        className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-teal-500/20 blur-[100px] dark:bg-teal-500/10"
       />
 
       {/* ── Top Floating Navigation Bar (Back + Theme Switcher) ── */}

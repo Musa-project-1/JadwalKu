@@ -127,7 +127,7 @@ export function RoomListPanel({
                       <span className="font-extrabold text-body-xs text-on-surface">
                         {room.namaRuang}
                       </span>
-                      <span className="rounded-full bg-teal-500/10 text-teal-800 dark:text-teal-300 border border-teal-500/20 px-2 py-0.2 text-[10px] font-extrabold">
+                      <span className="rounded-full bg-teal-500/10 text-teal-800 dark:text-teal-400 border border-teal-500/20 px-2 py-0.2 text-[10px] font-extrabold">
                         {room.gedung || 'Gedung Kampus'} · Lt. {room.lantai || 1}
                       </span>
                       {room.kapasitas && (

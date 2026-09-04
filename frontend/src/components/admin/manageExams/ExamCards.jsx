@@ -34,8 +34,8 @@ function ExamCardsImpl({
                   <span
                     className={`inline-flex items-center rounded-lg px-2 py-0.5 text-label-caps font-bold ${
                       exam.jenis === 'UTS'
-                        ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300'
-                        : 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
+                        ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400'
+                        : 'bg-amber-500/10 text-amber-800 dark:text-amber-400'
                     }`}
                   >
                     {exam.jenis}
@@ -86,8 +86,8 @@ function ExamCardsImpl({
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] uppercase font-bold ${
                     isPublished
-                      ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300'
-                      : 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
+                      ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-400'
+                      : 'bg-amber-500/10 text-amber-800 dark:text-amber-400'
                   }`}
                 >
                   {isPublished ? 'Published' : 'Draft'}

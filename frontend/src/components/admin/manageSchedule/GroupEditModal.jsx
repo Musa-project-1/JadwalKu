@@ -40,7 +40,7 @@ export function GroupEditModal({
         </div>
         <header className="flex items-start justify-between p-5 border-b border-outline-variant/15 shrink-0 gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400">
               <Icon name="edit_note" size={22} />
             </span>
             <div className="min-w-0">
@@ -51,7 +51,7 @@ export function GroupEditModal({
                 {groupEditing.group.items[0].kodeMK} —{' '}
                 {groupEditing.group.items.map((it) => it.prodi).join(', ')}
               </p>
-              <p className="text-[11px] font-bold text-amber-700 dark:text-amber-300 mt-0.5">
+              <p className="text-[11px] font-bold text-amber-700 dark:text-amber-400 mt-0.5">
                 Aksi ini berlaku untuk SEMUA prodi dalam grup sekaligus. Untuk edit 1 prodi saja: expand baris → edit per-prodi.
               </p>
             </div>
@@ -69,14 +69,14 @@ export function GroupEditModal({
             {/* KIRI — Ringkasan grup */}
             <div className="space-y-4">
               <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-3.5">
-                <p className="text-label-caps uppercase font-bold text-amber-800 dark:text-amber-300 mb-2">
+                <p className="text-label-caps uppercase font-bold text-amber-800 dark:text-amber-400 mb-2">
                   Grup — {groupEditing.group.items.length} sesi terhubung
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {groupEditing.group.items.map((it) => (
                     <span
                       key={it.id}
-                      className="inline-flex items-center rounded-full bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:text-indigo-300"
+                      className="inline-flex items-center rounded-full bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:text-indigo-400"
                     >
                       {it.prodi} S{it.semester}
                     </span>

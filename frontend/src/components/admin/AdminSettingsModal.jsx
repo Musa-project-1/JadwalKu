@@ -424,7 +424,7 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
                           {user?.email || 'admin@kampus.ac.id'}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 px-2.5 py-0.5 text-label-caps font-bold">
+                          <span className="rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 text-label-caps font-bold">
                             Active Admin
                           </span>
                           <span className="text-body-xs text-on-surface-variant">
@@ -581,7 +581,7 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
                   <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 space-y-4 shadow-2xs">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-teal-500/10 text-teal-700 dark:text-teal-300 flex items-center justify-center border border-teal-500/20">
+                        <div className="h-10 w-10 rounded-xl bg-teal-500/10 text-teal-700 dark:text-teal-400 flex items-center justify-center border border-teal-500/20">
                           <Icon name="cloud_sync" size={22} />
                         </div>
                         <div>

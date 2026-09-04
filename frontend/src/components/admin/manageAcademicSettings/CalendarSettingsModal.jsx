@@ -97,7 +97,7 @@ export default function CalendarSettingsModal({
               <p className="text-label-caps uppercase font-bold text-emerald-700 dark:text-emerald-400">
                 Minggu Efektif (MEK)
               </p>
-              <p className="text-body-sm font-bold text-emerald-700 dark:text-emerald-300 mt-0.5">
+              <p className="text-body-sm font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
                 ~{mekStats.effectiveWeeks} Minggu Kuliah
               </p>
             </div>

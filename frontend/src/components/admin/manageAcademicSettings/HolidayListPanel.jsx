@@ -125,9 +125,9 @@ export function HolidayListPanel({
                       <span
                         className={`rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase ${
                           h.tipe === 'nasional'
-                            ? 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20'
+                            ? 'bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-500/20'
                             : h.tipe === 'kampus'
-                            ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20'
+                            ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20'
                             : 'bg-secondary/10 text-secondary border border-secondary/20'
                         }`}
                       >

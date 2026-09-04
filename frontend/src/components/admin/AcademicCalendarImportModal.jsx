@@ -245,16 +245,16 @@ export function AcademicCalendarImportModal({
                   <span className="text-teal-700 dark:text-teal-400 underline ml-1">Telusuri File</span>
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 border border-red-500/25 px-2 py-0.5 text-label-caps font-extrabold text-red-800 dark:text-red-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 border border-red-500/25 px-2 py-0.5 text-label-caps font-extrabold text-red-800 dark:text-red-400">
                     <Icon name="picture_as_pdf" size={11} /> PDF
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/25 px-2 py-0.5 text-label-caps font-extrabold text-purple-800 dark:text-purple-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/25 px-2 py-0.5 text-label-caps font-extrabold text-purple-800 dark:text-purple-400">
                     <Icon name="image" size={11} /> OCR/Foto
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-label-caps font-extrabold text-emerald-800 dark:text-emerald-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-label-caps font-extrabold text-emerald-800 dark:text-emerald-400">
                     <Icon name="table_view" size={11} /> Excel/CSV
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 border border-teal-500/25 px-2 py-0.5 text-label-caps font-extrabold text-teal-800 dark:text-teal-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 border border-teal-500/25 px-2 py-0.5 text-label-caps font-extrabold text-teal-800 dark:text-teal-400">
                     <Icon name="data_object" size={11} /> JSON
                   </span>
                 </div>
@@ -329,20 +329,20 @@ export function AcademicCalendarImportModal({
             {/* Top Table Control Bar */}
             <div className="flex items-center justify-between gap-2 pb-3 border-b border-outline-variant/15 shrink-0 flex-wrap">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="rounded-full bg-teal-500/10 text-teal-800 dark:text-teal-300 border border-teal-500/20 px-2.5 py-0.5 text-body-xs font-extrabold shadow-level-1">
+                <span className="rounded-full bg-teal-500/10 text-teal-800 dark:text-teal-400 border border-teal-500/20 px-2.5 py-0.5 text-body-xs font-extrabold shadow-level-1">
                   {totalEventsCount.total} Event Terdeteksi
                 </span>
-                <span className="rounded-full bg-blue-500/10 text-blue-800 dark:text-blue-300 border border-blue-500/20 px-2.5 py-0.5 text-label-caps font-bold">
+                <span className="rounded-full bg-blue-500/10 text-blue-800 dark:text-blue-400 border border-blue-500/20 px-2.5 py-0.5 text-label-caps font-bold">
                   {totalEventsCount.ganjil} Ganjil
                 </span>
-                <span className="rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 px-2.5 py-0.5 text-label-caps font-bold">
+                <span className="rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 text-label-caps font-bold">
                   {totalEventsCount.genap} Genap
                 </span>
               </div>
               <button
                 type="button"
                 onClick={handleAddManual}
-                className="inline-flex items-center gap-1 rounded-full border border-teal-600/30 bg-teal-500/10 px-3 py-1 text-label-caps font-bold text-teal-800 dark:text-teal-300 hover:bg-teal-500/20 transition-colors cursor-pointer shadow-level-1"
+                className="inline-flex items-center gap-1 rounded-full border border-teal-600/30 bg-teal-500/10 px-3 py-1 text-label-caps font-bold text-teal-800 dark:text-teal-400 hover:bg-teal-500/20 transition-colors cursor-pointer shadow-level-1"
               >
                 <Icon name="add" size={13} />
                 <span>Tambah Event</span>
@@ -443,10 +443,10 @@ export function AcademicCalendarImportModal({
                           <td className="w-24 px-2 py-2 align-middle text-center">
                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-label-caps font-extrabold uppercase ${
                               event.semester === 'ganjil'
-                                ? 'bg-blue-500/10 text-blue-800 dark:text-blue-300 border border-blue-500/20'
+                                ? 'bg-blue-500/10 text-blue-800 dark:text-blue-400 border border-blue-500/20'
                                 : event.semester === 'genap'
-                                ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20'
-                                : 'bg-slate-500/10 text-slate-800 dark:text-slate-300 border border-slate-500/20'
+                                ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border border-emerald-500/20'
+                                : 'bg-slate-500/10 text-slate-800 dark:text-slate-400 border border-slate-500/20'
                             }`}>
                               {event.semester}
                             </span>

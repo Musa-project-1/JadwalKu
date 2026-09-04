@@ -351,7 +351,7 @@ export function DatabaseBackupRestoreModal({
             onClick={() => setActiveTab('backup')}
             className={`flex items-center gap-2 py-3 px-4 text-body-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'backup'
-                ? 'border-teal-700 text-teal-800 dark:text-teal-300'
+                ? 'border-teal-700 text-teal-800 dark:text-teal-400'
                 : 'border-transparent text-on-surface-variant hover:text-on-surface'
             }`}
           >
@@ -364,7 +364,7 @@ export function DatabaseBackupRestoreModal({
             onClick={() => setActiveTab('restore')}
             className={`flex items-center gap-2 py-3 px-4 text-body-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'restore'
-                ? 'border-teal-700 text-teal-800 dark:text-teal-300'
+                ? 'border-teal-700 text-teal-800 dark:text-teal-400'
                 : 'border-transparent text-on-surface-variant hover:text-on-surface'
             }`}
           >
@@ -515,7 +515,7 @@ export function DatabaseBackupRestoreModal({
                   )}
 
                   {restoreSuccess && (
-                    <div className="flex items-center gap-2 p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-body-xs font-bold">
+                    <div className="flex items-center gap-2 p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-400 text-body-xs font-bold">
                       <Icon name="check_circle" size={16} />
                       <span>{restoreSuccess}</span>
                     </div>
@@ -527,7 +527,7 @@ export function DatabaseBackupRestoreModal({
                         <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
                           Pilih Koleksi yang Ingin Dipulihkan
                         </p>
-                        <span className="text-label-caps font-bold text-teal-700 dark:text-teal-300">
+                        <span className="text-label-caps font-bold text-teal-700 dark:text-teal-400">
                           {selectedRestoreCols.size} Koleksi Dipilih
                         </span>
                       </div>
@@ -572,7 +572,7 @@ export function DatabaseBackupRestoreModal({
                                     <Icon name={config.icon} size={15} className="text-teal-600 dark:text-teal-400" />
                                     <span>{config.label}</span>
                                   </td>
-                                  <td className="py-2.5 px-3 text-center font-bold text-teal-700 dark:text-teal-300">
+                                  <td className="py-2.5 px-3 text-center font-bold text-teal-700 dark:text-teal-400">
                                     {fileDocs.length} Dokumen
                                   </td>
                                   <td className="py-2.5 px-3 text-center text-on-surface-variant font-medium">

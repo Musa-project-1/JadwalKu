@@ -430,7 +430,7 @@ export default function ManageCourses() {
             )}
 
             {semesterFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-1 text-indigo-700 dark:text-indigo-300">
+              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-1 text-indigo-700 dark:text-indigo-400">
                 <span>Semester: {availableSemesterOptions.find((s) => s.value === semesterFilter)?.label}</span>
                 <button
                   type="button"
@@ -443,7 +443,7 @@ export default function ManageCourses() {
             )}
 
             {taFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 px-2.5 py-1 text-teal-700 dark:text-teal-300">
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 px-2.5 py-1 text-teal-700 dark:text-teal-400">
                 <span>TA: {taFilter}</span>
                 <button
                   type="button"

@@ -97,8 +97,8 @@ function ExamTableImpl({
                     <span
                       className={`rounded-full px-2 py-0.2 text-[9.5px] font-extrabold uppercase ${
                         exam.jenis === 'UTS'
-                          ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20'
-                          : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20'
+                          ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20'
+                          : 'bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-500/20'
                       }`}
                     >
                       {exam.jenis}
@@ -151,8 +151,8 @@ function ExamTableImpl({
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase shadow-2xs ${
                       isPublished
-                        ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20'
-                        : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20'
+                        ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border border-emerald-500/20'
+                        : 'bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-500/20'
                     }`}
                   >
                     {isPublished ? 'Published' : 'Draft'}

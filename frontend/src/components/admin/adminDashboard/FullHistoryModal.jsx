@@ -20,16 +20,16 @@ function formatDateID(iso) {
 function getEntityBadge(entity = '') {
   const lower = entity.toLowerCase()
   if (lower.includes('jadwal') && !lower.includes('ujian')) {
-    return { label: 'JADWAL', style: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' }
+    return { label: 'JADWAL', style: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30' }
   }
   if (lower.includes('mk') || lower.includes('mata kuliah') || lower.includes('dosen')) {
-    return { label: 'MATA KULIAH', style: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30' }
+    return { label: 'MATA KULIAH', style: 'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30' }
   }
   if (lower.includes('ujian') || lower.includes('uts') || lower.includes('uas')) {
-    return { label: 'UJIAN', style: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30' }
+    return { label: 'UJIAN', style: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30' }
   }
   if (lower.includes('prodi') || lower.includes('program studi')) {
-    return { label: 'PRODI', style: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' }
+    return { label: 'PRODI', style: 'bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30' }
   }
   return { label: entity.toUpperCase() || 'SISTEM', style: 'bg-surface-variant/80 text-on-surface-variant border-outline-variant/30' }
 }

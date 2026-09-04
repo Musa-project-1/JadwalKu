@@ -179,7 +179,7 @@ export function ScheduleToolbar({
             </span>
           )}
           {semesterFilter && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2 py-0.5 font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 shrink-0">
+            <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2 py-0.5 font-semibold text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 shrink-0">
               <span>
                 {availableSemesterOptions.find((s) => s.value === semesterFilter)?.label || `Sem. ${semesterFilter}`}
               </span>

@@ -371,7 +371,7 @@ export function UniversalImportModal({
             {/* Global Tahun Ajaran Selector (Top of Modal 1) */}
             <div className="rounded-2xl bg-surface-container-high/50 border border-outline-variant/25 p-4 flex flex-col tablet:flex-row tablet:items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25 shrink-0 font-bold">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-400 border border-teal-500/25 shrink-0 font-bold">
                   <Icon name="calendar_month" size={17} />
                 </span>
                 <div>
@@ -463,19 +463,19 @@ export function UniversalImportModal({
 
               {/* Supported Format Badges */}
               <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
-                <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1 text-label-caps font-bold text-emerald-800 dark:text-emerald-300">
+                <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1 text-label-caps font-bold text-emerald-800 dark:text-emerald-400">
                   📊 Excel .xlsx/.xls
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-xl bg-teal-500/10 border border-teal-500/25 px-2.5 py-1 text-label-caps font-bold text-teal-800 dark:text-teal-300">
+                <span className="inline-flex items-center gap-1 rounded-xl bg-teal-500/10 border border-teal-500/25 px-2.5 py-1 text-label-caps font-bold text-teal-800 dark:text-teal-400">
                   📋 CSV
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-xl bg-blue-500/10 border border-blue-500/25 px-2.5 py-1 text-label-caps font-bold text-blue-800 dark:text-blue-300">
+                <span className="inline-flex items-center gap-1 rounded-xl bg-blue-500/10 border border-blue-500/25 px-2.5 py-1 text-label-caps font-bold text-blue-800 dark:text-blue-400">
                   📄 Word .docx
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-xl bg-red-500/10 border border-red-500/25 px-2.5 py-1 text-label-caps font-bold text-red-800 dark:text-red-300">
+                <span className="inline-flex items-center gap-1 rounded-xl bg-red-500/10 border border-red-500/25 px-2.5 py-1 text-label-caps font-bold text-red-800 dark:text-red-400">
                   📑 PDF Digital
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-xl bg-purple-500/10 border border-purple-500/25 px-2.5 py-1 text-label-caps font-bold text-purple-800 dark:text-purple-300">
+                <span className="inline-flex items-center gap-1 rounded-xl bg-purple-500/10 border border-purple-500/25 px-2.5 py-1 text-label-caps font-bold text-purple-800 dark:text-purple-400">
                   📸 Gambar/OCR
                 </span>
               </div>
@@ -712,12 +712,12 @@ export function UniversalImportModal({
 
             {/* Metrics Chips */}
             <div className="flex items-center gap-2 flex-wrap shrink-0">
-              <div className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-1 text-body-xs font-bold text-emerald-800 dark:text-emerald-300">
+              <div className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-1 text-body-xs font-bold text-emerald-800 dark:text-emerald-400">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 <span>{previewMetrics.valid} Baris Valid</span>
               </div>
               {previewMetrics.review > 0 && (
-                <div className="inline-flex items-center gap-2 rounded-xl bg-amber-500/15 border border-amber-500/25 px-2.5 py-1 text-body-xs font-bold text-amber-800 dark:text-amber-300">
+                <div className="inline-flex items-center gap-2 rounded-xl bg-amber-500/15 border border-amber-500/25 px-2.5 py-1 text-body-xs font-bold text-amber-800 dark:text-amber-400">
                   <span className="h-2 w-2 rounded-full bg-amber-500" />
                   <span>{previewMetrics.review} Perlu Review (OCR)</span>
                 </div>
@@ -823,7 +823,7 @@ export function UniversalImportModal({
                               <p className="font-bold text-on-surface truncate leading-tight hover:underline">
                                 {entry.namaMK || entry.kodeMK}
                               </p>
-                              <span className="font-mono text-label-caps font-bold text-teal-800 dark:text-teal-300 bg-teal-500/15 px-2 py-0.5 rounded-md inline-block mt-0.5">
+                              <span className="font-mono text-label-caps font-bold text-teal-800 dark:text-teal-400 bg-teal-500/15 px-2 py-0.5 rounded-md inline-block mt-0.5">
                                 {entry.kodeMK}
                               </span>
                             </div>
@@ -894,11 +894,11 @@ export function UniversalImportModal({
                               🔴 Error
                             </span>
                           ) : isLowConfidence ? (
-                            <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-2 py-0.5 text-label-caps font-bold text-amber-700 dark:text-amber-300" title="Skor kepercayaan OCR sedang">
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-2 py-0.5 text-label-caps font-bold text-amber-700 dark:text-amber-400" title="Skor kepercayaan OCR sedang">
                               🟡 {entry.confidence}%
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-label-caps font-bold text-emerald-700 dark:text-emerald-300">
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-label-caps font-bold text-emerald-700 dark:text-emerald-400">
                               🟢 {entry.confidence || 98}%
                             </span>
                           )}

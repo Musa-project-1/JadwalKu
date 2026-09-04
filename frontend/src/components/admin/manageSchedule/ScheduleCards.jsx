@@ -139,7 +139,7 @@ function ScheduleCardsImpl({
                   )}
                 </span>
                 {group.items.length > 1 && (
-                  <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                  <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
                     <Icon name="groups" size={11} /> {group.items.length} prodi
                   </span>
                 )}

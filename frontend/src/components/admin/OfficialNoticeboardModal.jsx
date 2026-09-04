@@ -155,7 +155,7 @@ export function OfficialNoticeboardModal({
               {/* Filter Lingkup Cetak */}
               <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-4 space-y-4">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-400 border border-teal-500/25">
                     <Icon name="tune" size={16} />
                   </span>
                   <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
@@ -226,7 +226,7 @@ export function OfficialNoticeboardModal({
               {/* Kop Surat & Institusi */}
               <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-4 space-y-4">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-400 border border-teal-500/25">
                     <Icon name="corporate_fare" size={16} />
                   </span>
                   <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
@@ -274,7 +274,7 @@ export function OfficialNoticeboardModal({
               {/* Pengesahan Tanda Tangan */}
               <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-low/50 dark:bg-surface-container/30 p-4 space-y-4">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-500/15 text-teal-800 dark:text-teal-400 border border-teal-500/25">
                     <Icon name="verified_user" size={16} />
                   </span>
                   <p className="text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">

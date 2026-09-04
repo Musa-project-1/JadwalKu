@@ -96,7 +96,7 @@ function CourseTableImpl({ courses, onEdit, onDelete }) {
                 {/* Semester */}
                 <td className="px-2.5 py-[9px] align-middle text-center overflow-hidden">
                   {semester ? (
-                    <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 shadow-2xs">
+                    <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 shadow-2xs">
                       Sem. {semester}
                     </span>
                   ) : (

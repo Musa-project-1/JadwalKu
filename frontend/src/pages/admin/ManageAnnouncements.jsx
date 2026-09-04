@@ -178,7 +178,7 @@ export default function ManageAnnouncements() {
       {/* ── 1. Page Header ── */}
       <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
         <div className="flex items-center gap-4 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 border border-amber-500/20 shadow-level-1 dark:bg-amber-500/20 dark:text-amber-400">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 border border-amber-500/20 shadow-level-1 dark:bg-amber-500/10 dark:text-amber-400">
             <Icon name="campaign" size={24} />
           </div>
           <div className="min-w-0">
@@ -186,7 +186,7 @@ export default function ManageAnnouncements() {
               <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
                 Kelola Pengumuman
               </h1>
-              <span className="rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2.5 py-0.5 text-label-caps font-bold border border-amber-500/20">
+              <span className="rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 text-label-caps font-bold border border-amber-500/20">
                 Siaran Mahasiswa
               </span>
             </div>
@@ -290,13 +290,13 @@ export default function ManageAnnouncements() {
             const isUrgent = item.kategori === 'urgent'
             const isWarning = item.kategori === 'warning'
 
-            let badgeBg = 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/25'
+            let badgeBg = 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/25'
             let badgeLabel = 'Info Umum'
             if (isUrgent) {
               badgeBg = 'bg-error/15 text-error border-error/30'
               badgeLabel = 'Darurat / Pindah Ruang'
             } else if (isWarning) {
-              badgeBg = 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30'
+              badgeBg = 'bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-500/30'
               badgeLabel = 'Penting / Kuliah Pengganti'
             }
 
@@ -343,7 +343,7 @@ export default function ManageAnnouncements() {
                     onClick={() => handleToggleStatus(item)}
                     className={`px-2.5 py-1 rounded-xl text-label-caps font-bold border transition-colors cursor-pointer ${
                       item.aktif !== false
-                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20 hover:bg-emerald-500/20'
+                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
                         : 'bg-surface-container text-on-surface-variant border-outline-variant/25 hover:bg-surface-container-high'
                     }`}
                     title="Klik untuk ubah status aktif/nonaktif"

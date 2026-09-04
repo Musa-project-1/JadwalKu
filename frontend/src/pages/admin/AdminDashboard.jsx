@@ -15,13 +15,13 @@ import { FullHistoryModal } from '../../components/admin/adminDashboard/FullHist
 const DAY_ORDER = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
 
 const CLASS_TYPE_META = {
-  K1: { label: 'Offline (K1)', tone: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' },
-  K2: { label: 'Online (K2)', tone: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30' },
-  HB: { label: 'Hybrid (HB)', tone: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
-  HBH: { label: 'Hybrid (HBH)', tone: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
-  HBD: { label: 'Hybrid (HBD)', tone: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
-  GBK1: { label: 'Gabungan (GBK1)', tone: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30' },
-  GBK2: { label: 'Gabungan (GBK2)', tone: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30' },
+  K1: { label: 'Offline (K1)', tone: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30' },
+  K2: { label: 'Online (K2)', tone: 'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30' },
+  HB: { label: 'Hybrid (HB)', tone: 'bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30' },
+  HBH: { label: 'Hybrid (HBH)', tone: 'bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30' },
+  HBD: { label: 'Hybrid (HBD)', tone: 'bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30' },
+  GBK1: { label: 'Gabungan (GBK1)', tone: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30' },
+  GBK2: { label: 'Gabungan (GBK2)', tone: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30' },
 }
 
 export default function AdminDashboard() {

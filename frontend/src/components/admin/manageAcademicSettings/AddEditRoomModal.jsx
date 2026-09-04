@@ -275,7 +275,7 @@ export function AddEditRoomModal({
                         onClick={() => toggleFacility(f)}
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold border transition-all cursor-pointer ${
                           active
-                            ? 'bg-teal-500/15 text-teal-800 dark:text-teal-300 border-teal-500/30 shadow-2xs'
+                            ? 'bg-teal-500/15 text-teal-800 dark:text-teal-400 border-teal-500/30 shadow-2xs'
                             : 'bg-surface-container-low border-outline-variant/30 text-on-surface-variant/70 hover:border-primary/40'
                         }`}
                       >

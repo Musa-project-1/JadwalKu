@@ -23,7 +23,7 @@ function CourseCardsImpl({ courses, onEdit, onDelete }) {
                     {course.kodeMK}
                   </span>
                   {semester && (
-                    <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-300">
+                    <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-400">
                       Sem. {semester}
                     </span>
                   )}
@@ -91,7 +91,7 @@ function CourseCardsImpl({ courses, onEdit, onDelete }) {
                   href={waUrl || `tel:${course.kontakDosen}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-500/20"
+                  className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-label-caps font-bold text-emerald-800 dark:text-emerald-400 border border-emerald-500/20"
                 >
                   <Icon name="chat" size={12} />
                   <span>{course.kontakDosen}</span>
