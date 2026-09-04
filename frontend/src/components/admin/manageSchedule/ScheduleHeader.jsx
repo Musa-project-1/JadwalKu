@@ -13,8 +13,8 @@ export function ScheduleHeader({
   onOpenAddSession,
 }) {
   return (
-    <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-xs flex flex-col gap-3.5 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
-      <div className="flex items-center gap-3.5 min-w-0">
+    <header className="p-3 tablet:px-4 tablet:py-2.5 border-b border-outline-variant/15 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
+      <div className="flex items-center gap-3 min-w-0">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
           <Icon name="calendar_month" size={24} />
         </div>

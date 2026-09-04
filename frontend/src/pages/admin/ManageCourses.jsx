@@ -14,6 +14,7 @@ import {
   SksFilterDropdown,
 } from '../../components/admin/AdminFilterDropdowns'
 import { CourseTable, CourseCards, CourseFormModal } from '../../components/admin/manageCourses'
+import { AdminPageCard } from '../../components/admin/AdminPageCard'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useDebounce } from '../../hooks/useDebounce'
@@ -258,63 +259,7 @@ export default function ManageCourses() {
   }
 
   return (
-    <div className="h-full flex flex-col space-y-4 tablet:space-y-3 pb-20 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
-      {/* ── 1. Page Header ── */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
-        <div className="flex items-center gap-4 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
-            <Icon name="menu_book" size={24} />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
-                Kelola MK & Dosen
-              </h1>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
-                Master Kurikulum
-              </span>
-            </div>
-            <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-              Master mata kuliah, SKS, semester & dosen pengampu
-            </p>
-          </div>
-        </div>
-
-        {/* Right side: Live Quick Stat Chips + Primary Action Button */}
-        <div className="flex items-center gap-2 tablet:gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
-          <div className="grid grid-cols-3 tablet:flex tablet:w-auto gap-2 tablet:gap-2">
-            <div className="flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 shadow-level-1 min-w-0">
-              <Icon name="library_books" size={14} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
-              <span className="text-label-caps font-bold text-emerald-700 dark:text-emerald-300 truncate">
-                {stats.totalCourses} MK
-              </span>
-            </div>
-            <div className="flex items-center gap-2 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 shadow-level-1 min-w-0">
-              <Icon name="person" size={14} className="text-blue-700 dark:text-blue-400 shrink-0" />
-              <span className="text-label-caps font-bold text-blue-700 dark:text-blue-300 truncate">
-                {stats.totalLecturers} Dosen
-              </span>
-            </div>
-            <div className="flex items-center gap-2 rounded-full border border-purple-500/25 bg-purple-500/10 px-3 py-1 shadow-level-1 min-w-0">
-              <Icon name="workspace_premium" size={14} className="text-purple-700 dark:text-purple-400 shrink-0" />
-              <span className="text-label-caps font-bold text-purple-700 dark:text-purple-300 truncate">
-                {stats.totalSks} SKS
-              </span>
-            </div>
-          </div>
-
-          <Button
-            onClick={openAddModal}
-            className="rounded-full px-4 py-2 font-bold shadow-level-1 cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
-            title="Tambah Mata Kuliah"
-            aria-label="Tambah MK"
-          >
-            <Icon name="add" size={16} className="mr-1" />
-            <span>Tambah MK</span>
-          </Button>
-        </div>
-      </header>
-
+    <div className="h-full flex flex-col space-y-2 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
       {banner && (
         <div className="shrink-0">
           <StatusBanner
@@ -325,8 +270,66 @@ export default function ManageCourses() {
         </div>
       )}
 
-      {/* ── 2. Live Database Course Management (Unified Card Container) ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-4 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-4">
+      {/* ── Single Unified Card Container (No double rounded corners) ── */}
+      <AdminPageCard>
+        {/* ── 1. Page Header (Border-b divider inside card) ── */}
+        <header className="p-3 tablet:px-4 tablet:py-2.5 border-b border-outline-variant/15 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+              <Icon name="menu_book" size={24} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
+                  Kelola MK & Dosen
+                </h1>
+                <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
+                  Master Kurikulum
+                </span>
+              </div>
+              <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
+                Master mata kuliah, SKS, semester & dosen pengampu
+              </p>
+            </div>
+          </div>
+
+          {/* Right side: Live Quick Stat Chips + Primary Action Button */}
+          <div className="flex items-center gap-2 tablet:gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
+            <div className="grid grid-cols-3 tablet:flex tablet:w-auto gap-1.5 tablet:gap-2">
+              <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 shadow-2xs min-w-0">
+                <Icon name="library_books" size={14} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
+                <span className="text-label-caps font-bold text-emerald-700 dark:text-emerald-300 truncate">
+                  {stats.totalCourses} MK
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 shadow-2xs min-w-0">
+                <Icon name="person" size={14} className="text-blue-700 dark:text-blue-400 shrink-0" />
+                <span className="text-label-caps font-bold text-blue-700 dark:text-blue-300 truncate">
+                  {stats.totalLecturers} Dosen
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 rounded-full border border-purple-500/25 bg-purple-500/10 px-3 py-1 shadow-2xs min-w-0">
+                <Icon name="workspace_premium" size={14} className="text-purple-700 dark:text-purple-400 shrink-0" />
+                <span className="text-label-caps font-bold text-purple-700 dark:text-purple-300 truncate">
+                  {stats.totalSks} SKS
+                </span>
+              </div>
+            </div>
+
+            <Button
+              onClick={openAddModal}
+              className="rounded-full px-4 py-2 font-bold shadow-2xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
+              title="Tambah Mata Kuliah"
+              aria-label="Tambah MK"
+            >
+              <Icon name="add" size={16} className="mr-1" />
+              <span>Tambah MK</span>
+            </Button>
+          </div>
+        </header>
+
+        {/* ── 2. Live Database Course Management ── */}
+        <div className="p-3 tablet:p-3.5 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-hidden">
         {/* 1-Row Integrated Search & Dropdowns Toolbar (Matching Kelola Jadwal layout) */}
         <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5 overflow-visible">
           {/* Compact Search Bar */}
@@ -561,7 +564,8 @@ export default function ManageCourses() {
             </div>
           </>
         )}
-      </div>
+        </div>
+      </AdminPageCard>
 
       {/* Modal Dialog Form (Tambah / Edit) */}
       <CourseFormModal

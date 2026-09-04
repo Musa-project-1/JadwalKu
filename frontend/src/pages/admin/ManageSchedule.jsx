@@ -8,6 +8,7 @@ import { Pagination } from '../../components/Pagination'
 import { UniversalImportModal } from '../../components/admin/UniversalImportModal'
 import { OfficialNoticeboardModal } from '../../components/admin/OfficialNoticeboardModal'
 import { BulkActionBar } from '../../components/admin/BulkActionBar'
+import { AdminPageCard } from '../../components/admin/AdminPageCard'
 
 // Modularized Components
 import { ScheduleHeader } from '../../components/admin/manageSchedule/ScheduleHeader'
@@ -792,24 +793,7 @@ export default function ManageSchedule() {
   const draftCount = rawSchedule.filter((s) => (s.status || 'published') === 'draft').length
 
   return (
-    <div className="h-full flex flex-col space-y-2.5 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
-      {/* ── 1. Page Header ── */}
-      <ScheduleHeader
-        currentTA={currentTA}
-        publishedCount={publishedCount}
-        draftCount={draftCount}
-        conflictCount={conflictMap.size}
-        onlyShowConflicts={onlyShowConflicts}
-        onToggleOnlyConflicts={() => setOnlyShowConflicts(!onlyShowConflicts)}
-        onOpenNoticeboard={() => setNoticeboardModalOpen(true)}
-        onOpenImport={() => setImportModalOpen(true)}
-        onOpenAddSession={() => {
-          setManualForm(EMPTY_SESSION)
-          setManualErrors([])
-          setAddModalOpen(true)
-        }}
-      />
-
+    <div className="h-full flex flex-col space-y-2 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
       {banner && (
         <div className="shrink-0">
           <StatusBanner
@@ -825,9 +809,28 @@ export default function ManageSchedule() {
         </div>
       )}
 
-      {/* ── 2. Live Database Schedule Management ── */}
-      <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3 tablet:p-3.5 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-hidden">
-        <ScheduleToolbar
+      {/* ── Single Unified Card Container (No double rounded corners) ── */}
+      <AdminPageCard>
+        {/* ── 1. Page Header (Border-b divider inside card) ── */}
+        <ScheduleHeader
+          currentTA={currentTA}
+          publishedCount={publishedCount}
+          draftCount={draftCount}
+          conflictCount={conflictMap.size}
+          onlyShowConflicts={onlyShowConflicts}
+          onToggleOnlyConflicts={() => setOnlyShowConflicts(!onlyShowConflicts)}
+          onOpenNoticeboard={() => setNoticeboardModalOpen(true)}
+          onOpenImport={() => setImportModalOpen(true)}
+          onOpenAddSession={() => {
+            setManualForm(EMPTY_SESSION)
+            setManualErrors([])
+            setAddModalOpen(true)
+          }}
+        />
+
+        {/* ── 2. Live Database Schedule Management ── */}
+        <div className="p-3 tablet:p-3.5 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-hidden">
+          <ScheduleToolbar
           search={search}
           setSearch={setSearch}
           fakultasFilter={fakultasFilter}
@@ -915,7 +918,8 @@ export default function ManageSchedule() {
             </div>
           </>
         )}
-      </div>
+        </div>
+      </AdminPageCard>
 
       {/* ── 3. Modal Tambah Sesi Manual ── */}
       <ScheduleFormModal
