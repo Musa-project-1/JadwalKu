@@ -22,6 +22,7 @@ import { useCampus } from '../../context/useCampus'
 import { useDebounce } from '../../hooks/useDebounce'
 import { addDocument, deleteDocument, updateDocument } from '../../lib/adminData'
 import { publishDocuments, appendHistory } from '../../lib/publishHelpers'
+import { getXLSXExp } from '../../lib/academicExcelExport'
 
 const EMPTY_FORM = {
   jenis: 'UTS',
@@ -386,7 +387,7 @@ export default function ManageExams() {
   }
 
   async function downloadExamTemplate() {
-    let __XLSX; try { __XLSX = await import('xlsx'); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
+    let __XLSX; try { __XLSX = await getXLSXExp(); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
     const XLSX = __XLSX.default ?? __XLSX;
     const templateData = [
       {
@@ -417,7 +418,7 @@ export default function ManageExams() {
   }
 
   async function exportExamsToExcel() {
-    let __XLSX; try { __XLSX = await import('xlsx'); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
+    let __XLSX; try { __XLSX = await getXLSXExp(); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
     const XLSX = __XLSX.default ?? __XLSX;
     if (filtered.length === 0) {
       setBanner({ ok: false, message: 'Tidak ada data jadwal ujian untuk diekspor.' })

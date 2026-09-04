@@ -6,12 +6,9 @@ import { DAYS } from '../../lib/uploadValidator'
 import { formatRuang, getTodayName, sortByTime } from '../../lib/scheduleUtils'
 import { formatWhatsAppUrl, getLecturerInitials } from '../../lib/lecturerUtils'
 import { getClassType, TONE_CLASSES } from '../../lib/classTypes'
+import { parseTimeToMinutes } from '../../lib/scheduleGridUtils'
 
-function toMin(timeStr) {
-  if (!timeStr) return 0
-  const [h, m] = timeStr.split(':').map(Number)
-  return (h || 0) * 60 + (m || 0)
-}
+const toMin = parseTimeToMinutes
 
 export function LecturerTimetableModal({
   isOpen,

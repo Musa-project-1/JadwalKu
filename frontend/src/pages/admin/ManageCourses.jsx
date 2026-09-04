@@ -18,6 +18,7 @@ import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useDebounce } from '../../hooks/useDebounce'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
+import { getXLSXExp } from '../../lib/academicExcelExport'
 import { appendHistory } from '../../lib/publishHelpers'
 import { validateCourseEntry } from '../../lib/uploadValidator'
 import { useCampus } from '../../context/useCampus'
@@ -128,7 +129,7 @@ export default function ManageCourses() {
   }
 
   async function exportCoursesToExcel() {
-    let __XLSX; try { __XLSX = await import('xlsx'); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
+    let __XLSX; try { __XLSX = await getXLSXExp(); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
     const XLSX = __XLSX.default ?? __XLSX;
     if (filtered.length === 0) {
       setBanner({ ok: false, message: 'Tidak ada data mata kuliah untuk diekspor.' })

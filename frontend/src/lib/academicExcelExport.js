@@ -1,5 +1,8 @@
 let _XLSXExp = null
-async function getXLSXExp() { if (!_XLSXExp) _XLSXExp = await import('xlsx'); return _XLSXExp }
+export async function getXLSXExp() { 
+  if (!_XLSXExp) _XLSXExp = await import('xlsx')
+  return _XLSXExp 
+}
 import { MONTH_NAMES } from '../constants/academicConstants'
 import { getTermLabel } from './tahunAjaran'
 

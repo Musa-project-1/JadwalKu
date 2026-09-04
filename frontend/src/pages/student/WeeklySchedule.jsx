@@ -34,14 +34,11 @@ import { CourseNotesModal } from '../../components/student/CourseNotesModal'
 import { PrintScheduleModal } from '../../components/student/PrintScheduleModal'
 import { KrsSimulatorModal } from '../../components/student/KrsSimulatorModal'
 import { ScheduleTimetableGrid } from '../../components/schedule/ScheduleTimetableGrid'
+import { parseTimeToMinutes } from '../../lib/scheduleGridUtils'
 
 const WEEK_DAYS = DAYS // Senin–Sabtu
 
-function toMin(timeStr) {
-  if (!timeStr) return 0
-  const [h, m] = timeStr.split(':').map(Number)
-  return (h || 0) * 60 + (m || 0)
-}
+const toMin = parseTimeToMinutes
 
 function currentMinuteOfDay() {
   const now = new Date()

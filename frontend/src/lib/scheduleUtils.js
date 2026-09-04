@@ -1,5 +1,20 @@
 export const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
 
+/**
+ * Menghitung selisih hari dari hari ini ke tanggal ISO (YYYY-MM-DD).
+ * Hasil: >0 (hari ke depan), 0 (hari ini), <0 (sudah lewat).
+ */
+export function daysUntil(isoDate) {
+  if (!isoDate || isoDate === 'Tanpa Tanggal') return 0
+  const now = new Date()
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const [y, m, d] = String(isoDate).split('-').map(Number)
+  if (!y || !m || !d) return 0
+  const target = new Date(y, m - 1, d)
+  const diffMs = target.getTime() - startOfToday.getTime()
+  return Math.round(diffMs / (24 * 60 * 60 * 1000))
+}
+
 /** Urutan hari untuk sorting jadwal (Senin = 1, dst). */
 export const DAY_ORDER = { Senin: 1, Selasa: 2, Rabu: 3, Kamis: 4, Jumat: 5, Sabtu: 6, Minggu: 7 }
 

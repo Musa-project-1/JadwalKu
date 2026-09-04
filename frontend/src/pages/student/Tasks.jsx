@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
 import { Button } from '../../components/Button'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { daysUntil } from '../../lib/scheduleUtils'
 import { useTasks } from '../../hooks/useTasks'
 import { useApp } from '../../hooks/useApp'
 
@@ -872,12 +873,6 @@ function groupTasks(tasks) {
     else groups.nextWeek.push(task)
   }
   return groups
-}
-
-function daysUntil(isoDate) {
-  const now = new Date()
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return Math.round((parseLocalDate(isoDate).getTime() - startOfToday.getTime()) / (24 * 60 * 60 * 1000))
 }
 
 function parseLocalDate(isoDate) {

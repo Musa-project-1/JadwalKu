@@ -23,6 +23,7 @@ import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useCampus } from '../../context/useCampus'
 import { useDebounce } from '../../hooks/useDebounce'
+import { getXLSXExp } from '../../lib/academicExcelExport'
 import { deleteDocument, setDocument, updateDocument } from '../../lib/adminData'
 import { writeBatch, doc } from 'firebase/firestore'
 import { db } from '../../lib/firebaseClient'
@@ -738,7 +739,7 @@ export default function ManageSchedule() {
   }
 
   async function downloadTemplate() {
-    let __XLSX; try { __XLSX = await import('xlsx'); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
+    let __XLSX; try { __XLSX = await getXLSXExp(); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
     const XLSX = __XLSX.default ?? __XLSX;
     const templateData = [
       {
@@ -762,7 +763,7 @@ export default function ManageSchedule() {
   }
 
   async function exportCurrentSchedule() {
-    let __XLSX; try { __XLSX = await import('xlsx'); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
+    let __XLSX; try { __XLSX = await getXLSXExp(); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
     const XLSX = __XLSX.default ?? __XLSX;
     const exportData = filteredSchedule.map((item) => {
       const course = courseMap.get(item.kodeMK)

@@ -5,6 +5,7 @@ import { Icon } from '../../components/Icon'
 import { Skeleton } from '../../components/Skeleton'
 import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
 import { downloadExamIcs } from '../../lib/icsExport'
+import { daysUntil } from '../../lib/scheduleUtils'
 import { RoomLocationModal } from '../../components/student/RoomLocationModal'
 import TahunAjaranDropdown from '../../components/schedule/TahunAjaranDropdown'
 
@@ -426,12 +427,4 @@ function formatExamDate(isoDate) {
     month: 'long',
     year: 'numeric',
   })
-}
-
-function daysUntil(isoDate) {
-  if (!isoDate) return 999
-  const now = new Date()
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const target = new Date(isoDate + 'T00:00:00')
-  return Math.round((target.getTime() - startOfToday.getTime()) / (24 * 60 * 60 * 1000))
 }
