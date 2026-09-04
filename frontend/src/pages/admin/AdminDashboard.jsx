@@ -13,7 +13,6 @@ import { FeatureDocsModal } from '../../components/student/FeatureDocsModal'
 
 // Modular Components
 import { DashboardHeader } from '../../components/admin/adminDashboard/DashboardHeader'
-import { DashboardStatCards } from '../../components/admin/adminDashboard/DashboardStatCards'
 import { RecentActivityTimeline } from '../../components/admin/adminDashboard/RecentActivityTimeline'
 import { QuickAdminActions } from '../../components/admin/adminDashboard/QuickAdminActions'
 import { DashboardAnalytics } from '../../components/admin/adminDashboard/DashboardAnalytics'
@@ -171,8 +170,16 @@ export default function AdminDashboard() {
 
   return (
     <div className="h-full flex flex-col gap-4 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
-      {/* ── 1. Page Header ── */}
-      <DashboardHeader onOpenDocs={() => setDocsModalOpen(true)} />
+      {/* ── 1. Page Header (Tampilan & Metrik 1:1 Home Mahasiswa) ── */}
+      <DashboardHeader
+        onOpenDocs={() => setDocsModalOpen(true)}
+        counts={{
+          prodi: loadingProdi ? null : programs.length,
+          mk: loadingCourses ? null : courses.length,
+          jadwal: loadingSchedules ? null : schedules.length,
+          ujian: loadingExams ? null : exams.length,
+        }}
+      />
 
       {/* Global Sync Prodi Notification if empty */}
       {!loadingProdi && !loadingCourses && programs.length === 0 && courses.length > 0 && (
@@ -204,19 +211,7 @@ export default function AdminDashboard() {
         <StatusBanner ok={false} message={`Gagal memuat jadwal: ${scheduleError.message || scheduleError.code || 'Unknown error'}`} onClose={() => {}} />
       )}
 
-      {/* ── 2. Stat Cards (4-Column Balanced Grid) ── */}
-      <DashboardStatCards
-        loadingProdi={loadingProdi}
-        programsCount={programs.length}
-        loadingCourses={loadingCourses}
-        coursesCount={courses.length}
-        loadingSchedules={loadingSchedules}
-        schedulesCount={schedules.length}
-        loadingExams={loadingExams}
-        examsCount={exams.length}
-      />
-
-      {/* ── 3. Main 2-Column Balanced & Aligned Grid ── */}
+      {/* ── 2. Main 2-Column Balanced & Aligned Grid ── */}
       <div className="flex-1 flex flex-col min-h-0 grid gap-4 tablet:gap-4 desktop:grid-cols-12 desktop:items-stretch">
         {/* Kolom Kiri: Riwayat Perubahan Data */}
         <RecentActivityTimeline
