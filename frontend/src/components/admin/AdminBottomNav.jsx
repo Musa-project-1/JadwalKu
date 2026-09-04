@@ -8,7 +8,7 @@ import { Icon } from '../Icon'
  * 2. Kelola Jadwal (/admin/jadwal)
  * 3. MK & Dosen (/admin/mata-kuliah)
  * 4. Ujian (/admin/ujian)
- * 5. Akademik (/admin/pengaturan-akademik)
+ * 5. Pengaturan (/admin/pengaturan-akademik)
  */
 
 const ADMIN_BOTTOM_TABS = [
@@ -16,7 +16,7 @@ const ADMIN_BOTTOM_TABS = [
   { to: '/admin/jadwal', label: 'Jadwal', icon: 'edit_calendar' },
   { to: '/admin/mata-kuliah', label: 'Matkul', icon: 'menu_book' },
   { to: '/admin/ujian', label: 'Ujian', icon: 'event_note' },
-  { to: '/admin/pengaturan-akademik', label: 'Akademik', icon: 'settings_suggest' },
+  { to: '/admin/pengaturan-akademik', label: 'Pengaturan', icon: 'settings' },
 ]
 
 export function AdminBottomNav() {

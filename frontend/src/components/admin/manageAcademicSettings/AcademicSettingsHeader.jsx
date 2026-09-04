@@ -15,19 +15,19 @@ export function AcademicSettingsHeader({
       {/* Left: Icon, Title & Live TA Badge */}
       <div className="flex items-center gap-3.5 min-w-0">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20 shadow-xs">
-          <Icon name="settings_suggest" size={24} />
+          <Icon name="settings" size={24} />
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface whitespace-nowrap">
-              Master Akademik
+              Pengaturan Sistem
             </h1>
             <span className="rounded-full bg-teal-500/10 text-teal-800 dark:text-teal-300 px-2.5 py-0.5 text-[11px] font-bold border border-teal-500/20 whitespace-nowrap shadow-2xs">
               TA {currentComputedTA}
             </span>
           </div>
           <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-            Kalender perkuliahan, program studi, dan hari libur kampus
+            Master akademik, kalender perkuliahan, program studi, ruangan, dan cadangan data
           </p>
         </div>
       </div>

@@ -89,6 +89,7 @@ export default function App() {
               <Route path="/admin/ujian" element={<ManageExams />} />
               <Route path="/admin/pengumuman" element={<ManageAnnouncements />} />
               <Route path="/admin/pengaturan-akademik" element={<ManageAcademicSettings />} />
+              <Route path="/admin/pengaturan" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
               <Route path="/admin/prodi" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
               <Route path="/admin/libur" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
             </Route>
