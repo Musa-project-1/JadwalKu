@@ -53,10 +53,10 @@ export const TONE_BG_CLASSES = {
 
 /** Chip/badge tonal lengkap (bg + teks) — dipakai Badge.jsx. */
 export const TONE_CLASSES = {
-  offline: 'bg-status-offline/10 text-emerald-800 dark:bg-status-offline/15 dark:text-emerald-300',
-  online: 'bg-status-online/10 text-blue-800 dark:bg-status-online/15 dark:text-blue-300',
-  hybrid: 'bg-status-hybrid/10 text-violet-800 dark:bg-status-hybrid/15 dark:text-violet-300',
-  combined: 'bg-status-combined/10 text-amber-800 dark:bg-status-combined/15 dark:text-amber-300',
+  offline: 'bg-status-offline/10 text-emerald-800 dark:bg-status-offline/10 dark:text-emerald-400',
+  online: 'bg-status-online/10 text-blue-800 dark:bg-status-online/10 dark:text-blue-400',
+  hybrid: 'bg-status-hybrid/10 text-violet-800 dark:bg-status-hybrid/10 dark:text-violet-400',
+  combined: 'bg-status-combined/10 text-amber-800 dark:bg-status-combined/10 dark:text-amber-400',
   neutral: 'bg-surface-container text-on-surface-variant',
 }
 

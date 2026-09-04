@@ -73,7 +73,7 @@ export function NextClassCard({
     <div
       className={`relative overflow-hidden rounded-2xl p-4 tablet:p-5 shadow-level-1 transition-all duration-300 border ${
         isOngoing
-          ? 'bg-gradient-to-br from-teal-900 via-primary to-emerald-950 text-white border-emerald-500/40'
+          ? 'bg-gradient-to-br from-teal-900 via-primary to-emerald-950 dark:from-teal-950 dark:via-teal-700 dark:to-emerald-950 text-white border-emerald-500/40'
           : 'bg-surface-container-low/80 dark:bg-surface-container/70 text-on-surface border-outline-variant/25'
       }`}
     >

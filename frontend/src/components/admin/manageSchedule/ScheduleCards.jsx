@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { Icon } from '../../Icon'
 import { formatRuang } from '../../../lib/scheduleUtils'
+import { getProdiColorClasses } from '../../../lib/prodiColors'
 
 function ScheduleCardsImpl({
   paginatedGroups,
@@ -107,13 +108,13 @@ function ScheduleCardsImpl({
                 <Icon name="schedule" size={13} className="text-primary" />
                 <span>{item.hari}, {item.jamMulai} - {item.jamSelesai}</span>
               </span>
-              <span className="inline-flex flex-wrap items-center gap-1 rounded-lg bg-indigo-500/10 px-2 py-1 font-semibold text-indigo-700 dark:text-indigo-300">
+              <span className="inline-flex flex-wrap items-center gap-1 rounded-lg bg-indigo-500/10 px-2 py-1 font-semibold text-indigo-700 dark:text-indigo-400">
                 <Icon name="school" size={13} className="shrink-0" />
                 <span className="flex flex-wrap gap-1 items-center">
                   {(isExpanded ? group.items : group.items.slice(0, MAX_BADGES_M)).map((it) => (
                     <span
                       key={it.id}
-                      className="inline-flex items-center gap-0.5 rounded-md bg-white/80 dark:bg-surface-container-high px-1.5 py-0.5 text-[11px] border border-indigo-500/15 whitespace-nowrap"
+                      className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[11px] border whitespace-nowrap ${getProdiColorClasses(it.prodi)}`}
                     >
                       {it.prodi} S{it.semester}
                     </span>
@@ -182,8 +183,8 @@ function ScheduleCardsImpl({
               <span
                 className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] uppercase font-bold ml-auto ${
                   (item.status || 'published') === 'published'
-                    ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300'
-                    : 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
+                    ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-400'
+                    : 'bg-amber-500/10 text-amber-800 dark:text-amber-400'
                 }`}
               >
                 {item.status || 'published'}

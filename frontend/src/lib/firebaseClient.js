@@ -4,7 +4,7 @@ import {
   getFirestore,
   initializeFirestore,
   persistentLocalCache,
-  persistentMultipleTabManager,
+  persistentSingleTabManager,
 } from 'firebase/firestore'
 
 // Semua nilai Firebase WAJIB via env VITE_FIREBASE_*.
@@ -47,7 +47,7 @@ if (isConfigured) {
     try {
       g.__jadwalkuFirestore = initializeFirestore(app, {
         localCache: persistentLocalCache({
-          tabManager: persistentMultipleTabManager(),
+          tabManager: persistentSingleTabManager(),
         }),
       })
     } catch {

@@ -35,6 +35,7 @@ import { PrintScheduleModal } from '../../components/student/PrintScheduleModal'
 import { KrsSimulatorModal } from '../../components/student/KrsSimulatorModal'
 import { ScheduleTimetableGrid } from '../../components/schedule/ScheduleTimetableGrid'
 import { parseTimeToMinutes } from '../../lib/scheduleGridUtils'
+import { PageCard } from '../../components/PageCard'
 
 const WEEK_DAYS = DAYS // Senin–Sabtu
 
@@ -447,9 +448,17 @@ export default function WeeklySchedule() {
 
   return (
     <div className="flex flex-col gap-3 w-full max-w-full overflow-x-hidden">
-      {/* ── HEADER UNIVERSAL (Tampil di Mobile, Tablet, dan Desktop) ── */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full">
-        {/* Kiri: Judul & Info Akademik */}
+      {/* Broadcast Pengumuman Kampus & Kuliah Pengganti */}
+      {jadwalError && (
+        <div role="status" className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-body-sm font-semibold text-error">Gagal memuat jadwal: {String(jadwalError.message || jadwalError.code || jadwalError)}</div>
+      )}
+      <AnnouncementBanner currentProgram={program} currentSemester={semester} />
+
+      {/* ── SINGLE UNIFIED CARD (Header + Grid Table) ── */}
+      <PageCard>
+        {/* ── HEADER UNIVERSAL (Tampil di Mobile, Tablet, dan Desktop) ── */}
+        <header className="p-3 tablet:px-4 tablet:py-3 border-b border-outline-variant/15 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
+          {/* Kiri: Judul & Info Akademik */}
         <div className="flex items-center gap-3.5 min-w-0">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
             <Icon name="calendar_month" size={24} />
@@ -591,18 +600,11 @@ export default function WeeklySchedule() {
         </div>
       </header>
 
-      {/* Broadcast Pengumuman Kampus & Kuliah Pengganti */}
-      {jadwalError && (
-        <div role="status" className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-body-sm font-semibold text-error">Gagal memuat jadwal: {String(jadwalError.message || jadwalError.code || jadwalError)}</div>
-      )}
-      <AnnouncementBanner currentProgram={program} currentSemester={semester} />
-
       {/* Mobile & Tablet View (<1024px) */}
-      <div className="desktop:hidden flex flex-col gap-3 w-full">
+      <div className="desktop:hidden flex flex-col w-full">
         {/* Mode Switcher & Aksi */}
-        <div className="rounded-2xl bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/20 shadow-level-1 overflow-hidden">
-          {toolbarContent}
-        </div>
+        {toolbarContent}
+        <div className="flex flex-col gap-3 p-3">
 
         {/* Mobile Controls (<600px): Baris 1 Aligned (Bulan di Kiri, TA & Share di Kanan) */}
         <div className="flex flex-col gap-2 tablet:hidden w-full max-w-full">
@@ -732,13 +734,14 @@ export default function WeeklySchedule() {
               ))}
             </div>
           )}
+          </div>
         </div>
       </div>
 
       {/* Desktop Calendar View (>=1024px) */}
       <div className="hidden desktop:block w-full">
         {!loading && scheduleSource.length === 0 && (
-          <div className="mb-3 flex items-center gap-sm rounded-2xl bg-info-container/40 px-md py-sm text-body-sm text-info dark:bg-info-container/20">
+          <div className="mx-3 mt-3 mb-3 flex items-center gap-sm rounded-2xl bg-info-container/40 px-md py-sm text-body-sm text-info dark:bg-info-container/20">
             <Icon name="info" size={20} className="shrink-0" />
             {isCustomMode
               ? (language === 'en' ? 'No custom courses selected. Click "Custom Schedule" to pick courses.' : 'Belum ada kelas kustom dipilih. Klik "Atur Matkul Kustom" untuk memilih mata kuliah.')
@@ -749,7 +752,7 @@ export default function WeeklySchedule() {
         )}
 
         {scheduleViewMode === 'matrix' ? (
-          <div className="w-full flex rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 overflow-hidden">
+          <div className="w-full flex">
             {/* ── TABEL MATRIKS UTAMA (KIRI - MENYAMBUNG LANGSUNG DENGAN HEADER) ── */}
             <div className="flex-1 min-w-0 border-r border-outline-variant/20">
               <ScheduleTimetableGrid
@@ -857,7 +860,7 @@ export default function WeeklySchedule() {
             </aside>
           </div>
         ) : (
-          <div className="w-full flex rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 overflow-hidden">
+          <div className="w-full flex">
             {/* ── TABEL TIMELINE UTAMA (KIRI - MENYAMBUNG LANGSUNG DENGAN HEADER) ── */}
             <div
               ref={gridScrollRef}
@@ -1157,6 +1160,7 @@ export default function WeeklySchedule() {
           </div>
         )}
       </div>
+      </PageCard>
 
       {conflictedIds.size > 0 && (
         <div className="flex items-center gap-sm rounded-2xl bg-error-container/40 p-md text-body-sm text-error">

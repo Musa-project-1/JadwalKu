@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, memo } from 'react'
 import { Icon } from '../../Icon'
-import { getClassType, TONE_CLASSES, TONE_DOT_CLASSES } from '../../../lib/classTypes'
+import { getClassType, TONE_CLASSES, TONE_ICONS } from '../../../lib/classTypes'
 import { formatRuang } from '../../../lib/scheduleUtils'
+import { getProdiColorClasses } from '../../../lib/prodiColors'
 
 /**
  * ScheduleTable - Redesigned for zero horizontal scroll & strict visual consistency
@@ -155,7 +156,7 @@ function ScheduleTableImpl({
                           <span
                             key={idx}
                             title={c.message}
-                            className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md text-[9.5px] font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 truncate"
+                            className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md text-[9.5px] font-bold bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-500/20 truncate"
                           >
                             <Icon name="warning" size={10} className="shrink-0" />
                             <span className="truncate">{c.type === 'room' ? 'Ruang Bentrok' : 'Bentrok'}</span>
@@ -169,12 +170,12 @@ function ScheduleTableImpl({
                 {/* Prodi & Sem */}
                 <td className="px-2.5 py-1.5 align-middle overflow-hidden">
                   {!isMultiProdi ? (
-                    // Single Prodi: Badge Nama Prodi langsung
+                    // Single Prodi: Badge Nama Prodi langsung (warna per prodi)
                     <span
                       title={`${item.prodi} — Semester ${item.semester}`}
-                      className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[10.5px] font-bold text-primary border border-primary/20 max-w-full shadow-2xs"
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-bold border max-w-full shadow-2xs ${getProdiColorClasses(item.prodi)}`}
                     >
-                      <Icon name="school" size={11} className="shrink-0 text-primary" />
+                      <Icon name="school" size={11} className="shrink-0" />
                       <span className="truncate">{item.prodi}</span>
                       <span className="font-mono font-extrabold text-[9px] opacity-80 shrink-0">S{item.semester}</span>
                     </span>
@@ -185,7 +186,7 @@ function ScheduleTableImpl({
                         type="button"
                         onClick={() => onToggleExpandGroup(group.key)}
                         title={group.items.map((it) => `${it.prodi} S${it.semester}`).join(', ')}
-                        className="inline-flex items-center gap-1 rounded-md bg-purple-500/15 px-2 py-0.5 text-[10.5px] font-bold text-purple-700 dark:text-purple-300 border border-purple-500/25 hover:bg-purple-500/25 transition-colors cursor-pointer shadow-2xs"
+                        className="inline-flex items-center gap-1 rounded-md bg-purple-500/10 px-2 py-0.5 text-[10.5px] font-bold text-purple-700 dark:text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-colors cursor-pointer shadow-2xs"
                       >
                         <Icon name="groups" size={12} className="shrink-0" />
                         <span>{group.items.length} prodi</span>
@@ -199,13 +200,13 @@ function ScheduleTableImpl({
                       {group.items.map((it) => (
                         <span
                           key={it.id}
-                          className="inline-flex items-center gap-1 rounded-md bg-surface-container border border-outline-variant/20 px-1.5 py-0.5 text-[9.5px] shadow-2xs"
+                          className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[9.5px] shadow-2xs border ${getProdiColorClasses(it.prodi)}`}
                         >
                           <span className="font-bold truncate max-w-[90px]">{it.prodi} S{it.semester}</span>
                           <button
                             type="button"
                             onClick={() => onOpenEdit(it)}
-                            className="text-primary hover:underline cursor-pointer ml-0.5"
+                            className="hover:underline cursor-pointer ml-0.5"
                             title={`Edit ${it.prodi}`}
                           >
                             <Icon name="edit" size={10} />
@@ -255,11 +256,12 @@ function ScheduleTableImpl({
                     </span>
                   </div>
                   <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.2 text-[9px] font-bold mt-0.5 border shadow-2xs truncate max-w-full ${
+                    className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-bold mt-0.5 border shadow-2xs truncate max-w-full ${
                       TONE_CLASSES[ct.tone] || 'bg-surface-container text-on-surface-variant'
                     }`}
+                    title={ct.label}
                   >
-                    <span className={`h-1 w-1 rounded-full shrink-0 ${TONE_DOT_CLASSES[ct.tone] || 'bg-surface-variant'}`} />
+                    <Icon name={TONE_ICONS[ct.tone] || 'corporate_fare'} size={11} className="shrink-0" />
                     <span className="truncate">{ct.label}</span>
                   </span>
                 </td>
@@ -267,10 +269,10 @@ function ScheduleTableImpl({
                 {/* Status */}
                 <td className="px-2 py-1.5 text-center align-middle overflow-hidden">
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.2 text-[9px] uppercase font-extrabold border shadow-2xs whitespace-nowrap ${
+                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] uppercase font-bold border shadow-2xs whitespace-nowrap ${
                       (item.status || 'published') === 'published'
-                        ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/25'
-                        : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/25'
+                        ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border-emerald-500/20'
+                        : 'bg-amber-500/10 text-amber-800 dark:text-amber-400 border-amber-500/20'
                     }`}
                   >
                     {item.status || 'published'}
