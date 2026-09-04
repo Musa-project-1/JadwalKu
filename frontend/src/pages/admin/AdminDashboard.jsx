@@ -76,27 +76,6 @@ export default function AdminDashboard() {
       .sort((a, b) => b.count - a.count)
   }, [schedules])
 
-  const prodiBreakdown = useMemo(() => {
-    const byProdi = new Map()
-    for (const s of schedules) {
-      const key = String(s.prodi || '')
-      if (!byProdi.has(key)) byProdi.set(key, [])
-      byProdi.get(key).push(s)
-    }
-    return programs
-      .map((p) => {
-        const name = p.nama || String(p.id || '')
-        const prodiSchedules = byProdi.get(name) || []
-        return {
-          name,
-          sessionCount: prodiSchedules.length,
-          mkCount: new Set(prodiSchedules.map((s) => s.kodeMK)).size,
-        }
-      })
-      .filter((p) => p.sessionCount > 0 || p.mkCount > 0)
-      .sort((a, b) => b.sessionCount - a.sessionCount)
-  }, [programs, schedules])
-
   async function handleSyncProdi() {
     setSyncingProdi(true)
     setBanner(null)
@@ -158,22 +137,22 @@ export default function AdminDashboard() {
         <StatusBanner ok={false} message={`Gagal memuat jadwal: ${scheduleError.message || scheduleError.code || 'Unknown error'}`} onClose={() => {}} />
       )}
 
-      {/* ── 2. Riwayat Aktivitas Sistem (Full-Width) ── */}
-      <div className="flex-1 flex flex-col min-h-0 w-full">
+      {/* ── 2. Grid Dashboard 2-Kolom Seimbang (Zero-Scroll 1 Layar) ── */}
+      <div className="flex-1 flex flex-col min-h-0 grid gap-3.5 tablet:gap-4 desktop:grid-cols-12 desktop:items-stretch overflow-hidden">
+        {/* Kolom Kiri (span-7): Riwayat Aktivitas Sistem */}
         <RecentActivityTimeline
           history={history}
           recentHistory={recentHistory}
           loadingHistory={loadingHistory}
           onOpenFullHistory={() => setShowAllHistoryModal(true)}
         />
-      </div>
 
-      {/* ── 3. Bottom Analytics (3 Kolom Sejajar) ── */}
-      <DashboardAnalytics
-        dayBreakdown={dayBreakdown}
-        classTypeBreakdown={classTypeBreakdown}
-        prodiBreakdown={prodiBreakdown}
-      />
+        {/* Kolom Kanan (span-5): Ringkasan Analitik Sistem */}
+        <DashboardAnalytics
+          dayBreakdown={dayBreakdown}
+          classTypeBreakdown={classTypeBreakdown}
+        />
+      </div>
 
       {/* Modal: Lihat Semua Log Aktivitas */}
       {showAllHistoryModal && (

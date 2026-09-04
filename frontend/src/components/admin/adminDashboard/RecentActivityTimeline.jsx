@@ -57,59 +57,61 @@ export function RecentActivityTimeline({
   onOpenFullHistory,
 }) {
   return (
-    <section className="desktop:col-span-12 h-full flex flex-col">
-      <div className="h-full flex flex-col justify-between rounded-2xl bg-surface-container-lowest p-4 tablet:p-5 dark:bg-surface-container-low border border-outline-variant/20 shadow-level-1">
-        <div>
+    <section className="desktop:col-span-7 h-full flex flex-col min-h-0">
+      <div className="h-full flex flex-col justify-between rounded-2xl bg-surface-container-lowest p-3.5 tablet:p-4 dark:bg-surface-container-low border border-outline-variant/20 shadow-level-1 min-h-0">
+        <div className="flex-1 flex flex-col min-h-0">
           {/* Panel header */}
-          <div className="mb-3.5 flex items-center justify-between border-b border-outline-variant/15 pb-3">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
+          <div className="mb-3 flex items-center justify-between border-b border-outline-variant/15 pb-2.5 shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-level-1 shrink-0">
                 <Icon name="history" size={18} />
               </span>
-              <h3 className="text-title-sm text-on-surface font-bold">
+              <h3 className="text-title-sm text-on-surface font-bold truncate">
                 Riwayat Perubahan Data
               </h3>
             </div>
-            <span className="text-label-caps font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+            <span className="text-label-caps font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20 shrink-0">
               {history.length} Log
             </span>
           </div>
 
-          {/* Content */}
+          {/* Content — scrollable list dengan min-h-0 agar pas 1 layar */}
           {loadingHistory ? (
-            <div className="space-y-2.5">
-              <Skeleton className="h-14 w-full rounded-xl" />
-              <Skeleton className="h-14 w-full rounded-xl" />
-              <Skeleton className="h-14 w-full rounded-xl" />
+            <div className="space-y-2 flex-1">
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
             </div>
           ) : recentHistory.length === 0 ? (
-            <EmptyState
-              icon="history"
-              title="Belum ada aktivitas tercatat"
-              description="Riwayat perubahan akan muncul otomatis saat admin melakukan upload, edit, atau publish."
-            />
+            <div className="flex-1 flex items-center justify-center">
+              <EmptyState
+                icon="history"
+                title="Belum ada aktivitas tercatat"
+                description="Riwayat perubahan akan muncul otomatis saat admin melakukan aksi."
+              />
+            </div>
           ) : (
-            <div className="relative pl-3.5">
-              {/* Timeline bar — pakai token bukan warna statis */}
-              <div className="absolute left-[6px] top-2.5 bottom-2.5 w-0.5 bg-outline-variant/30" />
-              <ol className="space-y-2.5">
+            <div className="relative pl-3 flex-1 overflow-y-auto min-h-0 pr-1 space-y-2">
+              {/* Timeline bar */}
+              <div className="absolute left-[5px] top-2 bottom-2 w-0.5 bg-outline-variant/30" />
+              <ol className="space-y-2">
                 {recentHistory.map((entry) => {
                   const badge = getEntityBadge(entry.entitas)
                   return (
                     <li key={entry.id} className="relative">
                       <span
                         aria-hidden="true"
-                        className={`absolute -left-[18px] top-3.5 h-2.5 w-2.5 rounded-full border-2 bg-surface-container-lowest ${
+                        className={`absolute -left-[17px] top-3 h-2 w-2 rounded-full border-2 bg-surface-container-lowest ${
                           entry.field === 'hapus'
                             ? 'border-error bg-error/20'
                             : 'border-primary bg-primary/20'
                         }`}
                       />
-                      <div className="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 p-3 transition-all duration-200 hover:shadow-level-1 dark:bg-surface-container-high/30 shadow-level-1">
-                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <div className="rounded-xl border border-outline-variant/20 bg-surface-container-low/40 p-2.5 transition-all hover:bg-surface-container-high/40 shadow-2xs">
+                        <div className="flex items-center justify-between gap-2 mb-1">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <span
-                              className={`text-label-caps uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 ${badge.cls}`}
+                              className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 ${badge.cls}`}
                             >
                               {badge.label}
                             </span>
@@ -120,14 +122,14 @@ export function RecentActivityTimeline({
                             </span>
                           </div>
                           <span
-                            className="inline-flex items-center gap-1 text-label-caps text-on-surface-variant font-medium shrink-0 max-w-[160px] truncate"
+                            className="inline-flex items-center gap-1 text-label-caps text-on-surface-variant font-medium shrink-0 max-w-[130px] truncate"
                             title={`Oleh: ${entry.aktor || 'Sistem'}`}
                           >
-                            <Icon name="person" size={13} className="text-secondary shrink-0 opacity-70" />
+                            <Icon name="person" size={12} className="text-secondary shrink-0 opacity-70" />
                             <span className="truncate">{entry.aktor || 'Sistem'}</span>
                           </span>
                         </div>
-                        <p className="break-words text-body-xs font-semibold text-on-surface">
+                        <p className="break-words text-body-xs font-semibold text-on-surface leading-snug">
                           {entry.detail ??
                             `${entry.field}: ${entry.nilaiLama ?? '∅'} → ${entry.nilaiBaru ?? '∅'}`}
                         </p>
@@ -142,11 +144,11 @@ export function RecentActivityTimeline({
 
         {/* Footer */}
         {history.length > 0 && (
-          <div className="mt-3.5 border-t border-outline-variant/15 pt-3">
+          <div className="mt-3 border-t border-outline-variant/15 pt-2.5 shrink-0">
             <button
               type="button"
               onClick={onOpenFullHistory}
-              className="w-full flex items-center justify-center gap-1.5 rounded-full bg-surface-container-high/50 hover:bg-primary/10 hover:text-primary text-on-surface py-2 text-body-xs font-bold transition-all active:scale-98 cursor-pointer border border-outline-variant/25 shadow-level-1"
+              className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-surface-container-high/50 hover:bg-primary/10 hover:text-primary text-on-surface py-2 text-body-xs font-bold transition-all active:scale-98 cursor-pointer border border-outline-variant/25 shadow-2xs"
             >
               <Icon name="read_more" size={16} />
               <span>Lihat Semua Log Aktivitas ({history.length}) →</span>
