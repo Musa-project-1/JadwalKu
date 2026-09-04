@@ -10,6 +10,10 @@ import { computeMekStats } from '../../lib/academicCalendar'
 import { DatabaseBackupRestoreModal } from './DatabaseBackupRestoreModal'
 import CalendarSettingsModal from './manageAcademicSettings/CalendarSettingsModal'
 import { AcademicCalendarImportModal } from './AcademicCalendarImportModal'
+import { RoomListPanel } from './manageAcademicSettings/RoomListPanel'
+import { AddEditRoomModal } from './manageAcademicSettings/AddEditRoomModal'
+import { ConfirmDialog } from '../ConfirmDialog'
+import { deleteDocument, setDocument as setDocHelper } from '../../lib/adminData'
 
 /**
  * AdminSettingsModal
@@ -69,6 +73,11 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
   const [backupRestoreOpen, setBackupRestoreOpen] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [kaldikImportOpen, setKaldikImportOpen] = useState(false)
+  const [roomModalOpen, setRoomModalOpen] = useState(false)
+  const [editingRoom, setEditingRoom] = useState(null)
+  const [savingRoom, setSavingRoom] = useState(false)
+  const [deleteRoomTarget, setDeleteRoomTarget] = useState(null)
+  const { data: rooms, loading: loadingRooms } = useFirestore('rooms')
 
   async function handleSaveCalendar(e) {
     if (e?.preventDefault) e.preventDefault()
@@ -135,7 +144,8 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
   const TABS = useMemo(() => [
     { id: 'appearance', label: language === 'en' ? 'Appearance' : 'Tampilan', icon: 'palette', badge: null },
     { id: 'admin-profile', label: language === 'en' ? 'Admin Profile' : 'Profil Admin', icon: 'admin_panel_settings', badge: 'Auth' },
-    { id: 'academic-master', label: language === 'en' ? 'Academic Master' : 'Master Akademik', icon: 'school', badge: 'Data' },
+    { id: 'academic-master', label: language === 'en' ? 'Academic Master' : 'Master Akademik', icon: 'school', badge: 'Kaldik' },
+    { id: 'rooms-master', label: language === 'en' ? 'Rooms & Wayfinding' : 'Ruangan Kampus', icon: 'meeting_room', badge: 'Denah' },
     { id: 'database', label: language === 'en' ? 'Database & Backup' : 'Database & Backup', icon: 'database', badge: 'Cloud' },
   ], [language])
 
@@ -483,7 +493,39 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
                 </div>
               )}
 
-              {/* TAB 4: DATABASE & BACKUP */}
+              {/* TAB 4: RUANGAN KAMPUS */}
+              {activeTab === 'rooms-master' && (
+                <div className="space-y-4 animate-fade-in">
+                  <div>
+                    <h3 className="text-title-sm font-bold text-on-surface">
+                      {language === 'en' ? 'Campus Rooms & Wayfinding' : 'Master Denah & Ruangan Kampus'}
+                    </h3>
+                    <p className="text-body-xs text-on-surface-variant mt-0.5">
+                      {language === 'en' ? 'Configure physical room directories, floor locations, and facilities' : 'Kelola direktori nama ruang kelas, lantai gedung, dan fasilitas kampus'}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 shadow-2xs">
+                    <RoomListPanel
+                      rooms={rooms || []}
+                      loadingRooms={loadingRooms}
+                      extractingRooms={false}
+                      onExtractRooms={() => {}}
+                      onOpenAddRoom={() => {
+                        setEditingRoom(null)
+                        setRoomModalOpen(true)
+                      }}
+                      onEditRoom={(r) => {
+                        setEditingRoom(r)
+                        setRoomModalOpen(true)
+                      }}
+                      onDeleteRoom={(r) => setDeleteRoomTarget(r)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 5: DATABASE & BACKUP */}
               {activeTab === 'database' && (
                 <div className="space-y-4 animate-fade-in">
                   <div>
@@ -550,6 +592,45 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
           existingEvents={calDoc?.events || []}
           actor={actor}
           busySaving={savingKaldik}
+        />
+      )}
+
+      {roomModalOpen && (
+        <AddEditRoomModal
+          open={roomModalOpen}
+          onClose={() => {
+            setRoomModalOpen(false)
+            setEditingRoom(null)
+          }}
+          room={editingRoom}
+          saving={savingRoom}
+          onSave={async (payload) => {
+            setSavingRoom(true)
+            if (editingRoom?.id) {
+              await setDocHelper('rooms', editingRoom.id, payload, actor)
+            } else {
+              const docId = payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+              await setDocHelper('rooms', docId, payload, actor)
+            }
+            setSavingRoom(false)
+            setRoomModalOpen(false)
+            setEditingRoom(null)
+          }}
+        />
+      )}
+
+      {deleteRoomTarget && (
+        <ConfirmDialog
+          open={Boolean(deleteRoomTarget)}
+          title="Hapus Ruangan?"
+          description={`Ruangan "${deleteRoomTarget?.name}" akan dihapus dari direktori denah kampus.`}
+          confirmLabel="Hapus Ruang"
+          onConfirm={async () => {
+            if (!deleteRoomTarget) return
+            await deleteDocument('rooms', deleteRoomTarget.id)
+            setDeleteRoomTarget(null)
+          }}
+          onCancel={() => setDeleteRoomTarget(null)}
         />
       )}
     </>

@@ -11,7 +11,7 @@ import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { addDocument, deleteDocument, updateDocument } from '../../lib/adminData'
 import { appendHistory, syncProdiFromExistingData } from '../../lib/publishHelpers'
-import { getProdiColorClasses, getProdiTokenMap } from '../../lib/prodiColors'
+import { getProdiTokenMap } from '../../lib/prodiColors'
 
 const SEMESTER_OPTIONS = Array.from({ length: 14 }, (_, i) => i + 1)
 
