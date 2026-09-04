@@ -1,66 +1,102 @@
-import { memo } from 'react'
+import { useState, useRef, useEffect, memo } from 'react'
 import { Icon } from '../../Icon'
-import { formatWhatsAppUrl, parseLecturers } from '../../../lib/lecturerUtils'
 import { getCourseSemester } from '../../../lib/courseUtils'
 
+/**
+ * CourseTable - Redesigned for zero horizontal scroll & strict visual consistency
+ * Features:
+ * - table-fixed with percentage colgroup (100% total, fits any container without scroll)
+ * - Uniform header: bg-surface-container-low/90, 11px uppercase, text-on-surface-variant/75, font-medium
+ * - Monospace code badge with rounded-md
+ * - Unified 3-dots action menu with Edit, Copy WA, Delete
+ * - SKS + Durasi formatted as '[X] SKS · [Y] menit' with 'menit' in muted text
+ * - Strict overflow ellipsis on text cells
+ */
 function CourseTableImpl({ courses, onEdit, onDelete }) {
+  const [activeMenuId, setActiveMenuId] = useState(null)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setActiveMenuId(null)
+      }
+    }
+    if (activeMenuId) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [activeMenuId])
+
   return (
-    <div className="hidden overflow-x-auto overflow-y-auto flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low dark:border-outline-variant/15 w-full">
+    <div className="hidden overflow-hidden flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
       <table className="w-full table-fixed text-left border-collapse">
-        <thead className="sticky top-0 z-20 bg-surface-container-low/95 dark:bg-surface-container-high/95 backdrop-blur-md shadow-xs">
-          <tr className="border-b border-outline-variant/15">
-            <th className="w-28 px-3 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold">
+        <colgroup>
+          <col style={{ width: '14%' }} />
+          <col style={{ width: '30%' }} />
+          <col style={{ width: '10%' }} />
+          <col style={{ width: '25%' }} />
+          <col style={{ width: '15%' }} />
+          <col style={{ width: '6%' }} />
+        </colgroup>
+        <thead>
+          <tr className="border-b border-outline-variant/15 bg-surface-container-low/90 dark:bg-surface-container-high/90">
+            <th className="px-3 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
               Kode MK
             </th>
-            <th className="px-3 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold">
+            <th className="px-3 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
               Mata Kuliah
             </th>
-            <th className="w-24 px-2.5 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold text-center">
+            <th className="px-2.5 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium text-center">
               Semester
             </th>
-            <th className="w-64 px-3 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold">
+            <th className="px-3 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
               Dosen Pengampu
             </th>
-            <th className="w-36 px-2.5 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold">
-              Kontak
-            </th>
-            <th className="w-24 px-2 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold text-center">
+            <th className="px-2.5 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium text-center">
               Bobot
             </th>
-            <th className="w-20 px-2.5 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-extrabold text-right">
+            <th className="px-2.5 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium text-right">
               Aksi
             </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-outline-variant/10">
           {courses.map((course) => {
-            const waUrl = formatWhatsAppUrl(course.kontakDosen)
             const semester = getCourseSemester(course)
-            const lecturerList = parseLecturers(course.dosen)
+            const isMenuOpen = activeMenuId === course.id
+            const durasiMenit = course.durasi || (course.sks ? course.sks * 50 : 100)
 
             return (
               <tr
                 key={course.id}
-                className="group transition-all hover:bg-surface-container-low/60 dark:hover:bg-surface-container-high/20 border-l-4 border-l-primary"
+                className="group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20"
+                style={{ borderTop: '0.5px solid var(--color-outline-variant, rgba(120, 120, 120, 0.15))' }}
               >
-                {/* Kode MK */}
-                <td className="w-28 px-3 py-2 align-middle">
-                  <span className="inline-flex items-center rounded-lg bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-extrabold text-primary border border-primary/20 shadow-2xs">
+                {/* Kode MK: Monospace badge rounded-md */}
+                <td className="px-3 py-[9px] align-middle overflow-hidden">
+                  <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-bold text-primary border border-primary/20 shadow-2xs">
                     {course.kodeMK}
                   </span>
                 </td>
 
-                {/* Nama MK (Inline Slim Compact) */}
-                <td className="px-3 py-2 align-middle overflow-hidden">
-                  <p className="font-bold text-body-xs text-on-surface leading-snug truncate" title={course.namaMK}>
+                {/* Nama MK: Ellipsis anti-dorong */}
+                <td className="px-3 py-[9px] align-middle overflow-hidden">
+                  <p
+                    className="font-bold text-body-xs text-on-surface leading-snug truncate"
+                    title={course.namaMK}
+                    style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                  >
                     {course.namaMK}
                   </p>
                 </td>
 
                 {/* Semester */}
-                <td className="w-24 px-2.5 py-2 align-middle text-center">
+                <td className="px-2.5 py-[9px] align-middle text-center overflow-hidden">
                   {semester ? (
-                    <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2.5 py-0.2 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 shadow-2xs">
+                    <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 shadow-2xs">
                       Sem. {semester}
                     </span>
                   ) : (
@@ -68,67 +104,97 @@ function CourseTableImpl({ courses, onEdit, onDelete }) {
                   )}
                 </td>
 
-                {/* Dosen Pengampu (Clean Name Truncate without Avatar Circle) */}
-                <td className="w-64 px-3 py-2 align-middle overflow-hidden">
-                  {lecturerList.length === 0 ? (
-                    <span className="text-on-surface-variant/50 text-body-xs">-</span>
+                {/* Dosen Pengampu: Ellipsis anti-dorong */}
+                <td className="px-3 py-[9px] align-middle overflow-hidden">
+                  {!course.dosen ? (
+                    <span className="text-on-surface-variant/50 text-body-xs italic">-</span>
                   ) : (
-                    <span className="text-[11.5px] font-semibold text-on-surface truncate block min-w-0" title={course.dosen}>
+                    <span
+                      className="text-[11.5px] font-medium text-on-surface truncate block min-w-0"
+                      title={course.dosen}
+                      style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    >
                       {course.dosen}
                     </span>
                   )}
                 </td>
 
-                {/* Kontak WhatsApp */}
-                <td className="w-36 px-2.5 py-2 align-middle overflow-hidden">
-                  {course.kontakDosen ? (
-                    <a
-                      href={waUrl || `tel:${course.kontakDosen}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.2 text-[10.5px] font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors cursor-pointer max-w-full truncate shadow-2xs"
-                      title="Hubungi via WhatsApp"
-                    >
-                      <Icon name="chat" size={12} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
-                      <span className="truncate">{course.kontakDosen}</span>
-                    </a>
-                  ) : (
-                    <span className="text-on-surface-variant/40 text-[10.5px] italic">Tidak ada kontak</span>
-                  )}
-                </td>
-
-                {/* Bobot SKS & Durasi */}
-                <td className="w-24 px-2 py-2 align-middle text-center">
-                  <div className="inline-flex items-center gap-1">
-                    <span className="font-extrabold text-[11px] text-on-surface whitespace-nowrap">
+                {/* Bobot: [X] SKS · [Y] menit */}
+                <td className="px-2.5 py-[9px] align-middle text-center overflow-hidden">
+                  <div className="inline-flex items-center gap-1 justify-center whitespace-nowrap">
+                    <span className="font-extrabold text-[11px] text-on-surface">
                       {course.sks || 2} SKS
                     </span>
-                    <span className="text-outline-variant/40 text-[9.5px]">·</span>
-                    <span className="font-mono text-[10px] font-medium text-on-surface-variant whitespace-nowrap">
-                      {course.durasi || 100}m
+                    <span className="text-on-surface-variant/40 text-[10px]">·</span>
+                    <span className="text-[10px] font-medium text-on-surface-variant/80">
+                      {durasiMenit} menit
                     </span>
                   </div>
                 </td>
 
-                {/* Aksi (Fixed width, compact circular buttons) */}
-                <td className="w-20 px-2.5 py-2 text-right align-middle shrink-0">
-                  <div className="flex items-center justify-end gap-1 shrink-0">
+                {/* Aksi: Menu 3-dots */}
+                <td className="px-2.5 py-[9px] text-right align-middle shrink-0 overflow-visible relative">
+                  <div className="relative inline-block text-left">
                     <button
                       type="button"
-                      onClick={() => onEdit(course)}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/15 hover:text-primary transition-colors cursor-pointer border border-outline-variant/15 shadow-2xs"
-                      title={`Edit ${course.kodeMK}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveMenuId(isMenuOpen ? null : course.id)
+                      }}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer border border-outline-variant/20 shadow-2xs"
+                      title="Menu Aksi"
+                      aria-label={`Aksi untuk ${course.kodeMK}`}
                     >
-                      <Icon name="edit" size={13} />
+                      <Icon name="more_vert" size={16} />
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => onDelete(course)}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-error/15 hover:text-error transition-colors cursor-pointer border border-outline-variant/15 shadow-2xs"
-                      title={`Hapus ${course.kodeMK}`}
-                    >
-                      <Icon name="delete" size={13} />
-                    </button>
+
+                    {isMenuOpen && (
+                      <div
+                        ref={menuRef}
+                        className="absolute right-0 top-full mt-1 z-30 w-44 rounded-xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container p-1 shadow-lg text-left animate-fade-in"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveMenuId(null)
+                            onEdit(course)
+                          }}
+                          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-body-xs font-semibold text-on-surface hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer"
+                        >
+                          <Icon name="edit" size={14} />
+                          <span>Edit Mata Kuliah</span>
+                        </button>
+
+                        {course.kontakDosen && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveMenuId(null)
+                              navigator.clipboard?.writeText(course.kontakDosen)
+                              alert(`Nomor WA dosen disalin: ${course.kontakDosen}`)
+                            }}
+                            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-body-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                          >
+                            <Icon name="chat" size={14} />
+                            <span>Salin Nomor WA</span>
+                          </button>
+                        )}
+
+                        <div className="my-1 border-t border-outline-variant/15" />
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveMenuId(null)
+                            onDelete(course)
+                          }}
+                          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-body-xs font-semibold text-error hover:bg-error/10 transition-colors cursor-pointer"
+                        >
+                          <Icon name="delete" size={14} />
+                          <span>Hapus Mata Kuliah</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -140,6 +206,5 @@ function CourseTableImpl({ courses, onEdit, onDelete }) {
   )
 }
 
-const CourseTable = memo(CourseTableImpl)
-export { CourseTable }
+export const CourseTable = memo(CourseTableImpl)
 export default CourseTable
