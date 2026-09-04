@@ -94,6 +94,11 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
   const [holidayProdiFilter, setHolidayProdiFilter] = useState('')
   const { data: programsList } = useFirestore('prodi')
 
+  const sortedHolidays = useMemo(
+    () => (holidays ? [...holidays].sort((a, b) => (a.mulai || '').localeCompare(b.mulai || '')) : []),
+    [holidays],
+  )
+
   const filteredHolidays = useMemo(() => {
     return sortedHolidays.filter((h) => {
       if (holidayTypeFilter !== 'semua' && h.tipe !== holidayTypeFilter) return false
