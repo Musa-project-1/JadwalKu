@@ -114,7 +114,7 @@ export function ProdiFilterDropdown({ selected, onSelect, prodis, prodiOptions }
     (selected || 'Semua Prodi')
 
   return (
-    <div ref={dropdownRef} className="relative shrink-0 z-[70]">
+    <div ref={dropdownRef} className="relative shrink-0 z-20">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}

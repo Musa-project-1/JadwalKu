@@ -187,7 +187,7 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
         aria-modal="true"
         aria-labelledby="admin-settings-modal-title"
         onClick={onClose}
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-6 bg-black/65 backdrop-blur-xs animate-fade-in"
+        className="fixed inset-0 z-[100] flex items-center justify-center p-3 tablet:p-6 bg-black/65 backdrop-blur-xs animate-fade-in"
       >
         <div
           onClick={(e) => e.stopPropagation()}
@@ -205,7 +205,7 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
                     {language === 'en' ? 'Admin Settings' : 'Pengaturan Admin'}
                   </h2>
                   <span className="rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-bold border border-primary/20">
-                    Console Console
+                    Admin Console
                   </span>
                 </div>
               </div>
