@@ -902,18 +902,16 @@ export default function ManageSchedule() {
               onDeleteGroup={handleGroupDelete}
             />
 
-            {/* Pagination Controls */}
-            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15 flex flex-wrap items-center justify-end gap-2">
-              <div className="ml-auto">
-                <Pagination
-                  currentPage={safeCurrentPage}
-                  totalItems={groupedSchedule.length}
-                  pageSize={pageSize === 0 ? 'Semua' : pageSize}
-                  onPageChange={setCurrentPage}
-                  onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
-                  itemLabel="grup"
-                />
-              </div>
+            {/* Shared Pagination Controls */}
+            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
+              <Pagination
+                currentPage={safeCurrentPage}
+                totalItems={groupedSchedule.length}
+                pageSize={pageSize === 0 ? 'Semua' : pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
+                itemLabel="sesi"
+              />
             </div>
           </>
         )}
