@@ -23,10 +23,10 @@ const OnboardingWizard = lazy(() =>
 )
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
 const ManageSchedule = lazy(() => import('./pages/admin/ManageSchedule'))
 const ManageCourses = lazy(() => import('./pages/admin/ManageCourses'))
 const ManageExams = lazy(() => import('./pages/admin/ManageExams'))
-const ManageAcademicSettings = lazy(() => import('./pages/admin/ManageAcademicSettings'))
 const ManageAnnouncements = lazy(() => import('./pages/admin/ManageAnnouncements'))
 
 function RequireOnboarding({ children }) {
@@ -88,10 +88,10 @@ export default function App() {
               <Route path="/admin/mata-kuliah" element={<ManageCourses />} />
               <Route path="/admin/ujian" element={<ManageExams />} />
               <Route path="/admin/pengumuman" element={<ManageAnnouncements />} />
-              <Route path="/admin/pengaturan-akademik" element={<ManageAcademicSettings />} />
-              <Route path="/admin/pengaturan" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
-              <Route path="/admin/prodi" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
-              <Route path="/admin/libur" element={<Navigate to="/admin/pengaturan-akademik" replace />} />
+              <Route path="/admin/pengaturan" element={<AdminSettings />} />
+              <Route path="/admin/pengaturan-akademik" element={<Navigate to="/admin/pengaturan" replace />} />
+              <Route path="/admin/prodi" element={<Navigate to="/admin/pengaturan" replace />} />
+              <Route path="/admin/libur" element={<Navigate to="/admin/pengaturan" replace />} />
             </Route>
           </Route>
 

@@ -109,10 +109,9 @@ function AdminAccount({ isPinned, onOpenSettings }) {
 
 
 export function AdminLayout() {
-  const { theme, setTheme } = useApp()
+  const { theme, setTheme, adminSettingsModalOpen, openAdminSettings, closeAdminSettings, adminSettingsModalTab } = useApp()
   const [isPinned, setIsPinned] = useState(() => getItem('jadwalku:sidebar_pinned', false))
   const [searchOpen, setSearchOpen] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
   const nextTheme = theme === 'dark' ? 'light' : 'dark'
 
   useEffect(() => {
@@ -201,7 +200,7 @@ export function AdminLayout() {
               </li>
             ))}
           </ul>
-          <AdminAccount isPinned={isPinned} onOpenSettings={() => setSettingsOpen(true)} />
+          <AdminAccount isPinned={isPinned} onOpenSettings={() => openAdminSettings('appearance')} />
         </nav>
       </aside>
 
@@ -305,10 +304,14 @@ export function AdminLayout() {
         <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
         {/* Global Admin Settings Modal (2-Column Split Master-Detail 1:1 Student) */}
-        <AdminSettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+        <AdminSettingsModal
+          isOpen={adminSettingsModalOpen}
+          onClose={closeAdminSettings}
+          initialTab={adminSettingsModalTab}
+        />
 
         {/* Floating Bottom Nav untuk Admin Console Mobile */}
-        <AdminBottomNav onOpenSettings={() => setSettingsOpen(true)} />
+        <AdminBottomNav onOpenSettings={() => openAdminSettings('appearance')} />
       </div>
     </div>
   )

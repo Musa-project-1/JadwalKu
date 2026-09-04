@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
-import { NavLink } from 'react-router-dom'
 import { Icon } from '../Icon'
 import { useApp } from '../../hooks/useApp'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { DatabaseBackupRestoreModal } from './DatabaseBackupRestoreModal'
+import CalendarSettingsModal from './manageAcademicSettings/CalendarSettingsModal'
+import { AcademicCalendarImportModal } from './AcademicCalendarImportModal'
 
 /**
  * AdminSettingsModal
@@ -16,6 +17,8 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
 
   const [activeTab, setActiveTab] = useState(initialTab)
   const [backupRestoreOpen, setBackupRestoreOpen] = useState(false)
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [kaldikImportOpen, setKaldikImportOpen] = useState(false)
 
   const TABS = useMemo(() => [
     { id: 'appearance', label: language === 'en' ? 'Appearance' : 'Tampilan', icon: 'palette', badge: null },
@@ -323,10 +326,10 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
                   </div>
 
                   <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3.5">
-                    <NavLink
-                      to="/admin/pengaturan-akademik"
-                      onClick={onClose}
-                      className="group p-4 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs"
+                    <button
+                      type="button"
+                      onClick={() => setCalendarOpen(true)}
+                      className="group p-4 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs text-left cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
@@ -340,30 +343,30 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
                         </div>
                       </div>
                       <div className="mt-3 flex items-center justify-end text-label-caps text-primary font-bold">
-                        <span>Buka Halaman →</span>
+                        <span>Konfigurasi Kalender →</span>
                       </div>
-                    </NavLink>
+                    </button>
 
-                    <NavLink
-                      to="/admin/pengaturan-akademik"
-                      onClick={onClose}
-                      className="group p-4 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs"
+                    <button
+                      type="button"
+                      onClick={() => setKaldikImportOpen(true)}
+                      className="group p-4 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low hover:border-secondary/50 transition-all flex flex-col justify-between shadow-2xs text-left cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center border border-secondary/20">
-                          <Icon name="meeting_room" size={20} />
+                          <Icon name="upload_file" size={20} />
                         </div>
                         <div>
                           <h4 className="text-body-sm font-bold text-on-surface group-hover:text-secondary transition-colors">
-                            Ruangan & Lokasi Kampus
+                            Impor Kaldik Resmi (PDF / Excel)
                           </h4>
-                          <p className="text-[11.5px] text-on-surface-variant">Daftar ruangan, denah lantai, dan fasilitas</p>
+                          <p className="text-[11.5px] text-on-surface-variant">Ekstrak otomatis tanggal semester & libur</p>
                         </div>
                       </div>
                       <div className="mt-3 flex items-center justify-end text-label-caps text-secondary font-bold">
-                        <span>Buka Halaman →</span>
+                        <span>Impor Berkas →</span>
                       </div>
-                    </NavLink>
+                    </button>
                   </div>
                 </div>
               )}
@@ -411,6 +414,26 @@ export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' 
         <DatabaseBackupRestoreModal
           open={backupRestoreOpen}
           onClose={() => setBackupRestoreOpen(false)}
+        />
+      )}
+
+      {calendarOpen && (
+        <CalendarSettingsModal
+          open={calendarOpen}
+          onClose={() => setCalendarOpen(false)}
+          customCal={{}}
+          setCustomCal={() => {}}
+          onSave={async () => { setCalendarOpen(false) }}
+          saving={false}
+          actor={user?.email || ''}
+        />
+      )}
+
+      {kaldikImportOpen && (
+        <AcademicCalendarImportModal
+          open={kaldikImportOpen}
+          onClose={() => setKaldikImportOpen(false)}
+          onImportSuccess={() => setKaldikImportOpen(false)}
         />
       )}
     </>

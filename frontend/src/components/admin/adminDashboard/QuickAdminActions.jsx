@@ -26,7 +26,7 @@ const QUICK_ACTIONS = [
     tone: 'bg-status-gbk-bg text-status-gbk border-status-gbk-border',
   },
   {
-    to: '/admin/pengaturan-akademik',
+    to: '/admin/pengaturan',
     icon: 'settings_suggest',
     label: 'Master Kalender Akademik',
     description: 'Tahun ajaran, semester, & tanggal libur',

@@ -66,6 +66,8 @@ export function AppProvider({ children }) {
   )
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [settingsModalTab, setSettingsModalTab] = useState('appearance')
+  const [adminSettingsModalOpen, setAdminSettingsModalOpen] = useState(false)
+  const [adminSettingsModalTab, setAdminSettingsModalTab] = useState('appearance')
 
   const isFirstRender = useRef(true)
 
@@ -179,9 +181,16 @@ export function AppProvider({ children }) {
         setSettingsModalOpen(true)
       },
       closeSettings: () => setSettingsModalOpen(false),
+      adminSettingsModalOpen,
+      adminSettingsModalTab,
+      openAdminSettings: (tab = 'appearance') => {
+        setAdminSettingsModalTab(tab)
+        setAdminSettingsModalOpen(true)
+      },
+      closeAdminSettings: () => setAdminSettingsModalOpen(false),
       firebaseReady,
     }),
-    [theme, language, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession, showPrayerDividers, settingsModalOpen, settingsModalTab],
+    [theme, language, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession, showPrayerDividers, settingsModalOpen, settingsModalTab, adminSettingsModalOpen, adminSettingsModalTab],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
