@@ -57,7 +57,7 @@ export function RecentActivityTimeline({
   onOpenFullHistory,
 }) {
   return (
-    <section className="desktop:col-span-7 h-full flex flex-col order-2 desktop:order-1">
+    <section className="desktop:col-span-12 h-full flex flex-col">
       <div className="h-full flex flex-col justify-between rounded-2xl bg-surface-container-lowest p-4 tablet:p-5 dark:bg-surface-container-low border border-outline-variant/20 shadow-level-1">
         <div>
           {/* Panel header */}

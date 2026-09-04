@@ -1,20 +1,14 @@
 import { useMemo, useState } from 'react'
 import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
-import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
-import { archiveSemester } from '../../lib/semesterArchive'
-import { saveSettings, deriveTahunAjaran, syncProdiFromExistingData } from '../../lib/publishHelpers'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '../../lib/firebaseClient'
-import { DatabaseBackupRestoreModal } from '../../components/admin/DatabaseBackupRestoreModal'
+import { syncProdiFromExistingData } from '../../lib/publishHelpers'
 import { FeatureDocsModal } from '../../components/student/FeatureDocsModal'
 
 // Modular Components
 import { DashboardHeader } from '../../components/admin/adminDashboard/DashboardHeader'
 import { RecentActivityTimeline } from '../../components/admin/adminDashboard/RecentActivityTimeline'
-import { QuickAdminActions } from '../../components/admin/adminDashboard/QuickAdminActions'
 import { DashboardAnalytics } from '../../components/admin/adminDashboard/DashboardAnalytics'
 import { FullHistoryModal } from '../../components/admin/adminDashboard/FullHistoryModal'
 
@@ -39,20 +33,10 @@ export default function AdminDashboard() {
   const { data: schedules, loading: loadingSchedules, error: scheduleError } = useFirestore('jadwal', [], { limit: 500 })
   const { data: exams, loading: loadingExams } = useFirestore('ujian')
   const { data: history, loading: loadingHistory, error: historyError } = useFirestore('riwayat', [], { limit: 100, orderByField: 'timestamp', orderByDir: 'desc' })
-  const { data: settingsDocs } = useFirestore('settings')
 
-  const appSettings = useMemo(
-    () => settingsDocs.find((d) => d.id === 'app') ?? null,
-    [settingsDocs],
-  )
-
-  const [archiveOpen, setArchiveOpen] = useState(false)
-  const [newSemester, setNewSemester] = useState('')
   const [banner, setBanner] = useState(null)
-  const [busy, setBusy] = useState(false)
   const [syncingProdi, setSyncingProdi] = useState(false)
   const [showAllHistoryModal, setShowAllHistoryModal] = useState(false)
-  const [backupRestoreOpen, setBackupRestoreOpen] = useState(false)
   const [docsModalOpen, setDocsModalOpen] = useState(false)
 
   const sortedHistory = useMemo(
@@ -131,43 +115,6 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleArchive() {
-    const target = Number(newSemester)
-    if (!Number.isInteger(target) || target < 1 || target > 14) {
-      setBanner({ ok: false, message: 'Nomor semester baru harus angka bulat 1-14.' })
-      return
-    }
-    setBusy(true)
-    let oldSemester = 1
-    try {
-      const snap = await getDoc(doc(db, 'settings', 'app'))
-      oldSemester = Number(snap.data()?.currentSemester) || 1
-      const result = await archiveSemester({
-        oldSemester,
-        newSemester: target,
-        actor,
-      })
-      if (!result.ok) {
-        setBanner({ ok: false, message: `Gagal mulai semester baru: ${result.error}` })
-        setBusy(false)
-        return
-      }
-      await saveSettings({
-        currentSemester: target,
-        currentTahunAjaran: deriveTahunAjaran(),
-        lastArchivedAt: new Date().toISOString(),
-      })
-      setBanner({
-        ok: true,
-        message: `Semester ${oldSemester} diarsipkan (${result.archivedCount} dokumen). Semester aktif kini ${target}.`,
-      })
-    } catch (err) {
-      setBanner({ ok: false, message: `Gagal mulai semester: ${err?.message ?? err}` })
-    }
-    setBusy(false)
-    setArchiveOpen(false)
-  }
-
   return (
     <div className="h-full flex flex-col gap-4 tablet:gap-4 pb-20 tablet:pb-0 w-full max-w-full overflow-x-hidden min-h-0 flex-1 animate-fade-in">
       {/* ── 1. Page Header (Tampilan & Metrik 1:1 Home Mahasiswa) ── */}
@@ -211,57 +158,22 @@ export default function AdminDashboard() {
         <StatusBanner ok={false} message={`Gagal memuat jadwal: ${scheduleError.message || scheduleError.code || 'Unknown error'}`} onClose={() => {}} />
       )}
 
-      {/* ── 2. Main 2-Column Balanced & Aligned Grid ── */}
-      <div className="flex-1 flex flex-col min-h-0 grid gap-4 tablet:gap-4 desktop:grid-cols-12 desktop:items-stretch">
-        {/* Kolom Kiri: Riwayat Perubahan Data */}
+      {/* ── 2. Riwayat Aktivitas Sistem (Full-Width) ── */}
+      <div className="flex-1 flex flex-col min-h-0 w-full">
         <RecentActivityTimeline
           history={history}
           recentHistory={recentHistory}
           loadingHistory={loadingHistory}
           onOpenFullHistory={() => setShowAllHistoryModal(true)}
         />
-
-        {/* Kolom Kanan: Aksi Cepat Administratif & Aksi Musiman */}
-        <QuickAdminActions
-          onOpenArchive={() => setArchiveOpen(true)}
-          onOpenBackupRestore={() => setBackupRestoreOpen(true)}
-          busy={busy}
-          appSettings={appSettings}
-        />
       </div>
 
-      {/* ── 4. Bottom Analytics (3 Kolom Sejajar) ── */}
+      {/* ── 3. Bottom Analytics (3 Kolom Sejajar) ── */}
       <DashboardAnalytics
         dayBreakdown={dayBreakdown}
         classTypeBreakdown={classTypeBreakdown}
         prodiBreakdown={prodiBreakdown}
       />
-
-      {/* Confirm Dialog: Mulai Semester Baru */}
-      <ConfirmDialog
-        open={archiveOpen}
-        title="Mulai Semester Baru?"
-        description={`Seluruh jadwal & ujian pada semester aktif akan diarsipkan (status "archived") dan tidak lagi tampil ke mahasiswa. Masukkan nomor semester baru:`}
-        confirmLabel={busy ? 'Memproses…' : 'Arsipkan Semester'}
-        cancelLabel="Batal"
-        onConfirm={handleArchive}
-        onCancel={() => setArchiveOpen(false)}
-      >
-        <label className="mt-3 block">
-          <span className="mb-1.5 block text-body-sm font-bold text-on-surface">
-            Nomor Semester Baru (1 - 14)
-          </span>
-          <input
-            type="number"
-            min="1"
-            max="14"
-            value={newSemester}
-            onChange={(e) => setNewSemester(e.target.value)}
-            placeholder="Contoh: 3"
-            className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 text-body-md text-on-surface dark:bg-surface-container-high focus:outline-hidden focus:border-primary"
-          />
-        </label>
-      </ConfirmDialog>
 
       {/* Modal: Lihat Semua Log Aktivitas */}
       {showAllHistoryModal && (
@@ -270,14 +182,6 @@ export default function AdminDashboard() {
           onClose={() => setShowAllHistoryModal(false)}
         />
       )}
-
-      {/* Modal: Backup & Restore Database */}
-      <DatabaseBackupRestoreModal
-        isOpen={backupRestoreOpen}
-        onClose={() => setBackupRestoreOpen(false)}
-        actor={actor}
-        onSuccess={(msg) => setBanner({ ok: true, message: msg })}
-      />
 
       {/* Modal: Pusat Panduan & Tutorial Admin */}
       <FeatureDocsModal
