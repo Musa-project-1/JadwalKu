@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { Icon } from '../../Icon'
 import { Button } from '../../Button'
 import { deriveTahunAjaran } from '../../../lib/publishHelpers'

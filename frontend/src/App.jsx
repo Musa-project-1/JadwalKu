@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router'
 import { AppLayout } from './components/AppLayout'
 import { NotificationsProvider } from './context/NotificationsContext'
 import { Skeleton } from './components/Skeleton'

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { useNotifications } from '../hooks/useNotifications'
 import { groupByDay } from '../lib/notificationEngine'
 import { NotificationItem } from './NotificationItem'

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router'
 import { useNotifications } from '../hooks/useNotifications'
 import { useApp } from '../hooks/useApp'
 import { getItem, setItem } from '../lib/storage'

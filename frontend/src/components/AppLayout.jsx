@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router'
 import { BottomNav } from './BottomNav'
 import { Icon } from './Icon'
 import { OfflineBanner } from './OfflineBanner'

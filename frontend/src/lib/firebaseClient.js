@@ -45,7 +45,7 @@ if (isConfigured) {
   // asli, menekan penyalahgunaan apiKey client yang memang publik. Digerakkan
   // oleh VITE_FIREBASE_APPCHECK_SITE_KEY (reCAPTCHA v3 site key). Jika belum
   // diset, App Check dinonaktifkan agar tidak memutus lingkungan dev/CI yang
-  // belum punya key — enforcement diaktifkan bertahap di Firebase Console.
+  // belum punya key; enforcement diaktifkan bertahap di Firebase Console.
   const appCheckSiteKey = import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY
   const gAppCheck = globalThis
   if (appCheckSiteKey && !gAppCheck.__jadwalkuAppCheck) {

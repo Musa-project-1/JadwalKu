@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router"
 import { Icon } from "../Icon"
 import { useApp } from "../../hooks/useApp"
 import { FEATURE_DOCS_TRANSLATIONS, adminDocs } from "../../data/featureDocsData"
