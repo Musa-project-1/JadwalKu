@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router"
 import { Icon } from "../../components/Icon"
 import { OnboardingWizard } from "../../components/student/onboarding/OnboardingWizard"
 

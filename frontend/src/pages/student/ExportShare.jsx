@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { useApp } from '../../hooks/useApp'
 import { useFirestore } from '../../hooks/useFirestore'
 import { Icon } from '../../components/Icon'

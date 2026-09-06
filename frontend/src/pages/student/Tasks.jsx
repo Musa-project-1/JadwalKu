@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import { Icon } from '../../components/Icon'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { daysUntil } from '../../lib/scheduleUtils'

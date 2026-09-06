@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { useApp } from '../../hooks/useApp'
 import { Icon } from '../Icon'
 import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'

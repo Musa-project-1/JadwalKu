@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router'
 import { ADMIN_NAV } from '../../lib/navigation'
 import { Icon } from '../Icon'
 import { OfflineBanner } from '../OfflineBanner'

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router'
 import { Icon } from '../../components/Icon'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useApp } from '../../hooks/useApp'

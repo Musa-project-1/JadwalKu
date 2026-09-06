@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { flushSync } from "react-dom"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router"
 import { Icon } from "../../Icon"
 import { Input } from "../../Input"
 import { samplePrograms } from "../../../data/samplePrograms"

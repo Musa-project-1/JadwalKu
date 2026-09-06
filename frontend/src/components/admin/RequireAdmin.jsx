@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router'
 import { Skeleton } from '../Skeleton'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { ADMIN_EMAIL } from '../../constants/adminConstants'
