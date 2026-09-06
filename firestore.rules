@@ -24,11 +24,56 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // =====================================================================
+    // Validasi skema data (item 5 backlog). Rules lama hanya cek *siapa* yang
+    // menulis (isAdmin), bukan *apakah* datanya valid. Fungsi di bawah
+    // menolak dokumen malformed (field wajib hilang / tipe salah / format
+    // jam salah) agar data inti tidak merusak render mahasiswa.
+    //
+    // Catatan desain:
+    // - Hanya memvalidasi field WAJIB; field opsional dibiarkan agar tidak
+    //   menolak dokumen lama yang sah.
+    // - Dipakai pada allow create/update, BUKAN delete (delete tidak butuh
+    //   request.resource.data valid).
+    // =====================================================================
+
+    // Pola jam 24-jam "HH:MM" (00:00 - 23:59).
+    function isTimeHHMM(v) {
+      return v is string && v.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$');
+    }
+
+    // Skema dokumen jadwal: field inti sesi kuliah.
+    function isValidJadwal(d) {
+      return d.keys().hasAll(['prodi', 'kodeMK', 'hari', 'jamMulai', 'jamSelesai', 'status', 'tahunAjaran'])
+        && d.prodi is string
+        && d.kodeMK is string
+        && d.hari is string
+        && isTimeHHMM(d.jamMulai)
+        && isTimeHHMM(d.jamSelesai)
+        && d.status in ['draft', 'published', 'archived']
+        && d.tahunAjaran is string;
+    }
+
+    // Skema dokumen ujian: field inti sesi ujian.
+    function isValidUjian(d) {
+      return d.keys().hasAll(['prodi', 'kodeMK', 'jenis', 'tanggal', 'status'])
+        && d.prodi is string
+        && d.kodeMK is string
+        && d.jenis is string
+        && d.tanggal is string
+        && d.status in ['draft', 'published', 'archived'];
+    }
+
     match /jadwal/{doc} {
       // "archived" ikut boleh dibaca — dipakai fitur arsip TA di sisi mahasiswa
       // (WeeklySchedule: dropdown tahun ajaran lampau).
       allow read: if isAdmin() || resource.data.status in ["published", "archived"];
-      allow write: if isAdmin();
+      // create: dokumen baru harus memenuhi skema lengkap.
+      allow create: if isAdmin() && isValidJadwal(request.resource.data);
+      // update: izinkan update parsial (mis. hanya ubah status), tetapi hasil
+      // akhir tetap harus memenuhi skema — melindungi dari penghapusan field inti.
+      allow update: if isAdmin() && isValidJadwal(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /mataKuliah/{doc} {
@@ -38,7 +83,8 @@ service cloud.firestore {
 
     match /ujian/{doc} {
       allow read: if isAdmin() || resource.data.status in ["published", "archived"];
-      allow write: if isAdmin();
+      allow create, update: if isAdmin() && isValidUjian(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /prodi/{doc} {
