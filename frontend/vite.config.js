@@ -2,12 +2,14 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// base menyesuaikan target hosting:
+//  - Vercel (env VERCEL=1 diset otomatis saat build di Vercel): '/' (root domain).
+//  - GitHub Pages project site: '/JadwalKu/' (subpath repo).
+// Jika repo di-rename / pakai custom domain, sesuaikan nilai base GitHub Pages.
+const base = process.env.VERCEL ? '/' : '/JadwalKu/'
+
 export default defineConfig({
-  // base menyesuaikan target hosting:
-  //  - Vercel (env VERCEL=1 diset otomatis saat build di Vercel): '/' (root domain).
-  //  - GitHub Pages project site: '/JadwalKu/' (subpath repo).
-  // Jika repo di-rename / pakai custom domain, sesuaikan nilai base GitHub Pages.
-  base: process.env.VERCEL ? '/' : '/JadwalKu/',
+  base,
   build: {
     // matikan <link rel=modulepreload>: Vite inject preload untuk semua manualChunks
     // tapi SW Workbox serve dari CacheStorage -> mismatch "preloaded but not used within a few seconds"
@@ -52,7 +54,7 @@ export default defineConfig({
       ],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        navigateFallback: '/JadwalKu/index.html',
+        navigateFallback: `${base}index.html`,
         // Jangan intercept URL dengan query params selain hash router
         // agar Lighthouse audit (?audit=1) tidak kena redirect loop
         navigateFallbackDenylist: [/\?(?!$)/],
@@ -72,8 +74,8 @@ export default defineConfig({
         background_color: '#F5FAF8',
         display: 'standalone',
         orientation: 'portrait-primary',
-        start_url: '/JadwalKu/',
-        scope: '/JadwalKu/',
+        start_url: base,
+        scope: base,
         lang: 'id',
         icons: [
           { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
