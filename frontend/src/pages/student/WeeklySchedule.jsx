@@ -326,19 +326,20 @@ export default function WeeklySchedule() {
           {scheduleViewMode === 'matrix' ? (
             <div className="flex-1 min-w-0 border-r border-outline-variant/20">
               <ScheduleTimetableGrid
-                scheduleSource={scheduleSource}
+                borderless
+                days={activeWeekDays}
                 weekDates={weekDates}
-                activeWeekDays={activeWeekDays}
                 todayName={todayName}
                 todayISO={todayISO}
                 holidayDates={holidayDates}
+                scheduleEntries={scheduleSource}
                 courseMap={courseMap}
                 conflictedIds={conflictedIds}
                 allTransitions={allTransitions}
-                openDetail={openDetail}
+                onOpenDetail={openDetail}
+                onOpenLocation={(entry, course) => setDetailEntry({ ...entry, course, autoOpenLocation: true })}
+                language={language}
                 showPrayerDividers={showPrayerDividers}
-                weekRangeLabel={weekRangeLabel}
-                toolbarContent={toolbarContent}
               />
             </div>
           ) : (
@@ -374,7 +375,6 @@ export default function WeeklySchedule() {
         )}
       </PageCard>
 
-      {/* Modals */}
       {detailEntry && (
         <ClassDetailPanel
           entry={detailEntry}

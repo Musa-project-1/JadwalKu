@@ -12,18 +12,45 @@ import { MobileSessionSection } from './MobileSessionSection'
  */
 export function ScheduleTimetableGrid({
   borderless = false,
-  days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'],
-  dayDates = {},
+  days: rawDays,
+  activeWeekDays,
+  dayDates: rawDayDates,
+  weekDates,
   todayName = 'Senin',
-  scheduleEntries = [],
+  scheduleEntries: rawScheduleEntries,
+  scheduleSource,
   courseMap = new Map(),
-  onOpenDetail,
+  onOpenDetail: rawOnOpenDetail,
+  openDetail,
   onOpenLocation,
   language = 'id',
   showPrayerDividers = true,
   selectedDayMobile,
   onSelectDayMobile,
 }) {
+  // Dukung variasi prop (scheduleEntries / scheduleSource, days / activeWeekDays, dayDates / weekDates)
+  const days = useMemo(
+    () => rawDays || activeWeekDays || ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'],
+    [rawDays, activeWeekDays],
+  )
+  const scheduleEntries = useMemo(
+    () => (rawScheduleEntries && rawScheduleEntries.length > 0 ? rawScheduleEntries : (scheduleSource || [])),
+    [rawScheduleEntries, scheduleSource],
+  )
+  const onOpenDetail = rawOnOpenDetail || openDetail
+  const dayDates = useMemo(() => {
+    if (rawDayDates && typeof rawDayDates === 'object' && !Array.isArray(rawDayDates) && Object.keys(rawDayDates).length > 0) {
+      return rawDayDates
+    }
+    if (Array.isArray(weekDates)) {
+      return weekDates.reduce((acc, curr) => {
+        if (curr?.day) acc[curr.day] = `${curr.dateNum} ${curr.monthShort}`
+        return acc
+      }, {})
+    }
+    return (rawDayDates && typeof rawDayDates === 'object' && !Array.isArray(rawDayDates)) ? rawDayDates : {}
+  }, [rawDayDates, weekDates])
+
   // 1. Hitung Waktu Sholat Hari Ini (Zero-API / 100% Offline)
   const prayerTimes = useMemo(() => getPrayerTimes(new Date()), [])
 

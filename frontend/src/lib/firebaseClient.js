@@ -43,7 +43,7 @@ if (isConfigured) {
 
   // App Check (backlog #6): pastikan request Firestore hanya berasal dari app
   // asli, menekan penyalahgunaan apiKey client yang memang publik. Digerakkan
-  // oleh VITE_FIREBASE_APPCHECK_SITE_KEY (reCAPTCHA Enterprise site key — harus
+  // oleh VITE_FIREBASE_APPCHECK_SITE_KEY (reCAPTCHA Enterprise site key - harus
   // cocok dengan yang didaftarkan di App Check Firebase Console). Jika belum
   // diset, App Check dinonaktifkan agar tidak memutus lingkungan dev/CI yang
   // belum punya key; enforcement diaktifkan bertahap di Firebase Console.
