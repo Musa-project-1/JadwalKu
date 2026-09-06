@@ -6,7 +6,7 @@ import {
   persistentLocalCache,
   persistentSingleTabManager,
 } from 'firebase/firestore'
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check'
 
 // Semua nilai Firebase WAJIB via env VITE_FIREBASE_*.
 // Jangan hardcode apiKey/projectId di source – GitHub Secret Scanning akan
@@ -43,7 +43,8 @@ if (isConfigured) {
 
   // App Check (backlog #6): pastikan request Firestore hanya berasal dari app
   // asli, menekan penyalahgunaan apiKey client yang memang publik. Digerakkan
-  // oleh VITE_FIREBASE_APPCHECK_SITE_KEY (reCAPTCHA v3 site key). Jika belum
+  // oleh VITE_FIREBASE_APPCHECK_SITE_KEY (reCAPTCHA Enterprise site key — harus
+  // cocok dengan yang didaftarkan di App Check Firebase Console). Jika belum
   // diset, App Check dinonaktifkan agar tidak memutus lingkungan dev/CI yang
   // belum punya key; enforcement diaktifkan bertahap di Firebase Console.
   const appCheckSiteKey = import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY
@@ -51,7 +52,7 @@ if (isConfigured) {
   if (appCheckSiteKey && !gAppCheck.__jadwalkuAppCheck) {
     try {
       gAppCheck.__jadwalkuAppCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider(appCheckSiteKey),
+        provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
         isTokenAutoRefreshEnabled: true,
       })
     } catch (e) {
