@@ -6,6 +6,7 @@ import {
   persistentLocalCache,
   persistentSingleTabManager,
 } from 'firebase/firestore'
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 
 // Semua nilai Firebase WAJIB via env VITE_FIREBASE_*.
 // Jangan hardcode apiKey/projectId di source – GitHub Secret Scanning akan
@@ -39,6 +40,25 @@ if (isConfigured) {
   // Reuse app instance (aman terhadap HMR / re-import modul).
   app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig)
   auth = getAuth(app)
+
+  // App Check (backlog #6): pastikan request Firestore hanya berasal dari app
+  // asli, menekan penyalahgunaan apiKey client yang memang publik. Digerakkan
+  // oleh VITE_FIREBASE_APPCHECK_SITE_KEY (reCAPTCHA v3 site key). Jika belum
+  // diset, App Check dinonaktifkan agar tidak memutus lingkungan dev/CI yang
+  // belum punya key — enforcement diaktifkan bertahap di Firebase Console.
+  const appCheckSiteKey = import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY
+  const gAppCheck = globalThis
+  if (appCheckSiteKey && !gAppCheck.__jadwalkuAppCheck) {
+    try {
+      gAppCheck.__jadwalkuAppCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
+        isTokenAutoRefreshEnabled: true,
+      })
+    } catch (e) {
+      // Jangan sampai kegagalan App Check merusak boot aplikasi.
+      console.warn('[app-check] inisialisasi gagal, lanjut tanpa App Check:', e?.message)
+    }
+  }
 
   // Singleton di level global agar Vite HMR tidak memanggil
   // initializeFirestore dua kali pada app yang sama.
