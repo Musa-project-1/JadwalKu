@@ -3,11 +3,13 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  // GitHub Pages project site: https://musa-project-1.github.io/JadwalKu/
-  // Jika repo di-rename / pakai custom domain, ubah nilai base di sini.
-  base: '/JadwalKu/',
+  // base menyesuaikan target hosting:
+  //  - Vercel (env VERCEL=1 diset otomatis saat build di Vercel): '/' (root domain).
+  //  - GitHub Pages project site: '/JadwalKu/' (subpath repo).
+  // Jika repo di-rename / pakai custom domain, sesuaikan nilai base GitHub Pages.
+  base: process.env.VERCEL ? '/' : '/JadwalKu/',
   build: {
-    // matikan <link rel=modulepreload> — Vite inject preload untuk semua manualChunks
+    // matikan <link rel=modulepreload>: Vite inject preload untuk semua manualChunks
     // tapi SW Workbox serve dari CacheStorage -> mismatch "preloaded but not used within a few seconds"
     // warning 20x numpuk. Import tetap load normal via <script type=module>.
     modulePreload: false,
