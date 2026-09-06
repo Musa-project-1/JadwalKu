@@ -1,5 +1,5 @@
 /**
- * Preset Kalender Akademik — data terstruktur sebuah tahun ajaran.
+ * Preset Kalender Akademik – data terstruktur sebuah tahun ajaran.
  *
  * Sumber kebenaran fase kegiatan (bukan hanya 4 batas tanggal) agar
  * kalender kampus seperti pada gambar "Universitas Madani" bisa direpresentasikan
@@ -61,12 +61,12 @@ export const KATEGORI_TONE = {
 }
 
 /**
- * Preset Kalender Akademik — contoh nyata dari gambar
- * "Universitas Madani — Kalender Pendidikan T.A. 2026/2027
- *  Fakultas Teknik dan Bisnis — Program Sarjana".
+ * Preset Kalender Akademik – contoh nyata dari gambar
+ * "Universitas Madani – Kalender Pendidikan T.A. 2026/2027
+ *  Fakultas Teknik dan Bisnis – Program Sarjana".
  */
 export const MADANI_CALENDAR_PRESET = {
-  nama: 'Universitas Madani — T.A. 2026/2027',
+  nama: 'Universitas Madani – T.A. 2026/2027',
   tahunAjaran: '2026/2027',
   fakultas: 'Fakultas Teknik dan Bisnis',
   prodi: 'Program Sarjana',

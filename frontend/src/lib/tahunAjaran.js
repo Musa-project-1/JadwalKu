@@ -14,7 +14,7 @@
  * Sejak adanya fitur "Import Kalender Akademik", dokumen settings/academicCalendar
  * juga dapat membawa `events` (daftar fase kegiatan). Jika `events` tersedia,
  * batas ganjil/genap START & END otomatis DITURUNKAN dari event paling awal /
- * paling akhir per semester — bukan lagi angka mati.
+ * paling akhir per semester – bukan lagi angka mati.
  */
 import { deriveBoundsFromEvents } from './calendarBounds'
 
@@ -113,7 +113,7 @@ export function prevTahunAjaran(ta) {
  *     semester genap (2,4,6) baru selesai di TA berjalan; semester ganjil
  *     (1,3,5) akan dimulai di TA berikutnya.
  *  2. Libur setelah ganjil, sebelum genap (awal Feb → akhir Mar): masih
- *     dalam satu TA — kedua belahan milik TA berjalan.
+ *     dalam satu TA – kedua belahan milik TA berjalan.
  */
 export function expectedTahunAjaranForSemester(semester, date = new Date(), customCalendar = null) {
   const cal = parseCalendarBounds(customCalendar)

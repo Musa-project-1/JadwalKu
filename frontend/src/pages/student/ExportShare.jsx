@@ -29,10 +29,10 @@ export default function ExportShare() {
   const [shared, setShared] = useState(false)
   const [imageStatus, setImageStatus] = useState(null) // { ok: boolean, text: string }
 
-  // TA sesuai kalender kampus — dipakai di teks ringkasan & label ekspor.
+  // TA sesuai kalender kampus – dipakai di teks ringkasan & label ekspor.
   const ta = expectedTahunAjaranForSemester(semester)
 
-  // Query TANPA filter semester — supaya opsi cakupan "Semua kelas"
+  // Query TANPA filter semester – supaya opsi cakupan "Semua kelas"
   // benar-benar memuat semua semester prodi ini (filter semester dilakukan
   // di klien sesuai pilihan cakupan).
   const { data: jadwal } = useFirestore(
@@ -74,7 +74,7 @@ export default function ExportShare() {
         setTimeout(() => setShared(false), 2000)
       }
     } catch {
-      // user membatalkan share — abaikan
+      // user membatalkan share – abaikan
     }
   }
 

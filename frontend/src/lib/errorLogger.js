@@ -6,7 +6,7 @@ import { db } from './firebaseClient'
  * Dipanggil dari mana saja di frontend saat parsing/validasi/write gagal,
  * supaya admin bisa lihat riwayat masalah tanpa harus reproduksi manual.
  *
- * Tidak pernah melempar error — logging tidak boleh mematikan alur utama app.
+ * Tidak pernah melempar error – logging tidak boleh mematikan alur utama app.
  *
  * @param {{ type: string, detail: string, context?: Record<string, unknown> }} entry
  * @returns {Promise<boolean>} true jika berhasil ditulis
@@ -23,7 +23,7 @@ export async function logError({ type, detail, context = {} }) {
     })
     return true
   } catch {
-    // Gagal logging (offline / kuota habis / rules) — diamkan saja.
+    // Gagal logging (offline / kuota habis / rules) – diamkan saja.
     return false
   }
 }

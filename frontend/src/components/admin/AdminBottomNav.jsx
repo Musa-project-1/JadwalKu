@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { Icon } from '../Icon'
 
 /**
- * Floating Pill Nav — Admin Console Mobile (`tablet:hidden`).
+ * Floating Pill Nav – Admin Console Mobile (`tablet:hidden`).
  * 5 Tab Utama Admin:
  * 1. Dashboard (/admin/dashboard)
  * 2. Kelola Jadwal (/admin/jadwal)

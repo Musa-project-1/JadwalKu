@@ -9,7 +9,7 @@ export function OfflineBanner() {
       role="status"
       className="bg-amber-100 px-md py-2 text-center text-body-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200"
     >
-      Mode offline — menampilkan data yang sudah tersimpan di perangkat.
+      Mode offline – menampilkan data yang sudah tersimpan di perangkat.
     </div>
   )
 }

@@ -13,7 +13,7 @@ import {
 import { formatRuang } from '../../lib/scheduleUtils'
 
 /**
- * TimetableClassCard — 1:1 identik dengan ClassCard asli JadwalKu:
+ * TimetableClassCard – 1:1 identik dengan ClassCard asli JadwalKu:
  * - Baris 1: Ikon tipe kelas di kiri & Badge Jam (Pill solid) di kanan
  * - Baris 2: Nama mata kuliah rata tengah (15px font-bold, 2 baris ter-highlight)
  * - Baris 3: Ikon lokasi + Ruangan / Zoom rata tengah

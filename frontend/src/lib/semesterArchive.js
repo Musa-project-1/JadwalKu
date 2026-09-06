@@ -14,7 +14,7 @@ import { logError } from './errorLogger'
  * state kosong untuk semester baru. Semua dilakukan client-side dalam
  * batched writes dari sesi admin yang terautentikasi.
  *
- * Dokumen lama TIDAK dihapus — hanya ditandai `status: "archived"` supaya
+ * Dokumen lama TIDAK dihapus – hanya ditandai `status: "archived"` supaya
  * tetap bisa dibaca sebagai riwayat (query mahasiswa selalu filter
  * `status == "published"`, jadi data arsip otomatis tak terlihat).
  *

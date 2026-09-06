@@ -6,7 +6,7 @@ import { addDocument, deleteDocument, updateDocument } from '../lib/adminData'
 import { firebaseReady } from '../lib/firebaseClient'
 
 // Kunci lokal disimpan lewat getItem/setItem yang sudah menambah prefiks
-// 'jadwal-kampus:' — jangan ulangi prefiks di nilai kunci.
+// 'jadwal-kampus:' – jangan ulangi prefiks di nilai kunci.
 const SHARED_DONE_KEY = 'completedSharedTasks'
 
 /**

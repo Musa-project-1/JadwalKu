@@ -88,7 +88,7 @@ export function AppProvider({ children }) {
     return () => media.removeEventListener('change', onChange)
   }, [theme, fontSize, highContrast])
 
-  // C5: Stale semester guard — if saved program/semester out of range for that prodi (e.g. switch BD Sem8 -> IF max 6), clear it
+  // C5: Stale semester guard – if saved program/semester out of range for that prodi (e.g. switch BD Sem8 -> IF max 6), clear it
   useEffect(() => {
     if (!program || !semester) return
     let cancelled = false

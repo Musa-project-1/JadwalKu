@@ -1,28 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Icon } from '../../components/Icon'
 import { StatusBanner } from '../../components/StatusBanner'
-import { Button } from '../../components/Button'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
-import { Skeleton } from '../../components/Skeleton'
-import { EmptyState } from '../../components/EmptyState'
-import { Pagination } from '../../components/Pagination'
 import { BulkActionBar } from '../../components/admin/BulkActionBar'
 
 // Sub-components
 import { ExamHeader } from '../../components/admin/manageExams/ExamHeader'
 import { ExamToolbar } from '../../components/admin/manageExams/ExamToolbar'
-import { ExamTable } from '../../components/admin/manageExams/ExamTable'
-import { ExamCards } from '../../components/admin/manageExams/ExamCards'
 import { ExamFormModal } from '../../components/admin/manageExams/ExamFormModal'
+import { ExamTableSection } from '../../components/admin/manageExams/ExamTableSection'
 
 // Hooks & Libs
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
 import { useCampus } from '../../context/useCampus'
-import { useDebounce } from '../../hooks/useDebounce'
 import { addDocument, deleteDocument, updateDocument } from '../../lib/adminData'
 import { publishDocuments, appendHistory } from '../../lib/publishHelpers'
-import { getXLSXExp } from '../../lib/academicExcelExport'
+import { downloadExamTemplate, exportExamsToExcel } from '../../lib/academicExamExport'
+import { ExamImportBanner } from '../../components/admin/manageExams/ExamImportBanner'
+import { useExamFilters } from '../../components/admin/manageExams/useExamFilters'
 
 const EMPTY_FORM = {
   jenis: 'UTS',
@@ -35,50 +30,12 @@ const EMPTY_FORM = {
   mode: 'Offline',
 }
 
-const BASE_SEMESTER_GROUPS = [
-  { label: 'Semua Semester', value: '' },
-  { label: 'Semester Ganjil', value: 'ganjil' },
-  { label: 'Semester Genap', value: 'genap' },
-]
-
 export default function ManageExams() {
   const { data: exams, loading, error: ujianError } = useFirestore('ujian', [], { limit: 500 })
   const { data: courses } = useFirestore('mataKuliah')
   const { prodiNames } = useCampus()
   const { user } = useAdminAuth()
   const actor = user?.email ?? ''
-
-  // Filter States
-  const [search, setSearch] = useState('')
-  const debouncedSearch = useDebounce(search, 250)
-  const [jenisFilter, setJenisFilter] = useState('Semua') // Semua | UTS | UAS
-  const [prodiFilter, setProdiFilter] = useState('')
-  const [semesterFilter, setSemesterFilter] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-
-  // Opsi B: semester hanya yang ada data
-  const availableSemesterOptions = useMemo(() => {
-    const nums = [
-      ...new Set(exams.map((e) => Number(e.semester)).filter((n) => Number.isInteger(n) && n > 0)),
-    ].sort((a, b) => a - b)
-    return [
-      ...BASE_SEMESTER_GROUPS,
-      ...nums.map((n) => ({ label: `Semester ${n}`, value: String(n) })),
-    ]
-  }, [exams])
-
-  useEffect(() => {
-    if (!semesterFilter) return
-    if (semesterFilter === 'ganjil' || semesterFilter === 'genap') return
-    if (!availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))) {
-      // oxlint-disable-next-line react/set-state-in-effect
-      setSemesterFilter('')
-    }
-  }, [availableSemesterOptions, semesterFilter])
-
-  // Pagination States
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(25)
 
   // Selection & Modal States
   const [selectedIds, setSelectedIds] = useState(new Set())
@@ -102,76 +59,28 @@ export default function ManageExams() {
     return map
   }, [courses])
 
-  // Live Quick Stats
-  const stats = useMemo(() => {
-    const total = exams.length
-    const uts = exams.filter((e) => e.jenis === 'UTS').length
-    const uas = exams.filter((e) => e.jenis === 'UAS').length
-    const published = exams.filter((e) => (e.status || 'published') === 'published').length
-    const draft = exams.filter((e) => e.status === 'draft').length
-    return { total, uts, uas, published, draft }
-  }, [exams])
-
-  // Filtered List
-  const filtered = useMemo(() => {
-    const q = debouncedSearch.trim().toLowerCase()
-    return exams
-      .filter((e) => {
-        if (jenisFilter !== 'Semua' && e.jenis !== jenisFilter) return false
-        if (prodiFilter && e.prodi !== prodiFilter) return false
-        if (semesterFilter) {
-          const sem = Number(e.semester)
-          if (semesterFilter === 'ganjil') {
-            if (sem % 2 !== 1) return false
-          } else if (semesterFilter === 'genap') {
-            if (sem % 2 !== 0) return false
-          } else if (String(e.semester) !== semesterFilter) {
-            return false
-          }
-        }
-        if (statusFilter && (e.status || 'published') !== statusFilter) return false
-        if (q) {
-          const course = courseMap.get(String(e.kodeMK).toUpperCase())
-          const matchTarget = [
-            e.kodeMK,
-            e.prodi,
-            e.ruang,
-            e.tanggal,
-            e.jam,
-            course?.namaMK,
-            course?.dosen,
-          ].filter(Boolean)
-          return matchTarget.some((val) => String(val).toLowerCase().includes(q))
-        }
-        return true
-      })
-      .sort(
-        (a, b) =>
-          String(a.tanggal).localeCompare(String(b.tanggal)) ||
-          String(a.jam).localeCompare(String(b.jam)),
-      )
-  }, [exams, jenisFilter, prodiFilter, semesterFilter, statusFilter, debouncedSearch, courseMap])
-
-  // Dynamic Pagination
-  const totalPages = pageSize === 0 ? 1 : Math.ceil(filtered.length / pageSize) || 1
-  const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages))
-  const paginatedExams = useMemo(() => {
-    if (pageSize === 0) return filtered
-    const start = (safeCurrentPage - 1) * pageSize
-    return filtered.slice(start, start + pageSize)
-  }, [filtered, safeCurrentPage, pageSize])
-
-  const hasActiveFilters = Boolean(
-    search || jenisFilter !== 'Semua' || prodiFilter || semesterFilter || statusFilter,
-  )
-
-  function resetAllFilters() {
-    setSearch('')
-    setJenisFilter('Semua')
-    setProdiFilter('')
-    setSemesterFilter('')
-    setStatusFilter('')
-  }
+  const {
+    search,
+    setSearch,
+    jenisFilter,
+    setJenisFilter,
+    prodiFilter,
+    setProdiFilter,
+    semesterFilter,
+    setSemesterFilter,
+    statusFilter,
+    setStatusFilter,
+    availableSemesterOptions,
+    hasActiveFilters,
+    resetAllFilters,
+    stats,
+    filtered,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    safeCurrentPage,
+    paginatedExams,
+  } = useExamFilters(exams, courseMap)
 
   // Keyboard shortcut: Esc to clear selection
   useEffect(() => {
@@ -386,67 +295,15 @@ export default function ManageExams() {
     )
   }
 
-  async function downloadExamTemplate() {
-    let __XLSX; try { __XLSX = await getXLSXExp(); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
-    const XLSX = __XLSX.default ?? __XLSX;
-    const templateData = [
-      {
-        jenis: 'UTS',
-        prodi: 'Informatika',
-        semester: 3,
-        kodeMK: 'IF301',
-        tanggal: '2026-10-15',
-        jam: '08:00 - 10:00',
-        ruang: 'Lab Komputer 1',
-        mode: 'Offline',
-      },
-      {
-        jenis: 'UAS',
-        prodi: 'Bisnis Digital',
-        semester: 1,
-        kodeMK: 'BD102',
-        tanggal: '2026-12-20',
-        jam: '10:30 - 12:30',
-        ruang: 'R. 302',
-        mode: 'Offline',
-      },
-    ]
-    const ws = XLSX.utils.json_to_sheet(templateData)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Template_Ujian')
-    XLSX.writeFile(wb, 'Template_Jadwal_Ujian.xlsx')
+  async function handleDownloadTemplate() {
+    await downloadExamTemplate()
   }
 
-  async function exportExamsToExcel() {
-    let __XLSX; try { __XLSX = await getXLSXExp(); } catch (e) { console.warn('[XLSX] dynamic import failed', e); alert('Gagal memuat pustaka export. Periksa koneksi atau coba lagi.'); return; }
-    const XLSX = __XLSX.default ?? __XLSX;
-    if (filtered.length === 0) {
-      setBanner({ ok: false, message: 'Tidak ada data jadwal ujian untuk diekspor.' })
-      return
+  async function handleExportExams() {
+    const res = await exportExamsToExcel(filtered, courseMap, jenisFilter)
+    if (res?.message) {
+      setBanner({ ok: false, message: res.message })
     }
-    const exportData = filtered.map((e) => {
-      const course = courseMap.get(String(e.kodeMK).toUpperCase())
-      return {
-        'Jenis Ujian': e.jenis,
-        'Program Studi': e.prodi,
-        Semester: e.semester,
-        'Kode MK': e.kodeMK,
-        'Nama Mata Kuliah': course?.namaMK || '-',
-        'Dosen Pengampu': course?.dosen || '-',
-        Tanggal: e.tanggal,
-        Waktu: e.jam,
-        Ruangan: e.ruang || '-',
-        Mode: e.mode || 'Offline',
-        Status: (e.status || 'published').toUpperCase(),
-      }
-    })
-    const ws = XLSX.utils.json_to_sheet(exportData)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Jadwal_Ujian')
-    XLSX.writeFile(
-      wb,
-      `Jadwal_Ujian_${jenisFilter}_${new Date().toISOString().slice(0, 10)}.xlsx`,
-    )
   }
 
   return (
@@ -477,40 +334,12 @@ export default function ManageExams() {
       )}
 
       {/* Preview Impor Excel */}
-      {imported && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-primary/30 bg-primary/10 p-5 dark:bg-primary/15 animate-fade-in">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-on-primary font-bold">
-              <Icon name="upload_file" size={22} />
-            </span>
-            <div>
-              <p className="text-title-sm font-bold text-on-surface">
-                {imported.length} Baris Jadwal Ujian Terbaca
-              </p>
-              <p className="text-body-xs text-on-surface-variant">
-                Simpan semua baris di atas sebagai draft untuk diperiksa sebelum dirilis.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={confirmImport}
-              disabled={busy}
-              className="rounded-xl px-4 py-2 font-bold text-body-xs"
-            >
-              <Icon name="save" size={16} className="mr-1" />
-              Ya, Impor Sebagai Draft
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => setImported(null)}
-              className="rounded-xl px-4 py-2 text-body-xs"
-            >
-              Batal
-            </Button>
-          </div>
-        </div>
-      )}
+      <ExamImportBanner
+        imported={imported}
+        confirmImport={confirmImport}
+        busy={busy}
+        setImported={setImported}
+      />
 
       {/* ── 2. Master Exams Management ── */}
       <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-4 shadow-level-1 dark:bg-surface-container-low dark:border-outline-variant/15 flex-1 flex flex-col min-h-0 space-y-4">
@@ -530,97 +359,32 @@ export default function ManageExams() {
           hasActiveFilters={hasActiveFilters}
           prodiOptions={prodiNames}
           onResetFilters={resetAllFilters}
-          onDownloadTemplate={downloadExamTemplate}
-          onExportExcel={exportExamsToExcel}
+          onDownloadTemplate={handleDownloadTemplate}
+          onExportExcel={handleExportExams}
           onOpenImport={() => fileInputRef.current?.click()}
         />
 
-        {/* Main Content Area */}
-        {loading ? (
-          <div className="space-y-4">
-            <Skeleton className="h-14 w-full rounded-2xl" />
-            <Skeleton className="h-14 w-full rounded-2xl" />
-            <Skeleton className="h-14 w-full rounded-2xl" />
-          </div>
-        ) : filtered.length === 0 ? (
-          hasActiveFilters ? (
-            <div className="py-8 text-center">
-              <EmptyState
-                icon="search_off"
-                title="Tidak ada jadwal ujian yang cocok"
-                description="Coba sesuaikan kata kunci pencarian atau reset filter aktif Anda."
-              />
-              <div className="flex justify-center mt-4">
-                <Button
-                  variant="secondary"
-                  onClick={resetAllFilters}
-                  className="cursor-pointer"
-                >
-                  <Icon name="refresh" size={18} className="mr-1" />
-                  Reset Semua Filter
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center py-10 space-y-3">
-              <EmptyState
-                icon="quiz"
-                title="Belum Ada Jadwal Ujian"
-                description="Belum ada agenda ujian yang terdaftar untuk semester aktif ini. Tambahkan jadwal ujian baru atau impor massal dari file spreadsheet."
-              />
-              <div className="flex items-center justify-center gap-2 pt-1">
-                <Button
-                  onClick={openAdd}
-                  className="rounded-2xl px-4 py-2 font-bold shadow-level-1 cursor-pointer text-body-xs"
-                >
-                  <Icon name="add" size={16} className="mr-1.5" />
-                  <span>Tambah Ujian Manual</span>
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="rounded-2xl px-4 py-2 font-bold shadow-level-1 cursor-pointer text-body-xs"
-                >
-                  <Icon name="upload_file" size={16} className="mr-1.5 text-primary" />
-                  <span>Impor CSV/XLSX</span>
-                </Button>
-              </div>
-            </div>
-          )
-        ) : (
-          <>
-            <ExamTable
-              paginatedExams={paginatedExams}
-              courseMap={courseMap}
-              selectedIds={selectedIds}
-              filteredCount={filtered.length}
-              onToggleSelectAll={toggleSelectAll}
-              onToggleSelectOne={toggleSelectOne}
-              onPublish={handlePublish}
-              onOpenEdit={openEdit}
-              onDeleteTarget={(exam) => setDeleteTarget(exam)}
-            />
-
-            <ExamCards
-              paginatedExams={paginatedExams}
-              courseMap={courseMap}
-              onOpenEdit={openEdit}
-              onDeleteTarget={(exam) => setDeleteTarget(exam)}
-            />
-
-            {/* Shared Pagination Controls */}
-            <div className="shrink-0 pt-1.5 border-t border-outline-variant/15">
-              <Pagination
-                currentPage={safeCurrentPage}
-                totalItems={filtered.length}
-                pageSize={pageSize === 0 ? 'Semua' : pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(sz) => setPageSize(sz === 'Semua' ? 0 : sz)}
-                itemLabel="sesi ujian"
-              />
-            </div>
-          </>
-        )}
+        {/* Main Exam Table / Cards / Empty / Pagination */}
+        <ExamTableSection
+          loading={loading}
+          filtered={filtered}
+          hasActiveFilters={hasActiveFilters}
+          resetAllFilters={resetAllFilters}
+          openAdd={openAdd}
+          onOpenImport={() => fileInputRef.current?.click()}
+          paginatedExams={paginatedExams}
+          courseMap={courseMap}
+          selectedIds={selectedIds}
+          toggleSelectAll={toggleSelectAll}
+          toggleSelectOne={toggleSelectOne}
+          handlePublish={handlePublish}
+          openEdit={openEdit}
+          setDeleteTarget={setDeleteTarget}
+          safeCurrentPage={safeCurrentPage}
+          pageSize={pageSize}
+          setCurrentPage={setCurrentPage}
+          setPageSize={setPageSize}
+        />
       </div>
 
       {/* ── Floating Bulk Actions Bar ── */}

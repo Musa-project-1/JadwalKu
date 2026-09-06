@@ -1,5 +1,5 @@
 /**
- * prayerTimes.js — Modul Perhitungan Waktu Sholat Akurat (100% Offline / Zero-API)
+ * prayerTimes.js – Modul Perhitungan Waktu Sholat Akurat (100% Offline / Zero-API)
  *
  * Algoritma hisab astronomis standar Kementerian Agama RI / MWL:
  * - Fajr (Subuh): 20°

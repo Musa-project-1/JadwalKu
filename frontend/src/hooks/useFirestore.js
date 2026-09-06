@@ -40,7 +40,7 @@ export function useFirestore(collectionName, constraints = [], opts = {}) {
 
     // Jangan query jika ada filter bernilai kosong/undefined/null.
     // Nilai 0 TIDAK dianggap kosong karena bisa jadi nilai valid (mis. semester 0,
-    // enum status 0) — filter nilai 0 yang sah harus tetap diterapkan.
+    // enum status 0) – filter nilai 0 yang sah harus tetap diterapkan.
     const validConstraints = constraints.filter(
       ([field, , value]) => field && value !== '' && value !== undefined && value !== null,
     )

@@ -1,0 +1,195 @@
+/*
+ * Safe-area insets (MOBILE_REDESIGN.md F1) – untuk elemen fixed di bawah
+ * (bottom nav, FAB, bulk bar) agar tidak tertutup home-indicator iOS PWA.
+ * Hanya berdampak di perangkat dengan notch/home indicator; desktop aman.
+ */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+.bottom-safe {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--safe-offset, 0px));
+}
+
+/*
+ * Presisi 600px visibility helpers (MOBILE_REDESIGN.md S1) – dipakai saat
+ * utilitas bawaan `sm:`(640px) tidak cocok dengan breakpoint `tablet`(600px).
+ * Menjamin elemen muncul/hilang TEPAT di 600px tanpa menyentuh desktop.
+ */
+.show-from-tablet {
+  display: none;
+}
+@media (min-width: 600px) {
+  .show-from-tablet {
+    display: revert;
+  }
+}
+.hide-from-tablet {
+  display: revert;
+}
+@media (min-width: 600px) {
+  .hide-from-tablet {
+    display: none;
+  }
+}
+
+/* Kolom hari libur pada grid mingguan (garis diagonal) */
+.holiday-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 8px,
+    rgb(var(--c-surface-container-high) / 0.55) 8px,
+    rgb(var(--c-surface-container-high) / 0.55) 16px
+  );
+}
+
+/* Scrollbar tersembunyi untuk strip horizontal (tab hari, chip filter) */
+.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Tint kartu gelap – slate + 8% warna kategori (JadwalKu Expressive Dark) */
+.dark .tint-mint {
+  background-image: linear-gradient(
+    rgb(var(--c-aurora-teal) / 0.08),
+    rgb(var(--c-aurora-teal) / 0.08)
+  );
+}
+.dark .tint-indigo {
+  background-image: linear-gradient(
+    rgb(var(--c-aurora-indigo) / 0.08),
+    rgb(var(--c-aurora-indigo) / 0.08)
+  );
+}
+.dark .tint-peach {
+  background-image: linear-gradient(
+    rgb(var(--c-aurora-peach) / 0.08),
+    rgb(var(--c-aurora-peach) / 0.08)
+  );
+}
+
+/* Standard smooth transition timing function */
+button, a, .transition-all, .transition-transform {
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Typographic legibility */
+h1, h2, h3, h4, h5, h6, .text-display, .text-headline-lg, .text-title-md {
+  text-wrap: balance;
+}
+
+p, li {
+  text-wrap: pretty;
+}
+
+/* Custom modern scrollbars – applies to HTML root, body, and all scrollable containers */
+html,
+body,
+#root,
+*,
+.overflow-y-auto,
+.overflow-x-auto {
+  --scrollbar-thumb: rgb(var(--c-outline) / 0.35);
+  --scrollbar-track: transparent;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar,
+*::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+#root::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--c-outline) / 0.35);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--c-outline) / 0.6);
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── View Transitions – Panel Switch (admin ↔ student) ─────────────────── */
+
+/*
+ * Default slide for all viewTransition navigations.
+ * Pages slide in from the right and exit to the left – without scale distortion.
+ */
+@keyframes vt-slide-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-20px); }
+}
+
+@keyframes vt-slide-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+::view-transition-old(root) {
+  animation: 200ms cubic-bezier(0.2, 0, 0, 1) both vt-slide-out;
+}
+
+::view-transition-new(root) {
+  animation: 220ms cubic-bezier(0.2, 0, 0, 1) both vt-slide-in;
+}
+
+/*
+ * Keep sidebar frozen during the transition so it doesn't animate out with the page.
+ */
+::view-transition-old(sidebar),
+::view-transition-new(sidebar) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Vanguard Easing Utilities for High-End Motion */
+.transition-vanguard {
+  transition-property: all;
+  transition-timing-function: var(--ease-vanguard);
+  transition-duration: var(--duration-vanguard);
+}
+
+.ease-vanguard {
+  transition-timing-function: var(--ease-vanguard);
+}
+
+

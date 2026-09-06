@@ -24,7 +24,7 @@ const ACCENTS = {
 }
 
 /**
- * Satu kartu notifikasi — mengikuti referensi notification_center:
+ * Satu kartu notifikasi – mengikuti referensi notification_center:
  * bilah warna 4px di tepi kiri, ikon bulat 48px, judul title-md,
  * waktu di kanan atas, deskripsi body-sm, dan titik unread.
  */

@@ -1,5 +1,5 @@
 /**
- * Render ringkasan jadwal ke <canvas> (PNG) — tanpa dependensi eksternal.
+ * Render ringkasan jadwal ke <canvas> (PNG) – tanpa dependensi eksternal.
  * Gaya visual mengikuti design-system.md versi terang (Academic Precision).
  */
 

@@ -79,7 +79,7 @@ export function ExamFormModal({
 
         <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
           <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
-            {/* KIRI — Identitas ujian */}
+            {/* KIRI – Identitas ujian */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -171,7 +171,7 @@ export function ExamFormModal({
               </div>
             </div>
 
-            {/* KANAN — Waktu & Tempat */}
+            {/* KANAN – Waktu & Tempat */}
             <div className="space-y-4">
               <div>
                 <label className="block text-body-xs font-bold text-on-surface mb-1">

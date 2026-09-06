@@ -13,7 +13,7 @@ import {
 import { formatRuang } from '../lib/scheduleUtils'
 
 /**
- * Kartu kelas jadwal — Desain modern terpadu per tipe kelas:
+ * Kartu kelas jadwal – Desain modern terpadu per tipe kelas:
  * 1. Baris 1: Ikon tipe kelas di kiri & Badge Jam (Pill solid) di kanan
  * 2. Baris 2: Nama mata kuliah rata tengah (15px font-medium)
  * 3. Baris 3: Ikon lokasi + Ruang kelas / Online Zoom rata tengah (12px font-normal)

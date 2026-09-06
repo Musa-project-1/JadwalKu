@@ -1,5 +1,5 @@
 /**
- * Kartu dasar — "JadwalKu Expressive": hyper-rounded 24px, tonal separation
+ * Kartu dasar – "JadwalKu Expressive": hyper-rounded 24px, tonal separation
  * tanpa border/shadow (UIUX_MODERNIZATION.md + DESIGN.md v2).
  */
 export function Card({

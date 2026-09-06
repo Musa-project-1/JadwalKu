@@ -8,7 +8,7 @@ import {
 } from 'firebase/firestore'
 
 // Semua nilai Firebase WAJIB via env VITE_FIREBASE_*.
-// Jangan hardcode apiKey/projectId di source — GitHub Secret Scanning akan
+// Jangan hardcode apiKey/projectId di source – GitHub Secret Scanning akan
 // flag pattern AIza* sebagai Public leak dan key tidak bisa dirotasi via
 // GitHub Secrets. Untuk GitHub Pages, set secrets di repo Settings ->
 // Secrets and variables -> Actions -> VITE_FIREBASE_* (lihat .env.example).
@@ -23,7 +23,7 @@ const envConfig = {
 
 const hasEnvConfig = Boolean(envConfig.apiKey && envConfig.projectId)
 
-// Tanpa env yang lengkap, jangan coba inisialisasi Firebase — biarkan app
+// Tanpa env yang lengkap, jangan coba inisialisasi Firebase – biarkan app
 // jalan dalam mode offline/empty dengan firebaseReady=false.
 const firebaseConfig = hasEnvConfig ? envConfig : null
 

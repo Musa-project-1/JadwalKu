@@ -2,30 +2,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useApp } from '../../hooks/useApp'
 import { useFirestore } from '../../hooks/useFirestore'
-import { Icon } from '../../components/Icon'
-import { ClassCard } from '../../components/ClassCard'
 import ClassDetailPanel from '../../components/schedule/ClassDetailPanel'
-import TahunAjaranDropdown from '../../components/schedule/TahunAjaranDropdown'
-import { EmptyState } from '../../components/EmptyState'
-import { Skeleton } from '../../components/Skeleton'
 import { ShareModal } from '../../components/ShareModal'
-import { sampleSchedule, sampleCourses } from '../../data/sampleSchedule'
-import { firebaseReady } from '../../lib/firebaseClient'
-import { DAYS } from '../../lib/uploadValidator'
-import { getTodayName, sortByTime, formatRuang, detectClassTransitions } from '../../lib/scheduleUtils'
-import {
-  TONE_BG_CLASSES,
-  TONE_TEXT_CLASSES,
-  TONE_SUBTEXT_CLASSES,
-  TONE_ICONS,
-  TONE_SHADOW_CLASSES,
-  TONE_CARD_BORDER_CLASSES,
-  TONE_TIME_PILL_CLASSES,
-  TONE_ICON_COLOR_CLASSES,
-  getClassType,
-} from '../../lib/classTypes'
-import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
-import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 import { useCustomSchedule } from '../../hooks/useCustomSchedule'
 import { CustomScheduleModal } from '../../components/student/CustomScheduleModal'
 import { AttendanceOverviewModal } from '../../components/student/AttendanceOverviewModal'
@@ -34,23 +12,29 @@ import { CourseNotesModal } from '../../components/student/CourseNotesModal'
 import { PrintScheduleModal } from '../../components/student/PrintScheduleModal'
 import { KrsSimulatorModal } from '../../components/student/KrsSimulatorModal'
 import { ScheduleTimetableGrid } from '../../components/schedule/ScheduleTimetableGrid'
-import { parseTimeToMinutes } from '../../lib/scheduleGridUtils'
 import { PageCard } from '../../components/PageCard'
-
-const WEEK_DAYS = DAYS // Senin–Sabtu
-
-const toMin = parseTimeToMinutes
-
-function currentMinuteOfDay() {
-  const now = new Date()
-  return now.getHours() * 60 + now.getMinutes()
-}
-
-function localDateKey(d) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-    d.getDate(),
-  ).padStart(2, '0')}`
-}
+import { sampleSchedule, sampleCourses } from '../../data/sampleSchedule'
+import { firebaseReady } from '../../lib/firebaseClient'
+import { getTodayName, sortByTime, detectClassTransitions } from '../../lib/scheduleUtils'
+import { expectedTahunAjaranForSemester } from '../../lib/tahunAjaran'
+import { getItem } from '../../lib/storage'
+import {
+  WEEK_DAYS,
+  currentMinuteOfDay,
+  localDateKey,
+  computeConflictedIds,
+  computeScheduleSource,
+  computeWeekDates,
+  computeMonthYearLabel,
+  computeWeekRangeLabel,
+  computeTimeRange,
+  computeHourMarks,
+} from '../../components/student/weeklySchedule/scheduleUtils'
+import { ScheduleToolbarContent } from '../../components/student/weeklySchedule/ScheduleToolbarContent'
+import { WeeklyScheduleHeader } from '../../components/student/weeklySchedule/WeeklyScheduleHeader'
+import { MobileScheduleView } from '../../components/student/weeklySchedule/MobileScheduleView'
+import { ScheduleTimelineView } from '../../components/student/weeklySchedule/ScheduleTimelineView'
+import { ScheduleActionRail } from '../../components/student/weeklySchedule/ScheduleActionRail'
 
 export default function WeeklySchedule() {
   const { program, semester, language, t, showPrayerDividers } = useApp()
@@ -60,13 +44,10 @@ export default function WeeklySchedule() {
   const [shareOpen, setShareOpen] = useState(false)
   const [weekOffset, setWeekOffset] = useState(0)
   const [viewDays, setViewDays] = useState(() => getItem('jadwal:viewDays', '5'))
-  const [scheduleViewMode, setScheduleViewMode] = useState(() => getItem('jadwal:scheduleViewMode', 'matrix')) // 'matrix' | 'timeline'
+  const [scheduleViewMode, setScheduleViewMode] = useState(() => getItem('jadwal:scheduleViewMode', 'matrix'))
   const location = useLocation()
 
-  const activeWeekDays = useMemo(
-    () => (viewDays === '5' ? WEEK_DAYS.slice(0, 5) : WEEK_DAYS),
-    [viewDays],
-  )
+  const activeWeekDays = viewDays === '5' ? WEEK_DAYS.slice(0, 5) : WEEK_DAYS
 
   const { data: settingsDocs } = useFirestore('settings', [])
 
@@ -85,7 +66,6 @@ export default function WeeklySchedule() {
     // oxlint-disable-next-line react/set-state-in-effect
     setSelectedTA(currentTA)
   }, [currentTA])
-
   const viewingArchive = selectedTA !== currentTA
 
   const {
@@ -110,15 +90,18 @@ export default function WeeklySchedule() {
     ['semester', '==', Number(semester) || 0],
     ['status', '==', 'archived'],
   ])
-  const { data: allPublishedJadwal } = useFirestore(isCustomMode ? 'jadwal' : '__noop__', isCustomMode ? [['status', '==', 'published']] : [])
+  const { data: allPublishedJadwal } = useFirestore(
+    isCustomMode ? 'jadwal' : '__noop__',
+    isCustomMode ? [['status', '==', 'published']] : [],
+  )
 
   const allTAs = useMemo(() => {
     const set = new Set([currentTA])
     const app = settingsDocs.find((d) => d.id === 'app')
-    if (Array.isArray(app?.availableTAs)) app.availableTAs.forEach((t) => set.add(String(t)))
+    if (Array.isArray(app?.availableTAs)) app.availableTAs.forEach((ta) => set.add(String(ta)))
     ;[...jadwal, ...archivedJadwal, ...allPublishedJadwal].forEach((e) => {
-      const t = String(e.tahunAjaran ?? '').trim()
-      if (t) set.add(t)
+      const ta = String(e.tahunAjaran ?? '').trim()
+      if (ta) set.add(ta)
     })
     return [...set].sort((a, b) => b.localeCompare(a))
   }, [settingsDocs, jadwal, archivedJadwal, allPublishedJadwal, currentTA])
@@ -126,41 +109,32 @@ export default function WeeklySchedule() {
   const { data: mataKuliah } = useFirestore('mataKuliah')
 
   const useSample = !firebaseReady
-  const scheduleSource = useMemo(() => {
-    const byFakultas = (e) => {
-      // Hierarki TA->Ganjil/Genap->Semester: fakultasId is optional for legacy docs
-      // If doc has fakultasId and user has fakultasId, must match; otherwise allow (legacy fallback)
-      if (!e.fakultasId) return true
-      if (!fakultasId) return true
-      return String(e.fakultasId) === String(fakultasId)
-    }
-    if (loading) return []
-    if (isCustomMode) {
-      const pool = allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule
-      const customSet = new Set(customScheduleIds)
-      const matches = pool.filter((e) => customSet.has(e.id))
-      return matches.filter((e) => String(e.tahunAjaran ?? currentTA) === selectedTA && byFakultas(e))
-    }
-
-    const pool = [...jadwal, ...archivedJadwal]
-    const active = pool.filter(
-      (e) => String(e.tahunAjaran ?? currentTA) === selectedTA && byFakultas(e),
-    )
-    if (active.length > 0) return active
-    if (viewingArchive) return []
-    if (!useSample) return []
-    return sampleSchedule.filter(
-      (e) => e.prodi === program && e.semester === Number(semester),
-    )
-  }, [loading, isCustomMode, allPublishedJadwal, customScheduleIds, jadwal, archivedJadwal, viewingArchive, selectedTA, currentTA, useSample, program, semester])
+  const scheduleSource = useMemo(
+    () =>
+      computeScheduleSource({
+        loading,
+        isCustomMode,
+        allPublishedJadwal,
+        customScheduleIds,
+        jadwal,
+        archivedJadwal,
+        viewingArchive,
+        selectedTA,
+        currentTA,
+        useSample,
+        program,
+        semester,
+        sampleSchedule,
+      }),
+    [loading, isCustomMode, allPublishedJadwal, customScheduleIds, jadwal, archivedJadwal, viewingArchive, selectedTA, currentTA, useSample, program, semester],
+  )
 
   useEffect(() => {
     const kode = location.state?.openKodeMK
-    if (!kode) return undefined
+    if (!kode) return
     const match = scheduleSource.find((e) => e.kodeMK === kode)
     // oxlint-disable-next-line react/set-state-in-effect
     if (match) setDetailEntry(match)
-    return undefined
   }, [location.state, scheduleSource])
 
   const courses = useMemo(
@@ -169,30 +143,13 @@ export default function WeeklySchedule() {
   )
   const courseMap = useMemo(() => new Map(courses.map((c) => [c.kodeMK, c])), [courses])
 
-  const conflictedIds = useMemo(() => {
-    const ids = new Set()
-    for (const day of WEEK_DAYS) {
-      const dayEntries = scheduleSource.filter((e) => e.hari === day)
-      for (let i = 0; i < dayEntries.length; i += 1) {
-        for (let j = i + 1; j < dayEntries.length; j += 1) {
-          if (
-            toMin(dayEntries[i].jamMulai) < toMin(dayEntries[j].jamSelesai) &&
-            toMin(dayEntries[j].jamMulai) < toMin(dayEntries[i].jamSelesai) &&
-            dayEntries[i].tipeKelas === dayEntries[j].tipeKelas &&
-            String(dayEntries[i].ruang ?? '') === String(dayEntries[j].ruang ?? '')
-          ) {
-            ids.add(dayEntries[i].id)
-            ids.add(dayEntries[j].id)
-          }
-        }
-      }
-    }
-    return ids
-  }, [scheduleSource])
+  const conflictedIds = useMemo(
+    () => computeConflictedIds(scheduleSource, WEEK_DAYS),
+    [scheduleSource],
+  )
 
   const dayEntries = useMemo(
-    () =>
-      sortByTime(scheduleSource.filter((e) => e.hari === selectedDay)),
+    () => sortByTime(scheduleSource.filter((e) => e.hari === selectedDay)),
     [scheduleSource, selectedDay],
   )
 
@@ -210,9 +167,9 @@ export default function WeeklySchedule() {
   const holidayDates = useMemo(() => {
     const set = new Set()
     libur.forEach((l) => {
-      const t = l?.tanggal
-      if (!t) return
-      const d = typeof t.toDate === 'function' ? t.toDate() : new Date(t)
+      const tanggal = l?.tanggal
+      if (!tanggal) return
+      const d = typeof tanggal.toDate === 'function' ? tanggal.toDate() : new Date(tanggal)
       set.add(localDateKey(d))
     })
     return set
@@ -224,78 +181,23 @@ export default function WeeklySchedule() {
     return () => clearInterval(id)
   }, [])
 
-  const todayISO = useMemo(() => {
-    const d = new Date()
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-      d.getDate(),
-    ).padStart(2, '0')}`
-  }, [])
+  const todayISO = useMemo(() => localDateKey(new Date()), [])
 
-  const weekDates = useMemo(() => {
-    const now = new Date()
-    now.setDate(now.getDate() + weekOffset * 7)
-    const monday = new Date(now)
-    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
-    return activeWeekDays.map((day, i) => {
-      const d = new Date(monday)
-      d.setDate(monday.getDate() + i)
-      return {
-        day,
-        dateNum: d.getDate(),
-        monthShort: d.toLocaleDateString('id-ID', { month: 'short' }),
-        iso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-          d.getDate(),
-        ).padStart(2, '0')}`,
-      }
-    })
-  }, [weekOffset, activeWeekDays])
+  const weekDates = useMemo(
+    () => computeWeekDates(weekOffset, activeWeekDays),
+    [weekOffset, activeWeekDays],
+  )
+  const monthYearLabel = useMemo(() => computeMonthYearLabel(weekDates), [weekDates])
+  const weekRangeLabel = useMemo(
+    () => computeWeekRangeLabel(weekDates, weekOffset, language),
+    [weekDates, weekOffset, language],
+  )
 
-  const monthYearLabel = useMemo(() => {
-    if (weekDates.length === 0) return ''
-    const first = weekDates[0]
-    const last = weekDates[weekDates.length - 1]
-    const dFirst = new Date(first.iso)
-    const dLast = new Date(last.iso)
-    const mFirst = dFirst.toLocaleDateString('id-ID', { month: 'long' })
-    const mLast = dLast.toLocaleDateString('id-ID', { month: 'long' })
-    const y = dLast.getFullYear()
-    if (mFirst === mLast) {
-      return `${mFirst} ${y}`
-    }
-    return `${mFirst} - ${mLast} ${y}`
-  }, [weekDates])
-
-  const weekRangeLabel = useMemo(() => {
-    if (weekDates.length === 0) return ''
-    const first = weekDates[0]
-    const last = weekDates[weekDates.length - 1]
-    const thisWeekPrefix = language === 'en' ? 'This Week' : 'Minggu Ini'
-    if (weekOffset === 0) {
-      return `${thisWeekPrefix} · ${first.dateNum} - ${last.dateNum} ${last.monthShort}`
-    }
-    if (first.monthShort === last.monthShort) {
-      return `${first.dateNum} - ${last.dateNum} ${last.monthShort}`
-    }
-    return `${first.dateNum} ${first.monthShort} - ${last.dateNum} ${last.monthShort}`
-  }, [weekDates, weekOffset, language])
-
-  const [rangeStart, rangeEnd] = useMemo(() => {
-    let min = 8 * 60
-    let max = 17 * 60
-    scheduleSource.forEach((e) => {
-      min = Math.min(min, toMin(e.jamMulai))
-      max = Math.max(max, toMin(e.jamSelesai))
-    })
-    const startH = Math.max(6, Math.floor(min / 60))
-    const endH = Math.min(22, Math.max(Math.ceil(max / 60), startH + 1))
-    return [startH * 60, endH * 60]
-  }, [scheduleSource])
-
-  const hourMarks = useMemo(() => {
-    const arr = []
-    for (let m = rangeStart; m <= rangeEnd; m += 60) arr.push(m)
-    return arr
-  }, [rangeStart, rangeEnd])
+  const [rangeStart, rangeEnd] = useMemo(
+    () => computeTimeRange(scheduleSource),
+    [scheduleSource],
+  )
+  const hourMarks = useMemo(() => computeHourMarks(rangeStart, rangeEnd), [rangeStart, rangeEnd])
 
   const gridScrollRef = useRef(null)
   const gridBodyRef = useRef(null)
@@ -323,9 +225,10 @@ export default function WeeklySchedule() {
     }
   }, [])
 
-  // pxPerHour dinamis: proporsional sempurna pas dengan tinggi viewport (availableHeight / totalHours) tanpa scrollbar
   const totalHours = Math.max(1, (rangeEnd - rangeStart) / 60)
-  const safeGridHeight = gridBodyHeight > 50 ? gridBodyHeight : (typeof window !== 'undefined' ? Math.max(380, window.innerHeight - 320) : 580)
+  const safeGridHeight = gridBodyHeight > 50
+    ? gridBodyHeight
+    : (typeof window !== 'undefined' ? Math.max(380, window.innerHeight - 320) : 580)
   const pxPerHour = Math.max(28, safeGridHeight / totalHours)
   const gridHeight = safeGridHeight
 
@@ -334,901 +237,207 @@ export default function WeeklySchedule() {
   }
 
   const toolbarContent = (
-    <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-surface-container-low/50 dark:bg-surface-container-high/20 border-b border-outline-variant/20 flex-nowrap overflow-x-auto no-scrollbar shrink-0 w-full">
-      {/* Left: Mode Switcher & 4 Action Icon-Only Buttons */}
-      <div className="flex items-center gap-2.5 shrink-0">
-        {/* Mode Switcher */}
-        <div className="flex items-center rounded-xl bg-surface-container-high/70 dark:bg-surface-container-highest/40 p-0.5 border border-outline-variant/30 shrink-0">
-          <button
-            type="button"
-            onClick={() => setScheduleMode('regular')}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-body-xs font-bold transition-all cursor-pointer ${
-              !isCustomMode
-                ? 'bg-surface shadow-level-1 text-primary'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <Icon name="school" size={15} />
-            <span>{language === 'en' ? 'Package Schedule' : 'Jadwal Paket'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setScheduleMode('custom')}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-body-xs font-bold transition-all cursor-pointer ${
-              isCustomMode
-                ? 'bg-amber-500/20 text-amber-900 dark:text-amber-300 shadow-level-1 border border-amber-500/30'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <Icon name="star" size={15} className={isCustomMode ? 'text-amber-500' : ''} />
-            <span>{language === 'en' ? 'Custom Schedule' : 'Jadwal Kustom'} {customScheduleIds.length > 0 ? `(${customScheduleIds.length})` : ''}</span>
-          </button>
-        </div>
+    <ScheduleToolbarContent
+      isCustomMode={isCustomMode}
+      setScheduleMode={setScheduleMode}
+      customScheduleIds={customScheduleIds}
+      language={language}
+      setCustomModalOpen={setCustomModalOpen}
+      setAttendanceModalOpen={setAttendanceModalOpen}
+      setNotesModalOpen={setNotesModalOpen}
+      setPrintModalOpen={setPrintModalOpen}
+      setKrsSimulatorOpen={setKrsSimulatorOpen}
+    />
+  )
 
-        {isCustomMode && (
-          <button
-            type="button"
-            onClick={() => setCustomModalOpen(true)}
-            className="flex items-center gap-1 rounded-xl bg-amber-500 text-slate-900 px-2.5 py-1 text-body-xs font-bold hover:bg-amber-400 active:opacity-80 transition-all shadow-level-1 cursor-pointer shrink-0"
-          >
-            <Icon name="tune" size={14} />
-            <span>Atur Matkul</span>
-          </button>
-        )}
-
-        {/* Vertical Divider */}
-        <div className="h-5 w-px bg-outline-variant/30 shrink-0" />
-
-        {/* 4 Action Buttons (Kotak 32x32px, Icon Saja, Tooltip saat hover, warna ikon berbeda) */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={() => setAttendanceModalOpen(true)}
-            title="Rekap Presensi — Lihat rekapitulasi kehadiran & sisa jatah absen seluruh mata kuliah"
-            aria-label="Rekap Presensi"
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 active:opacity-80 transition-all shadow-level-1 cursor-pointer"
-          >
-            <Icon name="fact_check" size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setNotesModalOpen(true)}
-            title="Semua Catatan — Lihat seluruh catatan perkuliahan semester ini"
-            aria-label="Semua Catatan"
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 active:opacity-80 transition-all shadow-level-1 cursor-pointer"
-          >
-            <Icon name="sticky_note_2" size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setPrintModalOpen(true)}
-            title="Cetak PDF — Unduh atau cetak jadwal format meja belajar / kartu saku"
-            aria-label="Cetak PDF"
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 active:opacity-80 transition-all shadow-level-1 cursor-pointer"
-          >
-            <Icon name="print" size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setKrsSimulatorOpen(true)}
-            title="Simulator KRS — Simulasikan pemilihan KRS & cek bentrok waktu semester baru"
-            aria-label="Simulator KRS"
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20 active:opacity-80 transition-all shadow-level-1 cursor-pointer"
-          >
-            <Icon name="science" size={16} />
-          </button>
-        </div>
-      </div>
-
-      {/* Right: Legend Acuan Warna Tipe Kelas (4 dot warna + label) */}
-      <div className="flex items-center gap-2.5 tablet:gap-3 shrink-0 text-label-caps font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-3 py-1 rounded-xl border border-outline-variant/20">
-        <span className="text-label-caps uppercase font-bold text-on-surface-variant/70 tracking-wider">Tipe:</span>
-        <div className="flex items-center gap-1.5" title="K1: Kelas Reguler / Offline di Ruangan Fisik">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-level-1" />
-          <span className="text-emerald-950 dark:text-emerald-200">K1 (Offline)</span>
-        </div>
-        <div className="flex items-center gap-1.5" title="K2: Kelas Karyawan / Online (Zoom/Google Meet)">
-          <span className="h-2 w-2 rounded-full bg-blue-500 shadow-level-1" />
-          <span className="text-blue-950 dark:text-blue-200">K2 (Online)</span>
-        </div>
-        <div className="flex items-center gap-1.5" title="HB: Hybrid (Kombinasi tatap muka & daring)">
-          <span className="h-2 w-2 rounded-full bg-violet-500 shadow-level-1" />
-          <span className="text-violet-950 dark:text-violet-200">HB (Hybrid)</span>
-        </div>
-        <div className="flex items-center gap-1.5" title="GBK: Kelas Gabungan Lintas Prodi/Angkatan">
-          <span className="h-2 w-2 rounded-full bg-amber-500 shadow-level-1" />
-          <span className="text-amber-950 dark:text-amber-200">GBK (Gabung)</span>
-        </div>
-      </div>
-    </div>
+  const actionRail = (
+    <ScheduleActionRail
+      isCustomMode={isCustomMode}
+      setScheduleMode={setScheduleMode}
+      language={language}
+      setCustomModalOpen={setCustomModalOpen}
+      setAttendanceModalOpen={setAttendanceModalOpen}
+      setNotesModalOpen={setNotesModalOpen}
+      setPrintModalOpen={setPrintModalOpen}
+      setKrsSimulatorOpen={setKrsSimulatorOpen}
+    />
   )
 
   return (
-    <div className="flex flex-col gap-3 w-full max-w-full overflow-x-hidden">
-      {/* Broadcast Pengumuman Kampus & Kuliah Pengganti */}
-      {jadwalError && (
-        <div role="status" className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-body-sm font-semibold text-error">Gagal memuat jadwal: {String(jadwalError.message || jadwalError.code || jadwalError)}</div>
-      )}
-      <AnnouncementBanner currentProgram={program} currentSemester={semester} />
+    <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
+      {/* Announcement Banner */}
+      <AnnouncementBanner />
 
-      {/* ── SINGLE UNIFIED CARD (Header + Grid Table) ── */}
-      <PageCard>
-        {/* ── HEADER UNIVERSAL (Tampil di Mobile, Tablet, dan Desktop) ── */}
-        <header className="p-3 tablet:px-4 tablet:py-3 border-b border-outline-variant/15 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
-          {/* Kiri: Judul & Info Akademik */}
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
-            <Icon name="calendar_month" size={24} />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-title-sm tablet:text-title-md font-bold tracking-tight text-on-surface">
-                {t ? t('schedule.title') : 'Jadwal Mingguan'}
-              </h2>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
-                {language === 'en' ? 'Active' : 'Aktif'}
-              </span>
-            </div>
-            <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-              {program} · Semester {semester} · TA {selectedTA}
-              {viewingArchive && ' · Arsip'}
-            </p>
-          </div>
-        </div>
+      <PageCard
+        title=""
+        noPadding
+        className="overflow-visible w-full max-w-full rounded-3xl"
+        bodyClassName="overflow-visible w-full max-w-full !gap-0"
+      >
+        {/* Header Halaman */}
+        <WeeklyScheduleHeader
+          program={program}
+          semester={semester}
+          selectedTA={selectedTA}
+          currentTA={currentTA}
+          allTAs={allTAs}
+          setSelectedTA={setSelectedTA}
+          viewingArchive={viewingArchive}
+          viewDays={viewDays}
+          setViewDays={setViewDays}
+          scheduleViewMode={scheduleViewMode}
+          setScheduleViewMode={setScheduleViewMode}
+          weekOffset={weekOffset}
+          setWeekOffset={setWeekOffset}
+          weekRangeLabel={weekRangeLabel}
+          language={language}
+          t={t}
+          setShareOpen={setShareOpen}
+        />
 
-        {/* Kanan: Seluruh Navigasi & Switcher */}
-        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-between tablet:justify-end">
-          {/* Switcher 5/6 Hari */}
-          <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                setViewDays('5')
-                setItem('jadwal:viewDays', '5')
-              }}
-              className={`rounded-full px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer ${
-                viewDays === '5'
-                  ? 'bg-surface shadow-level-1 text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              {language === 'en' ? '5 Days' : '5 Hari'}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setViewDays('6')
-                setItem('jadwal:viewDays', '6')
-              }}
-              className={`rounded-full px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer ${
-                viewDays === '6'
-                  ? 'bg-surface shadow-level-1 text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              {language === 'en' ? '6 Days' : '6 Hari'}
-            </button>
-          </div>
+        {/* Mobile View (<1024px) */}
+        <MobileScheduleView
+          toolbarContent={toolbarContent}
+          monthYearLabel={monthYearLabel}
+          selectedTA={selectedTA}
+          setSelectedTA={setSelectedTA}
+          currentTA={currentTA}
+          allTAs={allTAs}
+          setShareOpen={setShareOpen}
+          weekOffset={weekOffset}
+          setWeekOffset={setWeekOffset}
+          weekRangeLabel={weekRangeLabel}
+          language={language}
+          activeWeekDays={activeWeekDays}
+          weekDates={weekDates}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          todayName={todayName}
+          loading={loading}
+          dayEntries={dayEntries}
+          courseMap={courseMap}
+          conflictedIds={conflictedIds}
+          allTransitions={allTransitions}
+          openDetail={openDetail}
+        />
 
-          {/* Switcher Matriks vs Timeline */}
-          <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                setScheduleViewMode('matrix')
-                setItem('jadwal:scheduleViewMode', 'matrix')
-              }}
-              className={`rounded-full px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                scheduleViewMode === 'matrix'
-                  ? 'bg-surface shadow-level-1 text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-              title="Tampilan Matriks Sesi & Sholat"
-            >
-              <Icon name="grid_view" size={14} />
-              <span>{language === 'en' ? 'Matrix' : 'Matriks'}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setScheduleViewMode('timeline')
-                setItem('jadwal:scheduleViewMode', 'timeline')
-              }}
-              className={`rounded-full px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                scheduleViewMode === 'timeline'
-                  ? 'bg-surface shadow-level-1 text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-              title="Tampilan Timeline Jam Klasik"
-            >
-              <Icon name="view_timeline" size={14} />
-              <span>Timeline</span>
-            </button>
-          </div>
+        {/* Desktop View (>=1024px) */}
+        <div className="hidden desktop:flex items-stretch min-w-0 w-full border-t border-outline-variant/15">
+          {actionRail}
 
-          {/* Desktop Week Navigator */}
-          <div className="hidden tablet:flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/60 px-1 py-1 shadow-level-1 min-w-0">
-            <button
-              type="button"
-              onClick={() => setWeekOffset((prev) => prev - 1)}
-              title="Minggu Sebelumnya"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
-            >
-              <Icon name="chevron_left" size={17} />
-            </button>
-            <span className="px-2 text-label-caps font-bold text-on-surface whitespace-nowrap">
-              {weekRangeLabel}
-            </span>
-            <button
-              type="button"
-              onClick={() => setWeekOffset((prev) => prev + 1)}
-              title="Minggu Berikutnya"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
-            >
-              <Icon name="chevron_right" size={17} />
-            </button>
-            {weekOffset !== 0 && (
-              <button
-                type="button"
-                onClick={() => setWeekOffset(0)}
-                className="ml-1 rounded-full bg-primary/15 px-2 py-0.5 text-label-caps font-bold text-primary hover:bg-primary/25 transition-colors shrink-0 cursor-pointer"
-              >
-                {language === 'en' ? 'Today' : 'Hari Ini'}
-              </button>
-            )}
-          </div>
-
-          {/* TA Selector & Share */}
-          <TahunAjaranDropdown
-            selectedTA={selectedTA}
-            onSelect={(ta) => setSelectedTA(ta)}
-            currentTA={currentTA}
-            allTAs={allTAs}
-          />
-          <button
-            type="button"
-            onClick={() => setShareOpen(true)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/25 shadow-level-1 cursor-pointer"
-            title="Bagikan / Ekspor Jadwal"
-            aria-label="Bagikan atau ekspor jadwal"
-          >
-            <Icon name="ios_share" size={17} />
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile & Tablet View (<1024px) */}
-      <div className="desktop:hidden flex flex-col w-full">
-        {/* Mode Switcher & Aksi */}
-        {toolbarContent}
-        <div className="flex flex-col gap-3 p-3">
-
-        {/* Mobile Controls (<600px): Baris 1 Aligned (Bulan di Kiri, TA & Share di Kanan) */}
-        <div className="flex flex-col gap-2 tablet:hidden w-full max-w-full">
-          {/* Row 1: Bulan (Kiri) & TA Selector + Share (Kanan) */}
-          <div className="flex items-center justify-between gap-2 w-full">
-            <div className="flex items-center gap-1.5 text-body-xs font-bold text-primary bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-2xl shadow-level-1 shrink-0">
-              <Icon name="calendar_month" size={15} />
-              <span>{monthYearLabel}</span>
-            </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              <TahunAjaranDropdown
-                selectedTA={selectedTA}
-                onSelect={(ta) => setSelectedTA(ta)}
-                currentTA={currentTA}
-                allTAs={allTAs}
-              />
-              <button
-                type="button"
-                onClick={() => setShareOpen(true)}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/20 shadow-level-1 cursor-pointer"
-                title="Bagikan Jadwal"
-                aria-label="Bagikan jadwal"
-              >
-                <Icon name="ios_share" size={16} />
-              </button>
-            </div>
-          </div>
-
-          {/* Row 2: Week Navigator Pill Lebar Penuh + Tombol Hari Ini jika bergeser */}
-          <div className="flex items-center justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-high/60 px-2 py-1.5 shadow-level-1 w-full">
-            <button
-              type="button"
-              onClick={() => setWeekOffset((prev) => prev - 1)}
-              title="Minggu Sebelumnya"
-              aria-label="Minggu Sebelumnya"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
-            >
-              <Icon name="chevron_left" size={20} />
-            </button>
-            <div className="flex items-center gap-1.5">
-              <span className="text-body-xs font-bold text-on-surface text-center whitespace-nowrap">
-                {weekRangeLabel}
-              </span>
-              {weekOffset !== 0 && (
-                <button
-                  type="button"
-                  onClick={() => setWeekOffset(0)}
-                  className="rounded-full bg-primary/15 px-2 py-0.5 text-label-caps font-bold text-primary hover:bg-primary/25 transition-colors shrink-0"
-                >
-                  {language === 'en' ? 'Today' : 'Hari Ini'}
-                </button>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => setWeekOffset((prev) => prev + 1)}
-              title="Minggu Berikutnya"
-              aria-label="Minggu Berikutnya"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors cursor-pointer shrink-0"
-            >
-              <Icon name="chevron_right" size={20} />
-            </button>
-          </div>
-        </div>
-
-        {/* Bar 2: Segmented Day Grid */}
-        <div
-          className="grid gap-1.5 w-full max-w-full"
-          style={{ gridTemplateColumns: `repeat(${activeWeekDays.length}, minmax(0, 1fr))` }}
-        >
-          {weekDates.map(({ day, dateNum }) => {
-            const isSelected = selectedDay === day
-            const isToday = day === todayName && weekOffset === 0
-            const shortDay = day.slice(0, 3)
-
-            return (
-              <button
-                key={day}
-                type="button"
-                onClick={() => setSelectedDay(day)}
-                className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all duration-200 cursor-pointer min-w-0 ${
-                  isSelected
-                    ? 'bg-primary text-on-primary font-bold shadow-level-1'
-                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high dark:bg-surface-container-high'
-                }`}
-              >
-                <span className="text-label-caps uppercase font-bold tracking-tight">
-                  {shortDay}
-                </span>
-                <span className={`text-body-sm font-extrabold mt-0.5 ${isSelected ? 'text-on-primary' : 'text-on-surface'}`}>
-                  {dateNum}
-                </span>
-                {isToday && (
-                  <span className={`h-1 w-1 rounded-full mt-0.5 ${isSelected ? 'bg-white' : 'bg-error animate-pulse'}`} />
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        <div>
-          {loading ? (
-            <div className="space-y-sm">
-              <Skeleton className="h-24 w-full rounded-2xl" />
-              <Skeleton className="h-24 w-full rounded-2xl" />
-              <Skeleton className="h-24 w-full rounded-2xl" />
-            </div>
-          ) : dayEntries.length === 0 ? (
-            <EmptyState
-              icon="event_available"
-              title={`Tidak ada kelas hari ${selectedDay}`}
-              description="Pilih tab hari lain untuk melihat jadwal."
-            />
-          ) : (
-            <div className="space-y-sm">
-              {dayEntries.map((entry) => (
-                <ClassCard
-                  key={entry.id}
-                  entry={entry}
-                  course={courseMap.get(entry.kodeMK)}
-                  conflicted={conflictedIds.has(entry.id)}
-                  note={getItem(`${STORAGE_KEYS.courseNotes}:${entry.kodeMK}`, '')}
-                  transition={allTransitions.get(entry.id)}
-                  onClick={() => openDetail(entry)}
-                />
-              ))}
-            </div>
-          )}
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Calendar View (>=1024px) */}
-      <div className="hidden desktop:block w-full">
-        {!loading && scheduleSource.length === 0 && (
-          <div className="mx-3 mt-3 mb-3 flex items-center gap-sm rounded-2xl bg-info-container/40 px-md py-sm text-body-sm text-info dark:bg-info-container/20">
-            <Icon name="info" size={20} className="shrink-0" />
-            {isCustomMode
-              ? (language === 'en' ? 'No custom courses selected. Click "Custom Schedule" to pick courses.' : 'Belum ada kelas kustom dipilih. Klik "Atur Matkul Kustom" untuk memilih mata kuliah.')
-              : viewingArchive
-              ? (language === 'en' ? `No archived schedule found for ${program} · Sem ${semester} in AY ${selectedTA}.` : `Belum ada arsip jadwal ${program} · Semester ${semester} untuk TA ${selectedTA}.`)
-              : (language === 'en' ? `No published schedule yet for ${program} · Sem ${semester}.` : `Belum ada jadwal terpublikasi untuk ${program} · Semester ${semester}. Admin dapat mengunggahnya lewat Panel Admin.`)}
-          </div>
-        )}
-
-        {scheduleViewMode === 'matrix' ? (
-          <div className="w-full flex">
-            {/* ── TABEL MATRIKS UTAMA (KIRI - MENYAMBUNG LANGSUNG DENGAN HEADER) ── */}
-            <div className="flex-1 min-w-0 border-r border-outline-variant/20">
+          {scheduleViewMode === 'matrix' ? (
+            <div className="flex-1 min-w-0">
               <ScheduleTimetableGrid
-                borderless
-                days={activeWeekDays}
-                dayDates={weekDates.reduce((acc, curr) => {
-                  acc[curr.day] = `${curr.dateNum} ${curr.monthShort}`
-                  return acc
-                }, {})}
+                scheduleSource={scheduleSource}
+                weekDates={weekDates}
+                activeWeekDays={activeWeekDays}
                 todayName={todayName}
-                scheduleEntries={scheduleSource}
+                todayISO={todayISO}
+                holidayDates={holidayDates}
                 courseMap={courseMap}
-                onOpenDetail={openDetail}
-                onOpenLocation={(entry, course) => setDetailEntry({ ...entry, course, autoOpenLocation: true })}
-                language={language}
+                conflictedIds={conflictedIds}
+                allTransitions={allTransitions}
+                openDetail={openDetail}
                 showPrayerDividers={showPrayerDividers}
+                weekRangeLabel={weekRangeLabel}
+                toolbarContent={toolbarContent}
               />
             </div>
+          ) : (
+            <ScheduleTimelineView
+              gridScrollRef={gridScrollRef}
+              gridBodyRef={gridBodyRef}
+              activeWeekDays={activeWeekDays}
+              weekDates={weekDates}
+              todayName={todayName}
+              todayISO={todayISO}
+              holidayDates={holidayDates}
+              hourMarks={hourMarks}
+              rangeStart={rangeStart}
+              rangeEnd={rangeEnd}
+              pxPerHour={pxPerHour}
+              gridHeight={gridHeight}
+              nowMinute={nowMinute}
+              scheduleSource={scheduleSource}
+              courseMap={courseMap}
+              conflictedIds={conflictedIds}
+              allTransitions={allTransitions}
+              openDetail={openDetail}
+            />
+          )}
+        </div>
 
-            {/* ── KOTAK ULTRA RAMPING DI SISI KANAN TABEL (ICON-ONLY ULTRA-SLIM) ── */}
-            <aside className="w-12 shrink-0 flex flex-col justify-between py-2.5 px-1 bg-surface-container-low/30 dark:bg-surface-container-high/20">
-              <div className="flex flex-col gap-2 items-center">
-                {/* Mode Switcher: Icon Only (Paket vs Kustom) */}
-                <div className="flex flex-col rounded-xl bg-surface-container-high/60 dark:bg-surface-container-highest/40 p-0.5 border border-outline-variant/30 gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setScheduleMode('regular')}
-                    title={language === 'en' ? 'Package Schedule' : 'Jadwal Paket'}
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all cursor-pointer ${
-                      !isCustomMode
-                        ? 'bg-surface shadow-level-1 text-primary'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    <Icon name="school" size={17} />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setScheduleMode('custom')}
-                    title={language === 'en' ? 'Custom Schedule' : 'Jadwal Kustom'}
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all cursor-pointer ${
-                      isCustomMode
-                        ? 'bg-amber-500/20 text-amber-900 dark:text-amber-300 shadow-level-1 border border-amber-500/30'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    <Icon name="star" size={17} className={isCustomMode ? 'text-amber-500' : ''} />
-                  </button>
-                </div>
-
-                {/* Tombol Atur Matkul jika mode kustom (Icon Only) */}
-                {isCustomMode && (
-                  <button
-                    type="button"
-                    onClick={() => setCustomModalOpen(true)}
-                    title={language === 'en' ? 'Select Courses' : 'Atur Matkul Kustom'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-slate-900 shadow-level-1 hover:bg-amber-400 active:opacity-80 transition-all cursor-pointer"
-                  >
-                    <Icon name="tune" size={15} />
-                  </button>
-                )}
-
-                {/* 4 Tombol Aksi Vertikal Minimalis (Icon Only) */}
-                <div className="w-full pt-1.5 border-t border-outline-variant/20 flex flex-col gap-1 items-center">
-                  <button
-                    type="button"
-                    onClick={() => setAttendanceModalOpen(true)}
-                    title={language === 'en' ? 'Attendance' : 'Rekap Presensi'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <Icon name="fact_check" size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNotesModalOpen(true)}
-                    title={language === 'en' ? 'Course Notes' : 'Semua Catatan'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <Icon name="sticky_note_2" size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPrintModalOpen(true)}
-                    title={language === 'en' ? 'Print PDF' : 'Cetak PDF'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <Icon name="print" size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setKrsSimulatorOpen(true)}
-                    title={language === 'en' ? 'KRS Simulator' : 'Simulator KRS'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <Icon name="science" size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Status Mini Indicator Bawah */}
-              <div className="pt-1.5 border-t border-outline-variant/15 flex flex-col items-center justify-center text-center">
-                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              </div>
-            </aside>
-          </div>
-        ) : (
-          <div className="w-full flex">
-            {/* ── TABEL TIMELINE UTAMA (KIRI - MENYAMBUNG LANGSUNG DENGAN HEADER) ── */}
-            <div
-              ref={gridScrollRef}
-              className="flex-1 min-w-0 border-r border-outline-variant/20 overflow-hidden h-[calc(100vh-190px)] min-h-[460px] relative flex flex-col"
-            >
-              <div
-                className="grid sticky top-0 z-30 shrink-0 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 border-b border-outline-variant/40"
-                style={{ gridTemplateColumns: `64px repeat(${activeWeekDays.length}, minmax(0, 1fr))` }}
-              >
-                <div className="p-3 text-center text-body-xs font-bold uppercase tracking-wider text-on-surface-variant/70 flex items-center justify-center sticky left-0 z-40 bg-surface-container-lowest dark:bg-surface-container-low border-r border-outline-variant/30 select-none">
-                  GMT+7
-                </div>
-                {weekDates.map(({ day, dateNum, monthShort, iso }) => {
-                  const isTodayCol = day === todayName && iso === todayISO
-                  const isHoliday = holidayDates.has(iso)
-                  return (
-                    <div
-                      key={day}
-                      className={`p-2.5 text-center flex items-center justify-center gap-1.5 border-l border-outline-variant/30 transition-colors ${
-                        isHoliday
-                          ? 'opacity-60'
-                          : isTodayCol
-                          ? 'bg-surface-container-low dark:bg-surface-container-high/60 rounded-t-2xl'
-                          : ''
-                      }`}
-                    >
-                      {isTodayCol ? (
-                        <span className="rounded-full bg-primary text-on-primary px-3 py-0.5 text-label-caps font-bold shadow-level-1 inline-block">
-                          {day}
-                        </span>
-                      ) : (
-                        <span className="text-title-sm font-semibold text-on-surface">{day}</span>
-                      )}
-                      <span className="text-body-sm text-on-surface-variant font-medium whitespace-nowrap">
-                        {dateNum} {monthShort}
-                        {isHoliday && (
-                          <span className="ml-1 font-bold text-error">· LIBUR</span>
-                        )}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-
-              <div className="flex-1 min-h-0 overflow-hidden relative">
-                <div
-                  ref={gridBodyRef}
-                  className="relative grid h-full w-full"
-                  style={{
-                    gridTemplateColumns: `64px repeat(${activeWeekDays.length}, minmax(0, 1fr))`
-                  }}
-                >
-                  <div className="relative border-r border-outline-variant/30 sticky left-0 z-20 bg-surface-container-lowest/95 dark:bg-surface-container-low/95 backdrop-blur-xs select-none">
-                    {hourMarks.map((m) => {
-                      const isFirst = m === rangeStart
-                      const top = ((m - rangeStart) / 60) * pxPerHour
-                      return (
-                        <div
-                          key={m}
-                          className={`absolute inset-x-0 flex items-center justify-end pr-2.5 pointer-events-none ${
-                            isFirst ? 'top-1.5' : '-translate-y-1/2'
-                          }`}
-                          style={isFirst ? undefined : { top }}
-                        >
-                          <span className="text-label-caps font-normal text-on-surface-variant/70 tabular-nums leading-none tracking-tight">
-                            {String(Math.floor(m / 60)).padStart(2, '0')}:00
-                          </span>
-                        </div>
-                      )
-                    })}
-                  </div>
-
-                  {weekDates.map(({ day, iso }) => {
-                    const isHoliday = holidayDates.has(iso)
-                    const isTodayCol = day === todayName && iso === todayISO
-                    const entries = sortByTime(scheduleSource.filter((e) => e.hari === day))
-                    return (
-                      <div
-                        key={day}
-                        className={`relative border-l border-outline-variant/40 transition-colors ${
-                          isHoliday
-                            ? 'holiday-stripes'
-                            : isTodayCol
-                            ? 'bg-surface-container-low/70 dark:bg-surface-container-high/30'
-                            : ''
-                        }`}
-                      >
-                        {isHoliday && (
-                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
-                            <span className="text-label-caps uppercase tracking-widest text-on-surface-variant/70 -rotate-90 font-bold">
-                              LIBUR
-                            </span>
-                          </div>
-                        )}
-                        {hourMarks.map((m) => (
-                          <span
-                            key={m}
-                            className="absolute inset-x-0 border-t border-outline-variant/30"
-                            style={{ top: ((m - rangeStart) / 60) * pxPerHour }}
-                          />
-                        ))}
-
-                        {!isHoliday &&
-                          entries.map((entry) => {
-                            const start = toMin(entry.jamMulai)
-                            const end = toMin(entry.jamSelesai)
-                            const top = ((start - rangeStart) / 60) * pxPerHour
-                            const durationHeight = ((end - start) / 60) * pxPerHour - 4
-                            const height = Math.max(durationHeight, 92)
-                            const course = courseMap.get(entry.kodeMK)
-                            const conflicted = conflictedIds.has(entry.id)
-                            const noteText = getItem(`${STORAGE_KEYS.courseNotes}:${entry.kodeMK}`, '')
-                            const transition = allTransitions.get(entry.id)
-                            const classType = getClassType(entry.tipeKelas)
-                            const borderClass = TONE_CARD_BORDER_CLASSES[classType.tone] ?? TONE_CARD_BORDER_CLASSES.neutral
-                            const iconName = TONE_ICONS[classType.tone] ?? 'corporate_fare'
-                            const shadowClass = TONE_SHADOW_CLASSES[classType.tone]
-                            const timePillClass = TONE_TIME_PILL_CLASSES[classType.tone]
-                            const iconColor = TONE_ICON_COLOR_CLASSES[classType.tone]
-                            const text = TONE_TEXT_CLASSES[classType.tone]
-                            const subtext = TONE_SUBTEXT_CLASSES[classType.tone]
-                            const isOnline =
-                              entry.tipeKelas === 'K2' ||
-                              String(entry.ruang || '').toLowerCase().includes('zoom') ||
-                              String(entry.ruang || '').toLowerCase().includes('online')
-
-                            return (
-                              <button
-                                key={entry.id}
-                                type="button"
-                                onClick={() => openDetail(entry)}
-                                style={{ top: top + 2, minHeight: height, height: 'auto' }}
-                                className={`absolute inset-x-1 z-10 rounded-2xl p-2.5 text-left transition-shadow duration-200 hover:z-30 hover:shadow-level-2 flex flex-col justify-between cursor-pointer ${
-                                  TONE_BG_CLASSES[classType.tone]
-                                } ${borderClass} ${shadowClass} ${conflicted ? 'ring-2 ring-error/60' : ''}`}
-                                title={`${course?.namaMK ?? entry.kodeMK} · ${entry.jamMulai}-${entry.jamSelesai} · ${formatRuang(entry.ruang, entry.tipeKelas)}`}
-                              >
-                                <div className="flex items-center justify-between w-full shrink-0">
-                                  <div className="flex items-center gap-1.5 min-w-0">
-                                    <Icon name={iconName} size={16} className={iconColor} />
-                                    <span className={`text-label-caps font-bold uppercase tracking-wider ${iconColor}`}>
-                                      {entry.tipeKelas || 'K1'}
-                                    </span>
-                                  </div>
-
-                                  <div className="flex items-center gap-1 shrink-0">
-                                    {transition && (
-                                      <span
-                                        className="flex h-4 items-center gap-0.5 px-1 rounded-full bg-orange-500/20 text-orange-800 dark:text-orange-300 text-label-caps font-bold border border-orange-500/30"
-                                        title={transition.message}
-                                      >
-                                        <Icon name="directions_run" size={9} />
-                                      </span>
-                                    )}
-                                    {noteText && (
-                                      <span
-                                        className="flex h-4 w-4 items-center justify-center rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300"
-                                        title={`Catatan: ${noteText}`}
-                                      >
-                                        <Icon name="sticky_note_2" size={9} />
-                                      </span>
-                                    )}
-                                    {conflicted && <Icon name="warning" size={13} className="shrink-0 text-error" />}
-                                    <span className={`px-2 py-0.5 rounded-full text-body-xs font-bold tracking-tight shadow-level-1 ${timePillClass}`}>
-                                      {entry.jamMulai} - {entry.jamSelesai}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <h3 className={`my-2 text-center text-body-xs font-bold tracking-tight leading-snug whitespace-normal break-words line-clamp-2 w-full ${text}`}>
-                                  {course?.namaMK ?? entry.kodeMK}
-                                </h3>
-
-                                <div className={`flex items-center justify-center gap-1 text-[11px] font-normal leading-tight opacity-90 w-full ${subtext}`}>
-                                  <Icon name={isOnline ? 'videocam' : 'location_on'} size={13} className="shrink-0" />
-                                  <span className="truncate">{formatRuang(entry.ruang, entry.tipeKelas)}</span>
-                                </div>
-                              </button>
-                            )
-                          })}
-
-                        {isTodayCol && (
-                          (() => {
-                            const clampedMinute = Math.max(rangeStart, Math.min(nowMinute, rangeEnd))
-                            const isClampedTop = nowMinute < rangeStart
-                            const isClampedBottom = nowMinute > rangeEnd
-                            const topPos = isClampedTop
-                              ? 6
-                              : isClampedBottom
-                              ? gridHeight - 6
-                              : ((clampedMinute - rangeStart) / 60) * pxPerHour
-
-                            return (
-                              <div
-                                style={{ top: topPos }}
-                                className="pointer-events-none absolute inset-x-0 z-20 transition-all duration-300 ease-out"
-                              >
-                                <span className="absolute -left-1 -top-[4px] h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-primary/20 animate-pulse" />
-                                <div className="h-[2px] w-full bg-primary/70 shadow-level-1" />
-                              </div>
-                            )
-                          })()
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* ── KOTAK ULTRA RAMPING DI SISI KANAN TABEL (TIMELINE VIEW) ── */}
-            <aside className="w-12 shrink-0 flex flex-col justify-between py-2.5 px-1 bg-surface-container-low/30 dark:bg-surface-container-high/20">
-              <div className="flex flex-col gap-2 items-center">
-                {/* Mode Switcher: Icon Only (Paket vs Kustom) */}
-                <div className="flex flex-col rounded-xl bg-surface-container-high/60 dark:bg-surface-container-highest/40 p-0.5 border border-outline-variant/30 gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setScheduleMode('regular')}
-                    title={language === 'en' ? 'Package Schedule' : 'Jadwal Paket'}
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all cursor-pointer ${
-                      !isCustomMode
-                        ? 'bg-surface shadow-level-1 text-primary'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    <Icon name="school" size={17} />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setScheduleMode('custom')}
-                    title={language === 'en' ? 'Custom Schedule' : 'Jadwal Kustom'}
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all cursor-pointer ${
-                      isCustomMode
-                        ? 'bg-amber-500/20 text-amber-900 dark:text-amber-300 shadow-level-1 border border-amber-500/30'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  >
-                    <Icon name="star" size={17} className={isCustomMode ? 'text-amber-500' : ''} />
-                  </button>
-                </div>
-
-                {/* Tombol Atur Matkul jika mode kustom (Icon Only) */}
-                {isCustomMode && (
-                  <button
-                    type="button"
-                    onClick={() => setCustomModalOpen(true)}
-                    title={language === 'en' ? 'Select Courses' : 'Atur Matkul Kustom'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-slate-900 shadow-level-1 hover:bg-amber-400 active:opacity-80 transition-all cursor-pointer"
-                  >
-                    <Icon name="tune" size={15} />
-                  </button>
-                )}
-
-                {/* 4 Tombol Aksi Vertikal Minimalis (Icon Only) */}
-                <div className="w-full pt-1.5 border-t border-outline-variant/20 flex flex-col gap-1 items-center">
-                  <button
-                    type="button"
-                    onClick={() => setAttendanceModalOpen(true)}
-                    title={language === 'en' ? 'Attendance' : 'Rekap Presensi'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <Icon name="fact_check" size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNotesModalOpen(true)}
-                    title={language === 'en' ? 'Course Notes' : 'Semua Catatan'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <Icon name="sticky_note_2" size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPrintModalOpen(true)}
-                    title={language === 'en' ? 'Print PDF' : 'Cetak PDF'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <Icon name="print" size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setKrsSimulatorOpen(true)}
-                    title={language === 'en' ? 'KRS Simulator' : 'Simulator KRS'}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20 active:scale-95 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <Icon name="science" size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Status Mini Indicator Bawah */}
-              <div className="pt-1.5 border-t border-outline-variant/15 flex flex-col items-center justify-center text-center">
-                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              </div>
-            </aside>
-          </div>
+        {jadwalError && (
+          <p className="p-4 text-body-xs text-error font-medium">
+            {t ? t('schedule.error_loading') : 'Gagal memuat jadwal. Periksa koneksi internet Anda.'}
+          </p>
         )}
-      </div>
       </PageCard>
 
-      {conflictedIds.size > 0 && (
-        <div className="flex items-center gap-sm rounded-2xl bg-error-container/40 p-md text-body-sm text-error">
-          <Icon name="warning" size={20} className="shrink-0" />
-          Ada jadwal yang bentrok waktunya. Cek kartu bertanda peringatan.
-        </div>
-      )}
-
+      {/* Modals */}
       {detailEntry && (
         <ClassDetailPanel
           entry={detailEntry}
           course={courseMap.get(detailEntry.kodeMK)}
-          transition={allTransitions.get(detailEntry.id)}
+          conflicted={conflictedIds.has(detailEntry.id)}
+          scheduleSource={scheduleSource}
           onClose={() => setDetailEntry(null)}
         />
       )}
 
-      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
+      <ShareModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        jadwal={scheduleSource}
+        courses={courses}
+        semester={semester}
+        program={program}
+      />
 
       <CustomScheduleModal
-        isOpen={customModalOpen}
+        open={customModalOpen}
         onClose={() => setCustomModalOpen(false)}
-        allSchedules={allPublishedJadwal}
-        courses={mataKuliah}
-        currentProgram={program}
-        currentSemester={semester}
-        currentCustomIds={customScheduleIds}
-        onSave={(newIds) => setCustomScheduleIds(newIds)}
-        onOpenSimulator={() => setKrsSimulatorOpen(true)}
+        allJadwal={allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule}
+        courses={courses}
+        selectedIds={customScheduleIds}
+        onApply={(ids) => {
+          setCustomScheduleIds(ids)
+          setScheduleMode('custom')
+          setCustomModalOpen(false)
+        }}
       />
 
       <AttendanceOverviewModal
-        isOpen={attendanceModalOpen}
+        open={attendanceModalOpen}
         onClose={() => setAttendanceModalOpen(false)}
-        scheduleEntries={scheduleSource}
-        courses={courses}
-        onSelectCourse={(selectedKode) => {
-          const match = scheduleSource.find((s) => s.kodeMK === selectedKode)
-          if (match) setDetailEntry(match)
-        }}
+        scheduleSource={scheduleSource}
+        courseMap={courseMap}
       />
 
       <CourseNotesModal
-        isOpen={notesModalOpen}
+        open={notesModalOpen}
         onClose={() => setNotesModalOpen(false)}
-        courses={courses}
-        onOpenCourseDetail={(selectedKode) => {
-          const match = scheduleSource.find((s) => s.kodeMK === selectedKode)
-          if (match) setDetailEntry(match)
-        }}
+        scheduleSource={scheduleSource}
+        courseMap={courseMap}
       />
 
       <PrintScheduleModal
-        isOpen={printModalOpen}
+        open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
-        scheduleEntries={scheduleSource}
-        courses={courses}
+        scheduleSource={scheduleSource}
+        courseMap={courseMap}
+        weekDates={weekDates}
+        activeWeekDays={activeWeekDays}
         program={program}
         semester={semester}
-        tahunAjaran={selectedTA}
+        selectedTA={selectedTA}
       />
 
       <KrsSimulatorModal
-        isOpen={krsSimulatorOpen}
+        open={krsSimulatorOpen}
         onClose={() => setKrsSimulatorOpen(false)}
-        allSchedules={allPublishedJadwal}
-        courses={mataKuliah}
-        currentProgram={program}
+        allJadwal={allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule}
+        courses={courses}
         currentSemester={semester}
         onApplyToSchedule={(ids) => {
           setCustomScheduleIds(ids)

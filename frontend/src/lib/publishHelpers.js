@@ -23,7 +23,7 @@ export { deriveTahunAjaran }
  * ATURAN SEMESTER: jadwal semester yang sama (mis. Semester 4) di tahun
  * ajaran berbeda adalah jadwal BERBEDA. Saat batch dipublish, semua dokumen
  * published LAIN dengan pasangan prodi+semester+tahunAjaran yang sama (di luar batch)
- * otomatis diarsipkan — jadi jadwal baru MENGGANTIKAN yang lama, tidak
+ * otomatis diarsipkan – jadi jadwal baru MENGGANTIKAN yang lama, tidak
  * pernah tercampur.
  *
  * @param {'jadwal'|'ujian'} collectionName
@@ -32,7 +32,7 @@ export { deriveTahunAjaran }
  * @param {string} actor
  */
 async function archiveReplacedPublished(collectionName, draftDocs, keepIds, actor) {
-  // Hanya butuh himpunan pasangan prodi|semester unik — pakai Set, bukan
+  // Hanya butuh himpunan pasangan prodi|semester unik – pakai Set, bukan
   // Map berisi array kosong yang tidak pernah dipakai. Kueri per kelompok
   // dijalankan paralel agar tidak serial (N+1).
   const groupKeys = new Set(
@@ -78,7 +78,7 @@ async function archiveReplacedPublished(collectionName, draftDocs, keepIds, acto
   }
 }
 
-/** Ambil snapshot dokumen per id — query 'in' (maks 30 per query). */
+/** Ambil snapshot dokumen per id – query 'in' (maks 30 per query). */
 async function fetchByIds(collectionName, ids) {
   const docs = []
   for (let i = 0; i < ids.length; i += 30) {
@@ -90,7 +90,7 @@ async function fetchByIds(collectionName, ids) {
   return docs
 }
 
-/** Publish satu set draft doc + catat riwayat (tanpa arsip — arsip dipanggil terpisah). */
+/** Publish satu set draft doc + catat riwayat (tanpa arsip – arsip dipanggil terpisah). */
 async function publishIds(collectionName, draftDocs, fallbackTa, actor) {
   const batch = writeBatch(db)
   draftDocs.forEach((snap) => {
@@ -116,7 +116,7 @@ async function publishIds(collectionName, draftDocs, fallbackTa, actor) {
 /**
  * Ubah status dokumen jadwal/ujian dari `draft` menjadi `published`.
  * Sebelum publish, jadwal published lama untuk prodi+semester yang sama
- * diarsipkan dulu (aturan semester — lihat archiveReplacedPublished).
+ * diarsipkan dulu (aturan semester – lihat archiveReplacedPublished).
  *
  * @param {'jadwal'|'ujian'} collectionName
  * @param {string[]} docIds daftar id dokumen yang mau dipublish

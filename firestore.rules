@@ -9,11 +9,8 @@ service cloud.firestore {
     }
 
     // Admin/registrar kampus — saat ini dikendalikan admin global.
-    // Untuk multi-tenant penuh, pisahkan per kampus lewat koleksi `adminUsers`.
-    function isCampusStaff(kampusId) {
-      return isAdmin() || (request.auth != null
-        && request.auth.token.kampusId == kampusId);
-    }
+    // Untuk multi-tenant penuh nanti, tambahkan fungsi isCampusStaff(kampusId)
+    // yang memeriksa request.auth.token.kampusId per kampus lewat `adminUsers`.
 
     match /kampus/{doc} {
       // Konfigurasi kampus boleh dibaca publik (diperlukan oleh mahasiswa

@@ -9,7 +9,7 @@ import { formatRuang } from '../lib/scheduleUtils'
 import { getItem, STORAGE_KEYS } from '../lib/storage'
 
 /**
- * Item timeline jadwal hari ini — kartu putih dengan ikon lingkaran
+ * Item timeline jadwal hari ini – kartu putih dengan ikon lingkaran
  * berwarna menempel di tepi kiri (sesuai referensi Stitch home).
  * `index` dipakai untuk stagger animation; `showNowBefore` menampilkan
  * garis "sekarang" sebelum item ini.
@@ -37,7 +37,7 @@ export function ClassTimelineItem({
     <>
       {showNowBefore && (
         <div className="relative my-3 flex items-center gap-2 -ml-6 z-20" aria-hidden="true">
-          {/* Pulsing Live Dot — pink like mockup */}
+          {/* Pulsing Live Dot – pink like mockup */}
           <span className="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
             <span className="absolute inline-flex h-full w-full animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite] rounded-full bg-pink-500/30" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-pink-500 shadow-xs" />
@@ -55,7 +55,7 @@ export function ClassTimelineItem({
         className="relative mb-6 animate-[fade-up_250ms_var(--ease-standard)_both]"
         style={{ animationDelay: `${Math.min(index, 5) * 40}ms` }}
       >
-        {/* Timeline Dot — square teal like mockup */}
+        {/* Timeline Dot – square teal like mockup */}
         <div
           className={`absolute -left-3 top-4 flex h-7 w-7 items-center justify-center rounded-xl border shadow-sm z-10 ${
             isPast ? 'bg-surface-variant text-on-surface-variant border-surface' : 'bg-teal-600 dark:bg-teal-500 text-white border-teal-600 dark:border-teal-500'

@@ -1,0 +1,130 @@
+/*
+ * Motion tokens – M3 Clean & Responsive.
+ */
+:root {
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-vanguard: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-emphasized: 250ms;
+  --duration-vanguard: 300ms;
+}
+
+/*
+ * View Transitions API – Whole-Page Theme Dissolve.
+ * Hanya aktif saat tombol `document.startViewTransition` dipanggil dengan
+ * penanda `html.theme-transition` (dipasang oleh AppContext saat ganti tema).
+ * Tanpa penanda ini, transisi rute memakai slide "Panel Switch" di bawah –
+ * dua aturan `::view-transition-old(root)` tidak boleh saling menimpa.
+ */
+html.theme-transition::view-transition-group(root) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.theme-transition::view-transition-old(root) {
+  animation: theme-fade-out 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  mix-blend-mode: normal;
+}
+
+html.theme-transition::view-transition-new(root) {
+  animation: theme-fade-in 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  mix-blend-mode: normal;
+}
+
+@keyframes theme-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes theme-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.15;
+  transform: scale(0);
+  animation: ripple 600ms var(--ease-standard) forwards;
+  pointer-events: none;
+}
+
+

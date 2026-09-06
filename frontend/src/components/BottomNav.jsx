@@ -3,7 +3,7 @@ import { Icon } from './Icon'
 import { useApp } from '../hooks/useApp'
 
 /**
- * Floating Pill Nav — kontainer terpusat, blur, border halus
+ * Floating Pill Nav – kontainer terpusat, blur, border halus
  * (JadwalKu Expressive v2). Mobile only (`tablet:hidden`).
  *
  * 5 Tab Utama Mobile:
@@ -69,7 +69,7 @@ export function BottomNav() {
                   'flex h-7 items-center justify-center rounded-full transition-all duration-200',
                   isActive
                     ? isHighlight
-                      // Jadwal aktif: solid primary background — standout jelas
+                      // Jadwal aktif: solid primary background – standout jelas
                       ? 'w-14 bg-primary text-on-primary shadow-[0_2px_12px_rgb(var(--c-primary)/0.45)]'
                       : 'w-12 bg-primary-container/50 shadow-[0_0_16px_rgb(var(--c-primary)/0.25)] dark:bg-primary/15'
                     : isHighlight

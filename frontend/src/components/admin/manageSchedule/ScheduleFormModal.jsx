@@ -85,7 +85,7 @@ export function ScheduleFormModal({
 
         <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
           <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
-            {/* KIRI — Waktu & Penempatan */}
+            {/* KIRI – Waktu & Penempatan */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
@@ -150,7 +150,7 @@ export function ScheduleFormModal({
               </div>
             </div>
 
-            {/* KANAN — Identitas MK & Ruang */}
+            {/* KANAN – Identitas MK & Ruang */}
             <div className="space-y-4">
               <div className="flex flex-col gap-1">
                 <label className="text-label-caps uppercase text-on-surface-variant">Ruangan</label>
@@ -182,7 +182,7 @@ export function ScheduleFormModal({
                   placeholder="- Pilih Mata Kuliah Terdaftar -"
                   options={courses.map((c) => ({
                     value: c.kodeMK,
-                    label: `${c.kodeMK} — ${c.namaMK} (${c.dosen || 'Dosen -'})`,
+                    label: `${c.kodeMK} – ${c.namaMK} (${c.dosen || 'Dosen -'})`,
                   }))}
                 />
               </div>

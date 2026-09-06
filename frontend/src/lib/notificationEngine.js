@@ -1,7 +1,7 @@
 import { minutesUntil } from './scheduleUtils'
 
 /**
- * Mesin notifikasi — fungsi murni yang mengubah data (jadwal, tugas, ujian,
+ * Mesin notifikasi – fungsi murni yang mengubah data (jadwal, tugas, ujian,
  * riwayat) menjadi daftar item notifikasi. Dipanggil oleh
  * NotificationsContext secara berkala.
  */

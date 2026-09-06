@@ -10,7 +10,7 @@ import { SettingsModal } from './student/SettingsModal'
 import { useNotifications } from '../hooks/useNotifications'
 import { useApp } from '../hooks/useApp'
 
-/** Tombol lonceng dengan badge jumlah belum dibaca — click to toggle popover */
+/** Tombol lonceng dengan badge jumlah belum dibaca – click to toggle popover */
 function BellButton({ active, onToggle }) {
   const { unreadCount } = useNotifications()
   return (
@@ -81,7 +81,7 @@ export function AppLayout() {
     <div className="flex min-h-screen w-full bg-transparent">
       <Sidebar />
       <div className="flex min-h-screen min-w-0 w-full flex-1 flex-col relative">
-        {/* Top app bar — Sticky Header */}
+        {/* Top app bar – Sticky Header */}
         <header className="sticky top-0 z-40 h-[72px] flex items-center bg-surface-container-lowest/95 dark:bg-surface-container-low/95 px-md tablet:px-lg desktop:px-xl backdrop-blur-md border-b border-outline-variant/30 shadow-xs transition-colors">
           <div className="mx-auto flex w-full max-w-container-max items-center justify-between gap-md relative">
             {/* Left: Mobile Logo + Live Clock or Desktop Active Academic Program */}

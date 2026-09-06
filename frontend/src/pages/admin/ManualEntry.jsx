@@ -54,7 +54,7 @@ export default function ManualEntry() {
     setFormErrors(errors)
     if (errors.length > 0) return
 
-    // Bentrok lokal dalam daftar sesi yang belum disimpan — pakai aturan
+    // Bentrok lokal dalam daftar sesi yang belum disimpan – pakai aturan
     // yang sama dengan validator upload (hari + prodi + semester + ruang +
     // tipe kelas), supaya K1/K2 paralel di ruang berbeda tidak salah flag.
     const candidate = { ...form, prodi: form.prodi.trim(), semester: Number(form.semester) }
@@ -186,7 +186,7 @@ export default function ManualEntry() {
           </span>
           <div className="min-w-0">
             <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">Input Jadwal Manual</h2>
-            <p className="text-label-caps tablet:text-body-xs font-normal text-on-surface-variant truncate">Tambah satu per satu sesi kelas tanpa upload file — kumpulkan lalu simpan/publish.</p>
+            <p className="text-label-caps tablet:text-body-xs font-normal text-on-surface-variant truncate">Tambah satu per satu sesi kelas tanpa upload file – kumpulkan lalu simpan/publish.</p>
           </div>
         </div>
       </header>

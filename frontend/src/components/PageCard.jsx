@@ -9,7 +9,7 @@
  *
  * Use this to wrap a page's header + content in ONE unified box, following the
  * same pattern used across the Admin Console. Nested cards/toolbars should NOT
- * add their own outer border/rounded/shadow — only section dividers (border-b).
+ * add their own outer border/rounded/shadow – only section dividers (border-b).
  */
 export function PageCard({ children, className = '' }) {
   return (

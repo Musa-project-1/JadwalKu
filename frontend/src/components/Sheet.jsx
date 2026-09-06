@@ -1,11 +1,11 @@
 import { useEffect, useRef, useCallback } from 'react'
 
 /**
- * Sheet — modal primitive (MOBILE_REDESIGN.md F2).
+ * Sheet – modal primitive (MOBILE_REDESIGN.md F2).
  *
- * - <600px (mobile): bottom sheet — `sheet-up` entrance, drag-handle bar,
+ * - <600px (mobile): bottom sheet – `sheet-up` entrance, drag-handle bar,
  *   `max-h-[90vh] overflow-y-auto`, safe-area bottom padding.
- * - >=600px (tablet/desktop): centered dialog — identical to the previous
+ * - >=600px (tablet/desktop): centered dialog – identical to the previous
  *   centered modals (rounded-3xl, fade-up), so desktop rendering is unchanged.
  *
  * Replaces ad-hoc modal wrappers (AddTaskForm, admin CRUD dialogs) with one
@@ -58,7 +58,7 @@ export function Sheet({
         onClick={(e) => e.stopPropagation()}
         className={`relative z-10 w-full overflow-hidden rounded-t-3xl bg-surface-container-lowest shadow-2xl outline-none animate-[sheet-up_300ms_var(--ease-emphasized)_both] tablet:rounded-3xl tablet:animate-[fade-up_250ms_var(--ease-standard)_both] dark:bg-surface-container-low ${maxWidthClass} ${panelClassName}`}
       >
-        {/* Drag handle — mobile only */}
+        {/* Drag handle – mobile only */}
         <div className="flex justify-center pt-3 pb-1 tablet:hidden" aria-hidden="true">
           <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
         </div>
@@ -96,7 +96,7 @@ export function Sheet({
           </header>
         )}
 
-        {/* Body — scrollable, safe-area aware on mobile */}
+        {/* Body – scrollable, safe-area aware on mobile */}
         <div className={`max-h-[calc(90vh-7rem)] overflow-y-auto p-5 pb-safe tablet:max-h-[calc(85vh-7rem)] tablet:p-6 ${className}`}>
           {children}
         </div>

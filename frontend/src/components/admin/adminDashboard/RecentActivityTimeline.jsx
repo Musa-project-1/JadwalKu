@@ -17,7 +17,7 @@ function formatDateID(iso) {
   }
 }
 
-// Semua badge menggunakan token status-kelas — dark-mode aware
+// Semua badge menggunakan token status-kelas – dark-mode aware
 function getEntityBadge(entity = '') {
   const lower = entity.toLowerCase()
   if (lower.includes('jadwal') && !lower.includes('ujian')) {
@@ -75,7 +75,7 @@ export function RecentActivityTimeline({
             </span>
           </div>
 
-          {/* Content — scrollable list dengan min-h-0 agar pas 1 layar */}
+          {/* Content – scrollable list dengan min-h-0 agar pas 1 layar */}
           {loadingHistory ? (
             <div className="space-y-2 flex-1">
               <Skeleton className="h-12 w-full rounded-xl" />

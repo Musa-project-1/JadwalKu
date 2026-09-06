@@ -48,7 +48,7 @@ export function GroupEditModal({
                 Edit Grup ({groupEditing.group.items.length} sesi)
               </h3>
               <p className="text-body-xs font-medium text-on-surface-variant truncate">
-                {groupEditing.group.items[0].kodeMK} —{' '}
+                {groupEditing.group.items[0].kodeMK} –{' '}
                 {groupEditing.group.items.map((it) => it.prodi).join(', ')}
               </p>
               <p className="text-[11px] font-bold text-amber-700 dark:text-amber-400 mt-0.5">
@@ -66,11 +66,11 @@ export function GroupEditModal({
         </header>
         <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
           <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
-            {/* KIRI — Ringkasan grup */}
+            {/* KIRI – Ringkasan grup */}
             <div className="space-y-4">
               <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-3.5">
                 <p className="text-label-caps uppercase font-bold text-amber-800 dark:text-amber-400 mb-2">
-                  Grup — {groupEditing.group.items.length} sesi terhubung
+                  Grup – {groupEditing.group.items.length} sesi terhubung
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {groupEditing.group.items.map((it) => (
@@ -83,11 +83,11 @@ export function GroupEditModal({
                   ))}
                 </div>
                 <p className="text-[11px] font-medium text-amber-800/80 dark:text-amber-200/80 mt-2">
-                  Kode, jam, dosen & ruang yang identik — perubahan di kanan akan diterapkan ke semua prodi ini.
+                  Kode, jam, dosen & ruang yang identik – perubahan di kanan akan diterapkan ke semua prodi ini.
                 </p>
               </div>
             </div>
-            {/* KANAN — Form */}
+            {/* KANAN – Form */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
@@ -132,7 +132,7 @@ export function GroupEditModal({
                   onChange={(val) => patchGroupForm({ kodeMK: val })}
                   options={courses.map((cc) => ({
                     value: cc.kodeMK,
-                    label: `${cc.kodeMK} — ${cc.namaMK}`,
+                    label: `${cc.kodeMK} – ${cc.namaMK}`,
                   }))}
                 />
               </div>

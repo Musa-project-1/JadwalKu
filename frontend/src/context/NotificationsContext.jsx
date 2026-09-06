@@ -43,7 +43,7 @@ export function NotificationsProvider({ children }) {
 
   // Ref agar mesin notifikasi bisa membaca daftar terbaru tanpa menjadikan
   // `items` dependensi callback (yang akan me-reset interval tiap tick).
-  // Sinkronisasi lewat effect — menulis ref saat render dilarang React.
+  // Sinkronisasi lewat effect – menulis ref saat render dilarang React.
   const itemsRef = useRef(items)
   useEffect(() => {
     itemsRef.current = items

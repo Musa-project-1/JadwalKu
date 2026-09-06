@@ -1,9 +1,9 @@
 /**
- * BrandWordmark — Standard JadwalKu Brand Wordmark
+ * BrandWordmark – Standard JadwalKu Brand Wordmark
  *
  * Typography: Weight 700, Inter/Sans, letter-spacing -0.02em
  * Two-tone: "Jadwal" in on-surface text, "Ku" in primary teal (#00685F light / #6BD8CB dark)
- * Optional Tagline: "SCHEDULE SMARTER" — uppercase, 11px, weight 500, letter-spacing 0.08em
+ * Optional Tagline: "SCHEDULE SMARTER" – uppercase, 11px, weight 500, letter-spacing 0.08em
  */
 export function BrandWordmark({
   size = 'md', // 'sm' | 'md' | 'lg'

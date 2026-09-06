@@ -1,0 +1,73 @@
+name: CI - Quality Gate
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint (oxlint)
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Unit Tests (node test runner)
+        working-directory: frontend
+        run: npm test
+
+      - name: Guard - no source file over 450 lines
+        working-directory: frontend
+        run: |
+          over=$(find src -type f \( -name '*.jsx' -o -name '*.js' \) -exec wc -l {} + | awk '$1 > 450 && $2 != "total"')
+          if [ -n "$over" ]; then
+            echo "::error::Source file(s) exceed 450 lines:"
+            echo "$over"
+            exit 1
+          fi
+          echo "All source files within 450-line budget."
+
+      - name: Guard - no em-dash in UI strings
+        working-directory: frontend
+        run: |
+          # Em-dash (U+2014) dilarang di UI; en-dash (U+2013) adalah standar.
+          # Izinkan hanya pada parser regex (kaldik) yang menormalkan dokumen sumber.
+          hits=$(grep -rn $'\u2014' src --include='*.jsx' --include='*.js' \
+            | grep -vE 'kaldik/' || true)
+          if [ -n "$hits" ]; then
+            echo "::error::Em-dash liar terdeteksi di UI source:"
+            echo "$hits"
+            exit 1
+          fi
+          echo "No stray em-dash in UI source."
+
+      - name: Build (Vite + PWA)
+        working-directory: frontend
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+        run: npm run build

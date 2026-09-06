@@ -2,7 +2,7 @@
  * Centralized Academic Constants for JadwalKu
  * Single source of truth for programs, semesters, months, and national holidays.
  *
- * PRODIS: fallback legacy — sumber utama prodi sekarang adalah
+ * PRODIS: fallback legacy – sumber utama prodi sekarang adalah
  * Firestore `kampus/{id}.prodi` via CampusContext/prodiNames.
  * Jangan import PRODIS langsung di komponen baru; pakai useCampus().
  */

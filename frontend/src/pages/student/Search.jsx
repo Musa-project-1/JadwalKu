@@ -119,7 +119,7 @@ export default function Search() {
     if (e.key !== 'Enter') return
     const q = queryText.trim()
     if (q.length < 2) return
-    // Hitung nilai berikutnya di luar updater — updater harus murni
+    // Hitung nilai berikutnya di luar updater – updater harus murni
     // (StrictMode bisa memanggilnya dua kali).
     const next = [q, ...recents.filter((r) => r !== q)].slice(0, 5)
     setItem(STORAGE_KEYS.recentSearches, next)
@@ -128,7 +128,7 @@ export default function Search() {
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
-      {/* 1. Header Pencarian — Structured 1:1 like WeeklySchedule */}
+      {/* 1. Header Pencarian – Structured 1:1 like WeeklySchedule */}
       <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
         <div className="flex items-center gap-4 min-w-0">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">

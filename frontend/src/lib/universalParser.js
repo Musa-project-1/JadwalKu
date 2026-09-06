@@ -20,7 +20,7 @@ let pdfjsLib = null
 async function getPdfJs() {
   if (!pdfjsLib) {
     pdfjsLib = await import('pdfjs-dist')
-    // Worker PDF di-bundle lokal — tidak lagi dari unpkg.com.
+    // Worker PDF di-bundle lokal – tidak lagi dari unpkg.com.
     pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl
   }
   return pdfjsLib
@@ -68,7 +68,7 @@ export function normalizeDay(dayRow) {
 export function normalizeTimeRange(timeRaw) {
   if (!timeRaw) return { jamMulai: '', jamSelesai: '' }
   const str = String(timeRaw).trim()
-  const match = str.match(/(\d{1,2})[:.](\d{2})\s*(?:-|–|—|s\/d|sd|sampai|to)\s*(\d{1,2})[:.](\d{2})/i)
+  const match = str.match(/(\d{1,2})[:.](\d{2})\s*(?:-|–|–|s\/d|sd|sampai|to)\s*(\d{1,2})[:.](\d{2})/i)
   if (match) {
     const jamMulai = `${match[1].padStart(2, '0')}:${match[2]}`
     const jamSelesai = `${match[3].padStart(2, '0')}:${match[4]}`
@@ -222,12 +222,12 @@ export async function parseUniversalFile(file, onProgress = () => {}, campusConf
       const text = line.text.trim()
       if (!text) continue
       const dayMatch = Object.keys(DAY_MAP).find((d) => text.toLowerCase().includes(d))
-      const timeMatch = text.match(/(\d{1,2})[:.](\d{2})\s*(?:-|–|—|s\/d|sd)\s*(\d{1,2})[:.](\d{2})/i)
+      const timeMatch = text.match(/(\d{1,2})[:.](\d{2})\s*(?:-|–|–|s\/d|sd)\s*(\d{1,2})[:.](\d{2})/i)
       if (dayMatch || timeMatch) {
         rawRows.push({
           Hari: dayMatch ? DAY_MAP[dayMatch] : '',
           Jam: timeMatch ? `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]} - ${timeMatch[3].padStart(2, '0')}:${timeMatch[4]}` : '',
-          'Mata Kuliah': text.replace(/(\d{1,2})[:.](\d{2})\s*(?:-|–|—|s\/d|sd)\s*(\d{1,2})[:.](\d{2})/i, '').trim(),
+          'Mata Kuliah': text.replace(/(\d{1,2})[:.](\d{2})\s*(?:-|–|–|s\/d|sd)\s*(\d{1,2})[:.](\d{2})/i, '').trim(),
           Dosen: '',
           Ruang: '',
           'Tipe Kelas': 'K1',

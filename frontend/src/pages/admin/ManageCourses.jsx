@@ -6,14 +6,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Skeleton } from '../../components/Skeleton'
 import { EmptyState } from '../../components/EmptyState'
 import { Pagination } from '../../components/Pagination'
-import {
-  ProdiFilterDropdown,
-  SemesterFilterDropdown,
-  TaFilterDropdown,
-  DosenFilterDropdown,
-  SksFilterDropdown,
-} from '../../components/admin/AdminFilterDropdowns'
-import { CourseTable, CourseCards, CourseFormModal } from '../../components/admin/manageCourses'
+import { CourseTable, CourseCards, CourseFormModal, CourseHeader, CourseToolbar } from '../../components/admin/manageCourses'
 import { AdminPageCard } from '../../components/admin/AdminPageCard'
 import { useFirestore } from '../../hooks/useFirestore'
 import { useAdminAuth } from '../../hooks/useAdminAuth'
@@ -81,7 +74,7 @@ export default function ManageCourses() {
     }
   }, [availableTaOptions, taFilter])
 
-  // Opsi B: semester hanya yang ada data (support >8: 9,10,14 dst) — pool difilter TA dulu biar cascade TA→Semester
+  // Opsi B: semester hanya yang ada data (support >8: 9,10,14 dst) – pool difilter TA dulu biar cascade TA→Semester
   const availableSemesterOptions = useMemo(() => {
     const pool = taFilter ? courses.filter((c) => String(c.tahunAjaran || '').trim() === String(taFilter)) : courses
     const nums = [...new Set(pool.map((c) => getCourseSemester(c)).filter((n) => Number.isInteger(n) && n > 0))].sort((a, b) => a - b)
@@ -264,223 +257,34 @@ export default function ManageCourses() {
 
       {/* ── Single Unified Card Container (No double rounded corners) ── */}
       <AdminPageCard>
-        {/* ── 1. Page Header (Border-b divider inside card) ── */}
-        <header className="p-3 tablet:px-4 tablet:py-2.5 border-b border-outline-variant/15 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
-              <Icon name="menu_book" size={22} />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg tablet:text-xl font-bold tracking-tight text-on-surface">
-                  Kelola MK & Dosen
-                </h1>
-                <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
-                  Master Kurikulum
-                </span>
-              </div>
-              <p className="text-[11px] text-on-surface-variant font-medium truncate">
-                Master mata kuliah, SKS, semester & dosen pengampu
-              </p>
-            </div>
-          </div>
-
-          {/* Right side: Icon Action Buttons Cluster + Primary Action Button */}
-          <div className="flex items-center gap-1.5 tablet:gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
-            {/* Ekspor Excel Icon Button */}
-            <button
-              type="button"
-              onClick={exportCoursesToExcel}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-outline-variant/20 bg-surface-container-low/60 hover:bg-surface-container hover:text-primary transition-colors cursor-pointer shadow-2xs text-on-surface-variant"
-              title="Ekspor Kurikulum Mata Kuliah ke Excel (.xlsx)"
-              aria-label="Ekspor Excel"
-            >
-              <Icon name="file_download" size={18} />
-            </button>
-
-            <div className="h-6 w-px bg-outline-variant/20 mx-0.5" />
-
-            <Button
-              onClick={openAddModal}
-              className="rounded-full px-3.5 py-1.5 font-bold shadow-xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
-              title="Tambah Mata Kuliah"
-              aria-label="Tambah MK"
-            >
-              <Icon name="add" size={16} className="mr-1" />
-              <span>Tambah MK</span>
-            </Button>
-          </div>
-        </header>
+        <CourseHeader
+          exportCoursesToExcel={exportCoursesToExcel}
+          openAddModal={openAddModal}
+        />
 
         {/* ── 2. Live Database Course Management ── */}
         <div className="p-3 tablet:p-3.5 flex flex-col space-y-2.5 overflow-hidden">
-        {/* 1-Row Integrated Search & Dropdowns Toolbar (Matching Kelola Jadwal layout) */}
-        <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5 overflow-visible">
-          {/* Compact Search Bar */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm shrink-0 tablet:shrink">
-            <Icon
-              name="search"
-              size={16}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
-            />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari kode MK, nama mata kuliah, dosen…"
-              aria-label="Cari mata kuliah"
-              className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 py-2 pl-8 pr-7 text-body-xs font-medium text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-level-1"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:bg-surface-container rounded-full p-0.5 cursor-pointer"
-                aria-label="Hapus pencarian"
-              >
-                <Icon name="close" size={12} />
-              </button>
-            )}
-          </div>
-
-          {/* Filters Group */}
-          <div className="flex items-center gap-2 shrink-0">
-            <ProdiFilterDropdown
-              selected={prodiFilter}
-              onSelect={setProdiFilter}
-              prodiOptions={prodiNames}
-            />
-
-            {availableTaOptions.length > 2 && (
-              <TaFilterDropdown
-                selected={taFilter}
-                onSelect={setTaFilter}
-                taOptions={availableTaOptions}
-              />
-            )}
-
-            <SemesterFilterDropdown
-              selected={semesterFilter}
-              onSelect={setSemesterFilter}
-              semesterOptions={availableSemesterOptions}
-            />
-
-            <DosenFilterDropdown
-              lecturers={lecturers}
-              selected={dosenFilter}
-              onSelect={setDosenFilter}
-            />
-
-            <SksFilterDropdown
-              selected={sksFilter}
-              onSelect={setSksFilter}
-            />
-
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={resetAllFilters}
-                className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-error/30 bg-error/10 px-2 py-1 text-label-caps font-bold text-error hover:bg-error/20 cursor-pointer transition-colors shadow-level-1"
-              >
-                <Icon name="refresh" size={12} />
-                <span>Reset</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Active Filter Chips */}
-        {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-outline-variant/15 text-label-caps uppercase font-semibold text-on-surface-variant">
-            <span>Filter Aktif:</span>
-
-            {search && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-2.5 py-1 text-on-surface">
-                <span>Keyword: "{search}"</span>
-                <button
-                  type="button"
-                  onClick={() => setSearch('')}
-                  className="rounded-full p-0.5 hover:bg-surface-container-highest cursor-pointer"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              </span>
-            )}
-
-            {prodiFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-primary">
-                <span>Prodi: {prodiFilter}</span>
-                <button
-                  type="button"
-                  onClick={() => setProdiFilter('')}
-                  className="rounded-full p-0.5 hover:bg-primary/20 cursor-pointer"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              </span>
-            )}
-
-            {semesterFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-1 text-indigo-700 dark:text-indigo-400">
-                <span>Semester: {availableSemesterOptions.find((s) => s.value === semesterFilter)?.label}</span>
-                <button
-                  type="button"
-                  onClick={() => setSemesterFilter('')}
-                  className="rounded-full p-0.5 hover:bg-indigo-500/20 cursor-pointer"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              </span>
-            )}
-
-            {taFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 px-2.5 py-1 text-teal-700 dark:text-teal-400">
-                <span>TA: {taFilter}</span>
-                <button
-                  type="button"
-                  onClick={() => setTaFilter('')}
-                  className="rounded-full p-0.5 hover:bg-teal-500/20 cursor-pointer"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              </span>
-            )}
-
-            {dosenFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-1 text-secondary">
-                <span className="max-w-[140px] truncate">Dosen: {dosenFilter}</span>
-                <button
-                  type="button"
-                  onClick={() => setDosenFilter('')}
-                  className="rounded-full p-0.5 hover:bg-secondary/20 cursor-pointer"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              </span>
-            )}
-
-            {sksFilter && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-tertiary/10 px-2.5 py-1 text-tertiary">
-                <span>SKS: {SKS_OPTIONS.find((s) => String(s.value) === String(sksFilter))?.label || `${sksFilter} SKS`}</span>
-                <button
-                  type="button"
-                  onClick={() => setSksFilter('')}
-                  className="rounded-full p-0.5 hover:bg-tertiary/20 cursor-pointer"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              </span>
-            )}
-
-            <button
-              type="button"
-              onClick={resetAllFilters}
-              className="text-label-caps font-bold text-error hover:underline cursor-pointer ml-auto"
-            >
-              Reset Semua Filter
-            </button>
-          </div>
-        )}
+          <CourseToolbar
+            search={search}
+            setSearch={setSearch}
+            prodiFilter={prodiFilter}
+            setProdiFilter={setProdiFilter}
+            prodiNames={prodiNames}
+            taFilter={taFilter}
+            setTaFilter={setTaFilter}
+            availableTaOptions={availableTaOptions}
+            semesterFilter={semesterFilter}
+            setSemesterFilter={setSemesterFilter}
+            availableSemesterOptions={availableSemesterOptions}
+            dosenFilter={dosenFilter}
+            setDosenFilter={setDosenFilter}
+            lecturers={lecturers}
+            sksFilter={sksFilter}
+            setSksFilter={setSksFilter}
+            sksOptions={SKS_OPTIONS}
+            hasActiveFilters={hasActiveFilters}
+            resetAllFilters={resetAllFilters}
+          />
 
         {/* Main Course Table / List */}
         {loading ? (
@@ -511,14 +315,14 @@ export default function ManageCourses() {
           </div>
         ) : (
           <>
-            {/* Table — Desktop & Tablet */}
+            {/* Table – Desktop & Tablet */}
             <CourseTable
               courses={paginatedCourses}
               onEdit={openEditModal}
               onDelete={setDeleteTarget}
             />
 
-            {/* Cards — Mobile */}
+            {/* Cards – Mobile */}
             <CourseCards
               courses={paginatedCourses}
               onEdit={openEditModal}
@@ -557,7 +361,7 @@ export default function ManageCourses() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Hapus mata kuliah?"
-        description={`${deleteTarget?.kodeMK} — ${deleteTarget?.namaMK} akan dihapus dari daftar master. Jadwal yang memakai kode ini akan gagal validasi saat upload berikutnya.`}
+        description={`${deleteTarget?.kodeMK} – ${deleteTarget?.namaMK} akan dihapus dari daftar master. Jadwal yang memakai kode ini akan gagal validasi saat upload berikutnya.`}
         confirmLabel="Hapus Mata Kuliah"
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}

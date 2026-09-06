@@ -172,7 +172,7 @@ function ScheduleTableImpl({
                   {!isMultiProdi ? (
                     // Single Prodi: Badge Nama Prodi langsung (warna per prodi)
                     <span
-                      title={`${item.prodi} — Semester ${item.semester}`}
+                      title={`${item.prodi} – Semester ${item.semester}`}
                       className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-bold border max-w-full shadow-2xs ${getProdiColorClasses(item.prodi)}`}
                     >
                       <Icon name="school" size={11} className="shrink-0" />

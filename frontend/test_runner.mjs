@@ -1,4 +1,16 @@
 import assert from 'node:assert/strict'
+
+// Polyfill localStorage untuk runner node.js
+if (!globalThis.localStorage) {
+  const store = new Map()
+  globalThis.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, String(v)),
+    removeItem: (k) => store.delete(k),
+    clear: () => store.clear(),
+  }
+}
+
 import { parseRoomLocation } from './src/lib/locationUtils.js'
 import {
   buildClassReminders,
@@ -33,6 +45,8 @@ import { validateScheduleEntry, findConflicts } from './src/lib/uploadValidator.
 import { getPrayerTimes } from './src/lib/prayerTimes.js'
 import { translate, formatDayName } from './src/lib/translations.js'
 import { parseTimeToMinutes, getSessionForClass, checkPrayerClash } from './src/lib/scheduleGridUtils.js'
+import { getItem, setItem, removeItem, exportStudentData, importStudentData, STORAGE_KEYS } from './src/lib/storage.js'
+import { COLLECTIONS_CONFIG } from './src/components/admin/backup/backupConfig.js'
 
 console.log('🧪 ========================================================')
 console.log('🧪 MENJALANKAN AUTOMATED TEST SUITE KESELURUHAN JADWALKU')
@@ -650,7 +664,7 @@ test('Interpolasi parameter dinamis {key} berfungsi dengan sempurna', () => {
 
   // Format multi-parameter {semester} & {ta}
   const syncBanner = translate('home.sync_banner', 'en', { semester: 4, ta: '2026/2027' })
-  assert.equal(syncBanner, 'Academic year changed — Semester 4 is now AY 2026/2027. Tap to sync.')
+  assert.equal(syncBanner, 'Academic year changed – Semester 4 is now AY 2026/2027. Tap to sync.')
 
   // Format {mins}
   const remainingTime = translate('class.remaining_mins', 'en', { mins: 25 })
@@ -673,6 +687,87 @@ test('Memetakan nama hari Indonesia ke English (formatDayName)', () => {
   assert.equal(formatDayName('Minggu', 'en'), 'Sunday')
   assert.equal(formatDayName('Senin', 'id'), 'Senin')
   assert.equal(formatDayName('Sabtu', 'id'), 'Sabtu')
+})
+
+console.log('\n💾 [10/13] Menguji Modul Penyimpanan & Cadangan Mahasiswa (storage)...')
+
+test('Penyimpanan getItem/setItem/removeItem berjalan defensif dan tangguh', () => {
+  setItem('testKey', { foo: 'bar', count: 42 })
+  assert.deepEqual(getItem('testKey'), { foo: 'bar', count: 42 })
+  assert.equal(getItem('nonExistentKey', 'defaultFallback'), 'defaultFallback')
+  removeItem('testKey')
+  assert.equal(getItem('testKey'), null)
+})
+
+test('Cadangan data personal mahasiswa (exportStudentData & importStudentData)', () => {
+  setItem(STORAGE_KEYS.program, 'Informatika')
+  setItem(STORAGE_KEYS.semester, 4)
+  setItem(STORAGE_KEYS.tasks, [{ id: 'task-1', title: 'Tugas Alpro' }])
+
+  const backup = exportStudentData()
+  assert.equal(backup.app, 'jadwalku-student')
+  assert.equal(backup.version, '1.0.0')
+  assert.equal(backup.data.program, 'Informatika')
+  assert.equal(backup.data.semester, 4)
+  assert.equal(backup.data.tasks.length, 1)
+
+  // Bersihkan dan pulihkan kembali
+  removeItem(STORAGE_KEYS.program)
+  removeItem(STORAGE_KEYS.tasks)
+  assert.equal(getItem(STORAGE_KEYS.program), null)
+
+  const restoreResult = importStudentData(backup)
+  assert.equal(restoreResult.ok, true)
+  assert.equal(getItem(STORAGE_KEYS.program), 'Informatika')
+  assert.equal(getItem(STORAGE_KEYS.tasks)[0].title, 'Tugas Alpro')
+})
+
+test('Pemulihan data gagal secara aman jika format JSON rusak atau tidak valid', () => {
+  const invalidResult = importStudentData('{ broken json invalid syntax')
+  assert.equal(invalidResult.ok, false)
+  assert.match(invalidResult.error, /Format berkas JSON tidak valid/)
+
+  const emptyResult = importStudentData({})
+  assert.equal(emptyResult.ok, false)
+  assert.match(emptyResult.error, /Tidak ditemukan data JadwalKu/)
+})
+
+console.log('\n🛡️ [11/13] Menguji Konfigurasi & Integritas Cadangan Koleksi Database...')
+
+test('Koleksi announcements, fakultas, dan rooms terdaftar resmi dalam COLLECTIONS_CONFIG', () => {
+  const colIds = COLLECTIONS_CONFIG.map((c) => c.id)
+  assert.ok(colIds.includes('jadwal'), 'Harus menyertakan jadwal')
+  assert.ok(colIds.includes('mataKuliah'), 'Harus menyertakan mataKuliah')
+  assert.ok(colIds.includes('ujian'), 'Harus menyertakan ujian')
+  assert.ok(colIds.includes('prodi'), 'Harus menyertakan prodi')
+  assert.ok(colIds.includes('fakultas'), 'Harus menyertakan fakultas')
+  assert.ok(colIds.includes('rooms'), 'Harus menyertakan rooms')
+  assert.ok(colIds.includes('announcements'), 'Harus menyertakan announcements (bukan pengumuman legacy)')
+  assert.ok(!colIds.includes('pengumuman'), 'Tidak boleh memakai key legacy pengumuman')
+})
+
+console.log('\n🎓 [12/13] Menguji Hirarki & Fleksibilitas Semester Terbuka (Open-Ended)...')
+
+test('Mendukung semester terbuka tingkat atas (>8, 9, 10, 14) secara konsisten', () => {
+  // Semester 9 (Ganjil)
+  const taSem9 = expectedTahunAjaranForSemester(9, new Date(2026, 9, 1))
+  assert.match(taSem9, /^\d{4}\/\d{4}$/, 'Format TA semester 9 harus YYYY/YYYY')
+
+  // Semester 10 (Genap)
+  const taSem10 = expectedTahunAjaranForSemester(10, new Date(2027, 2, 1))
+  assert.match(taSem10, /^\d{4}\/\d{4}$/, 'Format TA semester 10 harus YYYY/YYYY')
+
+  // Semester 14 (Genap akhir masa studi)
+  const taSem14 = expectedTahunAjaranForSemester(14, new Date(2027, 2, 1))
+  assert.match(taSem14, /^\d{4}\/\d{4}$/, 'Format TA semester 14 harus YYYY/YYYY')
+})
+
+console.log('\n✨ [13/13] Penegakan Standar Tipografi Anti-Slop (Zero Em-Dash)...')
+
+test('Memastikan string translations dan format konsisten tanpa em-dash liar', () => {
+  const syncBanner = translate('home.sync_banner', 'en', { semester: 4, ta: '2026/2027' })
+  assert.ok(!syncBanner.includes('—'), 'Tidak boleh mengandung em-dash (—)')
+  assert.ok(syncBanner.includes('–'), 'Menggunakan en-dash (–) resmi')
 })
 
 // ── RINGKASAN HASIL ──

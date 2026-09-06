@@ -15,7 +15,7 @@ export function BulkActionBar({
 }) {
   if (!selectedCount || selectedCount === 0) return null
 
-  // A4: <600px — bar tidak overflow: max-width viewport, padding ringkas,
+  // A4: <600px – bar tidak overflow: max-width viewport, padding ringkas,
   // teks deskriptif disembunyikan (count badge tetap), posisi aman dari
   // home-indicator (safe-area). >=600px identik dengan sebelumnya.
   return (

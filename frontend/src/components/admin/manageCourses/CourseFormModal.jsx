@@ -92,7 +92,7 @@ export default function CourseFormModal({ open, mode, initialForm, saving, error
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 tablet:p-6">
           <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 tablet:gap-5">
-            {/* KIRI — Identitas MK */}
+            {/* KIRI – Identitas MK */}
             <div className="space-y-4">
               <Input
                 label="Kode MK"
@@ -117,7 +117,7 @@ export default function CourseFormModal({ open, mode, initialForm, saving, error
                 onChange={(e) => setForm((f) => ({ ...f, semester: Number(e.target.value) }))}
               />
             </div>
-            {/* KANAN — Detail akademik */}
+            {/* KANAN – Detail akademik */}
             <div className="space-y-4">
               <Input
                 label="Dosen Pengampu"

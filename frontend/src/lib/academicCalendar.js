@@ -5,7 +5,7 @@ import { getTermLabel } from './tahunAjaran'
  *
  * startDate / endDate derive from the active semester's calendar bounds. Holiday
  * date-only strings are parsed as LOCAL dates so they compare on the same calendar
- * day as startDate/endDate — `new Date('YYYY-MM-DD')` is parsed as UTC, which shifts
+ * day as startDate/endDate – `new Date('YYYY-MM-DD')` is parsed as UTC, which shifts
  * it forward in time and can drop a holiday that falls exactly on endDate out of the
  * inclusive range.
  */

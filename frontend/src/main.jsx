@@ -22,7 +22,7 @@ if (import.meta.env.DEV && 'serviceWorker' in navigator) {
   const updateSW = registerSW({
     immediate: true,
     onNeedRefresh() {
-      // SW baru sudah siap — langsung aktifkan tanpa tanya user
+      // SW baru sudah siap – langsung aktifkan tanpa tanya user
       updateSW(true)
     },
     onRegisteredSW(_swUrl, registration) {

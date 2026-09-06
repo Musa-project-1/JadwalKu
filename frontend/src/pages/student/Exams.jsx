@@ -113,7 +113,7 @@ export default function Exams() {
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
-      {/* 1. Header Halaman — Structured 1:1 like WeeklySchedule & Tasks */}
+      {/* 1. Header Halaman – Structured 1:1 like WeeklySchedule & Tasks */}
       <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
         <div className="flex items-center gap-4 min-w-0">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
@@ -134,7 +134,7 @@ export default function Exams() {
           </div>
         </div>
 
-        {/* Controls: UTS/UAS Switcher + Export .ics + TA Dropdown — 1:1 with WeeklySchedule/Tasks header controls */}
+        {/* Controls: UTS/UAS Switcher + Export .ics + TA Dropdown – 1:1 with WeeklySchedule/Tasks header controls */}
         <div className="flex items-center gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
           {/* Segmented Control UTS/UAS */}
           <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
@@ -178,7 +178,7 @@ export default function Exams() {
         </div>
       </header>
 
-      {/* 2. Secondary Toolbar — 1:1 with Tasks.jsx secondary toolbar (Mode Legend + Next Exam Summary) */}
+      {/* 2. Secondary Toolbar – 1:1 with Tasks.jsx secondary toolbar (Mode Legend + Next Exam Summary) */}
       <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-2.5 shadow-level-1 flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3">
         {/* Left: Mode Legend (mirrors WeeklySchedule Tipe legend) */}
         <div className="flex items-center gap-2.5 tablet:gap-3 shrink-0 text-label-caps font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-3 py-1 rounded-xl border border-outline-variant/20 overflow-x-auto no-scrollbar">
@@ -236,12 +236,12 @@ export default function Exams() {
         </div>
       </div>
 
-      {/* 3. Urgent Banner — mirrors Tasks.jsx highPriority banner (error/amber) */}
+      {/* 3. Urgent Banner – mirrors Tasks.jsx highPriority banner (error/amber) */}
       {urgentExams.length > 0 && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/15 p-4 space-y-2 shadow-level-1">
           <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200 font-extrabold text-body-xs">
             <Icon name="priority_high" size={17} className="shrink-0 animate-bounce" />
-            <span>Ujian Mendekat — Persiapkan diri!</span>
+            <span>Ujian Mendekat – Persiapkan diri!</span>
             <span className="ml-auto rounded-full bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 text-label-caps font-extrabold">
               {urgentExams.length} dalam 3 hari
             </span>
@@ -272,7 +272,7 @@ export default function Exams() {
         </div>
       )}
 
-      {/* 4. Content Area: Loading / Empty State / Exam Cards — 1:1 with Tasks.jsx */}
+      {/* 4. Content Area: Loading / Empty State / Exam Cards – 1:1 with Tasks.jsx */}
       {loading ? (
         <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3">
           <Skeleton className="h-40 rounded-3xl" />
@@ -351,7 +351,7 @@ function ExamCard({ exam, onLocation }) {
     <div
       className={`group relative overflow-hidden rounded-2xl bg-surface-container-lowest p-4 shadow-level-1 border border-outline-variant/25 transition-all duration-200 hover:shadow-level-1 hover:border-outline-variant/40 dark:bg-surface-container-low ${isPast ? 'opacity-85' : ''}`}
     >
-      {/* Left Stripe — 1:1 with TaskCard priority stripe */}
+      {/* Left Stripe – 1:1 with TaskCard priority stripe */}
       <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${stripeColor}`} />
 
       <div className="flex justify-between items-start mb-2.5 gap-2 pl-2">

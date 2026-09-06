@@ -1,4 +1,4 @@
-/** Lightweight calendar bounds derivation — no heavy deps (xlsx/pdf/tesseract) */
+/** Lightweight calendar bounds derivation – no heavy deps (xlsx/pdf/tesseract) */
 
 function toDate(iso) {
   if (!iso) return null

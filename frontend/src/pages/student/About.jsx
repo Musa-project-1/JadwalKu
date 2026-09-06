@@ -113,7 +113,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Feature Highlights 3-Col Grid — horizontal side-by-side */}
+      {/* Feature Highlights 3-Col Grid – horizontal side-by-side */}
       <section className="grid grid-cols-1 tablet:grid-cols-3 gap-4">
         {FEATURES.map((f) => (
           <div

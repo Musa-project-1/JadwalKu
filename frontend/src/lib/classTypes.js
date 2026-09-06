@@ -1,5 +1,5 @@
 /**
- * Peta tipe kelas & warna status — SATU-SATUNYA sumber kebenaran untuk
+ * Peta tipe kelas & warna status – SATU-SATUNYA sumber kebenaran untuk
  * tampilan status (ClassCard, ClassTimelineItem, Badge, legend Settings).
  * Jangan hardcode warna status di komponen; tambahkan/diubah di sini saja.
  * (UIUX_MODERNIZATION.md Phase C2)
@@ -51,7 +51,7 @@ export const TONE_BG_CLASSES = {
   neutral: 'bg-surface-container',
 }
 
-/** Chip/badge tonal lengkap (bg + teks) — dipakai Badge.jsx. */
+/** Chip/badge tonal lengkap (bg + teks) – dipakai Badge.jsx. */
 export const TONE_CLASSES = {
   offline: 'bg-status-offline/10 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300/80 border-status-offline/20 dark:border-emerald-500/15',
   online: 'bg-status-online/10 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300/80 border-status-online/20 dark:border-blue-500/15',

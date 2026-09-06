@@ -10,7 +10,7 @@ import { useApp } from '../../hooks/useApp'
 import { getItem, setItem } from '../../lib/storage'
 import { AdminBottomNav } from './AdminBottomNav'
 
-// Shared label class helper — only opacity + max-width transition, NO scale
+// Shared label class helper – only opacity + max-width transition, NO scale
 function labelCls(isCollapsed, spacing = 'ml-3.5') {
   return `overflow-hidden whitespace-nowrap transition-[opacity,max-width,margin] duration-300 ease-in-out ${
     isCollapsed
@@ -51,7 +51,7 @@ function AdminAccount({ isPinned, onOpenSettings }) {
   return (
     <div className="px-4">
       <div className="border-t border-outline-variant/40 pt-2 space-y-1">
-        {/* Tombol Pengaturan Admin — Persis posisi di Sidebar Student */}
+        {/* Tombol Pengaturan Admin – Persis posisi di Sidebar Student */}
         <button
           type="button"
           onClick={onOpenSettings}
@@ -77,7 +77,7 @@ function AdminAccount({ isPinned, onOpenSettings }) {
               Administrator
             </p>
           </div>
-          {/* Logout icon — only visible when expanded or pinned */}
+          {/* Logout icon – only visible when expanded or pinned */}
           <button
             type="button"
             onClick={signOutAdmin}
@@ -90,7 +90,7 @@ function AdminAccount({ isPinned, onOpenSettings }) {
           </button>
         </div>
 
-        {/* Mode Mahasiswa Switcher — in sidebar */}
+        {/* Mode Mahasiswa Switcher – in sidebar */}
         <NavLink
           to="/"
           viewTransition
@@ -145,7 +145,7 @@ export function AdminLayout() {
 
   return (
     <div className="flex min-h-screen w-full bg-transparent text-on-background">
-      {/* Sidebar spacer — reserves layout width for fixed sidebar */}
+      {/* Sidebar spacer – reserves layout width for fixed sidebar */}
       <div
         aria-hidden="true"
         className={`hidden tablet:block shrink-0 transition-[width] duration-300 ease-in-out ${
@@ -153,7 +153,7 @@ export function AdminLayout() {
         }`}
       />
 
-      {/* Sidebar — permanently fixed to viewport at all scroll positions */}
+      {/* Sidebar – permanently fixed to viewport at all scroll positions */}
       <aside
         className={`group fixed left-0 top-0 h-screen hidden tablet:block z-50 transition-[width] duration-300 ease-in-out ${
           isPinned ? 'w-[280px] shadow-level-2' : 'w-20 hover:w-[280px] hover:shadow-level-3'
@@ -163,7 +163,7 @@ export function AdminLayout() {
           style={{ viewTransitionName: 'sidebar' }}
           className="w-full h-full flex flex-col overflow-x-hidden overflow-y-auto border-r border-outline-variant/30 bg-surface-container-low py-lg dark:bg-surface-container-low"
         >
-          {/* Logo & Brand Wordmark — fixed anchor point at x = 20px */}
+          {/* Logo & Brand Wordmark – fixed anchor point at x = 20px */}
           <div className="relative mb-xl flex items-center px-5 min-h-[48px]">
             <div className="flex items-center min-w-0">
               <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo JadwalKu" className="h-10 w-10 shrink-0" />
@@ -178,7 +178,7 @@ export function AdminLayout() {
               </div>
             </div>
 
-            {/* Pin Toggle Button — absolute positioning ensures 0px interference with collapsed logo */}
+            {/* Pin Toggle Button – absolute positioning ensures 0px interference with collapsed logo */}
             <button
               type="button"
               onClick={() => setIsPinned((prev) => !prev)}
@@ -205,7 +205,7 @@ export function AdminLayout() {
       </aside>
 
       <div className="flex min-h-screen min-w-0 w-full flex-1 flex-col">
-        {/* Top app bar — Sticky Header (Matching AppLayout h-[72px]) */}
+        {/* Top app bar – Sticky Header (Matching AppLayout h-[72px]) */}
         <header className="shrink-0 sticky top-0 z-40 h-[72px] flex items-center bg-surface-container-lowest/95 dark:bg-surface-container-low/95 px-md tablet:px-lg desktop:px-xl backdrop-blur-md border-b border-outline-variant/30 shadow-level-1 transition-colors">
           <div className="mx-auto flex w-full max-w-container-max items-center justify-between gap-md relative">
             {/* Left: Mobile Logo + Live Clock or Desktop Admin Console Status Badge */}

@@ -80,7 +80,7 @@ export function deleteDocument(collectionName, docId) {
   }, { op: 'delete', collectionName, docId })
 }
 
-/** Baca satu dokumen sekali (bukan listener) — mis. settings/app. */
+/** Baca satu dokumen sekali (bukan listener) – mis. settings/app. */
 export async function fetchDocument(collectionName, docId) {
   const blocked = guard()
   if (blocked) return null

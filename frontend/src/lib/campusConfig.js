@@ -1,10 +1,10 @@
 /**
- * Konfigurasi Kampus Universal — sumber kebenaran untuk data yang selama ini
+ * Konfigurasi Kampus Universal – sumber kebenaran untuk data yang selama ini
  * di-hardcode (prodi, tipe kelas, ruang, preset impor).
  *
  * Dengan lapisan ini, JadwalKu bisa dipakai universitas mana pun:
  * admin cukup mengisi konfigurasi kampus (via Firestore `kampus`),
- * dan seluruh UI/parser membaca dari sini — bukan konstanta mati.
+ * dan seluruh UI/parser membaca dari sini – bukan konstanta mati.
  *
  * Struktur satu dokumen `kampus/{kampusId}`:
  * {
@@ -24,7 +24,7 @@ import { PRODIS } from '../constants/academicConstants.js'
 
 /**
  * Konfigurasi default (dipakai bila Firestore belum berisi dokumen `kampus`
- * atau saat mode dev tanpa backend) — mempertahankan perilaku lama JadwalKu.
+ * atau saat mode dev tanpa backend) – mempertahankan perilaku lama JadwalKu.
  */
 export const DEFAULT_CAMPUS = {
   id: 'default',

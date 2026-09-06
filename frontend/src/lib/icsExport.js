@@ -1,6 +1,6 @@
 /**
  * Generate dan unduh file .ics (iCalendar) dari jadwal perkuliahan dan ujian.
- * Format mengikuti standar RFC 5545 — kompatibel dengan Google Calendar, Apple iCal, dan Microsoft Outlook.
+ * Format mengikuti standar RFC 5545 – kompatibel dengan Google Calendar, Apple iCal, dan Microsoft Outlook.
  */
 
 // URL aplikasi dipakai di deskripsi event .ics. Dihitung dari BASE_URL & origin
