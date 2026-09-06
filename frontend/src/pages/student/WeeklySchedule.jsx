@@ -323,10 +323,8 @@ export default function WeeklySchedule() {
 
         {/* Desktop View (>=1024px) */}
         <div className="hidden desktop:flex items-stretch min-w-0 w-full border-t border-outline-variant/15">
-          {actionRail}
-
           {scheduleViewMode === 'matrix' ? (
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 border-r border-outline-variant/20">
               <ScheduleTimetableGrid
                 scheduleSource={scheduleSource}
                 weekDates={weekDates}
@@ -365,6 +363,8 @@ export default function WeeklySchedule() {
               openDetail={openDetail}
             />
           )}
+
+          {actionRail}
         </div>
 
         {jadwalError && (
