@@ -9,13 +9,15 @@ import { ImportStepMapping } from './import/ImportStepMapping'
 import { ImportStepPreview } from './import/ImportStepPreview'
 
 export function UniversalImportModal({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   onClose,
   onSave,
   prodiOptions = ['Informatika', 'Bisnis Digital', 'Arsitektur', 'Teknik Sipil', 'Kewirausahaan'],
   currentTA = '2025/2026',
   existingTAs = ['2025/2026', '2024/2025'],
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   // Konfigurasi kampus aktif (prodi, tipe kelas, preset impor per-kampus).
   const { prodiNames, campus, classTypeCodes } = useCampus()
   const effectiveProdiOptions = prodiNames.length > 0 ? prodiNames : prodiOptions

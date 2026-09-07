@@ -4,7 +4,8 @@ import { Icon } from "../Icon"
 import { useApp } from "../../hooks/useApp"
 import { FEATURE_DOCS_TRANSLATIONS, adminDocs } from "../../data/featureDocsData"
 
-export function FeatureDocsModal({ isOpen, onClose, mode = 'student' }) {
+export function FeatureDocsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, mode = 'student' }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
   const navigate = useNavigate()
   const { language } = useApp()
   const [activePilar, setActivePilar] = useState(mode === 'all' ? 'all' : mode)

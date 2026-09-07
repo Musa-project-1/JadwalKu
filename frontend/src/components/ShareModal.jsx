@@ -22,7 +22,8 @@ const SCOPE_OPTIONS = [
   },
 ]
 
-export function ShareModal({ open, onClose }) {
+export function ShareModal({ open: rawOpen, isOpen: rawIsOpen, onClose }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   const { program, semester, language, t } = useApp()
   const [scope, setScope] = useState('semester')
   const [copied, setCopied] = useState(false)

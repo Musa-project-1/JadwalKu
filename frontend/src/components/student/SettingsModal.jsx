@@ -10,7 +10,8 @@ import { SettingsNotificationTab } from './settings/SettingsNotificationTab'
 import { SettingsStorageTab } from './settings/SettingsStorageTab'
 import { SettingsAboutTab } from './settings/SettingsAboutTab'
 
-export function SettingsModal({ isOpen, onClose, initialTab = 'appearance' }) {
+export function SettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, initialTab = 'appearance' }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
   const navigate = useNavigate()
   const {
     theme,

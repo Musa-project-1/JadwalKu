@@ -4,7 +4,8 @@ import { Icon } from '../../Icon'
 import { MonthSelectDropdown } from '../AdminFilterDropdowns'
 
 export default function CalendarSettingsModal({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   onClose,
   customCal,
   onCustomCalChange,
@@ -13,6 +14,7 @@ export default function CalendarSettingsModal({
   saving,
   onSubmit,
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   useEffect(() => {
     if (!open) return
     function handleKeyDown(e) {

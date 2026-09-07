@@ -18,7 +18,8 @@ import { AdminRoomsTab } from './settings/AdminRoomsTab'
 import { AdminDatabaseTab } from './settings/AdminDatabaseTab'
 import { AdminSettingsSubModals } from './settings/AdminSettingsSubModals'
 
-export function AdminSettingsModal({ isOpen, onClose, initialTab = 'appearance' }) {
+export function AdminSettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, initialTab = 'appearance' }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
   const { theme, setTheme, language, setLanguage, fontSize, setFontSize, highContrast, setHighContrast, t } = useApp()
   const { user, signOutAdmin } = useAdminAuth()
   const actor = user?.email || ''

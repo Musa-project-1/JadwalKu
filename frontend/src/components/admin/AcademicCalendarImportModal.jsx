@@ -6,12 +6,14 @@ import { KaldikUploadSidebar } from './kaldik/KaldikUploadSidebar'
 import { KaldikEventTable } from './kaldik/KaldikEventTable'
 
 export function AcademicCalendarImportModal({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   onClose,
   existingEvents = [],
   onSaveCalendarEvents,
   busySaving = false,
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   const fileInputRef = useRef(null)
   const [dragOver, setDragOver] = useState(false)
   const [loading, setLoading] = useState(false)

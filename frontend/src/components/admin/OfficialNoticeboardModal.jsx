@@ -5,12 +5,14 @@ import { NoticeboardPaperPreview } from "./noticeboard/NoticeboardPaperPreview"
 import { NoticeboardPrintArea } from "./noticeboard/NoticeboardPrintArea"
 
 export function OfficialNoticeboardModal({
-  isOpen,
+  isOpen: rawIsOpen,
+  open: rawOpen,
   onClose,
   allSchedules = [],
   courses = [],
   currentTA = "",
 }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
   const modalRef = useRef(null)
 
   // Formal Institutional Header State

@@ -4,7 +4,8 @@ import { Button } from '../../Button'
 import { Input } from '../../Input'
 
 export function QuickCourseModal({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   onClose,
   onSubmit,
   formData,
@@ -12,6 +13,7 @@ export function QuickCourseModal({
   saving,
   errors = [],
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   useEffect(() => {
     if (!open) return
     function handleKeyDown(e) {

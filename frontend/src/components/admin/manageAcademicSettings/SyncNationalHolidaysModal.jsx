@@ -4,13 +4,15 @@ import { Icon } from '../../Icon'
 import { NATIONAL_HOLIDAYS_PRESET } from '../../../constants/academicConstants'
 
 export default function SyncNationalHolidaysModal({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   onClose,
   selectedYear,
   onYearChange,
   syncing,
   onSync,
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   useEffect(() => {
     if (!open) return
     function handleKeyDown(e) {

@@ -282,9 +282,9 @@ export default function Home() {
       <RoomLocationModal
         isOpen={Boolean(roomModalTarget)}
         onClose={() => setRoomModalTarget(null)}
-        roomName={roomModalTarget?.entry?.ruang}
-        courseName={roomModalTarget?.course?.namaMK || roomModalTarget?.entry?.kodeMK}
-        classType={roomModalTarget?.entry?.tipeKelas}
+        ruang={roomModalTarget?.entry?.ruang}
+        tipeKelas={roomModalTarget?.entry?.tipeKelas}
+        currentCourseName={roomModalTarget?.course?.namaMK || roomModalTarget?.entry?.kodeMK}
       />
     </div>
   )

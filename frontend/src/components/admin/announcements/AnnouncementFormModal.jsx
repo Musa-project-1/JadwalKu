@@ -4,8 +4,11 @@ import { FormSelect } from '../../FormSelect'
 import { CustomDatePicker } from '../../CustomDatePicker'
 
 export function AnnouncementFormModal({
-  modalOpen,
+  modalOpen: rawModalOpen,
+  isOpen: rawIsOpen,
+  open: rawOpen,
   setModalOpen,
+  onClose,
   editingItem,
   handleSave,
   saving,
@@ -25,6 +28,11 @@ export function AnnouncementFormModal({
   formAktif,
   setFormAktif,
 }) {
+  const modalOpen = rawModalOpen ?? rawIsOpen ?? rawOpen ?? false
+  const closeModal = () => {
+    if (setModalOpen) setModalOpen(false)
+    if (onClose) onClose()
+  }
   if (!modalOpen) return null
 
   return (
@@ -34,7 +42,7 @@ export function AnnouncementFormModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0"
     >
       <div
-        onClick={() => setModalOpen(false)}
+        onClick={closeModal}
         className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
       />
 

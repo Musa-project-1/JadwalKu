@@ -13,11 +13,13 @@ import { BackupTab } from './backup/BackupTab'
 import { RestoreTab } from './backup/RestoreTab'
 
 export function DatabaseBackupRestoreModal({
-  isOpen,
+  isOpen: rawIsOpen,
+  open: rawOpen,
   onClose,
   actor = 'admin',
   onSuccess,
 }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
   const [activeTab, setActiveTab] = useState('backup') // 'backup' | 'restore'
   const [loadingStats, setLoadingStats] = useState(false)
   const [dbCounts, setDbCounts] = useState({})

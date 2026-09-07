@@ -34,7 +34,7 @@ function getEntityBadge(entity = '') {
   return { label: entity.toUpperCase() || 'SISTEM', style: 'bg-surface-variant/80 text-on-surface-variant border-outline-variant/30' }
 }
 
-export function FullHistoryModal({ historyList, onClose }) {
+export function FullHistoryModal({ historyList, onClose, isOpen, open }) {
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 250)
@@ -48,7 +48,7 @@ export function FullHistoryModal({ historyList, onClose }) {
   }, [onClose])
 
   const filtered = useMemo(() => {
-    return historyList.filter((item) => {
+    return (historyList || []).filter((item) => {
       const matchSearch =
         !debouncedSearch ||
         (item.entitas ?? '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
@@ -66,6 +66,8 @@ export function FullHistoryModal({ historyList, onClose }) {
       return true
     })
   }, [historyList, filter, debouncedSearch])
+
+  if (isOpen === false || open === false) return null
 
   return (
     <div

@@ -1,5 +1,6 @@
 import { parseTimeToMinutes } from "../../../lib/scheduleGridUtils"
 import { formatRuang } from "../../../lib/scheduleUtils"
+import { parseLecturers } from "../../../lib/lecturerUtils"
 
 export function PrintPreviewMatrix({
   groupedByDay,
@@ -68,7 +69,7 @@ export function PrintPreviewMatrix({
                               )}
                               {showLecturer && c?.dosen && (
                                 <div className="text-[8px] text-neutral-500 truncate">
-                                  {c.dosen}
+                                  {parseLecturers(c.dosen).join(' · ')}
                                 </div>
                               )}
                             </div>

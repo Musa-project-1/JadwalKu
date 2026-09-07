@@ -2,15 +2,20 @@ import { useEffect, useRef } from 'react'
 import { Button } from './Button'
 
 export function ConfirmDialog({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   title,
   description,
+  message,
   confirmLabel = 'Konfirmasi',
   cancelLabel = 'Batal',
+  danger = false,
   onConfirm,
   onCancel,
   children,
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
+  const effectiveDescription = description || message
   const dialogRef = useRef(null)
 
   // Escape menutup dialog + fokus dipindahkan ke dialog saat terbuka (a11y).
@@ -45,15 +50,17 @@ export function ConfirmDialog({
           <span className="h-1 w-10 rounded-full bg-outline-variant/60" />
         </div>
         <h2 id="confirm-title" className="text-title-md font-bold text-on-surface">{title}</h2>
-        {description ? (
-          <p className="mt-2 text-body-sm font-medium leading-relaxed text-on-surface-variant">{description}</p>
+        {effectiveDescription ? (
+          <p className="mt-2 text-body-sm font-medium leading-relaxed text-on-surface-variant">{effectiveDescription}</p>
         ) : null}
         {children}
         <div className="mt-6 flex justify-end gap-2.5">
           <Button variant="secondary" onClick={onCancel}>
             {cancelLabel}
           </Button>
-          <Button onClick={onConfirm}>{confirmLabel}</Button>
+          <Button variant={danger ? 'danger' : 'primary'} onClick={onConfirm}>
+            {confirmLabel}
+          </Button>
         </div>
       </div>
     </div>

@@ -15,8 +15,8 @@ export function NoticeboardPaperPreview({
   officialNip,
 }) {
   return (
-    <div className="tablet:col-span-7 p-4 tablet:p-6 overflow-y-auto bg-surface-container-low/20 dark:bg-surface-container-high/10 flex justify-center custom-scrollbar">
-      <div className="w-full max-w-[660px] bg-white text-black p-6 tablet:p-8 rounded-2xl shadow-level-2 border border-neutral-300 min-h-[640px] flex flex-col justify-between">
+    <div className="tablet:col-span-7 p-4 tablet:p-6 overflow-y-auto bg-surface-container-low/20 dark:bg-surface-container-high/10 flex justify-center items-start custom-scrollbar">
+      <div className="w-full max-w-[660px] bg-white text-black p-6 tablet:p-8 rounded-2xl shadow-level-2 border border-neutral-300 min-h-full flex flex-col justify-between my-auto tablet:my-0">
         <div>
           {/* Header Kop Surat Formal */}
           <div className="border-b-2 border-black pb-3 text-center">

@@ -15,7 +15,8 @@ const FILTERS = [
   { value: 'jadwal', label: 'Jadwal' },
 ]
 
-export function SearchModal({ open, onClose }) {
+export function SearchModal({ open: rawOpen, isOpen: rawIsOpen, onClose }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   const navigate = useNavigate()
   const { program, semester, t } = useApp()
   const { tasks } = useTasks()

@@ -5,12 +5,14 @@ import { FormSelect } from '../../FormSelect'
 import { ROOM_TYPES, DEFAULT_FACILITIES } from '../../../lib/roomUtils'
 
 export function AddEditRoomModal({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   onClose,
   editingRoom,
   onSave,
   busy,
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   const [namaRuang, setNamaRuang] = useState('')
   const [aliases, setAliases] = useState('')
   const [gedung, setGedung] = useState('')

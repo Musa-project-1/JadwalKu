@@ -6,13 +6,21 @@ import { parseRoomLocation } from '../../lib/locationUtils'
 import { useFirestore } from '../../hooks/useFirestore'
 
 export function RoomLocationModal({
-  isOpen,
+  isOpen: rawIsOpen,
+  open: rawOpen,
   onClose,
-  ruang,
-  tipeKelas = 'K1',
+  ruang: rawRuang,
+  roomName,
+  tipeKelas: rawTipeKelas,
+  classType,
   scheduleEntries = [],
-  currentCourseName = '',
+  currentCourseName: rawCourseName,
+  courseName,
 }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
+  const ruang = rawRuang || roomName || ''
+  const tipeKelas = rawTipeKelas || classType || 'K1'
+  const currentCourseName = rawCourseName || courseName || ''
   const { t } = useApp()
   const [copied, setCopied] = useState(false)
   const { data: roomMasterList } = useFirestore('rooms', [], { limit: 200 })

@@ -6,7 +6,8 @@ import { CustomDatePicker } from '../../CustomDatePicker'
 import { useCampus } from '../../../context/useCampus'
 
 export function ExamFormModal({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   onClose,
   editingTarget,
   form,
@@ -16,6 +17,7 @@ export function ExamFormModal({
   courseMap,
   errors = [],
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   const { prodiNames } = useCampus()
   const prodiOptions = useMemo(
     () => prodiNames.filter(Boolean).map((nama) => ({ value: nama, label: nama })),

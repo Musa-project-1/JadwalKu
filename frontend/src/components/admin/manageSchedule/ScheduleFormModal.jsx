@@ -5,7 +5,8 @@ import { FormSelect } from '../../FormSelect'
 import { CLASS_TYPE_CODES, DAYS } from '../../../lib/uploadValidator'
 
 export function ScheduleFormModal({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   onClose,
   title,
   subtitle,
@@ -22,6 +23,7 @@ export function ScheduleFormModal({
   showStatus = false,
   onCreateCourse,
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   useEffect(() => {
     if (!open) return
     function handleKeyDown(e) {

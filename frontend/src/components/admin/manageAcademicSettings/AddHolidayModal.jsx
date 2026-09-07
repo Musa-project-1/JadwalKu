@@ -4,7 +4,8 @@ import { Icon } from '../../Icon'
 import { FormSelect } from '../../FormSelect'
 
 export default function AddHolidayModal({
-  open,
+  open: rawOpen,
+  isOpen: rawIsOpen,
   onClose,
   nama,
   onNamaChange,
@@ -21,6 +22,7 @@ export default function AddHolidayModal({
   onSubmit,
   programs,
 }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   useEffect(() => {
     if (!open) return
     function handleKeyDown(e) {

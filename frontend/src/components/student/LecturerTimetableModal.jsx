@@ -11,13 +11,15 @@ import { parseTimeToMinutes } from '../../lib/scheduleGridUtils'
 const toMin = parseTimeToMinutes
 
 export function LecturerTimetableModal({
-  isOpen,
+  isOpen: rawIsOpen,
+  open: rawOpen,
   onClose,
   lecturerName,
   lecturerContact,
   allSchedules = [],
   courses = [],
 }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
   const { t } = useApp()
   const [copied, setCopied] = useState(false)
 

@@ -11,7 +11,8 @@ import { getCourseSemester, EMPTY_COURSE_FORM } from '../../../lib/courseUtils'
  * Reset state internal saat buka/tutup ditangani lewat `key` dari parent
  * (remount), jadi tidak perlu efek samping tambahan.
  */
-export default function CourseFormModal({ open, mode, initialForm, saving, errors = [], onClose, onSubmit }) {
+export default function CourseFormModal({ open: rawOpen, isOpen: rawIsOpen, mode, initialForm, saving, errors = [], onClose, onSubmit }) {
+  const open = rawOpen ?? rawIsOpen ?? false
   const [form, setForm] = useState(initialForm || EMPTY_COURSE_FORM)
 
   useEffect(() => {
