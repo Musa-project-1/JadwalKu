@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useDebounce } from '../../../hooks/useDebounce'
 import { findConflicts } from '../../../lib/uploadValidator'
 import {
@@ -28,28 +28,22 @@ export function useScheduleFilters({
   const [pageSize, setPageSize] = useState(10)
 
   const availableTaOptions = useMemo(() => buildTaOptions(rawSchedule), [rawSchedule])
-
-  useEffect(() => {
-    if (!taFilter) return
-    const ok = availableTaOptions.some((o) => String(o.value) === String(taFilter))
-    if (!ok) {
-      setTaFilter('')
-    }
-  }, [availableTaOptions, taFilter])
+  if (taFilter && !availableTaOptions.some((o) => String(o.value) === String(taFilter))) {
+    setTaFilter('')
+  }
 
   const availableSemesterOptions = useMemo(
     () => buildSemesterOptions(rawSchedule, taFilter),
     [rawSchedule, taFilter],
   )
-
-  useEffect(() => {
-    if (!semesterFilter) return
-    if (semesterFilter === 'ganjil' || semesterFilter === 'genap') return
-    const ok = availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))
-    if (!ok) {
-      setSemesterFilter('')
-    }
-  }, [availableSemesterOptions, semesterFilter])
+  if (
+    semesterFilter &&
+    semesterFilter !== 'ganjil' &&
+    semesterFilter !== 'genap' &&
+    !availableSemesterOptions.some((o) => String(o.value) === String(semesterFilter))
+  ) {
+    setSemesterFilter('')
+  }
 
   const availableFakultasOptions = useMemo(() => {
     const map = new Map()
@@ -164,19 +158,12 @@ export function useScheduleFilters({
     })
   }
 
-  // Reset expand kalau filter berubah
-  useEffect(() => {
+  const filterSignature = `${debouncedSearch}|${fakultasFilter}|${prodiFilter}|${semesterFilter}|${taFilter}|${hariFilter}|${statusFilter}|${onlyShowConflicts}`
+  const [prevFilterSignature, setPrevFilterSignature] = useState(filterSignature)
+  if (filterSignature !== prevFilterSignature) {
+    setPrevFilterSignature(filterSignature)
     setExpandedGroups(new Set())
-  }, [
-    debouncedSearch,
-    fakultasFilter,
-    prodiFilter,
-    semesterFilter,
-    taFilter,
-    hariFilter,
-    statusFilter,
-    onlyShowConflicts,
-  ])
+  }
 
   function resetFilters() {
     setSearch('')
