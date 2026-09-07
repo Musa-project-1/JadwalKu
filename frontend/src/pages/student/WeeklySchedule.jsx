@@ -232,9 +232,7 @@ export default function WeeklySchedule() {
   const pxPerHour = Math.max(28, safeGridHeight / totalHours)
   const gridHeight = safeGridHeight
 
-  function openDetail(entry) {
-    setDetailEntry(entry)
-  }
+  const openDetail = (entry) => setDetailEntry(entry)
 
   const toolbarContent = (
     <ScheduleToolbarContent
@@ -249,7 +247,6 @@ export default function WeeklySchedule() {
       setKrsSimulatorOpen={setKrsSimulatorOpen}
     />
   )
-
   const actionRail = (
     <ScheduleActionRail
       isCustomMode={isCustomMode}
@@ -395,12 +392,14 @@ export default function WeeklySchedule() {
       />
 
       <CustomScheduleModal
-        open={customModalOpen}
+        isOpen={customModalOpen}
         onClose={() => setCustomModalOpen(false)}
-        allJadwal={allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule}
+        allSchedules={allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule}
         courses={courses}
-        selectedIds={customScheduleIds}
-        onApply={(ids) => {
+        currentProgram={program}
+        currentSemester={semester}
+        currentCustomIds={customScheduleIds}
+        onSave={(ids) => {
           setCustomScheduleIds(ids)
           setScheduleMode('custom')
           setCustomModalOpen(false)
@@ -408,40 +407,39 @@ export default function WeeklySchedule() {
       />
 
       <AttendanceOverviewModal
-        open={attendanceModalOpen}
+        isOpen={attendanceModalOpen}
         onClose={() => setAttendanceModalOpen(false)}
-        scheduleSource={scheduleSource}
-        courseMap={courseMap}
+        scheduleEntries={scheduleSource}
+        courses={courses}
       />
 
       <CourseNotesModal
-        open={notesModalOpen}
+        isOpen={notesModalOpen}
         onClose={() => setNotesModalOpen(false)}
-        scheduleSource={scheduleSource}
-        courseMap={courseMap}
+        courses={courses}
       />
 
       <PrintScheduleModal
-        open={printModalOpen}
+        isOpen={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
-        scheduleSource={scheduleSource}
-        courseMap={courseMap}
-        weekDates={weekDates}
-        activeWeekDays={activeWeekDays}
+        scheduleEntries={scheduleSource}
+        courses={courses}
         program={program}
         semester={semester}
-        selectedTA={selectedTA}
+        tahunAjaran={selectedTA}
       />
 
       <KrsSimulatorModal
-        open={krsSimulatorOpen}
+        isOpen={krsSimulatorOpen}
         onClose={() => setKrsSimulatorOpen(false)}
-        allJadwal={allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule}
+        allSchedules={allPublishedJadwal.length > 0 ? allPublishedJadwal : sampleSchedule}
         courses={courses}
+        currentProgram={program}
         currentSemester={semester}
         onApplyToSchedule={(ids) => {
           setCustomScheduleIds(ids)
           setScheduleMode('custom')
+          setKrsSimulatorOpen(false)
         }}
       />
     </div>

@@ -10,14 +10,23 @@ import { PrintPreviewPocket } from './print/PrintPreviewPocket'
 import { PrintablePageArea } from './print/PrintablePageArea'
 
 export function PrintScheduleModal({
-  isOpen,
+  isOpen: rawIsOpen,
+  open: rawOpen,
   onClose,
-  scheduleEntries = [],
+  scheduleEntries: rawScheduleEntries,
+  scheduleSource,
   courses = [],
   program = '',
   semester = 1,
-  tahunAjaran = '',
+  tahunAjaran: rawTahunAjaran,
+  selectedTA,
 }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
+  const scheduleEntries = useMemo(
+    () => ((rawScheduleEntries && rawScheduleEntries.length > 0) ? rawScheduleEntries : (scheduleSource || [])),
+    [rawScheduleEntries, scheduleSource],
+  )
+  const tahunAjaran = rawTahunAjaran || selectedTA || ''
   const { t } = useApp()
   const modalRef = useRef(null)
   const [layoutFormat, setLayoutFormat] = useState('wall') // 'wall' | 'matrix' | 'pocket'

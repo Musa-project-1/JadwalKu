@@ -5,11 +5,13 @@ import { useApp } from '../../hooks/useApp'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 
 export function CourseNotesModal({
-  isOpen,
+  isOpen: rawIsOpen,
+  open: rawOpen,
   onClose,
   courses = [],
   onOpenCourseDetail,
 }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
   const { language, t } = useApp()
   const [searchQuery, setSearchQuery] = useState('')
   const [copiedId, setCopiedId] = useState(null)

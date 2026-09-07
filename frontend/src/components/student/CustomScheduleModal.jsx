@@ -7,15 +7,30 @@ import { formatRuang } from '../../lib/scheduleUtils'
 import { getClassType, TONE_CLASSES, TONE_DOT_CLASSES } from '../../lib/classTypes'
 
 export function CustomScheduleModal({
-  isOpen,
+  isOpen: rawIsOpen,
+  open: rawOpen,
   onClose,
-  allSchedules = [],
+  allSchedules: rawAllSchedules,
+  allJadwal,
   courses = [],
-  currentProgram,
-  currentSemester,
-  currentCustomIds = [],
-  onSave,
+  currentProgram: rawProgram,
+  program,
+  currentSemester: rawSemester,
+  semester,
+  currentCustomIds: rawCustomIds,
+  selectedIds: rawSelectedIds,
+  onSave: rawOnSave,
+  onApply,
 }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
+  const allSchedules = useMemo(
+    () => ((rawAllSchedules && rawAllSchedules.length > 0) ? rawAllSchedules : (allJadwal || [])),
+    [rawAllSchedules, allJadwal],
+  )
+  const currentProgram = rawProgram || program || ''
+  const currentSemester = rawSemester || semester || 1
+  const currentCustomIds = rawCustomIds || rawSelectedIds || []
+  const onSave = rawOnSave || onApply
   const { t } = useApp()
   const [selectedIds, setSelectedIds] = useState(() => new Set(currentCustomIds))
   const [search, setSearch] = useState('')

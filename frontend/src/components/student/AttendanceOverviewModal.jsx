@@ -5,12 +5,19 @@ import { useAttendance } from '../../hooks/useAttendance'
 import { useApp } from '../../hooks/useApp'
 
 export function AttendanceOverviewModal({
-  isOpen,
+  isOpen: rawIsOpen,
+  open: rawOpen,
   onClose,
-  scheduleEntries = [],
+  scheduleEntries: rawScheduleEntries,
+  scheduleSource,
   courses = [],
   onSelectCourse,
 }) {
+  const isOpen = rawIsOpen ?? rawOpen ?? false
+  const scheduleEntries = useMemo(
+    () => ((rawScheduleEntries && rawScheduleEntries.length > 0) ? rawScheduleEntries : (scheduleSource || [])),
+    [rawScheduleEntries, scheduleSource],
+  )
   const { language, t } = useApp()
   const { getCourseAttendance } = useAttendance()
 
