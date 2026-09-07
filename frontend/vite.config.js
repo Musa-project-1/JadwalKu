@@ -53,6 +53,7 @@ export default defineConfig({
         'pwa-512.png',
       ],
       workbox: {
+        cacheId: 'jadwalku-v1',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         navigateFallback: `${base}index.html`,
         // Jangan intercept URL dengan query params selain hash router
