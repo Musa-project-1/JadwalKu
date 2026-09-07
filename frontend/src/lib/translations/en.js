@@ -179,6 +179,15 @@ export const en = {
     'search.empty_query': 'Type lecturer name, course title, or course code',
 
     // ── Print Modal Options ──
+    'print.title': 'Print Class Schedule',
+    'print.layout_format': 'Layout Format',
+    'print.action_btn': 'Print / Save PDF',
+    'print.header_note': 'Header Note / Name',
+    'print.badge_ink_friendly': 'Ink-Friendly A4',
+    'print.cancel': 'Cancel',
+    'print.format_wall': 'Desk',
+    'print.format_matrix': 'Matrix',
+    'print.format_pocket': 'Pocket',
     'print.info_included': 'Included Information',
     'print.active_options': '{count}/5 Active',
     'print.lecturer': 'Lecturer',

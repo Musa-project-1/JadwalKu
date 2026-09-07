@@ -19,7 +19,7 @@ export function PrintOptionsPanel({
   t,
 }) {
   return (
-    <div className="w-full tablet:w-72 shrink-0 p-4 tablet:p-5 border-b tablet:border-b-0 tablet:border-r border-outline-variant/20 bg-surface-container-low/40 dark:bg-surface-container-high/20 flex flex-col justify-between space-y-4 overflow-y-auto custom-scrollbar">
+    <div className="w-full tablet:w-80 shrink-0 p-4 tablet:p-5 border-b tablet:border-b-0 tablet:border-r border-outline-variant/20 bg-surface-container-low/40 dark:bg-surface-container-high/20 flex flex-col justify-between space-y-4 overflow-y-auto custom-scrollbar">
       <div className="space-y-4">
         {/* Layout Format Selector Card */}
         <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 space-y-2.5 shadow-2xs">
@@ -28,9 +28,9 @@ export function PrintOptionsPanel({
           </label>
           <div className="grid grid-cols-3 gap-1.5 bg-surface-container-high/60 p-1 rounded-xl border border-outline-variant/20">
             {[
-              { id: "wall", label: "Meja", icon: "table_chart" },
-              { id: "matrix", label: "Matriks", icon: "grid_view" },
-              { id: "pocket", label: "Saku", icon: "menu_book" },
+              { id: "wall", label: t ? t("print.format_wall") : "Meja", icon: "table_chart" },
+              { id: "matrix", label: t ? t("print.format_matrix") : "Matriks", icon: "grid_view" },
+              { id: "pocket", label: t ? t("print.format_pocket") : "Saku", icon: "menu_book" },
             ].map((fmt) => (
               <button
                 key={fmt.id}
@@ -52,13 +52,13 @@ export function PrintOptionsPanel({
         {/* Custom Header Title Input Card */}
         <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 space-y-1.5 shadow-2xs">
           <label className="block text-[11px] uppercase tracking-wider text-on-surface-variant font-extrabold">
-            Nama / Catatan Header
+            {t ? t("print.header_note") : "Nama / Catatan Header"}
           </label>
           <input
             type="text"
             value={customTitle}
             onChange={(e) => setCustomTitle(e.target.value)}
-            placeholder="Misal: Musa (NIM. 220101001)"
+            placeholder={t ? t("print.header_placeholder") : "Misal: Musa (NIM. 220101001)"}
             className="w-full px-3 py-2 rounded-xl border border-outline-variant/30 bg-surface-container-low/60 text-body-xs text-on-surface focus:outline-none focus:border-teal-600 dark:bg-surface-container-high/60 shadow-2xs"
           />
         </div>
@@ -88,7 +88,7 @@ export function PrintOptionsPanel({
               />
               <div className="flex items-center gap-1.5 min-w-0">
                 <Icon name="person" size={15} className={showLecturer ? "text-teal-700 dark:text-teal-400" : "text-on-surface-variant"} />
-                <span className="text-[11.5px] truncate">{t ? t("print.lecturer") : "Dosen"}</span>
+                <span className="text-[11px] font-bold leading-tight">{t ? t("print.lecturer") : "Dosen"}</span>
               </div>
             </label>
 
@@ -105,7 +105,7 @@ export function PrintOptionsPanel({
               />
               <div className="flex items-center gap-1.5 min-w-0">
                 <Icon name="meeting_room" size={15} className={showRoom ? "text-teal-700 dark:text-teal-400" : "text-on-surface-variant"} />
-                <span className="text-[11.5px] truncate">{t ? t("print.room") : "Ruangan"}</span>
+                <span className="text-[11px] font-bold leading-tight">{t ? t("print.room") : "Ruangan"}</span>
               </div>
             </label>
 
@@ -122,7 +122,7 @@ export function PrintOptionsPanel({
               />
               <div className="flex items-center gap-1.5 min-w-0">
                 <Icon name="menu_book" size={15} className={showSks ? "text-teal-700 dark:text-teal-400" : "text-on-surface-variant"} />
-                <span className="text-[11.5px] truncate">{t ? t("print.sks") : "Beban SKS"}</span>
+                <span className="text-[11px] font-bold leading-tight">{t ? t("print.sks") : "SKS"}</span>
               </div>
             </label>
 
@@ -139,7 +139,7 @@ export function PrintOptionsPanel({
               />
               <div className="flex items-center gap-1.5 min-w-0">
                 <Icon name="sticky_note_2" size={15} className={showNotes ? "text-teal-700 dark:text-teal-400" : "text-on-surface-variant"} />
-                <span className="text-[11.5px] truncate">Catatan Sesi</span>
+                <span className="text-[11px] font-bold leading-tight">{t ? t("print.notes") : "Catatan"}</span>
               </div>
             </label>
 
@@ -156,7 +156,7 @@ export function PrintOptionsPanel({
               />
               <div className="flex items-center gap-1.5 min-w-0">
                 <Icon name="draw" size={15} className={showMemoSpace ? "text-teal-700 dark:text-teal-400" : "text-on-surface-variant"} />
-                <span className="text-[11.5px] truncate font-semibold">Kolom Memo & Target Belajar</span>
+                <span className="text-[11px] font-bold leading-tight">{t ? t("print.memo_space") : "Kolom Memo & Target"}</span>
               </div>
             </label>
           </div>

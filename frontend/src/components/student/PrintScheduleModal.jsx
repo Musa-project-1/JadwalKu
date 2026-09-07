@@ -124,10 +124,10 @@ export function PrintScheduleModal({
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 id="print-schedule-title" className="text-title-sm tablet:text-title-md font-bold text-white tracking-tight truncate">
-                    {t ? t('print.title') : 'Cetak & Simpan Jadwal Kuliah'}
+                    {t ? t('print.title') : 'Cetak Jadwal Kuliah'}
                   </h3>
                   <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wide border border-white/25 shadow-level-1 backdrop-blur-md">
-                    Ink-Friendly A4
+                    {t ? t('print.badge_ink_friendly') : 'Format A4 Bersih'}
                   </span>
                 </div>
                 <p className="text-label-caps text-white/80 font-medium truncate mt-0.5">
@@ -168,9 +168,9 @@ export function PrintScheduleModal({
             />
 
             {/* SISI KANAN: Preview Lembar Cetak Kertas A4 */}
-            <div className="flex-1 min-w-0 p-4 tablet:p-6 overflow-y-auto custom-scrollbar bg-surface-container-low/25 dark:bg-surface-container-high/10 flex justify-center">
-              <div className="w-full max-w-[620px] bg-white text-neutral-900 border border-neutral-300 rounded-xl shadow-level-2 p-5 tablet:p-7 min-h-[580px] flex flex-col justify-between">
-                <div>
+            <div className="flex-1 min-w-0 p-4 tablet:p-6 overflow-y-auto custom-scrollbar bg-surface-container-low/25 dark:bg-surface-container-high/10 flex justify-center items-start">
+              <div className="w-full max-w-[620px] bg-white text-neutral-900 border border-neutral-300 rounded-xl shadow-level-2 p-5 tablet:p-7 min-h-full flex flex-col justify-between my-auto tablet:my-0">
+                <div className="space-y-3">
                   {/* Paper Header */}
                   <div className="border-b border-neutral-800 pb-2.5 mb-3.5 flex items-start justify-between">
                     <div>
@@ -242,11 +242,11 @@ export function PrintScheduleModal({
                       </div>
                     </div>
                   )}
+                </div>
 
-                  {/* Footer App */}
-                  <div className="mt-3 text-center text-[8.5px] text-neutral-500 font-medium">
-                    JadwalKu · Solusi Manajemen Jadwal Perkuliahan Mahasiswa
-                  </div>
+                {/* Footer App inside Paper */}
+                <div className="mt-4 pt-2 border-t border-neutral-200 text-center text-[8.5px] text-neutral-500 font-medium">
+                  JadwalKu · Solusi Manajemen Jadwal Perkuliahan Mahasiswa
                 </div>
               </div>
             </div>
@@ -255,7 +255,7 @@ export function PrintScheduleModal({
           {/* Footer Actions */}
           <div className="flex items-center justify-between border-t border-outline-variant/20 px-4 tablet:px-6 py-3.5 bg-surface-container-low/40 shrink-0">
             <span className="text-[11px] text-on-surface-variant font-medium">
-              Siap dicetak pada ukuran kertas A4
+              {t ? t('print.ready_a4') : 'Siap dicetak pada ukuran kertas A4'}
             </span>
             <div className="flex items-center gap-2">
               <button
@@ -263,7 +263,7 @@ export function PrintScheduleModal({
                 onClick={onClose}
                 className="px-4 py-2 rounded-xl text-body-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer"
               >
-                {t ? t('action.cancel') : 'Batal'}
+                {t ? t('print.cancel') : (t ? t('action.cancel') : 'Batal')}
               </button>
               <button
                 type="button"

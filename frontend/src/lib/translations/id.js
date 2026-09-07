@@ -179,6 +179,15 @@ export const id = {
     'search.empty_query': 'Ketik nama dosen, mata kuliah, atau kode MK',
 
     // ── Print Modal Options ──
+    'print.title': 'Cetak Jadwal Kuliah',
+    'print.layout_format': 'Format Tata Letak',
+    'print.action_btn': 'Cetak / Simpan PDF',
+    'print.header_note': 'Nama / Catatan Header',
+    'print.badge_ink_friendly': 'Format A4 Bersih',
+    'print.cancel': 'Batal',
+    'print.format_wall': 'Meja',
+    'print.format_matrix': 'Matriks',
+    'print.format_pocket': 'Saku',
     'print.info_included': 'Informasi Disertakan',
     'print.active_options': '{count}/5 Aktif',
     'print.lecturer': 'Dosen',

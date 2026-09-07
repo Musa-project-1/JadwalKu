@@ -1,5 +1,6 @@
 import { formatRuang } from "../../../lib/scheduleUtils"
 import { getItem, STORAGE_KEYS } from "../../../lib/storage"
+import { parseLecturers } from "../../../lib/lecturerUtils"
 
 export function PrintPreviewWall({
   activeDays,
@@ -53,8 +54,8 @@ export function PrintPreviewWall({
                         </td>
                       )}
                       {showLecturer && (
-                        <td className="py-1.5 px-2 text-neutral-700 text-[9.5px]">
-                          {c?.dosen || "-"}
+                        <td className="py-1.5 px-2 text-neutral-700 text-[9px] leading-snug">
+                          {c?.dosen ? parseLecturers(c.dosen).join(' · ') : "-"}
                         </td>
                       )}
                       {showSks && (

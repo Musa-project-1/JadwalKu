@@ -1,6 +1,7 @@
 import { formatRuang } from '../../../lib/scheduleUtils'
 import { getItem, STORAGE_KEYS } from '../../../lib/storage'
 import { parseTimeToMinutes } from '../../../lib/scheduleGridUtils'
+import { parseLecturers } from '../../../lib/lecturerUtils'
 
 export function PrintablePageArea({
   layoutFormat,
@@ -110,7 +111,11 @@ export function PrintablePageArea({
                             )}
                           </td>
                           {showRoom && <td className="py-1 px-2.5">{formatRuang(e.ruang, e.tipeKelas)}</td>}
-                          {showLecturer && <td className="py-1 px-2.5 text-[10px] text-neutral-700">{c?.dosen || '-'}</td>}
+                          {showLecturer && (
+                            <td className="py-1 px-2.5 text-[9.5px] leading-snug text-neutral-700">
+                              {c?.dosen ? parseLecturers(c.dosen).join(' · ') : '-'}
+                            </td>
+                          )}
                           {showSks && <td className="py-1 px-2.5 text-center font-bold">{c?.sks || 2}</td>}
                         </tr>
                       )
