@@ -47,6 +47,7 @@ import { translate, formatDayName } from './src/lib/translations.js'
 import { parseTimeToMinutes, getSessionForClass, checkPrayerClash } from './src/lib/scheduleGridUtils.js'
 import { getItem, setItem, removeItem, exportStudentData, importStudentData, STORAGE_KEYS } from './src/lib/storage.js'
 import { COLLECTIONS_CONFIG } from './src/components/admin/backup/backupConfig.js'
+import { ErrorBoundary } from './src/components/ErrorBoundary.jsx'
 
 console.log('🧪 ========================================================')
 console.log('🧪 MENJALANKAN AUTOMATED TEST SUITE KESELURUHAN JADWALKU')
@@ -96,6 +97,15 @@ test('Mendeteksi Auditorium / Aula Serbaguna', () => {
   const loc = parseRoomLocation('Auditorium Kampus', 'K1')
   assert.equal(loc.buildingCode, 'AULA')
   assert.equal(loc.floorNumber, 1)
+})
+
+test('Mencocokkan ruangan kustom dari master data ruangan kampus', () => {
+  const customRooms = [
+    { namaRuang: 'Gedung Halimah R. 301', aliases: ['Halimah 301', 'H301'], gedung: 'Gedung Halimah', lantai: 3, kapasitas: 50, tipeRuang: 'kelas' },
+  ]
+  const loc = parseRoomLocation('Halimah 301', 'K1', customRooms)
+  assert.equal(loc.building, 'Gedung Halimah')
+  assert.equal(loc.floorNumber, 3)
 })
 
 // ── TEST GROUP 2: notificationEngine.js ──
@@ -246,6 +256,17 @@ test('Parsing multi-dosen pengampu dan gelar (parseLecturers)', () => {
   const parsed = parseLecturers('1. Dr. Achmad, M.Kom. 2. Ir. Fadhilah, MT')
   assert.equal(parsed.length, 2)
   assert.equal(parsed[0], 'Dr. Achmad, M.Kom.')
+  assert.equal(parsed[1], 'Ir. Fadhilah, MT')
+})
+
+test('Sanitasi multi-dosen dengan delimiter ampersand (&) dan penomoran kelas', () => {
+  const raw = '1. ACHMAD NUGRAHANTORO, S.KOM., M.KOM. [ KELAS 2-A] & 2. FADHILAH DHINUR AINI, S.KOM., M.KOM. [KELAS 2-B]'
+  const parsed = parseLecturers(raw)
+  assert.equal(parsed.length, 2)
+  assert.ok(parsed[0].includes('ACHMAD NUGRAHANTORO'))
+  assert.ok(!parsed[0].startsWith('1.'))
+  assert.ok(parsed[1].includes('FADHILAH DHINUR AINI'))
+  assert.ok(!parsed[1].startsWith('2.'))
 })
 
 test('Format tautan nomor WhatsApp dosen (formatWhatsAppUrl)', () => {
@@ -671,6 +692,15 @@ test('Interpolasi parameter dinamis {key} berfungsi dengan sempurna', () => {
   assert.equal(remainingTime, '25 mins left')
 })
 
+test('Kamus terjemahan modal cetak lengkap tanpa key raw bocor', () => {
+  assert.equal(translate('print.title', 'id'), 'Cetak Jadwal Kuliah')
+  assert.equal(translate('print.title', 'en'), 'Print Class Schedule')
+  assert.equal(translate('print.layout_format', 'id'), 'Format Tata Letak')
+  assert.equal(translate('print.layout_format', 'en'), 'Layout Format')
+  assert.equal(translate('print.action_btn', 'id'), 'Cetak / Simpan PDF')
+  assert.equal(translate('print.badge_ink_friendly', 'id'), 'Format A4 Bersih')
+})
+
 test('Fallback cerdas: fallback ke Bahasa Indonesia dan raw key jika tidak ditemukan', () => {
   // Fallback ke ID jika di EN tidak ada tapi di ID ada
   // (buat skenario key fiktif dengan menguji fallback jika key belum di-en-kan)
@@ -762,12 +792,31 @@ test('Mendukung semester terbuka tingkat atas (>8, 9, 10, 14) secara konsisten',
   assert.match(taSem14, /^\d{4}\/\d{4}$/, 'Format TA semester 14 harus YYYY/YYYY')
 })
 
-console.log('\n✨ [13/13] Penegakan Standar Tipografi Anti-Slop (Zero Em-Dash)...')
+console.log('\n✨ [13/14] Penegakan Standar Tipografi Anti-Slop (Zero Em-Dash)...')
 
 test('Memastikan string translations dan format konsisten tanpa em-dash liar', () => {
   const syncBanner = translate('home.sync_banner', 'en', { semester: 4, ta: '2026/2027' })
   assert.ok(!syncBanner.includes('—'), 'Tidak boleh mengandung em-dash (—)')
   assert.ok(syncBanner.includes('–'), 'Menggunakan en-dash (–) resmi')
+})
+
+console.log('\n🛡️ [14/14] Menguji Ketahanan Arsitektur & Error Boundary (resilience)...')
+
+test('ErrorBoundary mengimplementasikan lifecycle React getDerivedStateFromError', () => {
+  assert.equal(typeof ErrorBoundary.getDerivedStateFromError, 'function')
+  const testError = new Error('Simulasi render crash')
+  const derivedState = ErrorBoundary.getDerivedStateFromError(testError)
+  assert.equal(derivedState.hasError, true)
+  assert.equal(derivedState.error, testError)
+})
+
+test('ErrorBoundary dapat diinstansiasi dengan state awal normal', () => {
+  const eb = new ErrorBoundary({ children: null })
+  assert.equal(eb.state.hasError, false)
+  assert.equal(eb.state.error, null)
+  assert.equal(typeof eb.handleReload, 'function')
+  assert.equal(typeof eb.handleGoHome, 'function')
+  assert.equal(typeof eb.handleClearCacheAndReset, 'function')
 })
 
 // ── RINGKASAN HASIL ──

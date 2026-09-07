@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router'
 import App from './App.jsx'
 import { AppProvider } from './context/AppContext.jsx'
 import { CampusProvider } from './context/CampusContext.jsx'
+import { ErrorBoundary } from './components/ErrorBoundary.jsx'
 import './index.css'
 import './lib/firebaseClient.js'
 import { registerSW } from 'virtual:pwa-register'
@@ -38,12 +39,14 @@ if (import.meta.env.DEV && 'serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AppProvider>
-        <CampusProvider>
-          <App />
-        </CampusProvider>
-      </AppProvider>
-    </HashRouter>
+    <ErrorBoundary>
+      <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AppProvider>
+          <CampusProvider>
+            <App />
+          </CampusProvider>
+        </AppProvider>
+      </HashRouter>
+    </ErrorBoundary>
   </StrictMode>,
 )
