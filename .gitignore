@@ -12,6 +12,7 @@ firestore-debug.*.log*
 # Deploy & Local Tooling
 .firebase/
 .netlify/
+.vercel/
 
 # Firebase config
 
