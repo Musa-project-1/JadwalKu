@@ -10,6 +10,7 @@ export function ConfirmDialog({
   confirmLabel = 'Konfirmasi',
   cancelLabel = 'Batal',
   danger = false,
+  zIndex = 'z-[120]',
   onConfirm,
   onCancel,
   children,
@@ -33,7 +34,7 @@ export function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in max-[599px]:items-end max-[599px]:p-0"
+      className={`fixed inset-0 ${zIndex} flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in max-[599px]:items-end max-[599px]:p-0`}
       onClick={onCancel}
       role="presentation"
     >

@@ -192,7 +192,7 @@ export function AcademicCalendarImportModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="import-kaldik-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0"
+      className="fixed inset-0 z-[110] flex items-center justify-center p-3 tablet:p-4 max-[599px]:items-end max-[599px]:p-0"
     >
       <div
         onClick={onClose}

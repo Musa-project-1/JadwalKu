@@ -114,13 +114,35 @@ export function AdminSettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, 
   // ESC key to close modal
   useEffect(() => {
     function handleKeyDown(e) {
-      if (e.key === 'Escape' && isOpen && !backupRestoreOpen && !calendarOpen && !kaldikImportOpen && !roomModalOpen && !addHolidayModalOpen && !syncHolidayModalOpen) {
+      if (
+        e.key === 'Escape' &&
+        isOpen &&
+        !backupRestoreOpen &&
+        !calendarOpen &&
+        !kaldikImportOpen &&
+        !roomModalOpen &&
+        !addHolidayModalOpen &&
+        !syncHolidayModalOpen &&
+        !deleteHolidayTarget &&
+        !deleteRoomTarget
+      ) {
         onClose?.()
       }
     }
     if (isOpen) window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose, backupRestoreOpen, calendarOpen, kaldikImportOpen, roomModalOpen, addHolidayModalOpen, syncHolidayModalOpen])
+  }, [
+    isOpen,
+    onClose,
+    backupRestoreOpen,
+    calendarOpen,
+    kaldikImportOpen,
+    roomModalOpen,
+    addHolidayModalOpen,
+    syncHolidayModalOpen,
+    deleteHolidayTarget,
+    deleteRoomTarget,
+  ])
 
   async function handleSaveCalendar(newCal) {
     setSavingCal(true)
