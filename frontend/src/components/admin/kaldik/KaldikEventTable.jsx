@@ -126,12 +126,12 @@ export function KaldikEventTable({
                 return (
                   <tr key={idx} className="hover:bg-surface-container-low/60 transition-colors">
                     <td className="px-3 py-2 align-middle overflow-hidden">
-                      <p className="font-bold text-body-xs text-on-surface truncate" title={event.name}>
-                        {event.name}
+                      <p className="font-bold text-body-xs text-on-surface truncate" title={event.nama || event.name}>
+                        {event.nama || event.name}
                       </p>
                     </td>
                     <td className="w-36 px-2.5 py-2 align-middle font-mono text-body-xs text-on-surface-variant truncate">
-                      {event.startDate} s.d {event.endDate}
+                      {(event.tanggalMulai || event.startDate)} s.d {(event.tanggalSelesai || event.endDate || event.tanggalMulai || event.startDate)}
                     </td>
                     <td className="w-24 px-2 py-2 align-middle text-center">
                       <span

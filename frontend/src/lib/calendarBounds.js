@@ -11,7 +11,7 @@ export function deriveBoundsFromEvents(events = []) {
   if (!Array.isArray(events) || events.length === 0) return null
 
   const relevant = events.filter(
-    (e) => e.tanggalMulai && (e.semester === 'ganjil' || e.semester === 'genap'),
+    (e) => (e.tanggalMulai || e.startDate) && (e.semester === 'ganjil' || e.semester === 'genap'),
   )
   if (relevant.length === 0) return null
 
@@ -23,8 +23,8 @@ export function deriveBoundsFromEvents(events = []) {
     let min = null
     let max = null
     evts.forEach((e) => {
-      const start = toDate(e.tanggalMulai)
-      const end = toDate(e.tanggalSelesai) || start
+      const start = toDate(e.tanggalMulai || e.startDate)
+      const end = toDate(e.tanggalSelesai || e.endDate) || start
       if (!start || !end) return
       if (!min || start < min) min = start
       if (!max || end > max) max = end
@@ -43,6 +43,33 @@ export function deriveBoundsFromEvents(events = []) {
   if (genapRange) {
     result.genapStart = { month: genapRange.start.getMonth(), day: genapRange.start.getDate() }
     result.genapEnd = { month: genapRange.end.getMonth(), day: genapRange.end.getDate() }
+  }
+
+  // Turunkan Tahun Ajaran dan Semester Aktif
+  let minYear = null
+  let maxYear = null
+  events.forEach((e) => {
+    const d = toDate(e.tanggalMulai || e.startDate)
+    if (d) {
+      const yr = d.getFullYear()
+      if (!minYear || yr < minYear) minYear = yr
+      if (!maxYear || yr > maxYear) maxYear = yr
+    }
+  })
+
+  if (minYear) {
+    result.tahunAjaran = maxYear && maxYear > minYear ? `${minYear}/${maxYear}` : `${minYear}/${minYear + 1}`
+  }
+
+  const now = new Date()
+  if (ganjilRange && now >= ganjilRange.start && now <= ganjilRange.end) {
+    result.activeSemester = 'Ganjil'
+  } else if (genapRange && now >= genapRange.start && now <= genapRange.end) {
+    result.activeSemester = 'Genap'
+  } else if (ganjilRange) {
+    result.activeSemester = 'Ganjil'
+  } else if (genapRange) {
+    result.activeSemester = 'Genap'
   }
 
   return Object.keys(result).length > 0 ? result : null

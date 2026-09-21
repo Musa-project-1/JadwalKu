@@ -47,7 +47,7 @@ export function parseKaldikLines(lines = []) {
   let sectionExplicit = false
 
   for (let i = 0; i < lines.length; i += 1) {
-    const raw = String(lines[i] || '').trim()
+    let raw = String(lines[i] || '').trim()
     if (!raw) continue
     const upper = raw.toUpperCase().replace(/\s+/g, ' ')
 
@@ -55,29 +55,69 @@ export function parseKaldikLines(lines = []) {
     if (upper.includes('SEMESTER GANJIL')) { currentSection = 'ganjil'; sectionExplicit = true; continue }
     if (upper.includes('SEMESTER GENAP')) { currentSection = 'genap'; sectionExplicit = true; continue }
     if (upper.includes('KETERANGAN') || upper.includes('HARI LIBUR')) { currentSection = 'antar'; sectionExplicit = true; continue }
+    if (upper.startsWith('CATATAN') || /^CATATAN\s*:/i.test(raw)) break
 
     // Lewati baris noise kalender (hari, bulan, grid angka)
     if (/^(MIN|SEN|SEL|RAB|KAM|JUM|SAB)\s/i.test(raw)) continue
     if (/^[A-Z]{3,9}\s+\d{4}$/i.test(raw)) continue
+    if (/^[\d\s]+$/.test(raw)) continue
     if (/^[A-Z]{3}$/i.test(raw) && currentSection === 'antar') continue
+    if (raw.includes('@') || raw.includes('http://') || raw.includes('https://')) continue
 
-    const dateResult = extractKaldikDateRange(raw)
+    // Tangani kemungkinan tahun terpisah ke baris berikutnya
+    if (i + 1 < lines.length) {
+      const nextLine = String(lines[i + 1] || '').trim()
+      const nextYearMatch = nextLine.match(/^(\d{4})\b\s*(.*)/)
+      if (nextYearMatch && !extractKaldikDateRange(raw)?.raw?.includes(nextYearMatch[1])) {
+        raw = `${raw} ${nextYearMatch[1]} ${nextYearMatch[2]}`.trim()
+        i += 1
+      }
+    }
+
+    // Bersihkan tanggal dalam kurung penjelasan (e.g. "(Hari Raya Idul Fitri diperkirakan ... 10 Mar 2027)")
+    const cleaned = raw.replace(/\([^)]*?\b(?:diperkirakan|perkiraan|tanggal)\b[^)]*?\)/gi, ' ')
+
+    const dateResult = extractKaldikDateRange(cleaned)
     if (!dateResult) continue
 
     // Nama event: sisa teks setelah rentang tanggal pada baris yang sama
     let eventName = raw.replace(dateResult.raw, '').trim()
-    eventName = eventName.replace(/^[\s:\-–—|•·.,]+/, '').trim()
+    eventName = eventName.replace(/^[\s:\-–—|•·.,]+|[\s:\-–—|•·.,]+$/g, '').trim()
 
-    // Fallback: jika tidak ada nama di baris yang sama, lihat baris berikutnya
+    // Fallback: jika tidak ada nama di baris yang sama, lihat baris sebelumnya atau berikutnya
+    if (!eventName && i > 0) {
+      const prevLine = String(lines[i - 1] || '').trim()
+      if (prevLine && !isSectionHeader(prevLine) && !extractKaldikDateRange(prevLine) && !/^[\d\s]+$/.test(prevLine)) {
+        eventName = prevLine
+      }
+    }
+
     let nextIdx = i + 1
-    while (!eventName && nextIdx < lines.length) {
+    while ((!eventName || eventName.length < 5) && nextIdx < lines.length) {
       const nextLine = String(lines[nextIdx] || '').trim()
       if (!nextLine) { nextIdx += 1; continue }
       if (isSectionHeader(nextLine)) break
       if (extractKaldikDateRange(nextLine)) break
-      eventName = nextLine
+      eventName = eventName ? `${eventName} ${nextLine}` : nextLine
       i = nextIdx
       break
+    }
+
+    // Tangani baris lanjutan teks (penutup kurung "Fitri)", teks sambungan)
+    if (eventName && i + 1 < lines.length) {
+      const nextLine = String(lines[i + 1] || '').trim()
+      if (
+        nextLine &&
+        !isSectionHeader(nextLine) &&
+        !extractKaldikDateRange(nextLine) &&
+        !/^[\d\s]+$/.test(nextLine) &&
+        !nextLine.startsWith('Catatan') &&
+        !nextLine.includes('@') &&
+        (eventName.endsWith('(') || eventName.endsWith('&') || eventName.endsWith(',') || (/^[a-z)]/i.test(nextLine) && nextLine.length < 35))
+      ) {
+        eventName = `${eventName} ${nextLine}`.replace(/\s+/g, ' ').trim()
+        i += 1
+      }
     }
 
     if (!eventName) continue
@@ -88,8 +128,11 @@ export function parseKaldikLines(lines = []) {
 
     events.push({
       nama: eventName,
+      name: eventName,
       tanggalMulai: dateResult.start,
+      startDate: dateResult.start,
       tanggalSelesai: dateResult.end,
+      endDate: dateResult.end,
       semester,
       kategori: normalizeCategory(eventName),
     })
@@ -141,8 +184,11 @@ export function parseCalendarRows(rows = []) {
 
     events.push({
       nama,
+      name: nama,
       tanggalMulai,
+      startDate: tanggalMulai,
       tanggalSelesai,
+      endDate: tanggalSelesai,
       semester: detectSemester(semesterRaw, tanggalMulai),
       kategori: normalizeCategory(kategoriRaw || nama),
     })
@@ -155,15 +201,18 @@ function normalizeEvents(rawEvents) {
   if (!Array.isArray(rawEvents)) return []
   return rawEvents
     .map((e) => {
-      const nama = String(e.nama || e.event || e.namaKegiatan || '').trim()
-      const tanggalMulai = normalizeDate(e.tanggalMulai || e.mulai || e.start || '')
+      const nama = String(e.nama || e.name || e.event || e.namaKegiatan || '').trim()
+      const tanggalMulai = normalizeDate(e.tanggalMulai || e.startDate || e.mulai || e.start || '')
       const tanggalSelesai =
-        normalizeDate(e.tanggalSelesai || e.selesai || e.end || '') || tanggalMulai
+        normalizeDate(e.tanggalSelesai || e.endDate || e.selesai || e.end || '') || tanggalMulai
       if (!nama || !tanggalMulai) return null
       return {
         nama,
+        name: nama,
         tanggalMulai,
+        startDate: tanggalMulai,
         tanggalSelesai,
+        endDate: tanggalSelesai,
         semester: detectSemester(e.semester || '', tanggalMulai),
         kategori: e.kategori || normalizeCategory(nama),
       }
@@ -196,17 +245,79 @@ async function extractPdfTextLines(arrayBuffer, onProgress) {
     const textContent = await page.getTextContent()
     if (textContent.items.length > 0) hasSelectableText = true
 
-    const lineMap = new Map()
-    for (const item of textContent.items) {
-      if (!item.str || !item.str.trim()) continue
-      const yKey = Math.round(item.transform[5] / 3) * 3
-      if (!lineMap.has(yKey)) lineMap.set(yKey, [])
-      lineMap.get(yKey).push({ x: item.transform[4], text: item.str.trim() })
+    const validItems = textContent.items
+      .filter((it) => it.str && it.str.trim())
+      .map((it) => ({
+        str: it.str.trim(),
+        x: it.transform[4],
+        y: it.transform[5],
+      }))
+
+    if (validItems.length === 0) continue
+
+    const viewport = page.getViewport({ scale: 1.0 })
+    const width = viewport.width || 800
+
+    // Deteksi layout multi-kolom halaman (misal: kalender bulanan di kiri, tabel agenda di kanan)
+    const numBuckets = Math.ceil(width / 10)
+    const bucketCounts = new Array(numBuckets).fill(0)
+    for (const it of validItems) {
+      const b = Math.floor(it.x / 10)
+      if (b >= 0 && b < numBuckets) bucketCounts[b]++
     }
-    const sortedY = Array.from(lineMap.keys()).sort((a, b) => b - a)
-    for (const y of sortedY) {
-      const sortedItems = lineMap.get(y).sort((a, b) => a.x - b.x)
-      allLines.push(sortedItems.map((it) => it.text).join(' '))
+
+    const minB = Math.floor(numBuckets * 0.25)
+    const maxB = Math.floor(numBuckets * 0.75)
+    let bestGutter = null
+    let inGap = false
+    let gapStart = 0
+    for (let b = minB; b <= maxB; b++) {
+      if (bucketCounts[b] === 0) {
+        if (!inGap) {
+          inGap = true
+          gapStart = b
+        }
+      } else if (inGap) {
+        inGap = false
+        const gapWidth = (b - gapStart) * 10
+        if (gapWidth >= 20 && (!bestGutter || gapWidth > bestGutter.width)) {
+          bestGutter = { splitX: ((gapStart + b) / 2) * 10, width: gapWidth }
+        }
+      }
+    }
+
+    const cols = bestGutter
+      ? [validItems.filter((it) => it.x < bestGutter.splitX), validItems.filter((it) => it.x >= bestGutter.splitX)]
+      : [validItems]
+
+    for (const colItems of cols) {
+      if (colItems.length === 0) continue
+      const sorted = [...colItems].sort((a, b) => b.y - a.y)
+      const rows = []
+      let cur = null
+      for (const it of sorted) {
+        if (!cur) {
+          cur = { minY: it.y, maxY: it.y, items: [it] }
+        } else if (cur.minY - it.y <= 13.5) {
+          cur.items.push(it)
+          cur.minY = Math.min(cur.minY, it.y)
+          cur.maxY = Math.max(cur.maxY, it.y)
+        } else {
+          rows.push(cur)
+          cur = { minY: it.y, maxY: it.y, items: [it] }
+        }
+      }
+      if (cur) rows.push(cur)
+
+      for (const r of rows) {
+        const dateItems = r.items.filter((it) => it.x < 550).sort((a, b) => b.y - a.y || a.x - b.x)
+        const descItems = r.items.filter((it) => it.x >= 550).sort((a, b) => b.y - a.y || a.x - b.x)
+
+        const parts = []
+        if (dateItems.length > 0) parts.push(dateItems.map((it) => it.str).join(' '))
+        if (descItems.length > 0) parts.push(descItems.map((it) => it.str).join(' '))
+        allLines.push(parts.join(' '))
+      }
     }
   }
 
