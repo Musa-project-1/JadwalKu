@@ -1,4 +1,4 @@
-import { DAYS, CLASS_TYPE_CODES } from "../uploadValidator"
+import { DAYS, CLASS_TYPE_CODES } from "../uploadValidator.js"
 
 export const SHEET_ALIASES = {
   schedule: ["jadwal perkuliahan", "jadwal", "schedule"],

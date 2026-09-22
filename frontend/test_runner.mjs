@@ -48,6 +48,13 @@ import { parseTimeToMinutes, getSessionForClass, checkPrayerClash } from './src/
 import { getItem, setItem, removeItem, exportStudentData, importStudentData, STORAGE_KEYS } from './src/lib/storage.js'
 import { COLLECTIONS_CONFIG } from './src/components/admin/backup/backupConfig.js'
 import { ErrorBoundary } from './src/components/ErrorBoundary.jsx'
+import {
+  normalizeClockRange,
+  normalizeProdiName,
+  isProdiMatrixSheet,
+  isMultiProdiWorkbook,
+  parseMultiProdiWorkbook,
+} from './src/lib/xlsx/xlsxMultiProdiSheetParser.js'
 
 console.log('🧪 ========================================================')
 console.log('🧪 MENJALANKAN AUTOMATED TEST SUITE KESELURUHAN JADWALKU')
@@ -817,6 +824,78 @@ test('ErrorBoundary dapat diinstansiasi dengan state awal normal', () => {
   assert.equal(typeof eb.handleReload, 'function')
   assert.equal(typeof eb.handleGoHome, 'function')
   assert.equal(typeof eb.handleClearCacheAndReset, 'function')
+})
+
+console.log('\n📊 [15/15] Menguji Parser Multi-Sheet Spreadsheet per Program Studi...')
+
+test('normalizeClockRange memproses pemisah koma, titik, dan en-dash secara konsisten', () => {
+  assert.deepEqual(normalizeClockRange('13,00-13,50'), { jamMulai: '13:00', jamSelesai: '13:50' })
+  assert.deepEqual(normalizeClockRange('08.00 – 10.30'), { jamMulai: '08:00', jamSelesai: '10:30' })
+  assert.deepEqual(normalizeClockRange('8:00-9:40'), { jamMulai: '08:00', jamSelesai: '09:40' })
+  assert.deepEqual(normalizeClockRange(''), { jamMulai: '', jamSelesai: '' })
+})
+
+test('normalizeProdiName mengenali prefix S-1 dan memetakan ke nama prodi baku', () => {
+  assert.equal(normalizeProdiName('S-1 TEKNIK SIPIL'), 'Teknik Sipil')
+  assert.equal(normalizeProdiName('S-1 ARSITEKTUR'), 'Arsitektur')
+  assert.equal(normalizeProdiName('S-1 INFORMATIKA'), 'Informatika')
+  assert.equal(normalizeProdiName('S-1 BISNIS DIGITAL'), 'Bisnis Digital')
+  assert.equal(normalizeProdiName('S-1 KEWIRAUSAHAAN'), 'Kewirausahaan')
+})
+
+test('isProdiMatrixSheet memvalidasi layout tabel matriks jadwal prodi', () => {
+  const validGrid = [
+    ['Header judul'],
+    [''],
+    ['Semester', 'Kode MK', 'Nama Mata Kuliah', 'Dosen', 'Kontak', 'SKS', '', 'Total', 'Durasi'],
+    ['', '', '', '', '', '', '', '', '', 'Senin', '', 'Selasa', '', 'Rabu'],
+    ['', '', '', '', '', 'T', 'P', '', '', 'Jam', 'Ruang', 'Jam', 'Ruang', 'Jam', 'Ruang'],
+    [1, 'INF101', 'Kalkulus', 'Dr. Dosen', '081234', 3, 0, 3, 150, '08,00-10,30', 'K1'],
+  ]
+  assert.equal(isProdiMatrixSheet(validGrid), true)
+
+  const invalidGrid = [
+    ['Nama', 'Umur', 'Kota'],
+    ['Budi', 20, 'Jakarta'],
+  ]
+  assert.equal(isProdiMatrixSheet(invalidGrid), false)
+})
+
+test('parseMultiProdiWorkbook mengekstrak jadwal, courses, dan TA dari multi-sheet workbook', () => {
+  const mockGrid = [
+    ['JADWAL PERKULIAHAN PROGRAM STUDI S-1 INFORMATIKA\nFAKULTAS TEKNIK DAN BISNIS\nTA. 2026/2027'],
+    [''],
+    ['Semester', 'Kode MK', 'Nama Mata Kuliah', 'Nama Dosen Pengampu', 'Nomor Kontak', 'SKS', '', 'Total SKS', 'Durasi'],
+    ['', '', '', '', '', '', '', '', '', 'Senin', '', 'Selasa'],
+    ['', '', '', '', '', 'T', 'P', '', '', 'Jam', 'Ruang', 'Jam', 'Ruang'],
+    [1, 'INF101', 'Kalkulus', '1. Dr. Dosen Utama', '081234', 3, 0, 3, 150, '08,00-10,30', 'K1'],
+    ['', '', '', '2. Dosen Pendamping', '085678'],
+  ]
+
+  const mockWb = {
+    SheetNames: ['S-1 INFORMATIKA'],
+    Sheets: {
+      'S-1 INFORMATIKA': {},
+    },
+  }
+  const mockXLSX = {
+    utils: {
+      sheet_to_json: () => mockGrid,
+    },
+  }
+
+  assert.equal(isMultiProdiWorkbook(mockWb, mockXLSX), true)
+  const result = parseMultiProdiWorkbook(mockWb, mockXLSX)
+  assert.equal(result.tahunAjaran, '2026/2027')
+  assert.equal(result.courses.length, 1)
+  assert.equal(result.courses[0].kodeMK, 'INF101')
+  assert.equal(result.courses[0].dosen, 'Dr. Dosen Utama / Dosen Pendamping')
+  assert.equal(result.courses[0].prodi, 'Informatika')
+  assert.equal(result.scheduleEntries.length, 1)
+  assert.equal(result.scheduleEntries[0].hari, 'Senin')
+  assert.equal(result.scheduleEntries[0].jamMulai, '08:00')
+  assert.equal(result.scheduleEntries[0].jamSelesai, '10:30')
+  assert.equal(result.scheduleEntries[0].ruang, 'K1')
 })
 
 // ── RINGKASAN HASIL ──

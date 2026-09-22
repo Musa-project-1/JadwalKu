@@ -115,7 +115,29 @@ export async function parseUniversalFile(file, onProgress = () => {}, campusConf
     const wb = XLSX.read(arrayBuffer, { type: 'array', cellDates: false })
     const { parseWorkbook } = await import('./xlsxParser')
     const campusParsed = await parseWorkbook(arrayBuffer, campusConfig)
-    const hasCampusFormat = campusParsed.detectedFormat === 'campus-matrix'
+    const hasCampusFormat =
+      campusParsed.detectedFormat === 'campus-matrix' ||
+      campusParsed.detectedFormat === 'univ-ftb' ||
+      campusParsed.detectedFormat === 'multi-prodi-matrix'
+
+    if (hasCampusFormat && campusParsed.scheduleEntries?.length > 0) {
+      onProgress({ stage: 'Selesai membaca spreadsheet', progress: 100 })
+      return {
+        type: 'direct',
+        isCampusFormat: true,
+        parsed: campusParsed,
+        data: {
+          scheduleEntries: campusParsed.scheduleEntries,
+          courses: campusParsed.courses || [],
+          exams: campusParsed.exams || [],
+          warnings: campusParsed.warnings || [],
+          tahunAjaran: campusParsed.tahunAjaran,
+        },
+        fileType: ext,
+        warnings: campusParsed.warnings || [],
+        detectedFormat: campusParsed.detectedFormat,
+      }
+    }
 
     const firstSheetName = wb.SheetNames[0]
     const sheet = wb.Sheets[firstSheetName]
@@ -124,6 +146,7 @@ export async function parseUniversalFile(file, onProgress = () => {}, campusConf
 
     onProgress({ stage: 'Selesai membaca', progress: 100 })
     return {
+      type: 'tabular',
       isCampusFormat: hasCampusFormat,
       parsed: hasCampusFormat ? campusParsed : null,
       rawHeaders,
@@ -156,6 +179,7 @@ export async function parseUniversalFile(file, onProgress = () => {}, campusConf
     }).filter((r) => Object.values(r).some((v) => Boolean(v)))
     onProgress({ stage: 'Selesai mengekstrak tabel Word', progress: 100 })
     return {
+      type: 'tabular',
       isCampusFormat: false,
       parsed: null,
       rawHeaders: headerCells,
@@ -193,16 +217,28 @@ export async function parseUniversalFile(file, onProgress = () => {}, campusConf
       }
     }
     if (!hasSelectableText || allLines.length === 0) {
-      throw new Error('PDF ini tidak memiliki teks digital (kemungkinan hasil scan foto). Silakan gunakan PDF digital resmi atau konversi/unggah sebagai file gambar (PNG/JPG) untuk diproses via OCR.')
+      throw new Error('PDF tidak memiliki layer teks digital yang dapat dibaca. Coba gunakan berkas gambar atau scan beresolusi tinggi.')
     }
-    const rawHeaders = allLines[0].map((t, i) => t || `Kolom ${i + 1}`)
-    const rawRows = allLines.slice(1).map((line) => {
-      const row = {}
-      rawHeaders.forEach((h, i) => { row[h] = line[i] || '' })
-      return row
-    })
+    const rawHeaders = ['Hari', 'Jam', 'Mata Kuliah', 'Dosen', 'Ruang', 'Tipe Kelas']
+    const rawRows = allLines.slice(0, 150).map((tokens, idx) => ({
+      Hari: tokens.find((t) => Object.keys(DAY_MAP).includes(t.toLowerCase())) || '',
+      Jam: tokens.find((t) => /\d{1,2}[:.]\d{2}/.test(t)) || '',
+      'Mata Kuliah': tokens.filter((t) => t.length > 3 && !/\d{1,2}[:.]\d{2}/.test(t)).join(' ') || `Item ${idx + 1}`,
+      Dosen: '',
+      Ruang: '',
+      'Tipe Kelas': 'K1',
+    })).filter((r) => Boolean(r['Mata Kuliah']))
     onProgress({ stage: 'Selesai membaca PDF', progress: 100 })
-    return { isCampusFormat: false, parsed: null, rawHeaders, rawRows, fileType: 'pdf', warnings: [], detectedFormat: 'pdf' }
+    return {
+      type: 'tabular',
+      isCampusFormat: false,
+      parsed: null,
+      rawHeaders,
+      rawRows,
+      fileType: 'pdf',
+      warnings: [],
+      detectedFormat: 'pdf',
+    }
   }
 
   if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
@@ -237,6 +273,7 @@ export async function parseUniversalFile(file, onProgress = () => {}, campusConf
     }
     onProgress({ stage: 'Selesai membaca gambar', progress: 100 })
     return {
+      type: 'tabular',
       isCampusFormat: false,
       parsed: null,
       rawHeaders,

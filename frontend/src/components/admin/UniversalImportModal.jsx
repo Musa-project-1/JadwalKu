@@ -167,6 +167,24 @@ export function UniversalImportModal({
       } else if (result.type === 'direct' && result.data) {
         // Direct structured result
         setParsedData(result.data)
+        if (result.data.tahunAjaran) {
+          setSelectedTA(result.data.tahunAjaran)
+        }
+        setStep('preview')
+      } else if (result.isCampusFormat && result.parsed) {
+        const entriesWithTA = (result.parsed.scheduleEntries || []).map((e) => ({
+          ...e,
+          tahunAjaran: result.parsed.tahunAjaran || effectiveTA,
+        }))
+        setParsedData({
+          scheduleEntries: entriesWithTA,
+          courses: result.parsed.courses || [],
+          exams: result.parsed.exams || [],
+          warnings: result.warnings || [],
+        })
+        if (result.parsed.tahunAjaran) {
+          setSelectedTA(result.parsed.tahunAjaran)
+        }
         setStep('preview')
       } else {
         throw new Error('Format berkas tidak dapat diproses secara otomatis.')

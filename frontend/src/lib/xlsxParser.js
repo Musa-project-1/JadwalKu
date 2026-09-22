@@ -3,16 +3,20 @@ import {
   findSheet,
   sheetToRows,
   extractPrograms,
-} from "./xlsx/xlsxHelpers"
+} from "./xlsx/xlsxHelpers.js"
 import {
   isUnivFtbLayout,
   parseUnivSheet,
-} from "./xlsx/xlsxUnivFtbParser"
+} from "./xlsx/xlsxUnivFtbParser.js"
 import {
   flatOrMatrix,
   parseCourses,
   parseExams,
-} from "./xlsx/xlsxTabularParser"
+} from "./xlsx/xlsxTabularParser.js"
+import {
+  isMultiProdiWorkbook,
+  parseMultiProdiWorkbook,
+} from "./xlsx/xlsxMultiProdiSheetParser.js"
 
 let _XLSX = null
 async function getXLSX() {
@@ -24,6 +28,20 @@ export async function parseWorkbook(data, campusConfig = {}) {
   const XLSX = await getXLSX()
   const wb = XLSX.read(data, { type: "array", cellDates: false })
   const warnings = []
+
+  // Prioritas 1: Multi-sheet per prodi (format matriks FTB baru)
+  if (isMultiProdiWorkbook(wb, XLSX)) {
+    const multi = parseMultiProdiWorkbook(wb, XLSX, campusConfig)
+    return {
+      scheduleEntries: multi.scheduleEntries,
+      courses: multi.courses,
+      exams: multi.exams,
+      programs: extractPrograms(multi.scheduleEntries, multi.courses, multi.exams),
+      tahunAjaran: multi.tahunAjaran,
+      warnings: multi.warnings,
+      detectedFormat: multi.detectedFormat,
+    }
+  }
 
   const scheduleSheet = findSheet(wb, SHEET_ALIASES.schedule)
   const courseSheet = findSheet(wb, SHEET_ALIASES.courses)
