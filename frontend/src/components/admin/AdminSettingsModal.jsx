@@ -7,6 +7,7 @@ import { setDocument } from '../../lib/adminData'
 import { appendHistory } from '../../lib/publishHelpers'
 import { ACADEMIC_CALENDAR, deriveTahunAjaran, deriveTerm } from '../../lib/tahunAjaran'
 import { computeMekStats } from '../../lib/academicCalendar'
+import { deriveBoundsFromEvents } from '../../lib/calendarBounds'
 import { NATIONAL_HOLIDAYS_PRESET } from '../../constants/academicConstants'
 import { addDocument, deleteDocument, setDocument as setDocHelper } from '../../lib/adminData'
 
@@ -168,19 +169,34 @@ export function AdminSettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, 
 
   async function handleImportCalendar(events) {
     setSavingKaldik(true)
+    const bounds = deriveBoundsFromEvents(events)
     const payload = {
       ...(calDoc || {}),
       events,
+      ...(bounds?.ganjilStart ? { ganjilStart: bounds.ganjilStart } : {}),
+      ...(bounds?.ganjilEnd ? { ganjilEnd: bounds.ganjilEnd } : {}),
+      ...(bounds?.genapStart ? { genapStart: bounds.genapStart } : {}),
+      ...(bounds?.genapEnd ? { genapEnd: bounds.genapEnd } : {}),
+      ...(bounds?.tahunAjaran ? { tahunAjaran: bounds.tahunAjaran } : {}),
       updatedAt: new Date().toISOString(),
     }
     await setDocument('settings', 'academicCalendar', payload, actor)
+    if (bounds) {
+      setCustomCal((prev) => ({
+        ...prev,
+        ...(bounds.ganjilStart ? { ganjilStartMonth: bounds.ganjilStart.month, ganjilStartDay: bounds.ganjilStart.day } : {}),
+        ...(bounds.ganjilEnd ? { ganjilEndMonth: bounds.ganjilEnd.month, ganjilEndDay: bounds.ganjilEnd.day } : {}),
+        ...(bounds.genapStart ? { genapStartMonth: bounds.genapStart.month, genapStartDay: bounds.genapStart.day } : {}),
+        ...(bounds.genapEnd ? { genapEndMonth: bounds.genapEnd.month, genapEndDay: bounds.genapEnd.day } : {}),
+      }))
+    }
     await appendHistory({
       entitas: 'settings',
       field: 'academicCalendarEvents',
       nilaiLama: calDoc?.events || [],
       nilaiBaru: events,
       aktor: actor,
-      detail: `Impor ${events.length} agenda kalender akademik resmi`,
+      detail: `Impor ${events.length} agenda kalender akademik resmi (TA ${bounds?.tahunAjaran || '-'})`,
     })
     setSavingKaldik(false)
     setKaldikImportOpen(false)
