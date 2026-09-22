@@ -226,7 +226,7 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
           }
 
           scheduleEntries.push({
-            id: `import_${prodi}_${kodeMK}_${day}_${jamMulai}_${ruang || 'x'}`.replace(/[\s/\\|]/g, '_'),
+            id: `import_${prodi}_${kodeMK}_${day}_${jamMulai}_${jamSelesai}_${ruang || 'x'}`.replace(/[\s/\\|]/g, '_'),
             hari: day,
             jamMulai,
             jamSelesai,

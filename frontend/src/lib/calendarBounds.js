@@ -1,5 +1,10 @@
 /** Lightweight calendar bounds derivation – no heavy deps (xlsx/pdf/tesseract) */
 
+// Batas paruh tahun pembuka Tahun Ajaran (getMonth 0-index: 7 = Agustus).
+// Bulan >= ambang ini membuka TA tahun itu; bulan sebelumnya milik TA yang
+// dibuka September tahun sebelumnya.
+const TA_START_MONTH = 7
+
 function toDate(iso) {
   if (!iso) return null
   const [y, m, d] = String(iso).split('-').map(Number)
@@ -50,7 +55,6 @@ export function deriveBoundsFromEvents(events = []) {
   // Paruh kedua tahun (Agu–Des) membuka TA tahun itu; paruh pertama (Jan–Jul)
   // adalah milik TA yang dibuka September tahun sebelumnya.
   // (min/max mentah salah untuk impor genap-saja: Feb–Jul 2027 -> keliru jadi 2027/2028.)
-  const TA_START_MONTH = 7 // Agustus (getMonth 0-index): batas paruh tahun pembuka TA
   const anchorTaStartYear = (date) =>
     date.getMonth() >= TA_START_MONTH ? date.getFullYear() : date.getFullYear() - 1
 
