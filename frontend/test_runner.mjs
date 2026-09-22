@@ -563,6 +563,29 @@ test('Menurunkan batas kalender otomatis dari event preset Madani', () => {
   assert.deepEqual(bounds.genapEnd, { month: 6, day: 24 }) // 24 Jul
 })
 
+test('Menurunkan TA yang benar dari impor semester genap-saja (Feb-Jul)', () => {
+  // Impor hanya paruh genap (Feb-Jul 2027) harus tetap TA 2026/2027, bukan 2027/2028.
+  const genapOnly = [
+    { nama: 'Registrasi Genap', tanggalMulai: '2027-02-17', tanggalSelesai: '2027-02-20', semester: 'genap' },
+    { nama: 'Perkuliahan Genap', tanggalMulai: '2027-03-01', tanggalSelesai: '2027-06-30', semester: 'genap' },
+    { nama: 'UAS Genap', tanggalMulai: '2027-07-01', tanggalSelesai: '2027-07-10', semester: 'genap' },
+  ]
+  const bounds = deriveBoundsFromEvents(genapOnly)
+  assert.ok(bounds, 'Bounds genap-saja harus dihasilkan')
+  assert.equal(bounds.tahunAjaran, '2026/2027', 'TA genap-saja harus 2026/2027')
+
+  // Impor ganjil-saja (Sep-Feb) membuka TA di tahun September.
+  const ganjilOnly = [
+    { nama: 'Perkuliahan Ganjil', tanggalMulai: '2026-09-10', tanggalSelesai: '2026-12-20', semester: 'ganjil' },
+    { nama: 'UAS Ganjil', tanggalMulai: '2027-02-01', tanggalSelesai: '2027-02-05', semester: 'ganjil' },
+  ]
+  assert.equal(deriveBoundsFromEvents(ganjilOnly).tahunAjaran, '2026/2027', 'TA ganjil-saja harus 2026/2027')
+
+  // Impor kalender penuh (dua paruh) tetap konsisten satu TA.
+  const fullYear = [...ganjilOnly, ...genapOnly]
+  assert.equal(deriveBoundsFromEvents(fullYear).tahunAjaran, '2026/2027', 'TA kalender penuh harus 2026/2027')
+})
+
 test('Mem-parse baris hasil OCR/PDF Kaldik menjadi daftar event', () => {
   const lines = [
     'SEMESTER GANJIL',
@@ -896,6 +919,29 @@ test('parseMultiProdiWorkbook mengekstrak jadwal, courses, dan TA dari multi-she
   assert.equal(result.scheduleEntries[0].jamMulai, '08:00')
   assert.equal(result.scheduleEntries[0].jamSelesai, '10:30')
   assert.equal(result.scheduleEntries[0].ruang, 'K1')
+  // TA terdeteksi dari header -> tidak ada peringatan TA
+  assert.ok(!result.warnings.some((w) => w.includes('Tahun Ajaran tidak terdeteksi')))
+})
+
+test('parseMultiProdiWorkbook memakai TA null + peringatan bila header TA tidak ada', () => {
+  const gridTanpaTA = [
+    ['JADWAL PERKULIAHAN PROGRAM STUDI S-1 INFORMATIKA'],
+    [''],
+    ['Semester', 'Kode MK', 'Nama Mata Kuliah', 'Nama Dosen Pengampu', 'Nomor Kontak', 'SKS', '', 'Total SKS', 'Durasi'],
+    ['', '', '', '', '', '', '', '', '', 'Senin', '', 'Selasa'],
+    ['', '', '', '', '', 'T', 'P', '', '', 'Jam', 'Ruang', 'Jam', 'Ruang'],
+    [1, 'INF101', 'Kalkulus', '1. Dr. Dosen', '081234', 3, 0, 3, 150, '08,00-10,30', 'R101'],
+  ]
+  const mockWb = { SheetNames: ['S-1 INFORMATIKA'], Sheets: { 'S-1 INFORMATIKA': {} } }
+  const mockXLSX = { utils: { sheet_to_json: () => gridTanpaTA } }
+
+  const result = parseMultiProdiWorkbook(mockWb, mockXLSX)
+  assert.equal(result.tahunAjaran, null, 'TA harus null bila tidak terdeteksi (bukan hardcode)')
+  assert.ok(
+    result.warnings.some((w) => w.includes('Tahun Ajaran tidak terdeteksi')),
+    'Harus ada peringatan TA tidak terdeteksi',
+  )
+  assert.equal(result.scheduleEntries[0].tahunAjaran, null, 'Entri TA null menunggu effectiveTA saat simpan')
 })
 
 // ── RINGKASAN HASIL ──

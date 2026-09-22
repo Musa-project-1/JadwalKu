@@ -45,20 +45,17 @@ export function deriveBoundsFromEvents(events = []) {
     result.genapEnd = { month: genapRange.end.getMonth(), day: genapRange.end.getDate() }
   }
 
-  // Turunkan Tahun Ajaran dan Semester Aktif
-  let minYear = null
-  let maxYear = null
-  events.forEach((e) => {
-    const d = toDate(e.tanggalMulai || e.startDate)
-    if (d) {
-      const yr = d.getFullYear()
-      if (!minYear || yr < minYear) minYear = yr
-      if (!maxYear || yr > maxYear) maxYear = yr
-    }
-  })
+  // Turunkan Tahun Ajaran dari anchor semester, BUKAN rentang tahun mentah.
+  // TA X/(X+1): ganjil dibuka ~Sep tahun X; genap berjalan ~Mar–Jul tahun X+1 (tetap TA X/(X+1)).
+  // Paruh kedua tahun (Agu–Des) membuka TA tahun itu; paruh pertama (Jan–Jul)
+  // adalah milik TA yang dibuka September tahun sebelumnya.
+  // (min/max mentah salah untuk impor genap-saja: Feb–Jul 2027 -> keliru jadi 2027/2028.)
+  const anchorTaStartYear = (date) => (date.getMonth() >= 7 ? date.getFullYear() : date.getFullYear() - 1)
 
-  if (minYear) {
-    result.tahunAjaran = maxYear && maxYear > minYear ? `${minYear}/${maxYear}` : `${minYear}/${minYear + 1}`
+  const taAnchor = ganjilRange?.start || genapRange?.start
+  if (taAnchor) {
+    const startYear = anchorTaStartYear(taAnchor)
+    result.tahunAjaran = `${startYear}/${startYear + 1}`
   }
 
   const now = new Date()

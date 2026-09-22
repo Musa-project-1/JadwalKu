@@ -99,6 +99,8 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
     { key: 'minggu', label: 'Minggu' },
   ]
 
+  let slotSeq = 0
+
   for (const sheetName of wb.SheetNames) {
     const ws = wb.Sheets[sheetName]
     if (!ws) continue
@@ -215,7 +217,7 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
           }
 
           scheduleEntries.push({
-            id: `import_${prodi}_${kodeMK}_${day}_${jamMulai}`.replace(/[\s/\\|]/g, '_'),
+            id: `import_${prodi}_${kodeMK}_${day}_${jamMulai}_${ruang || 'x'}_${slotSeq}`.replace(/[\s/\\|]/g, '_'),
             hari: day,
             jamMulai,
             jamSelesai,
@@ -226,12 +228,19 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
             tipeKelas,
             prodi,
             semester: currentSemester,
-            tahunAjaran: tahunAjaran || '2026/2027',
+            tahunAjaran: tahunAjaran || null,
             status: 'draft',
           })
+          slotSeq += 1
         }
       })
     }
+  }
+
+  if (!tahunAjaran) {
+    warnings.push(
+      'Tahun Ajaran tidak terdeteksi otomatis dari berkas. Memakai Tahun Ajaran yang dipilih di langkah unggah — mohon periksa kembali sebelum menyimpan.',
+    )
   }
 
   return {
