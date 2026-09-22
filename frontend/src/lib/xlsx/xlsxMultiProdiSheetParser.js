@@ -1,5 +1,8 @@
 import { pad, titleCase } from './xlsxHelpers.js'
 
+const DEFAULT_SKS = 2
+const DEFAULT_DURASI_MENIT = 100
+
 /**
  * Normalisasi format jam perkuliahan:
  * "13,00-13,50" atau "13.00-13.40" -> { jamMulai: "13:00", jamSelesai: "13:50" }
@@ -81,6 +84,14 @@ export function isMultiProdiWorkbook(wb, XLSX) {
 
 /**
  * Parse seluruh sheet berformat matriks prodi.
+ * @returns {{
+ *   scheduleEntries: Array<Object>,
+ *   courses: Array<Object>,
+ *   exams: Array<Object>,
+ *   tahunAjaran: string|null,
+ *   detectedFormat: string,
+ *   warnings: string[]
+ * }}
  */
 export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
   const scheduleEntries = []
@@ -98,8 +109,6 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
     { key: 'sabtu', label: 'Sabtu' },
     { key: 'minggu', label: 'Minggu' },
   ]
-
-  let slotSeq = 0
 
   for (const sheetName of wb.SheetNames) {
     const ws = wb.Sheets[sheetName]
@@ -172,8 +181,8 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
       const kontak = String(row[4] || '').trim()
       const sksT = parseInt(row[5], 10) || 0
       const sksP = parseInt(row[6], 10) || 0
-      const sksTotal = parseInt(row[7], 10) || (sksT + sksP) || 2
-      const durasi = parseInt(row[8], 10) || 100
+      const sksTotal = parseInt(row[7], 10) || (sksT + sksP) || DEFAULT_SKS
+      const durasi = parseInt(row[8], 10) || DEFAULT_DURASI_MENIT
 
       // Baris dosen pendamping (team teaching)
       if (!kodeMK && !namaMK && dosenRaw && lastCourse) {
@@ -217,7 +226,7 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
           }
 
           scheduleEntries.push({
-            id: `import_${prodi}_${kodeMK}_${day}_${jamMulai}_${ruang || 'x'}_${slotSeq}`.replace(/[\s/\\|]/g, '_'),
+            id: `import_${prodi}_${kodeMK}_${day}_${jamMulai}_${ruang || 'x'}`.replace(/[\s/\\|]/g, '_'),
             hari: day,
             jamMulai,
             jamSelesai,
@@ -231,7 +240,6 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
             tahunAjaran: tahunAjaran || null,
             status: 'draft',
           })
-          slotSeq += 1
         }
       })
     }

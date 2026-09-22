@@ -50,7 +50,9 @@ export function deriveBoundsFromEvents(events = []) {
   // Paruh kedua tahun (Agu–Des) membuka TA tahun itu; paruh pertama (Jan–Jul)
   // adalah milik TA yang dibuka September tahun sebelumnya.
   // (min/max mentah salah untuk impor genap-saja: Feb–Jul 2027 -> keliru jadi 2027/2028.)
-  const anchorTaStartYear = (date) => (date.getMonth() >= 7 ? date.getFullYear() : date.getFullYear() - 1)
+  const TA_START_MONTH = 7 // Agustus (getMonth 0-index): batas paruh tahun pembuka TA
+  const anchorTaStartYear = (date) =>
+    date.getMonth() >= TA_START_MONTH ? date.getFullYear() : date.getFullYear() - 1
 
   const taAnchor = ganjilRange?.start || genapRange?.start
   if (taAnchor) {
