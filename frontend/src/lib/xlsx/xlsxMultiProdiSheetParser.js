@@ -164,7 +164,7 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
 
     for (let r = headerRow + 1; r < grid.length; r += 1) {
       const row = grid[r] || []
-      if (!row || row.every((c) => c === '' || c === null)) continue
+      if (!row || row.every((c) => c === '' || c === null || c === undefined)) continue
 
       // Semester dari kolom A
       const semCell = row[0]
@@ -181,8 +181,10 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
       const kontak = String(row[4] || '').trim()
       const sksT = parseInt(row[5], 10) || 0
       const sksP = parseInt(row[6], 10) || 0
-      const sksTotal = parseInt(row[7], 10) || (sksT + sksP) || DEFAULT_SKS
-      const durasi = parseInt(row[8], 10) || DEFAULT_DURASI_MENIT
+      const parsedSks = parseInt(row[7], 10)
+      const sksTotal = Number.isNaN(parsedSks) ? (sksT + sksP || DEFAULT_SKS) : parsedSks
+      const parsedDurasi = parseInt(row[8], 10)
+      const durasi = Number.isNaN(parsedDurasi) ? DEFAULT_DURASI_MENIT : parsedDurasi
 
       // Baris dosen pendamping (team teaching)
       if (!kodeMK && !namaMK && dosenRaw && lastCourse) {
@@ -226,7 +228,7 @@ export function parseMultiProdiWorkbook(wb, XLSX, campusConfig = {}) {
           }
 
           scheduleEntries.push({
-            id: `import_${prodi}_${kodeMK}_${day}_${jamMulai}_${jamSelesai}_${ruang || 'x'}`.replace(/[\s/\\|]/g, '_'),
+            id: `import_${prodi}_${kodeMK}_${day}_${jamMulai}_${jamSelesai}_${ruang || 'x'}_${cleanedDosen || 'x'}`.replace(/[\s/\\|]/g, '_'),
             hari: day,
             jamMulai,
             jamSelesai,
