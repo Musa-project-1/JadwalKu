@@ -13,9 +13,19 @@ import { getCourseCodeBadgeClass } from '../../../lib/prodiColors'
  * - SKS + Durasi formatted as '[X] SKS · [Y] menit' with 'menit' in muted text
  * - Strict overflow ellipsis on text cells
  */
-function CourseTableImpl({ courses, onEdit, onDelete }) {
+function CourseTableImpl({
+  courses,
+  onEdit,
+  onDelete,
+  selectedIds = new Set(),
+  onToggleSelectAll,
+  onToggleSelectOne,
+  filteredCount = 0,
+}) {
   const [activeMenuId, setActiveMenuId] = useState(null)
   const menuRef = useRef(null)
+
+  const allSelected = selectedIds.size === filteredCount && filteredCount > 0
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -35,15 +45,25 @@ function CourseTableImpl({ courses, onEdit, onDelete }) {
     <div className="hidden overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
       <table className="w-full table-fixed text-left border-collapse">
         <colgroup>
-          <col style={{ width: '14%' }} />
-          <col style={{ width: '30%' }} />
+          <col style={{ width: '4%' }} />
+          <col style={{ width: '13%' }} />
+          <col style={{ width: '28%' }} />
           <col style={{ width: '10%' }} />
-          <col style={{ width: '25%' }} />
+          <col style={{ width: '24%' }} />
           <col style={{ width: '15%' }} />
           <col style={{ width: '6%' }} />
         </colgroup>
         <thead>
           <tr className="border-b border-outline-variant/15 bg-surface-container-low/90 dark:bg-surface-container-high/90">
+            <th className="px-2 py-2 text-center">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onToggleSelectAll}
+                className="rounded cursor-pointer"
+                aria-label="Pilih Semua"
+              />
+            </th>
             <th className="px-3 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
               Kode MK
             </th>
@@ -69,13 +89,29 @@ function CourseTableImpl({ courses, onEdit, onDelete }) {
             const semester = getCourseSemester(course)
             const isMenuOpen = activeMenuId === course.id
             const durasiMenit = course.durasi || (course.sks ? course.sks * 50 : 100)
+            const isSelected = selectedIds?.has(course.id) ?? false
 
             return (
               <tr
                 key={course.id}
-                className="group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20"
+                className={`group transition-colors ${
+                  isSelected
+                    ? 'bg-primary/5 dark:bg-primary/10'
+                    : 'hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20'
+                }`}
                 style={{ borderTop: '0.5px solid var(--color-outline-variant, rgba(120, 120, 120, 0.15))' }}
               >
+                {/* Checkbox */}
+                <td className="px-2 py-[9px] text-center align-middle">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelectOne?.(course.id)}
+                    className="rounded cursor-pointer"
+                    aria-label={`Pilih ${course.kodeMK}`}
+                  />
+                </td>
+
                 {/* Kode MK: Monospace badge rounded-md */}
                 <td className="px-3 py-[9px] align-middle overflow-hidden">
                   <span className={`inline-flex items-center rounded-md px-2 py-0.5 font-mono text-[11px] font-bold border shadow-2xs ${getCourseCodeBadgeClass(course.prodi, false, course.kodeMK)}`}>

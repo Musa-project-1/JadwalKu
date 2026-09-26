@@ -6,6 +6,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { Skeleton } from '../../components/Skeleton'
 import { EmptyState } from '../../components/EmptyState'
 import { Pagination } from '../../components/Pagination'
+import { BulkActionBar } from '../../components/admin/BulkActionBar'
 import { CourseTable, CourseCards, CourseFormModal, CourseHeader, CourseToolbar } from '../../components/admin/manageCourses'
 import { AdminPageCard } from '../../components/admin/AdminPageCard'
 import { useFirestore } from '../../hooks/useFirestore'
@@ -44,6 +45,11 @@ export default function ManageCourses() {
   // ── State Pagination ──
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+
+  // ── State Bulk Selection ──
+  const [selectedIds, setSelectedIds] = useState(new Set())
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
+  const [busyBulk, setBusyBulk] = useState(false)
 
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add') // 'add' | 'edit'
@@ -112,6 +118,52 @@ export default function ManageCourses() {
     setProdiFilter('')
     setSemesterFilter('')
     setSksFilter('')
+  }
+
+  // ── Keyboard shortcut: Escape to deselect ──
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (
+        e.key === 'Escape' &&
+        selectedIds.size > 0 &&
+        !modalOpen &&
+        !deleteTarget &&
+        !bulkDeleteOpen
+      ) {
+        setSelectedIds(new Set())
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedIds.size, modalOpen, deleteTarget, bulkDeleteOpen])
+
+  function toggleSelectAll() {
+    if (selectedIds.size === filtered.length && filtered.length > 0) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(filtered.map((c) => c.id)))
+    }
+  }
+
+  function toggleSelectOne(id) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  async function handleBulkDelete() {
+    const ids = [...selectedIds]
+    if (ids.length === 0) return
+    setBusyBulk(true)
+    const bulkResults = await Promise.allSettled(ids.map((id) => deleteDocument('mataKuliah', id)))
+    const okCount = bulkResults.filter((r) => r.status === 'fulfilled' && r.value?.ok).length
+    setBusyBulk(false)
+    setBulkDeleteOpen(false)
+    setSelectedIds(new Set())
+    setBanner({ ok: true, message: `${okCount} mata kuliah berhasil dihapus.` })
   }
 
   async function exportCoursesToExcel() {
@@ -320,6 +372,10 @@ export default function ManageCourses() {
               courses={paginatedCourses}
               onEdit={openEditModal}
               onDelete={setDeleteTarget}
+              selectedIds={selectedIds}
+              onToggleSelectAll={toggleSelectAll}
+              onToggleSelectOne={toggleSelectOne}
+              filteredCount={filtered.length}
             />
 
             {/* Cards – Mobile */}
@@ -327,6 +383,8 @@ export default function ManageCourses() {
               courses={paginatedCourses}
               onEdit={openEditModal}
               onDelete={setDeleteTarget}
+              selectedIds={selectedIds}
+              onToggleSelectOne={toggleSelectOne}
             />
 
             {/* Shared Pagination Controls */}
@@ -344,6 +402,15 @@ export default function ManageCourses() {
         )}
         </div>
       </AdminPageCard>
+
+      {/* ── Floating Bulk Actions Bar ── */}
+      <BulkActionBar
+        selectedCount={selectedIds.size}
+        onDelete={() => setBulkDeleteOpen(true)}
+        onClear={() => setSelectedIds(new Set())}
+        isBusy={busyBulk}
+        itemLabel="Mata Kuliah"
+      />
 
       {/* Modal Dialog Form (Tambah / Edit) */}
       <CourseFormModal
@@ -365,6 +432,17 @@ export default function ManageCourses() {
         confirmLabel="Hapus Mata Kuliah"
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      {/* Dialog Konfirmasi Hapus Massal */}
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        title="Hapus Mata Kuliah Terpilih?"
+        description={`Anda akan menghapus ${selectedIds.size} mata kuliah sekaligus dari daftar master. Jadwal yang memakai kode-kode ini akan terpengaruh.`}
+        confirmLabel="Ya, Hapus Semua"
+        danger
+        onConfirm={handleBulkDelete}
+        onCancel={() => setBulkDeleteOpen(false)}
       />
     </div>
   )

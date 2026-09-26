@@ -3,25 +3,40 @@ import { Icon } from '../../Icon'
 import { formatWhatsAppUrl, parseLecturers } from '../../../lib/lecturerUtils'
 import { getCourseSemester } from '../../../lib/courseUtils'
 
-function CourseCardsImpl({ courses, onEdit, onDelete }) {
+function CourseCardsImpl({ courses, onEdit, onDelete, selectedIds, onToggleSelectOne }) {
   return (
     <div className="space-y-2.5 tablet:hidden overflow-y-auto flex-1 min-h-0">
       {courses.map((course) => {
         const waUrl = formatWhatsAppUrl(course.kontakDosen)
         const semester = getCourseSemester(course)
         const lecturerList = parseLecturers(course.dosen)
+        const isSelected = selectedIds?.has(course.id) ?? false
 
         return (
           <div
             key={course.id}
-            className="rounded-2xl border border-outline-variant/20 bg-surface-container-low/40 p-4 shadow-2xs dark:bg-surface-container-high/30 space-y-2.5"
+            className={`rounded-2xl border transition-colors p-4 shadow-2xs space-y-2.5 ${
+              isSelected
+                ? 'border-primary/40 bg-primary/5 dark:bg-primary/10'
+                : 'border border-outline-variant/20 bg-surface-container-low/40 dark:bg-surface-container-high/30'
+            }`}
           >
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-label-caps font-bold text-primary border border-primary/20">
-                    {course.kodeMK}
-                  </span>
+              <div className="flex items-start gap-2.5">
+                {onToggleSelectOne && (
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelectOne(course.id)}
+                    className="mt-1 rounded cursor-pointer"
+                    aria-label={`Pilih ${course.kodeMK}`}
+                  />
+                )}
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center rounded-xl bg-primary/10 px-2.5 py-0.5 font-mono text-label-caps font-bold text-primary border border-primary/20">
+                      {course.kodeMK}
+                    </span>
                   {semester && (
                     <span className="inline-flex items-center rounded-lg bg-indigo-500/10 px-2 py-0.5 text-label-caps font-bold text-indigo-700 dark:text-indigo-400">
                       Sem. {semester}
@@ -32,7 +47,8 @@ function CourseCardsImpl({ courses, onEdit, onDelete }) {
                   {course.namaMK}
                 </h3>
               </div>
-              <div className="flex shrink-0 gap-1">
+            </div>
+            <div className="flex shrink-0 gap-1">
                 <button
                   type="button"
                   onClick={() => onEdit(course)}
