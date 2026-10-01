@@ -1,200 +1,257 @@
 /**
- * Render ringkasan jadwal ke <canvas> (PNG) – tanpa dependensi eksternal.
- * Gaya visual mengikuti design-system.md versi terang (Academic Precision).
+ * PNG jadwal mengikuti grid mingguan di web: kolom hari, baris sesi,
+ * kartu berwarna sesuai tipe kelas. Tanpa toolbar.
  */
 
-const DAY_ORDER = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+const DAY_ORDER = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
 
-// Warna design-system (versi terang)
-const C = {
-  bg: '#F5FAF8',
-  card: '#FFFFFF',
-  primary: '#00685F',
-  surface: '#F0F5F2',
-  onSurface: '#171D1C',
-  onSurfaceVariant: '#3D4947',
-  outline: '#BCC9C6',
+const SESSIONS = [
+  { id: 'pagi', label: 'Pagi', range: '07.00 – 11.55', before: 12 * 60 },
+  { id: 'siang', label: 'Siang', range: '12.30 – 15.15', before: 15 * 60 + 15 },
+  { id: 'sore', label: 'Sore', range: '15.30 – 18.00', before: 18 * 60 },
+  { id: 'malam', label: 'Malam', range: '18.30 – 21.30+', before: 24 * 60 },
+]
+
+const TONE = {
+  offline: { bg: '#E7F6EE', line: '#059669', ink: '#064E3B', sub: '#047857', pill: '#059669' },
+  online: { bg: '#E7F0FE', line: '#2563EB', ink: '#1E3A8A', sub: '#1D4ED8', pill: '#2563EB' },
+  hybrid: { bg: '#F3E8FF', line: '#7C3AED', ink: '#5B21B6', sub: '#6D28D9', pill: '#7C3AED' },
+  combined: { bg: '#FEF3C7', line: '#D97706', ink: '#92400E', sub: '#B45309', pill: '#D97706' },
+  neutral: { bg: '#F1F5F4', line: '#64748B', ink: '#1E293B', sub: '#475569', pill: '#64748B' },
 }
 
-const TONE_COLORS = {
-  offline: '#15803D',
-  online: '#1D4ED8',
-  hybrid: '#7C3AED',
-  combined: '#B45309',
-  neutral: '#6D7A77',
-}
+const PAGE = '#F4FAF7'
+const INK = '#14211F'
+const MUTED = '#5C6B68'
+const LINE = '#D5E4DE'
+const FONT = '"Plus Jakarta Sans", "Noto Sans", system-ui, sans-serif'
 
-const LAYOUT = {
-  width: 720,
-  padding: 32,
-  headerHeight: 96,
-  rowHeight: 64,
-  gap: 12,
-}
+const L = { width: 1400, pad: 28, header: 108, dayHead: 64, gutter: 132, cardH: 92, cardGap: 8 }
 
 /**
- * @param {Array<{hari:string, jamMulai:string, jamSelesai:string, kodeMK:string, ruang?:string, tipeKelas?:string}>} entries
- * @param {{prodi?: string|null, semester?: string|number|null, tahunAjaran?: string|null}} meta
- * @returns {HTMLCanvasElement}
+ * @param {Array<{hari:string, jamMulai:string, jamSelesai:string, kodeMK:string, namaMK?:string, dosen?:string, ruang?:string, tipeKelas?:string}>} entries
+ * @param {{prodi?: string|null, semester?: string|number|null, tahunAjaran?: string|null, courses?: Map|Record|null}} meta
  */
-export function renderScheduleImage(entries, meta) {
-  const { width, padding } = LAYOUT
-  const groups = groupByDay(entries)
+export async function renderScheduleImage(entries, meta = {}) {
+  await ensureScheduleFont()
+  const placed = placeEntries(entries, meta.courses)
+  const rowHeights = SESSIONS.map((session) => {
+    const counts = DAY_ORDER.map(
+      (day) => placed.filter((c) => c.hari.toLowerCase() === day.toLowerCase() && c.session === session.id).length,
+    )
+    return 20 + Math.max(1, ...counts) * (L.cardH + L.cardGap)
+  })
+  const height = L.header + L.dayHead + rowHeights.reduce((a, b) => a + b, 0) + L.pad
 
-  let y
-  const heights = groups.map((g) => groupHeight(g))
-  const bodyHeight =
-    heights.reduce((a, b) => a + b, 0) +
-    Math.max(0, groups.length - 1) * LAYOUT.gap * 2
-  const footerHeight = 48
-
-  const height = LAYOUT.headerHeight + padding / 2 + bodyHeight + footerHeight
-
-  const scale = 2 // render 2x agar tajam di layar retina
+  const scale = 2
   const canvas = document.createElement('canvas')
-  canvas.width = width * scale
+  canvas.width = L.width * scale
   canvas.height = height * scale
   const ctx = canvas.getContext('2d')
   ctx.scale(scale, scale)
 
-  // Background
-  ctx.fillStyle = C.bg
-  ctx.fillRect(0, 0, width, height)
-
+  ctx.fillStyle = PAGE
+  ctx.fillRect(0, 0, L.width, height)
   drawHeader(ctx, meta)
-  y = LAYOUT.headerHeight + padding / 2
-
-  for (const group of groups) {
-    drawGroup(ctx, group, y)
-    y += groupHeight(group) + LAYOUT.gap * 2
-  }
-
-  drawFooter(ctx, entries.length, y)
+  drawDayHeads(ctx)
+  drawRows(ctx, placed, rowHeights)
   return canvas
 }
 
-function groupByDay(entries) {
-  return DAY_ORDER.map((day) => ({
-    day,
-    items: entries
-      .filter((e) => String(e.hari ?? '').toLowerCase() === day.toLowerCase())
-      .sort((a, b) => String(a.jamMulai).localeCompare(String(b.jamMulai))),
-  })).filter((g) => g.items.length > 0)
-}
+let fontReady = null
 
-function groupHeight(group) {
-  return 36 + group.items.length * LAYOUT.rowHeight + 8
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.arcTo(x + w, y, x + w, y + h, r)
-  ctx.arcTo(x + w, y + h, x, y + h, r)
-  ctx.arcTo(x, y + h, x, y, r)
-  ctx.arcTo(x, y, x + w, y, r)
-  ctx.closePath()
+function ensureScheduleFont() {
+  if (typeof document === 'undefined' || !document.fonts || fontReady) return fontReady
+  const face = new FontFace('Plus Jakarta Sans', 'url(/fonts/PlusJakartaSans.ttf)')
+  fontReady = face.load().then((loaded) => {
+    document.fonts.add(loaded)
+  }).catch(() => {})
+  return fontReady
 }
 
 function drawHeader(ctx, meta) {
-  const { width, headerHeight } = LAYOUT
-  ctx.fillStyle = C.primary
-  ctx.fillRect(0, 0, width, headerHeight)
+  ctx.fillStyle = INK
+  ctx.font = `700 32px ${FONT}`
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'alphabetic'
+  ctx.fillText('Jadwal Kuliah', L.pad, 52)
 
+  ctx.fillStyle = MUTED
+  ctx.font = `500 16px ${FONT}`
+  const ta = meta.tahunAjaran ? `  ·  TA ${meta.tahunAjaran}` : ''
+  ctx.fillText(`${meta.prodi ?? 'Semua Prodi'}  ·  Semester ${meta.semester ?? '-'}${ta}`, L.pad, 80)
+
+  const sem = `Semester ${meta.semester ?? '-'}`
+  ctx.font = `700 14px ${FONT}`
+  const pillW = ctx.measureText(sem).width + 28
+  const pillX = L.width - L.pad - pillW
+  ctx.fillStyle = '#0F6E64'
+  roundRect(ctx, pillX, 32, pillW, 30, 15)
+  ctx.fill()
   ctx.fillStyle = '#FFFFFF'
-  ctx.font = '700 26px Inter, system-ui, sans-serif'
+  ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText('Jadwal Kampus', LAYOUT.padding, 38)
-
-  ctx.font = '400 14px Inter, system-ui, sans-serif'
-  ctx.fillStyle = 'rgba(255,255,255,0.85)'
-  const ta = meta.tahunAjaran ? ` · TA ${meta.tahunAjaran}` : ''
-  const label = `${meta.prodi ?? 'Semua Prodi'} · Semester ${meta.semester ?? '-'}${ta}`
-  ctx.fillText(label, LAYOUT.padding, 66)
+  ctx.fillText(sem, pillX + pillW / 2, 47)
 }
 
-function drawGroup(ctx, group, top) {
-  const { width, padding, rowHeight } = LAYOUT
-  const innerWidth = width - padding * 2
+function drawDayHeads(ctx) {
+  const colW = (L.width - L.pad * 2 - L.gutter) / DAY_ORDER.length
+  const y = L.header
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(L.pad, y, L.width - L.pad * 2, L.dayHead)
+  ctx.strokeStyle = LINE
+  ctx.lineWidth = 1
+  ctx.strokeRect(L.pad, y, L.width - L.pad * 2, L.dayHead)
 
-  // Label hari
-  ctx.fillStyle = C.onSurfaceVariant
-  ctx.font = "600 12px Inter, system-ui, sans-serif"
-  ctx.textBaseline = 'alphabetic'
-  ctx.save()
-  ctx.translate(padding, top + 14)
-  ctx.fillText(group.day.toUpperCase(), 0, 0)
-  ctx.restore()
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  DAY_ORDER.forEach((day, i) => {
+    const x = L.pad + L.gutter + i * colW
+    ctx.fillStyle = INK
+    ctx.font = `700 16px ${FONT}`
+    ctx.fillText(day, x + colW / 2, y + L.dayHead / 2)
+  })
+}
 
-  let y = top + 24
-  for (const item of group.items) {
-    // Kartu putih
-    ctx.fillStyle = C.card
-    roundRect(ctx, padding, y, innerWidth, rowHeight - 8, 12)
-    ctx.fill()
+function drawRows(ctx, placed, rowHeights) {
+  const colW = (L.width - L.pad * 2 - L.gutter) / DAY_ORDER.length
+  let y = L.header + L.dayHead
+  SESSIONS.forEach((session, index) => {
+    const h = rowHeights[index]
+    ctx.fillStyle = index % 2 === 0 ? '#FFFFFF' : '#F7FBFA'
+    ctx.fillRect(L.pad, y, L.width - L.pad * 2, h)
+    ctx.strokeStyle = LINE
+    ctx.strokeRect(L.pad, y, L.width - L.pad * 2, h)
 
-    // Bar warna tipe kelas di tepi kiri kartu
-    const tone = toneOf(item.tipeKelas)
-    ctx.fillStyle = TONE_COLORS[tone] ?? TONE_COLORS.neutral
-    roundRect(ctx, padding, y, 4, rowHeight - 8, 2)
-    ctx.fill()
+    ctx.fillStyle = INK
+    ctx.font = `700 14px ${FONT}`
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'alphabetic'
+    ctx.fillText(session.label, L.pad + 14, y + h / 2 - 6)
+    ctx.fillStyle = MUTED
+    ctx.font = `500 11px ${FONT}`
+    ctx.fillText(session.range, L.pad + 14, y + h / 2 + 12)
 
-    const textX = padding + 20
-    // Baris atas: kode MK (+ ruang)
-    ctx.fillStyle = C.onSurface
-    ctx.font = '600 15px Inter, system-ui, sans-serif'
-    ctx.textBaseline = 'middle'
-    const ruang = item.ruang ? `  ·  ${item.ruang}` : ''
-    ctx.fillText(`${item.kodeMK}${ruang}`, textX, y + 22)
+    DAY_ORDER.forEach((day, i) => {
+      const cards = placed.filter((c) => c.hari.toLowerCase() === day.toLowerCase() && c.session === session.id)
+      cards.forEach((card, n) => {
+        drawCard(ctx, card, L.pad + L.gutter + i * colW + 8, y + 12 + n * (L.cardH + L.cardGap), colW - 16)
+      })
+    })
+    y += h
+  })
+}
 
-    // Baris bawah: jam + tipe kelas
-    ctx.fillStyle = C.onSurfaceVariant
-    ctx.font = '400 13px Inter, system-ui, sans-serif'
-    ctx.fillText(
-      `${item.jamMulai ?? '-'} - ${item.jamSelesai ?? '-'}`,
-      textX,
-      y + 42,
-    )
+function drawCard(ctx, card, x, y, w) {
+  const tone = TONE[toneOf(card.tipeKelas)] ?? TONE.neutral
+  ctx.fillStyle = tone.bg
+  roundRect(ctx, x, y, w, L.cardH, 12)
+  ctx.fill()
+  ctx.fillStyle = tone.line
+  ctx.fillRect(x, y + 10, 4, L.cardH - 20)
 
-    y += rowHeight
-  }
+  ctx.fillStyle = tone.sub
+  ctx.font = `700 11px ${FONT}`
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(card.tipeKelas || 'K1', x + 14, y + 18)
+
+  const jam = `${card.jamMulai ?? ''}–${card.jamSelesai ?? ''}`
+  ctx.font = `700 11px ${FONT}`
+  const pillW = ctx.measureText(jam).width + 14
+  ctx.fillStyle = tone.pill
+  roundRect(ctx, x + w - pillW - 10, y + 8, pillW, 18, 9)
+  ctx.fill()
+  ctx.fillStyle = '#FFFFFF'
+  ctx.textAlign = 'center'
+  ctx.fillText(jam, x + w - pillW / 2 - 10, y + 17)
+
+  ctx.fillStyle = tone.ink
+  ctx.font = `700 13px ${FONT}`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const nameLines = wrapText(ctx, card.namaMK || card.kodeMK, w - 24, 2)
+  nameLines.forEach((line, i) => {
+    ctx.fillText(line, x + w / 2, y + 38 + i * 15)
+  })
+
+  ctx.fillStyle = tone.sub
+  ctx.font = `500 11px ${FONT}`
+  if (card.dosen) ctx.fillText(fitText(ctx, card.dosen, w - 24), x + w / 2, y + 38 + nameLines.length * 15)
+}
+
+function placeEntries(entries, courses) {
+  return entries
+    .map((entry) => {
+      const course = lookupCourse(courses, entry.kodeMK)
+      const session = SESSIONS.find((s) => toMinutes(entry.jamMulai) < s.before)?.id ?? 'malam'
+      return {
+        ...entry,
+        namaMK: entry.namaMK || course?.namaMK || entry.kodeMK,
+        dosen: entry.dosen || course?.dosen || '',
+        session,
+      }
+    })
+    .sort((a, b) => String(a.jamMulai).localeCompare(String(b.jamMulai)))
+}
+
+function toMinutes(value) {
+  const match = String(value ?? '').match(/(\d{1,2})[:.](\d{2})/)
+  if (!match) return 0
+  return Number(match[1]) * 60 + Number(match[2])
+}
+
+function lookupCourse(courses, kode) {
+  if (!courses || !kode) return null
+  if (typeof courses.get === 'function') return courses.get(kode) ?? null
+  return courses[kode] ?? null
 }
 
 function toneOf(code) {
-  const map = {
-    K1: 'offline',
-    K2: 'online',
-    HB: 'hybrid',
-    HBH: 'hybrid',
-    HBD: 'hybrid',
-    GBK1: 'combined',
-    GBK2: 'combined',
-  }
+  const map = { K1: 'offline', K2: 'online', HB: 'hybrid', HBH: 'hybrid', HBD: 'hybrid', GBK1: 'combined', GBK2: 'combined' }
   return map[code] ?? 'neutral'
 }
 
-function drawFooter(ctx, count, y) {
-  const { padding } = LAYOUT
-  ctx.fillStyle = C.onSurfaceVariant
-  ctx.font = '400 12px Inter, system-ui, sans-serif'
-  ctx.textBaseline = 'middle'
-  const date = new Date().toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-  ctx.fillText(
-    `${count} kelas per minggu · diekspor ${date}`,
-    padding,
-    y + 12,
-  )
+function wrapText(ctx, text, maxW, maxLines) {
+  const words = String(text ?? '').split(/\s+/).filter(Boolean)
+  const lines = []
+  let current = ''
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word
+    if (ctx.measureText(next).width <= maxW) {
+      current = next
+      continue
+    }
+    if (current) lines.push(current)
+    current = word
+    if (lines.length === maxLines - 1) break
+  }
+  if (current && lines.length < maxLines) lines.push(fitText(ctx, current, maxW))
+  else if (current && lines.length) lines[lines.length - 1] = fitText(ctx, `${lines.at(-1)} ${current}`, maxW)
+  if (!lines.length) lines.push(fitText(ctx, String(text ?? ''), maxW))
+  return lines.slice(0, maxLines)
 }
 
-/**
- * Bagikan kanvas sebagai gambar: pakai Web Share API kalau mendukung file,
- * kalau tidak → unduh sebagai PNG.
- * @returns {Promise<'shared'|'downloaded'>}
- */
+function fitText(ctx, text, maxW) {
+  const value = String(text ?? '')
+  if (ctx.measureText(value).width <= maxW) return value
+  let s = value
+  while (s.length > 1 && ctx.measureText(`${s}…`).width > maxW) s = s.slice(0, -1)
+  return `${s}…`
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2)
+  ctx.beginPath()
+  ctx.moveTo(x + radius, y)
+  ctx.arcTo(x + w, y, x + w, y + h, radius)
+  ctx.arcTo(x + w, y + h, x, y + h, radius)
+  ctx.arcTo(x, y + h, x, y, radius)
+  ctx.arcTo(x, y, x + w, y, radius)
+  ctx.closePath()
+}
+
+/** @returns {Promise<'shared'|'downloaded'>} */
 export async function shareOrDownloadScheduleImage(canvas, fileName) {
   const blob = await new Promise((resolve, reject) =>
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Gagal membuat gambar'))), 'image/png'),
@@ -202,11 +259,7 @@ export async function shareOrDownloadScheduleImage(canvas, fileName) {
   const file = new File([blob], fileName, { type: 'image/png' })
 
   if (navigator.canShare?.({ files: [file] })) {
-    await navigator.share({
-      files: [file],
-      title: 'Jadwal Kampus',
-      text: 'Jadwal kuliah saya',
-    })
+    await navigator.share({ files: [file], title: 'Jadwal Kuliah', text: 'Jadwal kuliah saya' })
     return 'shared'
   }
 

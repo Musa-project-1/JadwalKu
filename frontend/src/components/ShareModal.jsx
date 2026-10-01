@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../hooks/useApp'
 import { useFirestore } from '../hooks/useFirestore'
 import { Icon } from './Icon'
-import { sampleSchedule } from '../data/sampleSchedule'
+import { sampleSchedule, sampleCourses } from '../data/sampleSchedule'
 import { firebaseReady } from '../lib/firebaseClient'
 import { downloadIcs } from '../lib/icsExport'
 import { renderScheduleImage, shareOrDownloadScheduleImage } from '../lib/scheduleImage'
@@ -42,6 +42,9 @@ export function ShareModal({ open: rawOpen, isOpen: rawIsOpen, onClose }) {
         ]
       : [],
   )
+  const { data: mataKuliah } = useFirestore('mataKuliah')
+
+  const courseMap = useMemo(() => new Map(mataKuliah.map((c) => [c.kodeMK, c])), [mataKuliah])
 
   const entries = useMemo(() => {
     if (scope === 'all') return jadwal
@@ -86,7 +89,12 @@ export function ShareModal({ open: rawOpen, isOpen: rawIsOpen, onClose }) {
   async function handleShareImage() {
     try {
       setImageStatus({ ok: true, text: 'Membuat gambar...' })
-      const canvas = renderScheduleImage(source, { prodi: program, semester, tahunAjaran: ta })
+      const canvas = await renderScheduleImage(source, {
+        prodi: program,
+        semester,
+        tahunAjaran: ta,
+        courses: courseMap.size > 0 ? courseMap : new Map(sampleCourses.map((c) => [c.kodeMK, c])),
+      })
       const result = await shareOrDownloadScheduleImage(
         canvas,
         `jadwal-${(program ?? 'kampus').toLowerCase().replace(/\s+/g, '-')}-sem-${semester}.png`,

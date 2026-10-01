@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { useApp } from '../../hooks/useApp'
 import { useFirestore } from '../../hooks/useFirestore'
 import { Icon } from '../../components/Icon'
-import { sampleSchedule } from '../../data/sampleSchedule'
+import { sampleSchedule, sampleCourses } from '../../data/sampleSchedule'
 import { firebaseReady } from '../../lib/firebaseClient'
 import { downloadIcs } from '../../lib/icsExport'
 import { renderScheduleImage, shareOrDownloadScheduleImage } from '../../lib/scheduleImage'
@@ -80,7 +80,12 @@ export default function ExportShare() {
 
   async function handleShareImage() {
     try {
-      const canvas = renderScheduleImage(source, { prodi: program, semester, tahunAjaran: ta })
+      const canvas = await renderScheduleImage(source, {
+        prodi: program,
+        semester,
+        tahunAjaran: ta,
+        courses: courseMap.size > 0 ? courseMap : new Map(sampleCourses.map((c) => [c.kodeMK, c])),
+      })
       const result = await shareOrDownloadScheduleImage(
         canvas,
         `jadwal-${(program ?? 'kampus').toLowerCase().replace(/\s+/g, '-')}-sem-${semester}.png`,
