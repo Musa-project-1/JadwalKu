@@ -44,8 +44,9 @@ export function WeeklyScheduleHeader({
         </div>
       </div>
 
-      {/* Kanan: Seluruh Navigasi & Switcher */}
-      <div className="flex items-center gap-2 shrink-0 flex-wrap justify-between tablet:justify-end">
+      {/* Kanan: hanya desktop. Di <1024px kontrol ini ada di MobileScheduleView
+          (TA, share, navigator minggu) — jangan render dua kali. */}
+      <div className="hidden desktop:flex items-center gap-2 shrink-0 flex-wrap justify-end">
         {/* Switcher 5/6 Hari */}
         <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
           <button

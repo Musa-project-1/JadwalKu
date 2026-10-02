@@ -104,7 +104,7 @@ export function SettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, initi
                 <h2 id="settings-modal-title" className="text-title-sm tablet:text-title-md font-bold text-on-surface truncate">
                   {t ? t('settings.title') : 'Pengaturan'}
                 </h2>
-                <span className="rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-bold border border-primary/20">
+                <span className="rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[9px] font-bold border border-primary/20">
                   V1.3.0 PWA
                 </span>
               </div>

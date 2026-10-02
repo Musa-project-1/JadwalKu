@@ -387,20 +387,20 @@ export function CustomScheduleModal({
         </div>
 
         {/* Footer */}
-        <footer className="flex items-center justify-between p-4 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0">
-          <div className="text-body-xs text-on-surface-variant font-medium">
+        <footer className="flex flex-col gap-3 p-4 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0 tablet:flex-row tablet:items-center tablet:justify-between">
+          <div className="text-body-xs text-on-surface-variant font-medium min-w-0">
             {selectedIds.size > 0 ? (
               <span><strong>{selectedIds.size}</strong> kelas terpilih (<strong className="text-on-surface">{totalSks} SKS</strong>)</span>
             ) : (
               <span>Belum ada kelas yang dipilih</span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Button type="button" variant="secondary" onClick={onClose}>
               {t ? t('modal.cancel') : 'Batal'}
             </Button>
-            <Button type="button" onClick={handleSave} className="font-bold">
-              <Icon name="check" size={18} className="mr-1" />
+            <Button type="button" onClick={handleSave} className="font-bold whitespace-nowrap">
+              <Icon name="check" size={18} className="mr-1 shrink-0" />
               {t ? t('custom_modal.save_btn') : 'Terapkan Jadwal Kustom'}
             </Button>
           </div>

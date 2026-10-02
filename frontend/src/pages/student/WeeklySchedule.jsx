@@ -25,7 +25,6 @@ import {
   computeConflictedIds,
   computeScheduleSource,
   computeWeekDates,
-  computeMonthYearLabel,
   computeWeekRangeLabel,
   computeTimeRange,
   computeHourMarks,
@@ -187,7 +186,6 @@ export default function WeeklySchedule() {
     () => computeWeekDates(weekOffset, activeWeekDays),
     [weekOffset, activeWeekDays],
   )
-  const monthYearLabel = useMemo(() => computeMonthYearLabel(weekDates), [weekDates])
   const weekRangeLabel = useMemo(
     () => computeWeekRangeLabel(weekDates, weekOffset, language),
     [weekDates, weekOffset, language],
@@ -295,7 +293,6 @@ export default function WeeklySchedule() {
         {/* Mobile View (<1024px) */}
         <MobileScheduleView
           toolbarContent={toolbarContent}
-          monthYearLabel={monthYearLabel}
           selectedTA={selectedTA}
           setSelectedTA={setSelectedTA}
           currentTA={currentTA}
@@ -304,6 +301,8 @@ export default function WeeklySchedule() {
           weekOffset={weekOffset}
           setWeekOffset={setWeekOffset}
           weekRangeLabel={weekRangeLabel}
+          viewDays={viewDays}
+          setViewDays={setViewDays}
           language={language}
           activeWeekDays={activeWeekDays}
           weekDates={weekDates}

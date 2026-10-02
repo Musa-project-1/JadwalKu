@@ -3,11 +3,10 @@ import { ClassCard } from '../../ClassCard'
 import { EmptyState } from '../../EmptyState'
 import { Skeleton } from '../../Skeleton'
 import TahunAjaranDropdown from '../../schedule/TahunAjaranDropdown'
-import { getItem, STORAGE_KEYS } from '../../../lib/storage'
+import { getItem, setItem, STORAGE_KEYS } from '../../../lib/storage'
 
 export function MobileScheduleView({
   toolbarContent,
-  monthYearLabel,
   selectedTA,
   setSelectedTA,
   currentTA,
@@ -16,6 +15,8 @@ export function MobileScheduleView({
   weekOffset,
   setWeekOffset,
   weekRangeLabel,
+  viewDays,
+  setViewDays,
   language,
   activeWeekDays,
   weekDates,
@@ -35,36 +36,55 @@ export function MobileScheduleView({
       {toolbarContent}
       <div className="flex flex-col gap-3 p-3">
 
-      {/* Mobile Controls (<600px): Baris 1 Aligned (Bulan di Kiri, TA & Share di Kanan) */}
-      <div className="flex flex-col gap-2 tablet:hidden w-full max-w-full">
-        {/* Row 1: Bulan (Kiri) & TA Selector + Share (Kanan) */}
-        <div className="flex items-center justify-between gap-2 w-full">
-          <div className="flex items-center gap-1.5 text-body-xs font-bold text-primary bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-2xl shadow-level-1 shrink-0">
-            <Icon name="calendar_month" size={15} />
-            <span>{monthYearLabel}</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            <TahunAjaranDropdown
-              selectedTA={selectedTA}
-              onSelect={(ta) => setSelectedTA(ta)}
-              currentTA={currentTA}
-              allTAs={allTAs}
-            />
-            <button
-              type="button"
-              onClick={() => setShareOpen(true)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/20 shadow-level-1 cursor-pointer"
-              title="Bagikan Jadwal"
-              aria-label="Bagikan jadwal"
-            >
-              <Icon name="ios_share" size={16} />
-            </button>
-          </div>
+      {/* Mobile Controls (<600px) */}
+      <div className="flex flex-col gap-2 tablet:hidden w-full max-w-full min-w-0">
+        {/* Row 1: TA (ganti pill bulan — label itu dobel dengan navigator minggu) + Share */}
+        <div className="flex items-center gap-2 w-full min-w-0">
+          <TahunAjaranDropdown
+            className="min-w-0 flex-1"
+            selectedTA={selectedTA}
+            onSelect={(ta) => setSelectedTA(ta)}
+            currentTA={currentTA}
+            allTAs={allTAs}
+          />
+          <button
+            type="button"
+            onClick={() => setShareOpen(true)}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container-high/60 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary border border-outline-variant/20 shadow-level-1 cursor-pointer"
+            title="Bagikan Jadwal"
+            aria-label="Bagikan jadwal"
+          >
+            <Icon name="ios_share" size={16} />
+          </button>
         </div>
 
-        {/* Row 2: Week Navigator Pill Lebar Penuh + Tombol Hari Ini jika bergeser */}
-        <div className="flex items-center justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-high/60 px-2 py-1.5 shadow-level-1 w-full">
+        {/* Row 2: 5/6 Hari + Week Navigator. Switcher ini dulu hanya di header desktop. */}
+        <div className="flex items-center gap-2 w-full">
+          <div className="inline-flex items-center rounded-2xl border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => { setViewDays('5'); setItem('jadwal:viewDays', '5') }}
+              className={`rounded-xl px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer ${
+                viewDays === '5'
+                  ? 'bg-surface shadow-level-1 text-primary'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              {language === 'en' ? '5 Days' : '5 Hari'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setViewDays('6'); setItem('jadwal:viewDays', '6') }}
+              className={`rounded-xl px-2.5 py-1 text-label-caps font-bold transition-all cursor-pointer ${
+                viewDays === '6'
+                  ? 'bg-surface shadow-level-1 text-primary'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              {language === 'en' ? '6 Days' : '6 Hari'}
+            </button>
+          </div>
+          <div className="flex flex-1 items-center justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-high/60 px-1.5 py-1.5 shadow-level-1 min-w-0">
           <button
             type="button"
             onClick={() => setWeekOffset((prev) => prev - 1)}
@@ -97,6 +117,7 @@ export function MobileScheduleView({
           >
             <Icon name="chevron_right" size={20} />
           </button>
+          </div>
         </div>
       </div>
 

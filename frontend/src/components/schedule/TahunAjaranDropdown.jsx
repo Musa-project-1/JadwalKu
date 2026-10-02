@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Icon } from '../../components/Icon'
 
-export default function TahunAjaranDropdown({ selectedTA, onSelect, currentTA, allTAs }) {
+export default function TahunAjaranDropdown({ selectedTA, onSelect, currentTA, allTAs, className = '' }) {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -32,13 +32,13 @@ export default function TahunAjaranDropdown({ selectedTA, onSelect, currentTA, a
   }, [currentTA, allTAs])
 
   return (
-    <div ref={dropdownRef} className="relative">
+    <div ref={dropdownRef} className={`relative ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         aria-label="Pilih tahun ajaran"
-        className={`group flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-body-sm font-medium transition-all shadow-sm cursor-pointer ${
+        className={`group flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-body-sm font-medium transition-all shadow-sm cursor-pointer ${className ? 'w-full' : ''} ${
           open
             ? 'border-primary bg-surface-container-high text-on-surface shadow-md'
             : 'border-outline-variant/40 bg-surface-container-lowest hover:border-primary/50 hover:bg-surface-container-low text-on-surface dark:bg-surface-container-high'

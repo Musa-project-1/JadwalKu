@@ -96,21 +96,6 @@ export function computeWeekDates(weekOffset, activeWeekDays) {
   })
 }
 
-export function computeMonthYearLabel(weekDates) {
-  if (weekDates.length === 0) return ''
-  const first = weekDates[0]
-  const last = weekDates[weekDates.length - 1]
-  const dFirst = new Date(first.iso)
-  const dLast = new Date(last.iso)
-  const mFirst = dFirst.toLocaleDateString('id-ID', { month: 'long' })
-  const mLast = dLast.toLocaleDateString('id-ID', { month: 'long' })
-  const y = dLast.getFullYear()
-  if (mFirst === mLast) {
-    return `${mFirst} ${y}`
-  }
-  return `${mFirst} - ${mLast} ${y}`
-}
-
 export function computeWeekRangeLabel(weekDates, weekOffset, language) {
   if (weekDates.length === 0) return ''
   const first = weekDates[0]

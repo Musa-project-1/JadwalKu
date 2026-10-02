@@ -95,12 +95,12 @@ export function SettingsStorageTab({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 space-y-4 shadow-2xs divide-y divide-outline-variant/15">
+      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 space-y-4 shadow-2xs divide-y divide-outline-variant/15">
         {/* PWA Offline Status */}
-        <div className="flex items-center justify-between gap-4 pt-1 first:pt-0">
+        <div className="flex flex-col gap-2.5 pt-1 first:pt-0 tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-4">
           <div className="min-w-0">
             <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
-              <Icon name="cloud_done" size={17} className="text-emerald-600 dark:text-emerald-400" />
+              <Icon name="cloud_done" size={17} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>Progressive Web App (PWA)</span>
             </span>
             <p className="text-body-xs text-on-surface-variant mt-0.5">
@@ -109,17 +109,17 @@ export function SettingsStorageTab({
                 : 'Aplikasi terpasang dan dapat beroperasi 100% tanpa internet'}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 text-label-caps font-bold border border-emerald-500/25 shrink-0">
+          <span className="self-start inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 text-label-caps font-bold border border-emerald-500/25 shrink-0">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>{language === 'en' ? 'Available Offline' : 'Tersedia Offline'}</span>
           </span>
         </div>
 
         {/* Cloud Sync */}
-        <div className="flex items-center justify-between gap-4 pt-4">
+        <div className="flex flex-col gap-2.5 pt-4 tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-4">
           <div className="min-w-0">
             <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
-              <Icon name="sync" size={17} className="text-primary" />
+              <Icon name="sync" size={17} className="text-primary shrink-0" />
               <span>{language === 'en' ? 'Sync Campus Schedule' : 'Sinkronisasi Data Kampus'}</span>
             </span>
             <p className="text-body-xs text-on-surface-variant mt-0.5">
@@ -132,7 +132,7 @@ export function SettingsStorageTab({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="px-4 py-2 rounded-xl bg-primary text-on-primary text-body-xs font-bold shadow-level-1 hover:bg-primary/90 transition-all cursor-pointer shrink-0"
+            className="self-start px-4 py-2 rounded-xl bg-primary text-on-primary text-body-xs font-bold shadow-level-1 hover:bg-primary/90 transition-all cursor-pointer shrink-0 whitespace-nowrap"
           >
             {isSyncing
               ? (language === 'en' ? 'Syncing...' : 'Menyinkronkan...')
@@ -142,44 +142,42 @@ export function SettingsStorageTab({
 
         {/* Student Data Backup & Restore */}
         <div className="flex flex-col gap-3 pt-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
-                <Icon name="save" size={17} className="text-teal-600 dark:text-teal-400" />
-                <span>{language === 'en' ? 'Backup & Restore Personal Data' : 'Cadangkan & Pulihkan Data Pribadi'}</span>
-              </span>
-              <p className="text-body-xs text-on-surface-variant mt-0.5">
-                {language === 'en'
-                  ? 'Backup tasks, notes, attendance history, and reminders into a JSON file'
-                  : 'Amankan tugas, catatan, riwayat absensi, dan preferensi alarm ke berkas JSON'}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={restoring}
-                className="px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high text-on-surface text-body-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                <Icon name="upload" size={15} />
-                <span>{language === 'en' ? 'Restore' : 'Pulihkan'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleExportBackup}
-                className="px-3 py-1.5 rounded-xl border border-teal-600/30 bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 text-body-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                <Icon name="download" size={15} />
-                <span>{language === 'en' ? 'Backup' : 'Cadangkan'}</span>
-              </button>
-            </div>
+          <div className="min-w-0">
+            <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+              <Icon name="save" size={17} className="text-teal-600 dark:text-teal-400 shrink-0" />
+              <span>{language === 'en' ? 'Backup & Restore Personal Data' : 'Cadangkan & Pulihkan Data Pribadi'}</span>
+            </span>
+            <p className="text-body-xs text-on-surface-variant mt-0.5">
+              {language === 'en'
+                ? 'Backup tasks, notes, attendance history, and reminders into a JSON file'
+                : 'Amankan tugas, catatan, riwayat absensi, dan preferensi alarm ke berkas JSON'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={restoring}
+              className="px-3 py-1.5 rounded-xl border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high text-on-surface text-body-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+            >
+              <Icon name="upload" size={15} />
+              <span>{language === 'en' ? 'Restore' : 'Pulihkan'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleExportBackup}
+              className="px-3 py-1.5 rounded-xl border border-teal-600/30 bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 text-body-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+            >
+              <Icon name="download" size={15} />
+              <span>{language === 'en' ? 'Backup' : 'Cadangkan'}</span>
+            </button>
           </div>
 
           {backupStatus && (
@@ -197,10 +195,10 @@ export function SettingsStorageTab({
         </div>
 
         {/* Clear Cache */}
-        <div className="flex items-center justify-between gap-4 pt-4">
+        <div className="flex flex-col gap-2.5 pt-4 tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-4">
           <div className="min-w-0">
             <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
-              <Icon name="delete_sweep" size={17} className="text-error" />
+              <Icon name="delete_sweep" size={17} className="text-error shrink-0" />
               <span>{language === 'en' ? 'Reset Local Cache' : 'Reset Cache Lokal'}</span>
             </span>
             <p className="text-body-xs text-on-surface-variant mt-0.5">
@@ -212,7 +210,7 @@ export function SettingsStorageTab({
           <button
             type="button"
             onClick={handleClearCache}
-            className="px-4 py-2 rounded-xl border border-error/30 bg-error/10 hover:bg-error/20 text-error text-body-xs font-bold transition-all cursor-pointer shrink-0"
+            className="self-start px-4 py-2 rounded-xl border border-error/30 bg-error/10 hover:bg-error/20 text-error text-body-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap"
           >
             {language === 'en' ? 'Reset Cache' : 'Reset Cache'}
           </button>

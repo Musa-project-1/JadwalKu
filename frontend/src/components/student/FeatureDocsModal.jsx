@@ -80,10 +80,10 @@ export function FeatureDocsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, mo
       />
 
       {/* Modal Card */}
-      <div className="relative z-10 w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low animate-fade-up overflow-hidden">
+      <div className="relative z-10 w-full max-w-4xl h-[90vh] max-h-[90vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest shadow-2xl dark:bg-surface-container-low animate-fade-up overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-outline-variant/20 p-5 tablet:p-6 bg-surface-container-lowest/90 dark:bg-surface-container-low/90 backdrop-blur-md">
-          <div className="flex items-center gap-3.5">
+        <div className="shrink-0 flex items-center justify-between border-b border-outline-variant/20 p-4 tablet:p-6 bg-surface-container-lowest/90 dark:bg-surface-container-low/90 backdrop-blur-md">
+          <div className="flex items-center gap-3.5 min-w-0">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary border border-primary/25 shadow-xs shrink-0">
               <Icon name={mode === 'admin' ? 'admin_panel_settings' : 'menu_book'} size={26} />
             </div>
@@ -110,7 +110,7 @@ export function FeatureDocsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, mo
         </div>
 
         {/* Toolbar: Search + Filter Tabs */}
-        <div className="p-4 tablet:p-5 border-b border-outline-variant/15 bg-surface-container-low/40 dark:bg-surface-container-high/30 flex flex-col tablet:flex-row items-stretch tablet:items-center justify-between gap-3">
+        <div className="shrink-0 p-4 tablet:p-5 border-b border-outline-variant/15 bg-surface-container-low/40 dark:bg-surface-container-high/30 flex flex-col tablet:flex-row items-stretch tablet:items-center justify-between gap-3">
           {/* Search Input */}
           <div className="relative flex-1 min-w-0">
             <Icon
@@ -181,7 +181,7 @@ export function FeatureDocsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, mo
         </div>
 
         {/* Feature List Body */}
-        <div className="flex-1 overflow-y-auto p-4 tablet:p-6 space-y-3">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 tablet:p-6 space-y-3">
           {filteredFeatures.length === 0 ? (
             <div className="py-12 text-center">
               <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-container text-on-surface-variant">
@@ -301,7 +301,7 @@ export function FeatureDocsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, mo
         </div>
 
         {/* Modal Footer */}
-        <div className="border-t border-outline-variant/20 p-4 tablet:p-5 flex items-center justify-between bg-surface-container-lowest/95 dark:bg-surface-container-low/95">
+        <div className="shrink-0 border-t border-outline-variant/20 p-4 tablet:p-5 flex items-center justify-between bg-surface-container-lowest/95 dark:bg-surface-container-low/95">
           <p className="text-body-xs text-on-surface-variant hidden sm:block">
             Aplikasi JadwalKu • 100% Zero-Backend Architecture
           </p>

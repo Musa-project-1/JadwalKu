@@ -23,14 +23,14 @@ export function SettingsAcademicTab({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-outline-variant/20 bg-gradient-to-br from-primary/10 via-primary/5 to-surface-container-high/40 p-5 shadow-2xs space-y-4">
-        <div className="flex items-start justify-between gap-4">
+      <div className="rounded-2xl border border-outline-variant/20 bg-gradient-to-br from-primary/10 via-primary/5 to-surface-container-high/40 p-4 tablet:p-5 shadow-2xs space-y-4">
+        <div className="flex flex-col gap-3 tablet:flex-row tablet:items-start tablet:justify-between tablet:gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-level-1">
               <Icon name="school" size={26} />
             </div>
             <div className="min-w-0">
-              <p className="text-label-caps uppercase font-extrabold tracking-wider text-primary">
+              <p className="text-label-caps uppercase font-extrabold tracking-wider text-primary truncate">
                 {fakultasNama || (language === 'en' ? 'Campus Faculty' : 'Fakultas')}
               </p>
               <h4 className="text-title-md font-bold text-on-surface leading-snug truncate">
@@ -49,7 +49,7 @@ export function SettingsAcademicTab({
               onClose?.()
               navigate('/onboarding/wizard')
             }}
-            className="shrink-0 px-4 py-2 text-body-xs font-bold shadow-level-1 cursor-pointer rounded-2xl"
+            className="self-start shrink-0 px-4 py-2 text-body-xs font-bold shadow-level-1 cursor-pointer rounded-2xl whitespace-nowrap"
           >
             <Icon name="edit" size={14} className="mr-1.5" />
             <span>{language === 'en' ? 'Change Program' : 'Ganti Prodi'}</span>
