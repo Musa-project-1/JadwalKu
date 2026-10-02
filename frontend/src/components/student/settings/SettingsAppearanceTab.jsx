@@ -30,7 +30,7 @@ export function SettingsAppearanceTab({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 space-y-4 shadow-2xs divide-y divide-outline-variant/15">
+      <div className="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 space-y-4 shadow-level-1 divide-y divide-outline-variant/30 dark:divide-outline-variant/40">
         {/* Tema / Theme */}
         <div className="flex flex-col tablet:flex-row tablet:items-center justify-between gap-3 pt-1 first:pt-0">
           <div className="min-w-0">

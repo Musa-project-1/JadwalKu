@@ -1,20 +1,20 @@
 @layer base {
   :root {
-    /* ── Surface & neutral (lembut, tidak terlalu putih/terang) ── */
-    --c-surface: 241 246 245;
-    --c-surface-dim: 212 222 220;
-    --c-surface-bright: 246 250 249;
-    --c-surface-container-lowest: 252 254 253;
-    --c-surface-container-low: 236 244 242;
-    --c-surface-container: 227 238 236;
-    --c-surface-container-high: 218 231 229;
-    --c-surface-container-highest: 208 223 220;
+    /* ── Surface & neutral (lembut, elegan, tidak silau) ── */
+    --c-surface: 236 242 241;
+    --c-surface-dim: 210 220 218;
+    --c-surface-bright: 250 252 251;
+    --c-surface-container-lowest: 255 255 255;
+    --c-surface-container-low: 242 247 246;
+    --c-surface-container: 234 240 239;
+    --c-surface-container-high: 224 232 230;
+    --c-surface-container-highest: 214 224 222;
     --c-on-surface: 20 32 30;
     --c-on-surface-variant: 60 84 80;
     --c-inverse-surface: 38 54 51;
     --c-inverse-on-surface: 234 246 244;
     --c-outline: 85 110 106;
-    --c-outline-variant: 154 182 178;
+    --c-outline-variant: 160 185 182;
     --c-surface-tint: 0 150 136;
     /* ── Primary: teal lebih cerah & jenuh ── */
     --c-primary: 0 137 123;
@@ -48,7 +48,7 @@
     --c-tertiary-fixed-dim: 165 180 252;
     --c-on-tertiary-fixed: 24 24 83;
     --c-on-tertiary-fixed-variant: 55 48 163;
-    --c-background: 244 250 249;
+    --c-background: 230 238 236;
     --c-on-background: 14 26 24;
     --c-surface-variant: 218 232 230;
     /* ── Semantic status ── */

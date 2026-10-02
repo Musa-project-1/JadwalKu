@@ -240,7 +240,7 @@ export function AdminSettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, 
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="relative flex flex-col w-full max-w-4xl h-[92vh] max-h-[720px] rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-3 overflow-hidden"
+          className="relative flex flex-col w-full max-w-4xl h-[92vh] max-h-[720px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low modal-dialog-shadow overflow-hidden"
         >
           {/* Modal Top Header */}
           <header className="flex items-center justify-between px-5 py-3.5 border-b border-outline-variant/20 bg-surface-container-low/40 dark:bg-surface-container-high/30 shrink-0">

@@ -95,7 +95,7 @@ export function SettingsStorageTab({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 space-y-4 shadow-2xs divide-y divide-outline-variant/15">
+      <div className="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 space-y-4 shadow-level-1 divide-y divide-outline-variant/30 dark:divide-outline-variant/40">
         {/* PWA Offline Status */}
         <div className="flex flex-col gap-2.5 pt-1 first:pt-0 tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-4">
           <div className="min-w-0">

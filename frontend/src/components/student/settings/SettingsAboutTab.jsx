@@ -69,7 +69,7 @@ export function SettingsAboutTab({
         </button>
       </div>
 
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 space-y-3 shadow-2xs">
+      <div className="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low p-4 space-y-3 shadow-level-1">
         <h4 className="text-body-sm font-bold text-on-surface flex items-center gap-2">
           <Icon name="palette" size={17} className="text-primary" />
           <span>{language === 'en' ? 'Class Card Color Legend' : 'Keterangan Warna Kartu Kelas'}</span>

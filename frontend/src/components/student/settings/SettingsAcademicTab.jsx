@@ -23,7 +23,7 @@ export function SettingsAcademicTab({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-outline-variant/20 bg-gradient-to-br from-primary/10 via-primary/5 to-surface-container-high/40 p-4 tablet:p-5 shadow-2xs space-y-4">
+      <div className="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 shadow-level-1 space-y-4">
         <div className="flex flex-col gap-3 tablet:flex-row tablet:items-start tablet:justify-between tablet:gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-level-1">
