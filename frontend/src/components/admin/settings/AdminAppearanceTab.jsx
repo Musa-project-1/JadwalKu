@@ -9,6 +9,12 @@ export function AdminAppearanceTab({
   setFontSize,
   highContrast,
   setHighContrast,
+  showPrayerDividers,
+  setShowPrayerDividers,
+  ambientGlow,
+  setAmbientGlow,
+  cardHighlight,
+  setCardHighlight,
   t,
 }) {
   return (
@@ -24,36 +30,35 @@ export function AdminAppearanceTab({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-4 space-y-4 shadow-2xs divide-y divide-outline-variant/15">
-        {/* Mode Gelap */}
-        <div className="flex items-center justify-between gap-4 pt-1 first:pt-0">
+      <div className="rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 space-y-4 shadow-level-1 divide-y divide-outline-variant/15">
+        {/* Mode Gelap / Theme */}
+        <div className="flex flex-col tablet:flex-row tablet:items-center justify-between gap-3 pt-1 first:pt-0">
           <div className="min-w-0">
             <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
-              <Icon name="dark_mode" size={17} className="text-primary" />
+              <Icon name="palette" size={17} className="text-primary" />
               <span>{language === 'en' ? 'Appearance Theme' : 'Mode Tampilan'}</span>
             </span>
             <p className="text-body-xs text-on-surface-variant mt-0.5">
-              {language === 'en' ? 'Select visual theme' : 'Pilih tema visual aplikasi'}
+              {language === 'en' ? 'Light, Dark, or follow system setting' : 'Terang, Gelap, atau ikuti pengaturan sistem'}
             </p>
           </div>
-          <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1 shrink-0">
+          <div className="flex rounded-full bg-surface-container-high/60 p-1 border border-outline-variant/25 shadow-level-1 shrink-0 min-w-[210px]">
             {[
-              { value: 'light', icon: 'light_mode', label: language === 'en' ? 'Light' : 'Terang' },
-              { value: 'dark', icon: 'dark_mode', label: language === 'en' ? 'Dark' : 'Gelap' },
-              { value: 'system', icon: 'settings_brightness', label: language === 'en' ? 'System' : 'Sistem' },
+              { value: 'system', label: language === 'en' ? 'System' : 'Sistem', icon: 'brightness_auto' },
+              { value: 'light', label: language === 'en' ? 'Light' : 'Terang', icon: 'light_mode' },
+              { value: 'dark', label: language === 'en' ? 'Dark' : 'Gelap', icon: 'dark_mode' },
             ].map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setTheme(opt.value)}
-                title={`Tema ${opt.label}`}
-                aria-label={`Tema ${opt.label}`}
-                className={`flex h-7 w-9 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:opacity-80 ${
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-full py-1 text-body-xs font-bold transition-all duration-200 cursor-pointer active:opacity-80 ${
                   theme === opt.value
                     ? 'bg-surface text-primary shadow-level-1'
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
+                <span>{opt.label}</span>
                 <Icon name={opt.icon} size={16} />
               </button>
             ))}
@@ -148,11 +153,107 @@ export function AdminAppearanceTab({
           >
             <span
               className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
-                highContrast ? 'left-5.5' : 'left-0.5'
+                highContrast ? 'left-[22px]' : 'left-0.5'
               }`}
             />
           </button>
         </div>
+
+        {/* Pembatas Sholat */}
+        {setShowPrayerDividers && (
+          <div className="flex items-center justify-between gap-4 pt-3.5">
+            <div className="min-w-0">
+              <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                <Icon name="mosque" size={17} className="text-secondary" />
+                <span>{language === 'en' ? 'Prayer Time Dividers' : 'Pembatas Waktu Sholat'}</span>
+              </span>
+              <p className="text-body-xs text-on-surface-variant mt-0.5">
+                {language === 'en'
+                  ? 'Show dynamic Dhuhr, Asr, and Maghrib dividers in schedule'
+                  : 'Tampilkan garis pembatas Dzuhur, Ashar, dan Maghrib'}
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={showPrayerDividers}
+              onClick={() => setShowPrayerDividers(!showPrayerDividers)}
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                showPrayerDividers ? 'bg-primary' : 'bg-surface-variant'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
+                  showPrayerDividers ? 'left-[22px]' : 'left-0.5'
+                }`}
+              />
+            </button>
+          </div>
+        )}
+
+        {/* Efek Cahaya Ambient */}
+        {setAmbientGlow && (
+          <div className="flex items-center justify-between gap-4 pt-3.5">
+            <div className="min-w-0">
+              <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                <Icon name="wb_incandescent" size={17} className="text-primary" />
+                <span>{language === 'en' ? 'Ambient Studio Glow' : 'Efek Cahaya Ambient'}</span>
+              </span>
+              <p className="text-body-xs text-on-surface-variant mt-0.5">
+                {language === 'en'
+                  ? 'Soft studio radial aura in canvas background (Linear/Vercel aesthetic)'
+                  : 'Aura pencahayaan radial lembut di latar belakang kanvas (gaya Linear/Vercel)'}
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={ambientGlow}
+              onClick={() => setAmbientGlow(!ambientGlow)}
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                ambientGlow ? 'bg-primary' : 'bg-surface-variant'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
+                  ambientGlow ? 'left-[22px]' : 'left-0.5'
+                }`}
+              />
+            </button>
+          </div>
+        )}
+
+        {/* Highlight Tepi Kartu (Glass Edge) */}
+        {setCardHighlight && (
+          <div className="flex items-center justify-between gap-4 pt-3.5">
+            <div className="min-w-0">
+              <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                <Icon name="layers" size={17} className="text-secondary" />
+                <span>{language === 'en' ? 'Card Top-Highlight (Glass Edge)' : 'Highlight Tepi Kartu'}</span>
+              </span>
+              <p className="text-body-xs text-on-surface-variant mt-0.5">
+                {language === 'en'
+                  ? 'Subtle light reflection bevel on the upper edge of containers'
+                  : 'Efek pantulan cahaya tipis di batas atas kartu kontainer (glass bevel)'}
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={cardHighlight}
+              onClick={() => setCardHighlight(!cardHighlight)}
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                cardHighlight ? 'bg-primary' : 'bg-surface-variant'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
+                  cardHighlight ? 'left-[22px]' : 'left-0.5'
+                }`}
+              />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

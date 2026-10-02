@@ -25,7 +25,7 @@ export function RoomListPanel({
   })
 
   return (
-    <section className="h-full flex flex-col justify-between rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low min-h-0 space-y-3">
+    <section className="flex flex-col rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 shadow-level-1 min-h-0 space-y-3">
       <div className="flex-1 flex flex-col space-y-3 min-h-0">
         {/* Header Panel (Flex row across mobile & desktop with items-center justify-between) */}
         <div className="flex items-center justify-between gap-3 border-b border-outline-variant/15 pb-3">
@@ -43,16 +43,16 @@ export function RoomListPanel({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 tablet:gap-2 shrink-0">
             {onAutoExtractFromSchedule && (
               <button
                 type="button"
                 onClick={onAutoExtractFromSchedule}
                 disabled={extracting}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-[11.5px] font-bold text-on-surface shadow-2xs hover:border-teal-600 hover:text-teal-700 cursor-pointer transition-colors"
+                className="flex h-8 items-center gap-1.5 rounded-xl border border-teal-500/30 bg-teal-500/10 px-3 text-body-xs font-bold text-teal-700 dark:text-teal-300 hover:bg-teal-500/20 active:scale-95 transition-all shadow-level-1 cursor-pointer shrink-0"
                 title="Ekstrak nama ruangan unik dari jadwal kuliah aktif"
               >
-                <Icon name="auto_fix_high" size={13} className={extracting ? 'animate-spin' : 'text-teal-700 dark:text-teal-400'} />
+                <Icon name="auto_fix_high" size={14} className={extracting ? 'animate-spin' : ''} />
                 <span className="hidden sm:inline">{extracting ? 'Mengekstrak...' : 'Scan dari Jadwal'}</span>
               </button>
             )}
@@ -60,7 +60,7 @@ export function RoomListPanel({
             <button
               type="button"
               onClick={onOpenAddModal}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-[11.5px] font-bold text-on-primary shadow-xs hover:bg-primary/90 transition-colors cursor-pointer"
+              className="flex h-8 items-center gap-1 rounded-xl bg-primary px-3 text-body-xs font-bold text-on-primary shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer shrink-0"
               title="Tambah Ruangan Baru"
               aria-label="Tambah Ruangan"
             >
@@ -120,7 +120,7 @@ export function RoomListPanel({
               return (
                 <div
                   key={room.id}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low/50 p-3.5 dark:bg-surface-container-high/20 transition-all hover:border-teal-500/30 shadow-2xs border-l-4 border-l-teal-600"
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-low/50 p-3.5 dark:bg-surface-container-high/20 transition-all hover:border-teal-500/40 shadow-xs border-l-4 border-l-teal-600"
                 >
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">

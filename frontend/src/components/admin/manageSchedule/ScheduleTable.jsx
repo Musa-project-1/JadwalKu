@@ -56,7 +56,7 @@ function ScheduleTableImpl({
   }
 
   return (
-    <div className="hidden overflow-hidden flex-1 min-h-0 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
+    <div className="hidden overflow-hidden flex-1 min-h-0 rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest shadow-level-1 tablet:block dark:bg-surface-container-low w-full">
       <table className="w-full table-fixed text-left border-collapse">
         <colgroup>
           <col style={{ width: '4%' }} />
@@ -98,7 +98,7 @@ function ScheduleTableImpl({
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-outline-variant/10">
+        <tbody className="divide-y divide-outline-variant/15 dark:divide-outline-variant/25">
           {paginatedGroups.map((group) => {
             const item = group.items[0]
             const course = courseMap.get(item.kodeMK)
@@ -117,7 +117,6 @@ function ScheduleTableImpl({
                 className={`group transition-colors hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20 ${
                   isSomeGroupSelected ? 'bg-primary/5 dark:bg-primary/10' : ''
                 } ${anyClash ? 'bg-red-500/5 dark:bg-red-500/10' : ''}`}
-                style={{ borderTop: '0.5px solid var(--color-outline-variant, rgba(120, 120, 120, 0.15))' }}
               >
                 {/* Checkbox */}
                 <td className="px-2 py-1.5 text-center align-middle overflow-hidden">

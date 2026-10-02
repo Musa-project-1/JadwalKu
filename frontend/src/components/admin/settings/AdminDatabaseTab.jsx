@@ -17,23 +17,23 @@ export function AdminDatabaseTab({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 space-y-4 shadow-2xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-teal-500/10 text-teal-700 dark:text-teal-400 flex items-center justify-center border border-teal-500/20">
+      <div className="rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 space-y-4 shadow-level-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-10 w-10 shrink-0 rounded-xl bg-teal-500/10 text-teal-700 dark:text-teal-400 flex items-center justify-center border border-teal-500/20">
               <Icon name="cloud_sync" size={22} />
             </div>
-            <div>
-              <h4 className="text-body-sm font-bold text-on-surface">Snapshot Cadangan Koleksi</h4>
+            <div className="min-w-0">
+              <h4 className="text-body-sm font-bold text-on-surface truncate">Snapshot Cadangan Koleksi</h4>
               <p className="text-[11.5px] text-on-surface-variant">Jadwal, Mata Kuliah, Ujian, Pengumuman, Ruang, dan Kalender</p>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setBackupRestoreOpen(true)}
-            className="px-4 py-2 rounded-xl bg-primary text-on-primary font-bold text-body-xs shadow-level-1 hover:opacity-90 active:scale-95 transition-all cursor-pointer"
+            className="flex h-8 items-center justify-center gap-1.5 rounded-xl bg-primary px-3.5 text-body-xs font-bold text-on-primary shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer shrink-0"
           >
-            Buka Backup & Restore
+            <span>Buka Backup & Restore</span>
           </button>
         </div>
       </div>

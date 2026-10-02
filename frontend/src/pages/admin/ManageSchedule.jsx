@@ -207,7 +207,7 @@ export default function ManageSchedule() {
   }
 
   return (
-    <div className="h-full flex flex-col space-y-2 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden min-h-0 flex-1">
+    <div className="h-full flex flex-col space-y-2 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-y-auto desktop:overflow-hidden min-h-0 flex-1">
       {banner && (
         <div className="shrink-0">
           <StatusBanner
@@ -243,7 +243,7 @@ export default function ManageSchedule() {
         />
 
         {/* ── 2. Live Database Schedule Management ── */}
-        <div className="p-3 tablet:p-3.5 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-hidden">
+        <div className="p-3 tablet:p-3.5 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-visible desktop:overflow-hidden">
           <ScheduleToolbar
             search={search}
             setSearch={setSearch}

@@ -22,7 +22,7 @@ export function AdminAcademicMasterTab({
         <button
           type="button"
           onClick={() => setCalendarOpen(true)}
-          className="group p-4 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs text-left cursor-pointer"
+          className="group p-4 rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low hover:border-primary/50 transition-all flex flex-col justify-between shadow-level-1 text-left cursor-pointer"
         >
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
@@ -43,7 +43,7 @@ export function AdminAcademicMasterTab({
         <button
           type="button"
           onClick={() => setKaldikImportOpen(true)}
-          className="group p-4 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low hover:border-secondary/50 transition-all flex flex-col justify-between shadow-2xs text-left cursor-pointer"
+          className="group p-4 rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low hover:border-secondary/50 transition-all flex flex-col justify-between shadow-level-1 text-left cursor-pointer"
         >
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center border border-secondary/20">

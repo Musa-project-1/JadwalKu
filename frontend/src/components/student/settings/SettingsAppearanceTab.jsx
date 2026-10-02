@@ -12,6 +12,10 @@ export function SettingsAppearanceTab({
   setHighContrast,
   showPrayerDividers,
   setShowPrayerDividers,
+  ambientGlow,
+  setAmbientGlow,
+  cardHighlight,
+  setCardHighlight,
 }) {
   return (
     <div className="space-y-4 animate-fade-in">
@@ -184,6 +188,70 @@ export function SettingsAppearanceTab({
             />
           </button>
         </div>
+
+        {/* Efek Cahaya Ambient */}
+        {setAmbientGlow && (
+          <div className="flex items-center justify-between gap-4 pt-3.5">
+            <div className="min-w-0">
+              <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                <Icon name="wb_incandescent" size={17} className="text-primary" />
+                <span>{language === 'en' ? 'Ambient Studio Glow' : 'Efek Cahaya Ambient'}</span>
+              </span>
+              <p className="text-body-xs text-on-surface-variant mt-0.5">
+                {language === 'en'
+                  ? 'Soft studio radial aura in canvas background (Linear/Vercel aesthetic)'
+                  : 'Aura pencahayaan radial lembut di latar belakang kanvas (gaya Linear/Vercel)'}
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={ambientGlow}
+              onClick={() => setAmbientGlow(!ambientGlow)}
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                ambientGlow ? 'bg-primary' : 'bg-surface-variant'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
+                  ambientGlow ? 'left-[22px]' : 'left-0.5'
+                }`}
+              />
+            </button>
+          </div>
+        )}
+
+        {/* Highlight Tepi Kartu (Glass Edge) */}
+        {setCardHighlight && (
+          <div className="flex items-center justify-between gap-4 pt-3.5">
+            <div className="min-w-0">
+              <span className="text-body-sm font-bold text-on-surface flex items-center gap-2">
+                <Icon name="layers" size={17} className="text-secondary" />
+                <span>{language === 'en' ? 'Card Top-Highlight (Glass Edge)' : 'Highlight Tepi Kartu'}</span>
+              </span>
+              <p className="text-body-xs text-on-surface-variant mt-0.5">
+                {language === 'en'
+                  ? 'Subtle light reflection bevel on the upper edge of containers'
+                  : 'Efek pantulan cahaya tipis di batas atas kartu kontainer (glass bevel)'}
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={cardHighlight}
+              onClick={() => setCardHighlight(!cardHighlight)}
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+                cardHighlight ? 'bg-primary' : 'bg-surface-variant'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all shadow-level-1 ${
+                  cardHighlight ? 'left-[22px]' : 'left-0.5'
+                }`}
+              />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

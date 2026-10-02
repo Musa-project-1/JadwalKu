@@ -57,20 +57,20 @@ export function RecentActivityTimeline({
   onOpenFullHistory,
 }) {
   return (
-    <section className="desktop:col-span-7 h-full flex flex-col min-h-0">
-      <div className="h-full flex flex-col justify-between rounded-2xl bg-surface-container-lowest p-3.5 tablet:p-4 dark:bg-surface-container-low border border-outline-variant/20 shadow-level-1 min-h-0">
+    <section className="desktop:col-span-7 flex flex-col min-h-0 desktop:h-full">
+      <div className="h-full flex flex-col justify-between rounded-2xl bg-surface-container-lowest p-3.5 tablet:p-4 dark:bg-surface-container-low border border-outline-variant/30 dark:border-outline-variant/40 shadow-level-1 min-h-0">
         <div className="flex-1 flex flex-col min-h-0">
           {/* Panel header */}
-          <div className="mb-3 flex items-center justify-between border-b border-outline-variant/15 pb-2.5 shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-level-1 shrink-0">
-                <Icon name="history" size={18} />
+          <div className="mb-2.5 flex items-center justify-between border-b border-outline-variant/15 pb-2 shrink-0">
+            <div className="flex items-center gap-1.5">
+              <span className="flex h-6 w-6 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-level-1 shrink-0">
+                <Icon name="history" size={15} />
               </span>
-              <h3 className="text-title-sm text-on-surface font-bold truncate">
+              <h3 className="text-body font-medium text-on-surface truncate">
                 Riwayat Perubahan Data
               </h3>
             </div>
-            <span className="text-label-caps font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20 shrink-0">
+            <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20 shrink-0">
               {history.length} Log
             </span>
           </div>
@@ -91,7 +91,7 @@ export function RecentActivityTimeline({
               />
             </div>
           ) : (
-            <div className="relative pl-3 flex-1 overflow-y-auto min-h-0 pr-1 space-y-2">
+            <div className="relative pl-3 flex-1 min-h-0 pr-1 space-y-2 overflow-hidden no-scrollbar">
               {/* Timeline bar */}
               <div className="absolute left-[5px] top-2 bottom-2 w-0.5 bg-outline-variant/30" />
               <ol className="space-y-2">
@@ -107,7 +107,7 @@ export function RecentActivityTimeline({
                             : 'border-primary bg-primary/20'
                         }`}
                       />
-                      <div className="rounded-xl border border-outline-variant/20 bg-surface-container-low/40 p-2.5 transition-all hover:bg-surface-container-high/40 shadow-2xs">
+                      <div className="rounded-xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-low/40 p-2 transition-all hover:bg-surface-container-high/40 shadow-xs">
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <span

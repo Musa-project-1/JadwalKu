@@ -54,6 +54,8 @@ export const STORAGE_KEYS = {
   courseLinks: 'courseLinks',
   krsPlans: 'krsPlans',
   showPrayerDividers: 'jadwal:showPrayerDividers',
+  ambientGlow: 'ambientGlow',
+  cardHighlight: 'cardHighlight',
 }
 
 /**

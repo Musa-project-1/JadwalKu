@@ -29,11 +29,11 @@ export function CourseToolbar({
   resetAllFilters,
 }) {
   return (
-    <div className="flex flex-col space-y-2.5 overflow-hidden">
+    <div className="relative flex flex-col gap-1.5 shrink-0 overflow-visible">
       {/* 1-Row Integrated Search & Dropdowns Toolbar */}
-      <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5 overflow-visible">
+      <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto no-scrollbar w-full pb-0.5 overflow-visible">
         {/* Compact Search Bar */}
-        <div className="relative flex-1 min-w-[200px] max-w-sm shrink-0 tablet:shrink">
+        <div className="relative flex-1 min-w-[160px] tablet:min-w-[200px] max-w-sm shrink-0 tablet:shrink">
           <Icon
             name="search"
             size={16}
@@ -43,9 +43,9 @@ export function CourseToolbar({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari kode MK, nama mata kuliah, dosen…"
+            placeholder="Cari MK, dosen, prodi…"
             aria-label="Cari mata kuliah"
-            className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 py-2 pl-8 pr-7 text-body-xs font-medium text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-level-1"
+            className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low/50 py-1.5 pl-8 pr-7 text-[12px] font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:bg-surface focus:outline-none dark:bg-surface-container-high/30 transition-all shadow-2xs"
           />
           {search && (
             <button
@@ -60,7 +60,7 @@ export function CourseToolbar({
         </div>
 
         {/* Filters Group */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <ProdiFilterDropdown
             selected={prodiFilter}
             onSelect={setProdiFilter}

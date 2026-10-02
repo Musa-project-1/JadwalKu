@@ -20,7 +20,7 @@ function ScheduleCardsImpl({
   const MAX_BADGES_M = 3
 
   return (
-    <div className="space-y-3 tablet:hidden">
+    <div className="space-y-2 tablet:hidden">
       {paginatedGroups.map((group) => {
         const item = group.items[0]
         const course = courseMap.get(item.kodeMK)
@@ -32,8 +32,8 @@ function ScheduleCardsImpl({
         return (
           <div
             key={group.key}
-            className={`rounded-2xl border bg-surface-container-lowest p-4 space-y-3 dark:bg-surface-container-low shadow-xs transition-all ${
-              isAllGroupSelected ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-outline-variant/20'
+            className={`rounded-2xl border bg-surface-container-lowest p-3 space-y-2.5 dark:bg-surface-container-low shadow-level-1 transition-all ${
+              isAllGroupSelected ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-outline-variant/30 dark:border-outline-variant/40'
             } ${anyClash ? 'border-red-500/40 bg-red-500/5' : ''}`}
           >
             {/* Header Row: Checkbox + Kode MK + Mata Kuliah + Action Toolbar */}
@@ -51,23 +51,23 @@ function ScheduleCardsImpl({
                     <span className={`font-mono text-label-caps font-bold px-2 py-0.5 rounded-md shrink-0 border shadow-2xs ${getCourseCodeBadgeClass(item.prodi, group.items.length > 1, item.kodeMK)}`}>
                       {item.kodeMK}
                     </span>
-                    <span className="font-bold text-body-sm text-on-surface truncate">
+                    <span className="font-bold text-body-sm text-on-surface line-clamp-2 leading-snug">
                       {course?.namaMK || item.kodeMK}
                     </span>
                   </div>
                   <p className="text-body-xs font-medium text-on-surface-variant mt-1 whitespace-normal break-words leading-snug flex items-start gap-1">
                     <Icon name="person" size={13} className="text-secondary shrink-0 mt-0.5" />
-                    <span className="min-w-0">{course?.dosen || 'Dosen belum ditentukan'}</span>
+                    <span className="min-w-0 line-clamp-1">{course?.dosen || 'Dosen belum ditentukan'}</span>
                   </p>
                 </div>
               </div>
 
               {/* Action buttons */}
-              <div className="flex shrink-0 items-center gap-0.5 rounded-xl bg-surface-container/60 p-0.5 border border-outline-variant/20">
+              <div className="flex shrink-0 items-center gap-0.5 rounded-xl bg-surface-container/60 p-0.5 border border-outline-variant/20 shadow-2xs">
                 <button
                   type="button"
                   onClick={() => onDuplicate(item)}
-                  className="p-1 text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer"
+                  className="p-1 text-on-surface-variant hover:text-sky-500 hover:bg-sky-500/10 rounded-lg transition-colors cursor-pointer"
                   title="Duplikat (wakil grup)"
                   aria-label="Duplikat"
                 >
@@ -79,7 +79,7 @@ function ScheduleCardsImpl({
                   className={`p-1 rounded-lg transition-colors cursor-pointer ${
                     group.items.length > 1
                       ? 'text-primary bg-primary/10 ring-1 ring-primary/20'
-                      : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-high'
+                      : 'text-on-surface-variant hover:text-primary hover:bg-primary/10'
                   }`}
                   title={group.items.length > 1 ? `Edit GRUP (${group.items.length} prodi sekaligus)` : 'Edit'}
                   aria-label="Edit grup"
@@ -92,7 +92,7 @@ function ScheduleCardsImpl({
                   className={`p-1 rounded-lg transition-colors cursor-pointer ${
                     group.items.length > 1
                       ? 'text-error bg-error/10 ring-1 ring-error/20'
-                      : 'text-on-surface-variant hover:text-error hover:bg-surface-container-high'
+                      : 'text-on-surface-variant hover:text-error hover:bg-error/10'
                   }`}
                   title={group.items.length > 1 ? `Hapus GRUP (${group.items.length} prodi)` : 'Hapus'}
                   aria-label="Hapus grup"
@@ -103,18 +103,18 @@ function ScheduleCardsImpl({
             </div>
 
             {/* Details Row: Chips & Badges */}
-            <div className="flex flex-wrap items-center gap-1.5 text-body-xs pt-1 border-t border-outline-variant/15">
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-container px-2 py-1 font-semibold text-on-surface">
+            <div className="flex flex-wrap items-center gap-1.5 text-body-xs pt-2 border-t border-outline-variant/15">
+              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-2.5 py-0.5 font-semibold text-on-surface border border-outline-variant/20 text-[11px]">
                 <Icon name="schedule" size={13} className="text-primary" />
                 <span>{item.hari}, {item.jamMulai} - {item.jamSelesai}</span>
               </span>
-              <span className="inline-flex flex-wrap items-center gap-1 rounded-lg bg-indigo-500/10 px-2 py-1 font-semibold text-indigo-700 dark:text-indigo-400">
+              <span className="inline-flex flex-wrap items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-0.5 font-semibold text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 text-[11px]">
                 <Icon name="school" size={13} className="shrink-0" />
                 <span className="flex flex-wrap gap-1 items-center">
                   {(isExpanded ? group.items : group.items.slice(0, MAX_BADGES_M)).map((it) => (
                     <span
                       key={it.id}
-                      className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[11px] border whitespace-nowrap ${getProdiColorClasses(it.prodi)}`}
+                      className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.2 text-[10.5px] border whitespace-nowrap ${getProdiColorClasses(it.prodi)}`}
                     >
                       {it.prodi} S{it.semester}
                     </span>
@@ -123,7 +123,7 @@ function ScheduleCardsImpl({
                     <button
                       type="button"
                       onClick={() => onToggleExpandGroup(group.key)}
-                      className="rounded-md bg-surface-container px-1.5 py-0.5 text-[11px] border border-outline-variant/30 cursor-pointer"
+                      className="rounded-full bg-surface-container px-1.5 py-0.2 text-[10.5px] border border-outline-variant/30 cursor-pointer"
                     >
                       +{group.items.length - MAX_BADGES_M} lainnya
                     </button>
@@ -132,7 +132,7 @@ function ScheduleCardsImpl({
                     <button
                       type="button"
                       onClick={() => onToggleExpandGroup(group.key)}
-                      className="text-primary underline text-[11px] cursor-pointer inline-flex items-center gap-0.5"
+                      className="text-primary underline text-[10.5px] cursor-pointer inline-flex items-center gap-0.5"
                     >
                       <Icon name="expand_less" size={11} /> ciutkan
                     </button>
@@ -151,7 +151,7 @@ function ScheduleCardsImpl({
                   {group.items.map((it) => (
                     <span
                       key={it.id}
-                      className="inline-flex items-center gap-1 rounded-lg bg-surface-container-low border border-outline-variant/20 px-2 py-1 text-[11px]"
+                      className="inline-flex items-center gap-1 rounded-full bg-surface-container-low border border-outline-variant/20 px-2 py-0.5 text-[11px]"
                     >
                       <span className="font-semibold">{it.prodi} S{it.semester}</span>
                       <button
@@ -175,7 +175,7 @@ function ScheduleCardsImpl({
                 </div>
               )}
 
-              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-container px-2 py-1 font-semibold text-on-surface-variant">
+              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-2.5 py-0.5 font-semibold text-on-surface-variant border border-outline-variant/20 text-[11px]">
                 <Icon name="meeting_room" size={13} />
                 <span>{formatRuang(item.ruang, item.tipeKelas)}</span>
               </span>

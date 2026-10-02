@@ -6,7 +6,7 @@ import { getItem, setItem, removeItem, STORAGE_KEYS } from '../lib/storage'
 import { AppContext } from '../hooks/useApp'
 import { translate, formatDayName } from '../lib/translations'
 
-function applyDocumentPreferences({ theme, fontSize, highContrast }) {
+function applyDocumentPreferences({ theme, fontSize, highContrast, ambientGlow = true, cardHighlight = true }) {
   const root = document.documentElement
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
   const isDark = theme === 'dark' || (theme === 'system' && prefersDark)
@@ -14,6 +14,8 @@ function applyDocumentPreferences({ theme, fontSize, highContrast }) {
   root.classList.remove('font-sm', 'font-md', 'font-lg', 'font-xl')
   root.classList.add(`font-${fontSize}`)
   root.classList.toggle('high-contrast', Boolean(highContrast))
+  root.classList.toggle('ambient-glow', Boolean(ambientGlow))
+  root.classList.toggle('card-highlight', Boolean(cardHighlight))
 }
 
 function updatePreferencesWithTransition(prefs) {
@@ -64,6 +66,12 @@ export function AppProvider({ children }) {
   const [showPrayerDividers, setShowPrayerDividersState] = useState(() =>
     getItem(STORAGE_KEYS.showPrayerDividers, true),
   )
+  const [ambientGlow, setAmbientGlowState] = useState(() =>
+    getItem(STORAGE_KEYS.ambientGlow, true),
+  )
+  const [cardHighlight, setCardHighlightState] = useState(() =>
+    getItem(STORAGE_KEYS.cardHighlight, true),
+  )
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [settingsModalTab, setSettingsModalTab] = useState('appearance')
   const [adminSettingsModalOpen, setAdminSettingsModalOpen] = useState(false)
@@ -74,19 +82,19 @@ export function AppProvider({ children }) {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
-      applyDocumentPreferences({ theme, fontSize, highContrast })
+      applyDocumentPreferences({ theme, fontSize, highContrast, ambientGlow, cardHighlight })
     } else {
-      updatePreferencesWithTransition({ theme, fontSize, highContrast })
+      updatePreferencesWithTransition({ theme, fontSize, highContrast, ambientGlow, cardHighlight })
     }
-  }, [theme, fontSize, highContrast])
+  }, [theme, fontSize, highContrast, ambientGlow, cardHighlight])
 
   useEffect(() => {
     if (theme !== 'system') return undefined
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => updatePreferencesWithTransition({ theme, fontSize, highContrast })
+    const onChange = () => updatePreferencesWithTransition({ theme, fontSize, highContrast, ambientGlow, cardHighlight })
     media.addEventListener('change', onChange)
     return () => media.removeEventListener('change', onChange)
-  }, [theme, fontSize, highContrast])
+  }, [theme, fontSize, highContrast, ambientGlow, cardHighlight])
 
   // C5: Stale semester guard – if saved program/semester out of range for that prodi (e.g. switch BD Sem8 -> IF max 6), clear it
   useEffect(() => {
@@ -174,6 +182,16 @@ export function AppProvider({ children }) {
         setShowPrayerDividersState(next)
         setItem(STORAGE_KEYS.showPrayerDividers, next)
       },
+      ambientGlow,
+      setAmbientGlow: (next) => {
+        setAmbientGlowState(next)
+        setItem(STORAGE_KEYS.ambientGlow, next)
+      },
+      cardHighlight,
+      setCardHighlight: (next) => {
+        setCardHighlightState(next)
+        setItem(STORAGE_KEYS.cardHighlight, next)
+      },
       settingsModalOpen,
       settingsModalTab,
       openSettings: (tab = 'appearance') => {
@@ -190,7 +208,7 @@ export function AppProvider({ children }) {
       closeAdminSettings: () => setAdminSettingsModalOpen(false),
       firebaseReady,
     }),
-    [theme, language, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession, showPrayerDividers, settingsModalOpen, settingsModalTab, adminSettingsModalOpen, adminSettingsModalTab],
+    [theme, language, fontSize, highContrast, kampusId, fakultasId, fakultasNama, program, semester, adminSession, showPrayerDividers, ambientGlow, cardHighlight, settingsModalOpen, settingsModalTab, adminSettingsModalOpen, adminSettingsModalTab],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

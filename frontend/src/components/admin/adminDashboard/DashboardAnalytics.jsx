@@ -14,11 +14,11 @@ const CLASS_TYPE_META = {
 export function DashboardAnalytics({ dayBreakdown, classTypeBreakdown }) {
   return (
     <section
-      className="desktop:col-span-5 h-full flex flex-col justify-between gap-3 min-h-0 order-1 desktop:order-2"
+      className="flex flex-col justify-between gap-3 min-h-0 order-1 desktop:order-2 desktop:col-span-5 desktop:h-full"
       aria-label="Ringkasan Analitik Sistem"
     >
       {/* Panel 1: Sebaran Sesi per Hari */}
-      <div className="rounded-2xl bg-surface-container-lowest p-3.5 tablet:p-4 dark:bg-surface-container-low border border-outline-variant/20 shadow-level-1 flex-1 flex flex-col justify-between min-h-0">
+      <div className="rounded-2xl bg-surface-container-lowest p-3.5 tablet:p-4 dark:bg-surface-container-low border border-outline-variant/30 dark:border-outline-variant/40 shadow-level-1 flex-1 flex flex-col justify-between min-h-0">
         <div>
           <div className="mb-2.5 flex items-center justify-between border-b border-outline-variant/15 pb-2 shrink-0">
             <div className="flex items-center gap-2">
@@ -42,7 +42,7 @@ export function DashboardAnalytics({ dayBreakdown, classTypeBreakdown }) {
                 </div>
                 <div className="h-1.5 w-full rounded-full bg-surface-container-high/60 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-primary transition-all duration-300"
+                    className="h-full rounded-full bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-300 shadow-[0_0_10px_rgba(20,184,166,0.45)] transition-all duration-300"
                     style={{ width: `${item.percent}%` }}
                   />
                 </div>
@@ -53,7 +53,7 @@ export function DashboardAnalytics({ dayBreakdown, classTypeBreakdown }) {
       </div>
 
       {/* Panel 2: Komposisi Tipe Kelas */}
-      <div className="rounded-2xl bg-surface-container-lowest p-3.5 tablet:p-4 dark:bg-surface-container-low border border-outline-variant/20 shadow-level-1 flex-1 flex flex-col justify-between min-h-0">
+      <div className="rounded-2xl bg-surface-container-lowest p-3.5 tablet:p-4 dark:bg-surface-container-low border border-outline-variant/30 dark:border-outline-variant/40 shadow-level-1 flex-1 flex flex-col justify-between min-h-0">
         <div>
           <div className="mb-2.5 flex items-center justify-between border-b border-outline-variant/15 pb-2 shrink-0">
             <div className="flex items-center gap-2">

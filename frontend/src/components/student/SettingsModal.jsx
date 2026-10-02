@@ -28,6 +28,10 @@ export function SettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, initi
     semester,
     showPrayerDividers,
     setShowPrayerDividers,
+    ambientGlow,
+    setAmbientGlow,
+    cardHighlight,
+    setCardHighlight,
   } = useApp()
 
   const [activeTab, setActiveTab] = useState(initialTab)
@@ -174,6 +178,10 @@ export function SettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, initi
                 setHighContrast={setHighContrast}
                 showPrayerDividers={showPrayerDividers}
                 setShowPrayerDividers={setShowPrayerDividers}
+                ambientGlow={ambientGlow}
+                setAmbientGlow={setAmbientGlow}
+                cardHighlight={cardHighlight}
+                setCardHighlight={setCardHighlight}
               />
             )}
 

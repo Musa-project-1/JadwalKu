@@ -47,7 +47,7 @@ export default function AdminDashboard() {
     [history],
   )
 
-  const recentHistory = useMemo(() => sortedHistory.slice(0, 5), [sortedHistory])
+  const recentHistory = useMemo(() => sortedHistory.slice(0, 7), [sortedHistory])
 
   const dayBreakdown = useMemo(() => {
     const counts = DAY_ORDER.map((day) => ({
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
       )}
 
       {/* ── 2. Grid Dashboard 2-Kolom Seimbang (Zero-Scroll 1 Layar) ── */}
-      <div className="flex-1 flex flex-col min-h-0 grid gap-3.5 tablet:gap-4 desktop:grid-cols-12 desktop:items-stretch overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 gap-3.5 tablet:gap-4 desktop:grid desktop:grid-cols-12 desktop:items-stretch overflow-y-auto desktop:overflow-hidden">
         {/* Kolom Kiri (span-7): Riwayat Aktivitas Sistem */}
         <RecentActivityTimeline
           history={history}

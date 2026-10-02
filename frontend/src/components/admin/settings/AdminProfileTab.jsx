@@ -16,7 +16,7 @@ export function AdminProfileTab({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-5 space-y-4 shadow-2xs">
+      <div className="rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low p-5 space-y-4 shadow-level-1">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
             <Icon name="admin_panel_settings" size={32} />
@@ -36,7 +36,7 @@ export function AdminProfileTab({
           </div>
         </div>
 
-        <div className="border-t border-outline-variant/20 pt-4 flex items-center justify-between">
+        <div className="border-t border-outline-variant/20 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <span className="text-body-xs font-semibold text-on-surface">Sesi Login</span>
             <p className="text-[11.5px] text-on-surface-variant">Keluar dari mode admin dan kembali ke beranda mahasiswa</p>
@@ -44,7 +44,7 @@ export function AdminProfileTab({
           <button
             type="button"
             onClick={signOutAdmin}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-error/10 hover:bg-error/20 text-error text-body-xs font-bold transition-all cursor-pointer"
+            className="flex h-8 items-center justify-center gap-1.5 px-3.5 rounded-xl bg-error/10 hover:bg-error/20 text-error text-body-xs font-bold transition-all cursor-pointer shrink-0"
           >
             <Icon name="logout" size={16} />
             <span>Keluar Akun Admin</span>

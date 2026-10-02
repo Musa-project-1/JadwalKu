@@ -296,7 +296,7 @@ export default function ManageCourses() {
   }
 
   return (
-    <div className="flex flex-col space-y-2 pb-16 tablet:pb-0 animate-fade-in w-full max-w-full overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-0 w-full max-w-full overflow-y-auto desktop:overflow-hidden pb-16 tablet:pb-0 animate-fade-in">
       {banner && (
         <div className="shrink-0">
           <StatusBanner
@@ -308,14 +308,14 @@ export default function ManageCourses() {
       )}
 
       {/* ── Single Unified Card Container (No double rounded corners) ── */}
-      <AdminPageCard>
+      <AdminPageCard className="desktop:h-full">
         <CourseHeader
           exportCoursesToExcel={exportCoursesToExcel}
           openAddModal={openAddModal}
         />
 
         {/* ── 2. Live Database Course Management ── */}
-        <div className="p-3 tablet:p-3.5 flex flex-col space-y-2.5 overflow-hidden">
+        <div className="p-3 tablet:p-3.5 flex-1 flex flex-col min-h-0 space-y-2.5 overflow-visible desktop:overflow-hidden">
           <CourseToolbar
             search={search}
             setSearch={setSearch}

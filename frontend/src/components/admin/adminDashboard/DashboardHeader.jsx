@@ -17,9 +17,9 @@ export function DashboardHeader({
       label: 'Prodi',
       count: counts.prodi,
       icon: 'school',
-      iconClass: 'bg-status-k1-bg text-status-k1 border-status-k1-border/50',
-      borderHover: 'hover:border-status-k1',
-      textClass: 'text-status-k1',
+      iconClass: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40',
+      pillClass: 'bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/25 hover:border-emerald-500/40',
+      textClass: 'text-emerald-700 dark:text-emerald-300',
       title: 'Total Program Studi Aktif',
     },
     {
@@ -27,9 +27,9 @@ export function DashboardHeader({
       label: 'MK',
       count: counts.mk,
       icon: 'menu_book',
-      iconClass: 'bg-status-k2-bg text-status-k2 border-status-k2-border/50',
-      borderHover: 'hover:border-status-k2',
-      textClass: 'text-status-k2',
+      iconClass: 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border-sky-500/40',
+      pillClass: 'bg-sky-500/5 hover:bg-sky-500/10 border-sky-500/25 hover:border-sky-500/40',
+      textClass: 'text-sky-700 dark:text-sky-300',
       title: 'Total Master Mata Kuliah',
     },
     {
@@ -37,9 +37,9 @@ export function DashboardHeader({
       label: 'Jadwal',
       count: counts.jadwal,
       icon: 'calendar_month',
-      iconClass: 'bg-status-hb-bg text-status-hb border-status-hb-border/50',
-      borderHover: 'hover:border-status-hb',
-      textClass: 'text-status-hb',
+      iconClass: 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/40',
+      pillClass: 'bg-purple-500/5 hover:bg-purple-500/10 border-purple-500/25 hover:border-purple-500/40',
+      textClass: 'text-purple-700 dark:text-purple-300',
       title: 'Total Sesi Jadwal Kuliah',
     },
     {
@@ -47,15 +47,16 @@ export function DashboardHeader({
       label: 'Ujian',
       count: counts.ujian,
       icon: 'event_note',
-      iconClass: 'bg-status-gbk-bg text-status-gbk border-status-gbk-border/50',
-      borderHover: 'hover:border-status-gbk',
-      textClass: 'text-status-gbk',
+      iconClass: 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40',
+      pillClass: 'bg-amber-500/5 hover:bg-amber-500/10 border-amber-500/25 hover:border-amber-500/40',
+      textClass: 'text-amber-700 dark:text-amber-300',
       title: 'Total Jadwal Ujian (UTS/UAS)',
     },
   ]
 
   return (
-    <header className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 tablet:px-5 tablet:py-3.5 shadow-level-1 flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4 w-full shrink-0">
+    <header className="relative overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 tablet:px-5 tablet:py-3.5 shadow-level-1 flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4 w-full shrink-0">
+      <div className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" aria-hidden="true" />
       {/* Kolom Kiri: Greeting + Meta Badges */}
       <div className="flex items-center gap-3.5 min-w-0 flex-1">
         <div
@@ -93,13 +94,13 @@ export function DashboardHeader({
               key={m.label}
               type="button"
               onClick={() => navigate(m.to)}
-              className={`flex items-center justify-center desktop:justify-start gap-2 rounded-xl bg-surface-container-low dark:bg-surface-container border border-outline-variant/30 px-2.5 tablet:px-3 py-1.5 shadow-2xs cursor-pointer group ${m.borderHover} transition-all`}
+              className={`flex flex-col desktop:flex-row items-center desktop:justify-start gap-1 desktop:gap-2 rounded-xl border ${m.pillClass} px-1.5 desktop:px-3 py-1.5 shadow-2xs cursor-pointer group transition-all`}
               title={m.title}
             >
               <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${m.iconClass} font-bold shrink-0 border`}>
                 <Icon name={m.icon} size={15} />
               </span>
-              <div className="text-left min-w-0">
+              <div className="text-center desktop:text-left min-w-0">
                 <p className="text-body-sm font-bold text-on-surface leading-none truncate">
                   {m.count === null || m.count === undefined ? (
                     <span className="inline-block h-3.5 w-6 rounded-sm bg-surface-container-high animate-pulse" />

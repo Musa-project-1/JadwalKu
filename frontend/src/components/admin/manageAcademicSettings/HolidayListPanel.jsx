@@ -17,7 +17,7 @@ export function HolidayListPanel({
   onDeleteTarget,
 }) {
   return (
-    <section className="h-full flex flex-col justify-between rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 tablet:p-5 shadow-xs dark:bg-surface-container-low min-h-0 space-y-3">
+    <section className="flex flex-col rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low p-4 tablet:p-5 shadow-level-1 min-h-0 space-y-3">
       <div className="flex-1 flex flex-col space-y-3 min-h-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/15 pb-3">
           <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -34,21 +34,21 @@ export function HolidayListPanel({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 tablet:gap-2 shrink-0">
             <button
               type="button"
               onClick={onOpenSyncModal}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container-low/60 px-3 py-1.5 text-[11.5px] font-bold text-on-surface hover:border-blue-500 hover:text-blue-700 transition-colors cursor-pointer shadow-2xs"
+              className="flex h-8 items-center gap-1.5 rounded-xl border border-sky-500/30 bg-sky-500/10 px-3 text-body-xs font-bold text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 active:scale-95 transition-all cursor-pointer shadow-level-1 shrink-0"
               title="Impor Libur Resmi Nasional Otomatis"
             >
-              <Icon name="cloud_sync" size={14} className="text-blue-600 dark:text-blue-400" />
+              <Icon name="cloud_sync" size={15} />
               <span>Sinkron Libur</span>
             </button>
 
             <button
               type="button"
               onClick={onOpenAddModal}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3.5 py-1.5 text-[11.5px] font-bold text-on-secondary shadow-xs hover:bg-secondary/90 transition-colors cursor-pointer"
+              className="flex h-8 items-center gap-1 rounded-xl bg-primary px-3 text-body-xs font-bold text-on-primary shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer shrink-0"
               title="Tambah Hari Libur"
               aria-label="Tambah Libur"
             >
@@ -117,7 +117,7 @@ export function HolidayListPanel({
               return (
                 <div
                   key={h.id}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low/50 p-3 tablet:p-3.5 dark:bg-surface-container-high/20 transition-all hover:border-secondary/30 shadow-2xs border-l-4 border-l-blue-600"
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-low/50 p-3 tablet:p-3.5 dark:bg-surface-container-high/20 transition-all hover:border-secondary/40 shadow-xs border-l-4 border-l-blue-600"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">

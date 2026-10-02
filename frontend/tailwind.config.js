@@ -134,10 +134,13 @@ export default {
         'label-caps': ['11px', { lineHeight: '16px', letterSpacing: '0.04em', fontWeight: '700' }],
       },
       boxShadow: {
+        '2xs': '0 1px 2px 0 rgb(0 0 0 / 0.08)',
+        xs: '0 1px 3px 0 rgb(0 0 0 / 0.12), 0 1px 2px -1px rgb(0 0 0 / 0.08)',
+        card: '0 2px 8px -1px rgb(0 0 0 / 0.1), 0 1px 3px 0 rgb(0 0 0 / 0.06)',
         'level-1':
-          '0 1px 2px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.08)',
-        'level-2': '0 12px 32px rgb(0 0 0 / 0.08)',
-        'level-3': '0 8px 24px rgb(0 0 0 / 0.14)',
+          '0 2px 6px -1px rgb(0 0 0 / 0.12), 0 1px 4px -1px rgb(0 0 0 / 0.08)',
+        'level-2': '0 10px 25px -3px rgb(0 0 0 / 0.15), 0 4px 10px -2px rgb(0 0 0 / 0.08)',
+        'level-3': '0 20px 40px -4px rgb(0 0 0 / 0.2), 0 8px 16px -3px rgb(0 0 0 / 0.12)',
       },
     },
   },

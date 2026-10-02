@@ -42,7 +42,7 @@ function CourseTableImpl({
   }, [activeMenuId])
 
   return (
-    <div className="hidden overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-2xs tablet:block dark:bg-surface-container-low w-full">
+    <div className="hidden overflow-hidden flex-1 min-h-0 rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest shadow-level-1 tablet:block dark:bg-surface-container-low w-full">
       <table className="w-full table-fixed text-left border-collapse">
         <colgroup>
           <col style={{ width: '4%' }} />
@@ -64,27 +64,27 @@ function CourseTableImpl({
                 aria-label="Pilih Semua"
               />
             </th>
-            <th className="px-3 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
+            <th className="px-3 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-medium">
               Kode MK
             </th>
-            <th className="px-3 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
+            <th className="px-3 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-medium">
               Mata Kuliah
             </th>
-            <th className="px-2.5 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium text-center">
+            <th className="px-2.5 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-medium text-center">
               Semester
             </th>
-            <th className="px-3 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
+            <th className="px-3 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-medium">
               Dosen Pengampu
             </th>
-            <th className="px-2.5 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium text-center">
+            <th className="px-2.5 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-medium text-center">
               Bobot
             </th>
-            <th className="px-2.5 py-2.5 text-[11px] uppercase tracking-wider text-on-surface-variant font-medium text-right">
+            <th className="px-2.5 py-2 text-[10.5px] uppercase tracking-wider text-on-surface-variant font-medium text-right">
               Aksi
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-outline-variant/10">
+        <tbody className="divide-y divide-outline-variant/15 dark:divide-outline-variant/25">
           {courses.map((course) => {
             const semester = getCourseSemester(course)
             const isMenuOpen = activeMenuId === course.id
@@ -99,7 +99,6 @@ function CourseTableImpl({
                     ? 'bg-primary/5 dark:bg-primary/10'
                     : 'hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/20'
                 }`}
-                style={{ borderTop: '0.5px solid var(--color-outline-variant, rgba(120, 120, 120, 0.15))' }}
               >
                 {/* Checkbox */}
                 <td className="px-2 py-[9px] text-center align-middle">

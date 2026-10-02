@@ -14,8 +14,7 @@
 export function PageCard({ children, className = '' }) {
   return (
     <div
-      className={`rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low shadow-xs flex-1 flex flex-col min-h-0 w-full max-w-full overflow-hidden ${className}`}
-      style={{ border: '0.5px solid var(--color-outline-variant, rgba(120, 120, 120, 0.2))' }}
+      className={`rounded-2xl border border-outline-variant/30 dark:border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-1 flex-1 flex flex-col min-h-0 w-full max-w-full overflow-hidden ${className}`}
     >
       {children}
     </div>

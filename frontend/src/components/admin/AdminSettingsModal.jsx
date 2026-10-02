@@ -21,7 +21,23 @@ import { AdminSettingsSubModals } from './settings/AdminSettingsSubModals'
 
 export function AdminSettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, initialTab = 'appearance' }) {
   const isOpen = rawIsOpen ?? rawOpen ?? false
-  const { theme, setTheme, language, setLanguage, fontSize, setFontSize, highContrast, setHighContrast, t } = useApp()
+  const {
+    theme,
+    setTheme,
+    language,
+    setLanguage,
+    fontSize,
+    setFontSize,
+    highContrast,
+    setHighContrast,
+    showPrayerDividers,
+    setShowPrayerDividers,
+    ambientGlow,
+    setAmbientGlow,
+    cardHighlight,
+    setCardHighlight,
+    t,
+  } = useApp()
   const { user, signOutAdmin } = useAdminAuth()
   const actor = user?.email || ''
 
@@ -270,7 +286,7 @@ export function AdminSettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, 
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-body-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                      className={`flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-body-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                         isActive
                           ? 'bg-primary text-on-primary shadow-level-1'
                           : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
@@ -280,6 +296,15 @@ export function AdminSettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, 
                         <Icon name={tab.icon} size={17} className={isActive ? 'text-on-primary' : 'text-primary'} />
                         <span>{tab.label}</span>
                       </div>
+                      {tab.badge && (
+                        <span className={`hidden desktop:inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold border ${
+                          isActive
+                            ? 'bg-white/20 text-white border-white/30'
+                            : 'bg-primary/10 text-primary border-primary/20'
+                        }`}>
+                          {tab.badge}
+                        </span>
+                      )}
                     </button>
                   )
                 })}
@@ -303,6 +328,12 @@ export function AdminSettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, 
                   setFontSize={setFontSize}
                   highContrast={highContrast}
                   setHighContrast={setHighContrast}
+                  showPrayerDividers={showPrayerDividers}
+                  setShowPrayerDividers={setShowPrayerDividers}
+                  ambientGlow={ambientGlow}
+                  setAmbientGlow={setAmbientGlow}
+                  cardHighlight={cardHighlight}
+                  setCardHighlight={setCardHighlight}
                   t={t}
                 />
               )}

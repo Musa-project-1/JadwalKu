@@ -1,5 +1,4 @@
 import { Icon } from '../../Icon'
-import { Button } from '../../Button'
 
 export function ExamHeader({
   stats,
@@ -51,15 +50,16 @@ export function ExamHeader({
           </div>
         </div>
 
-        <Button
+        <button
+          type="button"
           onClick={onOpenAdd}
-          className="rounded-full px-4 py-1.5 font-bold shadow-xs cursor-pointer text-body-xs shrink-0 bg-primary text-on-primary"
+          className="flex h-8 items-center justify-center gap-1 rounded-xl bg-primary px-3 text-body-xs font-bold text-on-primary shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer shrink-0 w-full tablet:w-auto"
           title="Tambah Jadwal Ujian"
           aria-label="Tambah Ujian"
         >
-          <Icon name="add" size={16} className="mr-1" />
+          <Icon name="add" size={16} />
           <span>Tambah Ujian</span>
-        </Button>
+        </button>
       </div>
     </header>
   )
