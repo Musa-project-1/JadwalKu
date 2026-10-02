@@ -183,6 +183,7 @@ export const id = {
     'print.layout_format': 'Format Tata Letak',
     'print.action_btn': 'Cetak / Simpan PDF',
     'print.header_note': 'Nama / Catatan Header',
+    'print.header_placeholder': 'Misal: Nama (NIM) atau Catatan',
     'print.badge_ink_friendly': 'Format A4 Bersih',
     'print.cancel': 'Batal',
     'print.format_wall': 'Meja',

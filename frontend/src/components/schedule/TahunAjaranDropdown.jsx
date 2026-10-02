@@ -1,9 +1,23 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Icon } from '../../components/Icon'
 
-export default function TahunAjaranDropdown({ selectedTA, onSelect, currentTA, allTAs, className = '' }) {
+export default function TahunAjaranDropdown({
+  selectedTA,
+  onSelect,
+  currentTA,
+  allTAs,
+  className = '',
+  align = 'auto',
+}) {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef(null)
+
+  const alignClasses =
+    align === 'left'
+      ? 'left-0'
+      : align === 'right'
+        ? 'right-0'
+        : 'left-0 tablet:right-0'
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -65,7 +79,7 @@ export default function TahunAjaranDropdown({ selectedTA, onSelect, currentTA, a
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 z-40 min-w-[230px] overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest/95 backdrop-blur-xl dark:bg-surface-container-high/95 shadow-level-3 p-1.5 animate-fade-up">
+        <div className={`absolute ${alignClasses} top-full mt-2 z-40 min-w-[220px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest/95 backdrop-blur-xl dark:bg-surface-container-high/95 shadow-level-3 p-1.5 animate-fade-up`}>
           <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/70 border-b border-outline-variant/15 mb-1">
             Pilih Tahun Ajaran
           </div>

@@ -82,17 +82,18 @@ export function SettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, initi
   if (!isOpen) return null
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="settings-modal-title"
-      onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-6 bg-black/65 backdrop-blur-xs animate-fade-in"
-    >
+    <>
       <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative flex flex-col w-full max-w-4xl h-[92vh] max-h-[720px] rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-3 overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-modal-title"
+        onClick={onClose}
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 tablet:p-6 bg-black/65 backdrop-blur-xs animate-fade-in"
       >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative flex flex-col w-full max-w-4xl h-[92vh] max-h-[720px] rounded-3xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-3 overflow-hidden"
+        >
         {/* Modal Top Header */}
         <header className="flex items-center justify-between px-5 py-3.5 border-b border-outline-variant/20 bg-surface-container-low/40 dark:bg-surface-container-high/30 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
@@ -212,9 +213,10 @@ export function SettingsModal({ isOpen: rawIsOpen, open: rawOpen, onClose, initi
           </main>
         </div>
       </div>
-
-      {/* Modal Pusat Panduan Fitur */}
-      <FeatureDocsModal isOpen={showDocsModal} onClose={() => setShowDocsModal(false)} mode="student" />
     </div>
-  )
+
+    {/* Modal Pusat Panduan Fitur */}
+    <FeatureDocsModal isOpen={showDocsModal} onClose={() => setShowDocsModal(false)} mode="student" />
+  </>
+)
 }

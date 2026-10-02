@@ -1,6 +1,5 @@
 import { useMemo, useEffect } from 'react'
 import { Icon } from '../Icon'
-import { Button } from '../Button'
 import { useAttendance } from '../../hooks/useAttendance'
 import { useApp } from '../../hooks/useApp'
 
@@ -95,17 +94,17 @@ export function AttendanceOverviewModal({
         className="relative w-full max-w-5xl max-h-[92vh] tablet:max-h-[88vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up overflow-hidden"
       >
         {/* Header Modal - Gradient Forest/Emerald Theme */}
-        <header className="flex items-center justify-between p-4 tablet:p-5 border-b border-outline-variant/20 shrink-0 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-xs">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
-              <Icon name="fact_check" size={22} />
+        <header className="flex items-center justify-between p-3 tablet:p-5 border-b border-outline-variant/20 shrink-0 bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 text-white shadow-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white border border-white/20 shadow-xs">
+              <Icon name="fact_check" size={20} />
             </div>
             <div className="min-w-0">
-              <h3 id="attendance-overview-title" className="text-title-sm tablet:text-title-md font-bold text-white tracking-tight truncate">
-                {language === 'en' ? 'Attendance & Absence Allowance' : 'Rekap Presensi & Sisa Jatah Absen'}
+              <h3 id="attendance-overview-title" className="text-title-sm tablet:text-title-md font-black text-white tracking-tight truncate">
+                {language === 'en' ? 'Attendance & Absence Allowance' : 'Rekap Presensi & Jatah UAS'}
               </h3>
-              <p className="text-body-xs text-white/80 font-medium truncate mt-0.5">
-                {language === 'en' ? 'Final exam eligibility: Min 75% attendance (Max 4 absences of 16 sessions)' : 'Syarat kelulusan UAS: Minimal 75% kehadiran (Maksimal 4x absen dari 16 pertemuan)'}
+              <p className="text-[11px] tablet:text-body-xs text-white/80 font-medium truncate mt-0.5">
+                {language === 'en' ? 'Final exam eligibility: Min 75% attendance (Max 4 absences)' : 'Syarat UAS: Min. 75% kehadiran (Maks. 4x absen)'}
               </p>
             </div>
           </div>
@@ -113,53 +112,55 @@ export function AttendanceOverviewModal({
             type="button"
             onClick={onClose}
             aria-label={t ? t('action.close') : 'Tutup modal'}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
           >
-            <Icon name="close" size={20} />
+            <Icon name="close" size={18} />
           </button>
         </header>
 
-        {/* Summary Metric Cards */}
-        <div className="p-4 bg-surface-container-low/50 dark:bg-surface-container-high/20 border-b border-outline-variant/15 grid grid-cols-3 gap-3 shrink-0">
-          <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 text-center shadow-2xs">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant">Total Matkul</p>
-            <p className="text-xl tablet:text-2xl font-black text-on-surface mt-0.5">{uniqueCourses.length}</p>
-          </div>
-          
-          <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low p-3.5 text-center shadow-2xs">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant">Rata-rata Hadir</p>
-            <p className={`text-xl tablet:text-2xl font-black mt-0.5 ${overallStats.avgPercent >= 75 ? 'text-emerald-600 dark:text-emerald-400' : 'text-error'}`}>
-              {overallStats.avgPercent}%
-            </p>
-          </div>
+        {/* Summary Metric Strip */}
+        <div className="p-2.5 tablet:p-3 bg-surface-container-low/50 dark:bg-surface-container-high/20 border-b border-outline-variant/15 shrink-0">
+          <div className="rounded-xl tablet:rounded-2xl border border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low grid grid-cols-3 divide-x divide-outline-variant/20 shadow-2xs">
+            <div className="p-2 tablet:p-3 text-center">
+              <p className="text-[10px] tablet:text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant truncate">Total Matkul</p>
+              <p className="text-base tablet:text-xl font-black text-on-surface mt-0.5 leading-none">{uniqueCourses.length}</p>
+            </div>
+            
+            <div className="p-2 tablet:p-3 text-center">
+              <p className="text-[10px] tablet:text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant truncate">Rata-rata</p>
+              <p className={`text-base tablet:text-xl font-black mt-0.5 leading-none ${overallStats.avgPercent >= 75 ? 'text-emerald-600 dark:text-emerald-400' : 'text-error'}`}>
+                {overallStats.avgPercent}%
+              </p>
+            </div>
 
-          <div className={`rounded-2xl border p-3.5 text-center shadow-2xs ${
-            overallStats.criticalCount > 0
-              ? 'border-error/40 bg-error/15 text-error ring-1 ring-error/25'
-              : overallStats.warningCount > 0
-              ? 'border-amber-500/40 bg-amber-500/15 text-amber-900 dark:text-amber-300 ring-1 ring-amber-500/25'
-              : 'border-emerald-500/40 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 ring-1 ring-emerald-500/25'
-          }`}>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider">Status Absensi</p>
-            <p className="text-xl tablet:text-2xl font-black mt-0.5">
-              {overallStats.criticalCount > 0
-                ? `${overallStats.criticalCount} Kritis`
+            <div className={`p-2 tablet:p-3 text-center rounded-r-xl tablet:rounded-r-2xl ${
+              overallStats.criticalCount > 0
+                ? 'bg-error/10 text-error'
                 : overallStats.warningCount > 0
-                ? `${overallStats.warningCount} Waspada`
-                : '100% Aman'}
-            </p>
+                ? 'bg-amber-500/10 text-amber-900 dark:text-amber-300'
+                : 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300'
+            }`}>
+              <p className="text-[10px] tablet:text-[11px] font-extrabold uppercase tracking-wider truncate">Status UAS</p>
+              <p className="text-base tablet:text-xl font-black mt-0.5 leading-none truncate">
+                {overallStats.criticalCount > 0
+                  ? `${overallStats.criticalCount} Kritis`
+                  : overallStats.warningCount > 0
+                  ? `${overallStats.warningCount} Waspada`
+                  : '100% Aman'}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Course Attendance List - 2-Column Responsive Grid on Tablet/Desktop */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 tablet:p-5 custom-scrollbar">
+        {/* Course Attendance List - Responsive Grid */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-2.5 tablet:p-4 custom-scrollbar">
           {uniqueCourses.length === 0 ? (
             <div className="py-12 text-center text-on-surface-variant">
               <Icon name="event_busy" size={36} className="mx-auto text-outline-variant" />
               <p className="text-body-sm font-semibold mt-2">Belum ada mata kuliah aktif pada jadwal</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3.5">
+            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2.5 tablet:gap-3">
               {uniqueCourses.map((c) => {
                 const att = getCourseAttendance(c.kodeMK)
                 const isDanger = att.statusTier === 'danger'
@@ -168,7 +169,7 @@ export function AttendanceOverviewModal({
                 return (
                   <div
                     key={c.kodeMK}
-                    className={`rounded-2xl border p-4 shadow-2xs transition-all flex flex-col justify-between space-y-3 ${
+                    className={`rounded-xl tablet:rounded-2xl border p-2.5 tablet:p-3.5 shadow-2xs transition-all space-y-2 ${
                       isDanger
                         ? 'border-error/40 bg-error/5 dark:bg-error/10 ring-1 ring-error/25'
                         : isWarning
@@ -176,69 +177,71 @@ export function AttendanceOverviewModal({
                         : 'border-outline-variant/25 bg-surface-container-lowest dark:bg-surface-container-low'
                     }`}
                   >
-                    <div>
-                      {/* Top Header Card */}
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                            <span className="font-mono text-[10px] font-extrabold text-primary bg-primary/10 border border-primary/25 px-2 py-0.5 rounded-md">
-                              {c.kodeMK}
-                            </span>
-                            <span className="text-[10.5px] font-bold text-on-surface-variant">
-                              {c.sks} SKS
-                            </span>
-                          </div>
-                          <h4 className="font-extrabold text-body-sm text-on-surface leading-snug truncate">
-                            {c.namaMK}
-                          </h4>
-                          <p className="text-[11px] text-on-surface-variant font-medium truncate mt-0.5">
-                            {c.dosen}
-                          </p>
-                        </div>
-
-                        {/* Allowance Badge */}
-                        <div className="shrink-0">
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-extrabold shadow-2xs ${
-                              isDanger
-                                ? 'bg-error text-white'
-                                : isWarning
-                                ? 'bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/40'
-                                : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
-                            }`}
-                          >
-                            <Icon
-                              name={isDanger ? 'error' : isWarning ? 'warning' : 'check_circle'}
-                              size={13}
-                            />
-                            <span>
-                              {isDanger
-                                ? 'Jatah Habis (0x)!'
-                                : `Sisa Jatah: ${att.remainingAbsences}x`}
-                            </span>
-                          </span>
-                        </div>
+                    {/* Row 1: Code, SKS, Allowance Badge */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="font-mono text-[10px] font-black text-primary bg-primary/10 border border-primary/25 px-1.5 py-0.5 rounded-md shrink-0">
+                          {c.kodeMK}
+                        </span>
+                        <span className="text-[10.5px] font-bold text-on-surface-variant shrink-0">
+                          {c.sks} SKS
+                        </span>
                       </div>
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10.5px] font-black shadow-2xs shrink-0 ${
+                          isDanger
+                            ? 'bg-error text-white'
+                            : isWarning
+                            ? 'bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/40'
+                            : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
+                        }`}
+                      >
+                        <Icon
+                          name={isDanger ? 'error' : isWarning ? 'warning' : 'check_circle'}
+                          size={12}
+                        />
+                        <span>
+                          {isDanger
+                            ? 'Jatah Habis (0x)!'
+                            : `Sisa Jatah: ${att.remainingAbsences}x`}
+                        </span>
+                      </span>
                     </div>
 
-                    {/* Breakdown Counters & Action */}
-                    <div className="pt-2.5 border-t border-outline-variant/15 space-y-2">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-bold">
-                            H: {att.counts.hadir}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-800 dark:text-blue-200 font-bold">
-                            I: {att.counts.izin}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-900 dark:text-amber-200 font-bold">
-                            S: {att.counts.sakit}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md bg-error/15 text-error font-bold">
-                            A: {att.counts.alpa}
-                          </span>
-                        </div>
+                    {/* Row 2: Course Name & Lecturer */}
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-body-xs tablet:text-body-sm text-on-surface leading-tight truncate">
+                        {c.namaMK}
+                      </h4>
+                      <p className="text-[10.5px] text-on-surface-variant font-medium truncate mt-0.5">
+                        {c.dosen}
+                      </p>
+                    </div>
 
+                    {/* Row 3: Pills (H, I, S, A) & Attendance % */}
+                    <div className="pt-1.5 border-t border-outline-variant/15 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1 text-[10px] font-bold">
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
+                          H:{att.counts.hadir}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-800 dark:text-blue-300">
+                          I:{att.counts.izin}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-900 dark:text-amber-300">
+                          S:{att.counts.sakit}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-error/15 text-error">
+                          A:{att.counts.alpa}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[10.5px] text-on-surface-variant font-bold">
+                          {att.counts.totalFilled}/{att.totalSessions} Sesi
+                        </span>
+                        <span className={`text-[11px] font-black ${att.attendancePercent >= 75 ? 'text-emerald-600 dark:text-emerald-400' : 'text-error'}`}>
+                          {att.attendancePercent}%
+                        </span>
                         {onSelectCourse && (
                           <button
                             type="button"
@@ -246,21 +249,21 @@ export function AttendanceOverviewModal({
                               onClose()
                               onSelectCourse(c.kodeMK)
                             }}
-                            className="text-[11px] font-extrabold text-primary hover:underline cursor-pointer flex items-center gap-0.5"
+                            className="inline-flex items-center gap-0.5 text-[10.5px] font-black text-primary hover:underline cursor-pointer pl-1"
                           >
-                            <span>Catat Presensi</span>
-                            <Icon name="arrow_forward" size={12} />
+                            <span>Catat</span>
+                            <Icon name="arrow_forward" size={11} />
                           </button>
                         )}
                       </div>
+                    </div>
 
-                      {/* Mini Attendance Progress */}
-                      <div className="flex items-center justify-between text-[10.5px] text-on-surface-variant font-medium">
-                        <span>Tercatat: <strong>{att.counts.totalFilled}</strong> / {att.totalSessions} sesi</span>
-                        <span className={att.attendancePercent >= 75 ? 'text-emerald-600 dark:text-emerald-400 font-extrabold' : 'text-error font-extrabold'}>
-                          Kehadiran: {att.attendancePercent}%
-                        </span>
-                      </div>
+                    {/* Row 4: Subtle Progress Line */}
+                    <div className="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${att.attendancePercent >= 75 ? 'bg-emerald-500' : 'bg-error'}`}
+                        style={{ width: `${Math.min(att.attendancePercent, 100)}%` }}
+                      />
                     </div>
                   </div>
                 )
@@ -270,13 +273,17 @@ export function AttendanceOverviewModal({
         </div>
 
         {/* Footer */}
-        <footer className="flex items-center justify-between p-4 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0">
-          <span className="text-[11px] text-on-surface-variant font-medium">
-            Ketuk &quot;Catat Presensi&quot; untuk membuka panel perkuliahan lengkap
+        <footer className="flex items-center justify-between p-2.5 tablet:p-3 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0">
+          <span className="text-[10.5px] text-on-surface-variant font-medium truncate">
+            Ketuk &quot;Catat&quot; untuk membuka panel perkuliahan lengkap
           </span>
-          <Button type="button" onClick={onClose} className="font-bold">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-3.5 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-body-xs border border-outline-variant/25 transition-all shadow-xs cursor-pointer shrink-0 ml-2"
+          >
             {t ? t('modal.close') : 'Tutup'}
-          </Button>
+          </button>
         </footer>
       </div>
     </div>

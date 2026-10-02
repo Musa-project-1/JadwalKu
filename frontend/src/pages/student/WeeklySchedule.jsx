@@ -315,6 +315,10 @@ export default function WeeklySchedule() {
           conflictedIds={conflictedIds}
           allTransitions={allTransitions}
           openDetail={openDetail}
+          isCustomMode={isCustomMode}
+          setScheduleMode={setScheduleMode}
+          customScheduleIds={customScheduleIds}
+          setCustomModalOpen={setCustomModalOpen}
         />
 
         {/* Desktop View (>=1024px) */}

@@ -116,21 +116,21 @@ export function PrintScheduleModal({
           className="relative flex flex-col w-full max-w-5xl h-[92vh] max-h-[760px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-level-3 overflow-hidden animate-fade-up"
         >
           {/* Header Modal */}
-          <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-900 via-teal-700 to-emerald-800 p-4 tablet:px-6 tablet:py-4 text-white flex items-center justify-between border-b border-white/10 shrink-0 shadow-level-1">
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-level-1 backdrop-blur-md">
-                <Icon name="print" size={22} />
+          <div className="sticky top-0 z-20 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-900 p-3 tablet:px-6 tablet:py-4 text-white flex items-center justify-between border-b border-white/10 shrink-0 shadow-level-1">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white border border-white/20 shadow-level-1 backdrop-blur-md">
+                <Icon name="print" size={20} />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 id="print-schedule-title" className="text-title-sm tablet:text-title-md font-bold text-white tracking-tight truncate">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h3 id="print-schedule-title" className="text-title-sm tablet:text-title-md font-black text-white tracking-tight truncate">
                     {t ? t('print.title') : 'Cetak Jadwal Kuliah'}
                   </h3>
-                  <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-label-caps font-extrabold uppercase tracking-wide border border-white/25 shadow-level-1 backdrop-blur-md">
+                  <span className="rounded-full bg-white/20 text-white px-2 py-0.5 text-[9.5px] font-black uppercase tracking-wide border border-white/25 shadow-level-1 backdrop-blur-md shrink-0">
                     {t ? t('print.badge_ink_friendly') : 'Format A4 Bersih'}
                   </span>
                 </div>
-                <p className="text-label-caps text-white/80 font-medium truncate mt-0.5">
+                <p className="text-[11px] tablet:text-body-xs text-white/80 font-medium truncate mt-0.5">
                   {program} · Semester {semester} {tahunAjaran ? `· TA ${tahunAjaran}` : ''}
                 </p>
               </div>
@@ -253,24 +253,24 @@ export function PrintScheduleModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-between border-t border-outline-variant/20 px-4 tablet:px-6 py-3.5 bg-surface-container-low/40 shrink-0">
-            <span className="text-[11px] text-on-surface-variant font-medium">
-              {t ? t('print.ready_a4') : 'Siap dicetak pada ukuran kertas A4'}
+          <div className="flex items-center justify-between border-t border-outline-variant/20 px-3 tablet:px-6 py-2.5 tablet:py-3.5 bg-surface-container-low/40 shrink-0">
+            <span className="text-[10.5px] text-on-surface-variant font-medium truncate">
+              {t ? t('print.ready_a4') : 'Format Kertas A4'}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0 ml-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl text-body-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded-xl text-body-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer"
               >
                 {t ? t('print.cancel') : (t ? t('action.cancel') : 'Batal')}
               </button>
               <button
                 type="button"
                 onClick={handleTriggerPrint}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-800 hover:bg-teal-700 text-white text-body-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 tablet:px-5 py-1.5 tablet:py-2 rounded-xl bg-teal-800 hover:bg-teal-700 text-white text-body-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer whitespace-nowrap"
               >
-                <Icon name="print" size={16} />
+                <Icon name="print" size={15} />
                 <span>{t ? t('print.action_btn') : 'Cetak / Simpan PDF'}</span>
               </button>
             </div>

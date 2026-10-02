@@ -112,32 +112,53 @@ export default function Exams() {
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
-      {/* 1. Header Halaman – Structured 1:1 like WeeklySchedule & Tasks */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
-        <div className="flex items-center gap-4 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
-            <Icon name="quiz" size={24} />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-headline-lg-mobile tablet:text-headline-lg font-bold tracking-tight text-on-surface">
-                {t ? t('exams.title') : 'Jadwal Ujian'}
-              </h2>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
-                {filtered.length > 0 ? (language === 'en' ? `${filtered.length} Courses` : `${filtered.length} Mata Uji`) : (language === 'en' ? '0 Courses' : '0 Mata Uji')}
-              </span>
+    <div className="flex flex-col gap-3 tablet:gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
+      {/* 1. Header Halaman */}
+      <header className="rounded-2xl tablet:rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3.5 shadow-level-1 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        {/* Top Row: Title + UTS/UAS Switcher */}
+        <div className="flex items-center justify-between gap-3 w-full tablet:w-auto">
+          <div className="flex items-center gap-2.5 tablet:gap-3.5 min-w-0">
+            <div className="flex h-9 w-9 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-xl tablet:rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+              <Icon name="quiz" size={20} className="tablet:w-6 tablet:h-6" />
             </div>
-            <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-              {t ? t('exams.subtitle') : 'Jadwal UTS & UAS semester aktif'}
-            </p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-lg tablet:text-2xl font-bold tracking-tight text-on-surface">
+                  {t ? t('exams.title') : 'Jadwal Ujian'}
+                </h2>
+                <span className="rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10px] tablet:text-label-caps font-bold border border-primary/20 shrink-0">
+                  {filtered.length > 0 ? (language === 'en' ? `${filtered.length} Courses` : `${filtered.length} Mata Uji`) : (language === 'en' ? '0 Courses' : '0 Mata Uji')}
+                </span>
+              </div>
+              <p className="mt-0.5 text-[11px] tablet:text-body-xs text-on-surface-variant font-medium truncate">
+                {program ? `${program} · Semester ${semester}` : (t ? t('exams.subtitle') : 'Jadwal UTS & UAS semester aktif')}
+              </p>
+            </div>
+          </div>
+
+          {/* Switcher UTS/UAS di Mobile (<600px) */}
+          <div className="tablet:hidden inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-xs shrink-0">
+            {['UTS', 'UAS'].map((j) => (
+              <button
+                key={j}
+                type="button"
+                onClick={() => setJenis(j)}
+                className={`rounded-full px-3 py-1 text-[11px] font-bold transition-all cursor-pointer ${
+                  jenis === j
+                    ? 'bg-surface shadow-xs text-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {j}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Controls: UTS/UAS Switcher + Export .ics + TA Dropdown – 1:1 with WeeklySchedule/Tasks header controls */}
-        <div className="flex items-center gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
-          {/* Segmented Control UTS/UAS */}
-          <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
+        {/* Controls: UTS/UAS (Desktop) + TA Dropdown + Action Buttons */}
+        <div className="flex items-center gap-2 shrink-0 w-full tablet:w-auto justify-between tablet:justify-end">
+          {/* Segmented Control UTS/UAS on Tablet/Desktop */}
+          <div className="hidden tablet:inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
             {['UTS', 'UAS'].map((j) => (
               <button
                 key={j}
@@ -154,91 +175,108 @@ export default function Exams() {
             ))}
           </div>
 
-          {/* Export Kalender Button */}
-          <button
-            type="button"
-            onClick={handleExportExamIcs}
-            disabled={filtered.length === 0}
-            title={`Tambahkan Jadwal Ujian ${jenis} ke Kalender Smartphone (.ics)`}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-body-xs font-bold border border-primary/25 transition-all shadow-level-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-          >
-            <Icon name="event" size={15} />
-            <span>{t ? t('exams.sync_cal') : 'Kalender HP (.ics)'}</span>
-          </button>
-
           {/* Tahun Ajaran Dropdown */}
-          <div className="shrink-0">
+          <div className="shrink-0 min-w-0">
             <TahunAjaranDropdown
+              align="left"
               selectedTA={selectedTA}
               onSelect={setSelectedTA}
               currentTA={currentTA}
               allTAs={allTAs}
             />
           </div>
+
+          {/* Action Buttons Group (Kanan TA) */}
+          <div className="flex items-center gap-1.5 shrink-0 ml-auto tablet:ml-0">
+            {/* Tombol Denah Ruang Kampus */}
+            <button
+              type="button"
+              onClick={() => setRoomModalTarget({ ruang: 'Gedung Kuliah & Lab' })}
+              title="Lihat Denah Ruang & Lokasi Kampus"
+              className="flex items-center gap-1 px-2.5 tablet:px-3 py-1.5 rounded-full bg-surface-container-high/60 hover:bg-surface-container-highest text-on-surface-variant hover:text-primary text-[11px] tablet:text-body-xs font-bold border border-outline-variant/20 shadow-xs cursor-pointer transition-colors"
+            >
+              <Icon name="apartment" size={14} className="text-primary shrink-0" />
+              <span>Denah</span>
+            </button>
+
+            {/* Tombol Export Kalender HP (.ics) */}
+            <button
+              type="button"
+              onClick={handleExportExamIcs}
+              disabled={filtered.length === 0}
+              title={filtered.length === 0 ? 'Belum ada jadwal ujian untuk diekspor' : `Tambahkan Jadwal Ujian ${jenis} ke Kalender Smartphone (.ics)`}
+              className="flex items-center gap-1 px-2.5 tablet:px-3 py-1.5 rounded-full bg-surface-container-high/60 hover:bg-surface-container-highest text-on-surface-variant hover:text-primary text-[11px] tablet:text-body-xs font-bold border border-outline-variant/20 shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+            >
+              <Icon name="event" size={14} className="text-primary shrink-0" />
+              <span>Kalender</span>
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* 2. Secondary Toolbar – 1:1 with Tasks.jsx secondary toolbar (Mode Legend + Next Exam Summary) */}
-      <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-2.5 shadow-level-1 flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3">
-        {/* Left: Mode Legend (mirrors WeeklySchedule Tipe legend) */}
-        <div className="flex items-center gap-2.5 tablet:gap-3 shrink-0 text-label-caps font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-3 py-1 rounded-xl border border-outline-variant/20 overflow-x-auto no-scrollbar">
-          <span className="text-label-caps uppercase font-bold text-on-surface-variant/70 tracking-wider shrink-0">Mode:</span>
-          <div className="flex items-center gap-1.5 shrink-0" title="Offline: Ujian tatap muka di ruangan fisik">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-level-1 shrink-0" />
-            <span className="text-emerald-950 dark:text-emerald-200 whitespace-nowrap">Offline</span>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0" title="Online: Ujian daring via Zoom / LMS">
-            <span className="h-2 w-2 rounded-full bg-blue-500 shadow-level-1 shrink-0" />
-            <span className="text-blue-950 dark:text-blue-200 whitespace-nowrap">Online</span>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0" title="Take home: Tugas rumah / proyek">
-            <span className="h-2 w-2 rounded-full bg-amber-500 shadow-level-1 shrink-0" />
-            <span className="text-amber-950 dark:text-amber-200 whitespace-nowrap">Take home</span>
-          </div>
-          <span className="hidden tablet:inline h-4 w-px bg-outline-variant/30 shrink-0" />
-          <span className="hidden tablet:inline text-on-surface-variant/70 whitespace-nowrap">
-            {t
-              ? t('exams.filtered_summary', {
-                  jenisLabel: jenis === 'UTS' ? (language === 'en' ? 'Midterm' : 'Tengah Semester') : (language === 'en' ? 'Final Exam' : 'Akhir Semester'),
-                  count: filtered.length,
-                })
-              : `${jenis === 'UTS' ? 'Tengah Semester' : 'Akhir Semester'} · ${filtered.length} terfilter`}
-          </span>
-        </div>
-
-        {/* Right: Next Exam Countdown + Jenis Stripe Legend */}
-        <div className="flex items-center gap-2 shrink-0 justify-between tablet:justify-end">
-          {nextExam ? (
-            <div className="flex items-center gap-2 text-body-xs font-semibold text-on-surface-variant bg-primary/10 border border-primary/20 px-3 py-1 rounded-xl shadow-level-1">
-              <Icon name="timer" size={15} className="text-primary shrink-0" />
-              <span className="text-on-surface font-bold truncate max-w-[14ch] tablet:max-w-none">
-                {t ? t('exams.upcoming', { course: nextExam.namaMK ?? nextExam.kodeMK }) : `Terdekat: ${nextExam.namaMK ?? nextExam.kodeMK}`}
-              </span>
-              <span className="hidden tablet:inline text-primary">·</span>
-              <span className="text-primary font-extrabold whitespace-nowrap">
-                {(() => {
-                  const d = daysUntil(nextExam.tanggal)
-                  if (d === 0) return t ? t('exams.today') : 'Hari ini'
-                  if (d === 1) return language === 'en' ? 'Tomorrow' : 'Besok'
-                  return t ? t('exams.days_left', { days: d }) : `${d} hari lagi`
-                })()}
-              </span>
+      {/* 2. Secondary Toolbar: Mode Legend + Countdown (Hanya tampil jika ada data ujian) */}
+      {filtered.length > 0 && (
+        <div className="rounded-xl tablet:rounded-2xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-2 tablet:px-4 tablet:py-2.5 shadow-xs flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-2 tablet:gap-3">
+          {/* Left: Mode Legend */}
+          <div className="flex items-center gap-2 tablet:gap-3 shrink-0 text-[10.5px] tablet:text-label-caps font-semibold text-on-surface-variant bg-surface-container/50 dark:bg-surface-container-high/40 px-2.5 py-1 rounded-lg tablet:rounded-xl border border-outline-variant/20 overflow-x-auto no-scrollbar">
+            <span className="uppercase font-bold text-on-surface-variant/70 tracking-wider shrink-0">Mode:</span>
+            <div className="flex items-center gap-1 shrink-0" title="Offline: Ujian tatap muka di ruangan fisik">
+              <span className="h-1.5 w-1.5 tablet:h-2 tablet:w-2 rounded-full bg-emerald-500 shadow-xs shrink-0" />
+              <span className="text-emerald-950 dark:text-emerald-200 whitespace-nowrap">Offline</span>
             </div>
-          ) : (
-            <span className="text-body-xs font-semibold text-on-surface-variant">
-              {filtered.length > 0 ? `${filtered.length} ujian ${jenis} · TA ${selectedTA}` : `TA ${selectedTA} · ${jenis}`}
+            <div className="flex items-center gap-1 shrink-0" title="Online: Ujian daring via Zoom / LMS">
+              <span className="h-1.5 w-1.5 tablet:h-2 tablet:w-2 rounded-full bg-blue-500 shadow-xs shrink-0" />
+              <span className="text-blue-950 dark:text-blue-200 whitespace-nowrap">Online</span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0" title="Take home: Tugas rumah / proyek">
+              <span className="h-1.5 w-1.5 tablet:h-2 tablet:w-2 rounded-full bg-amber-500 shadow-xs shrink-0" />
+              <span className="text-amber-950 dark:text-amber-200 whitespace-nowrap">Take home</span>
+            </div>
+            <span className="hidden tablet:inline h-4 w-px bg-outline-variant/30 shrink-0" />
+            <span className="hidden tablet:inline text-on-surface-variant/70 whitespace-nowrap">
+              {t
+                ? t('exams.filtered_summary', {
+                    jenisLabel: jenis === 'UTS' ? (language === 'en' ? 'Midterm' : 'Tengah Semester') : (language === 'en' ? 'Final Exam' : 'Akhir Semester'),
+                    count: filtered.length,
+                  })
+                : `${jenis === 'UTS' ? 'Tengah Semester' : 'Akhir Semester'} · ${filtered.length} terfilter`}
             </span>
-          )}
-          <div className="hidden tablet:flex items-center gap-1.5">
-            <span className={`h-2 w-2 rounded-full shadow-level-1 ${jenis === 'UTS' ? 'bg-blue-500' : 'bg-amber-500'}`} />
-            <span className="text-label-caps font-bold text-on-surface-variant">{jenis}</span>
+          </div>
+
+          {/* Right: Next Exam Countdown + Jenis Stripe Legend */}
+          <div className="flex items-center gap-2 shrink-0 justify-between tablet:justify-end">
+            {nextExam ? (
+              <div className="flex items-center gap-1.5 text-[11px] tablet:text-body-xs font-semibold text-on-surface-variant bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg tablet:rounded-xl shadow-xs">
+                <Icon name="timer" size={14} className="text-primary shrink-0" />
+                <span className="text-on-surface font-bold truncate max-w-[14ch] tablet:max-w-none">
+                  {t ? t('exams.upcoming', { course: nextExam.namaMK ?? nextExam.kodeMK }) : `Terdekat: ${nextExam.namaMK ?? nextExam.kodeMK}`}
+                </span>
+                <span className="hidden tablet:inline text-primary">·</span>
+                <span className="text-primary font-extrabold whitespace-nowrap">
+                  {(() => {
+                    const d = daysUntil(nextExam.tanggal)
+                    if (d === 0) return t ? t('exams.today') : 'Hari ini'
+                    if (d === 1) return language === 'en' ? 'Tomorrow' : 'Besok'
+                    return t ? t('exams.days_left', { days: d }) : `${d} hari lagi`
+                  })()}
+                </span>
+              </div>
+            ) : (
+              <span className="text-[11px] tablet:text-body-xs font-semibold text-on-surface-variant">
+                {filtered.length > 0 ? `${filtered.length} ujian ${jenis} · TA ${selectedTA}` : `TA ${selectedTA} · ${jenis}`}
+              </span>
+            )}
+            <div className="hidden tablet:flex items-center gap-1.5">
+              <span className={`h-2 w-2 rounded-full shadow-xs ${jenis === 'UTS' ? 'bg-blue-500' : 'bg-amber-500'}`} />
+              <span className="text-label-caps font-bold text-on-surface-variant">{jenis}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* 3. Urgent Banner – mirrors Tasks.jsx highPriority banner (error/amber) */}
+      {/* 3. Urgent Banner */}
       {urgentExams.length > 0 && (
-        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/15 p-4 space-y-2 shadow-level-1">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/15 p-3 tablet:p-4 space-y-2 shadow-level-1">
           <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200 font-extrabold text-body-xs">
             <Icon name="priority_high" size={17} className="shrink-0 animate-bounce" />
             <span>Ujian Mendekat – Persiapkan diri!</span>
@@ -253,16 +291,16 @@ export default function Exams() {
               return (
                 <div
                   key={exam.id}
-                  className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-surface-container-lowest dark:bg-surface-container-low border border-amber-500/25 shadow-level-1 hover:border-amber-500/40 transition-colors"
+                  className="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-container-lowest dark:bg-surface-container-low border border-amber-500/25 shadow-xs hover:border-amber-500/40 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="text-body-xs font-bold text-on-surface truncate">{exam.namaMK ?? exam.kodeMK}</p>
-                    <p className="text-body-xs text-amber-700 dark:text-amber-300 font-semibold mt-0.5">
+                    <p className="text-[11px] tablet:text-body-xs text-amber-700 dark:text-amber-300 font-semibold mt-0.5">
                       {formatExamDate(exam.tanggal)} · {exam.jam} WIB
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-xl bg-amber-500/15 text-amber-800 dark:text-amber-200 border border-amber-500/25 px-2 py-1 text-label-caps font-extrabold flex items-center gap-1">
-                    <Icon name="timer" size={13} />
+                  <span className="shrink-0 rounded-xl bg-amber-500/15 text-amber-800 dark:text-amber-200 border border-amber-500/25 px-2 py-0.5 text-[10px] tablet:text-label-caps font-extrabold flex items-center gap-1">
+                    <Icon name="timer" size={12} />
                     {label}
                   </span>
                 </div>
@@ -272,21 +310,21 @@ export default function Exams() {
         </div>
       )}
 
-      {/* 4. Content Area: Loading / Empty State / Exam Cards – 1:1 with Tasks.jsx */}
+      {/* 4. Content Area: Loading / Empty State / Exam Cards */}
       {loading ? (
         <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3">
-          <Skeleton className="h-40 rounded-3xl" />
-          <Skeleton className="h-40 rounded-3xl" />
+          <Skeleton className="h-32 rounded-2xl tablet:rounded-3xl" />
+          <Skeleton className="h-32 rounded-2xl tablet:rounded-3xl" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-outline-variant/35 bg-surface-container-lowest dark:bg-surface-container-low p-8 tablet:p-12 text-center shadow-level-1 flex flex-col items-center justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary border border-primary/20 shadow-level-1 mb-3">
-            <Icon name={jenis === 'UTS' ? 'quiz' : 'school'} size={36} />
+        <div className="rounded-2xl tablet:rounded-3xl border border-dashed border-outline-variant/30 bg-surface-container-lowest/60 dark:bg-surface-container-low/40 p-6 tablet:p-10 text-center shadow-xs flex flex-col items-center justify-center my-1">
+          <div className="flex h-12 w-12 tablet:h-14 tablet:w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs mb-2.5">
+            <Icon name={jenis === 'UTS' ? 'quiz' : 'school'} size={24} className="tablet:w-7 tablet:h-7" />
           </div>
-          <h3 className="text-title-md font-bold text-on-surface">
+          <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface">
             {t ? t('exams.empty_title', { jenis }) : `Belum ada data ujian ${jenis}`}
           </h3>
-          <p className="mt-1.5 text-body-xs text-on-surface-variant max-w-md mx-auto leading-relaxed">
+          <p className="mt-1 text-[11.5px] tablet:text-body-xs text-on-surface-variant max-w-sm mx-auto leading-relaxed">
             {t
               ? t('exams.empty_desc', {
                   jenisFull: jenis === 'UTS' ? (language === 'en' ? 'Midterm Exam (UTS)' : 'Ujian Tengah Semester (UTS)') : (language === 'en' ? 'Final Exam (UAS)' : 'Ujian Akhir Semester (UAS)'),
@@ -296,19 +334,19 @@ export default function Exams() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-4">
           {grouped.map(([dateLabel, exams]) => (
-            <section key={dateLabel} className="space-y-4">
+            <section key={dateLabel} className="space-y-3">
               <div className="flex items-center justify-between px-1 py-1 border-b border-outline-variant/20">
-                <span className="text-label-caps font-extrabold uppercase tracking-wider text-on-surface flex items-center gap-1.5">
+                <span className="text-[11px] tablet:text-label-caps font-extrabold uppercase tracking-wider text-on-surface flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-primary" />
                   <span>{formatExamDate(dateLabel)}</span>
                 </span>
-                <span className="text-label-caps font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] tablet:text-label-caps font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
                   {t ? t('exams.count_badge', { count: exams.length }) : `${exams.length} Ujian`}
                 </span>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {exams.map((exam) => (
                   <ExamCard key={exam.id} exam={exam} onLocation={setRoomModalTarget} />
                 ))}
@@ -349,41 +387,41 @@ function ExamCard({ exam, onLocation }) {
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl bg-surface-container-lowest p-4 shadow-level-1 border border-outline-variant/25 transition-all duration-200 hover:shadow-level-1 hover:border-outline-variant/40 dark:bg-surface-container-low ${isPast ? 'opacity-85' : ''}`}
+      className={`group relative overflow-hidden rounded-xl tablet:rounded-2xl bg-surface-container-lowest p-3 tablet:p-4 shadow-xs border border-outline-variant/25 transition-all duration-200 hover:shadow-xs hover:border-outline-variant/40 dark:bg-surface-container-low ${isPast ? 'opacity-85' : ''}`}
     >
       {/* Left Stripe – 1:1 with TaskCard priority stripe */}
-      <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${stripeColor}`} />
+      <div className={`absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-full ${stripeColor}`} />
 
-      <div className="flex justify-between items-start mb-2.5 gap-2 pl-2">
+      <div className="flex justify-between items-start mb-2 gap-2 pl-1.5">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 flex-wrap mb-1">
-            <span className="font-mono text-label-caps font-extrabold text-primary bg-primary/10 border border-primary/20 px-2 py-0.2 rounded-md">
+          <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+            <span className="font-mono text-[10px] tablet:text-label-caps font-extrabold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.2 rounded">
               {exam.kodeMK}
             </span>
-            <span className="text-body-xs font-bold text-on-surface-variant">
+            <span className="text-[11px] tablet:text-body-xs font-bold text-on-surface-variant">
               Ujian {exam.jenis}
             </span>
             {isPast && (
-              <span className="text-label-caps font-bold text-on-surface-variant bg-surface-container px-1.5 py-0.2 rounded-md border border-outline-variant/20">
+              <span className="text-[9.5px] tablet:text-label-caps font-bold text-on-surface-variant bg-surface-container px-1.5 py-0.2 rounded-md border border-outline-variant/20">
                 Selesai
               </span>
             )}
           </div>
-          <h4 className="text-body-sm font-extrabold text-on-surface leading-snug truncate group-hover:text-primary transition-colors">
+          <h4 className="text-body-xs tablet:text-body-sm font-extrabold text-on-surface leading-snug truncate group-hover:text-primary transition-colors">
             {exam.namaMK ?? exam.kodeMK}
           </h4>
         </div>
 
-        <span className={`px-2.5 py-1 rounded-xl flex items-center gap-1 text-label-caps font-extrabold shadow-level-1 shrink-0 ${badgeStyle}`}>
-          <Icon name="timer" size={13} />
+        <span className={`px-2 py-0.5 tablet:px-2.5 tablet:py-1 rounded-lg tablet:rounded-xl flex items-center gap-1 text-[10px] tablet:text-label-caps font-extrabold shadow-xs shrink-0 ${badgeStyle}`}>
+          <Icon name="timer" size={12} />
           <span>{countdown}</span>
         </span>
       </div>
 
-      <div className="flex items-center justify-between bg-surface-container-low/60 dark:bg-surface-container-high/30 rounded-xl p-2.5 border border-outline-variant/15 mt-3 ml-2">
-        <div className="flex items-center gap-3 text-body-xs font-semibold text-on-surface-variant">
+      <div className="flex items-center justify-between bg-surface-container-low/60 dark:bg-surface-container-high/30 rounded-lg tablet:rounded-xl p-2 tablet:p-2.5 border border-outline-variant/15 mt-2 ml-1.5">
+        <div className="flex items-center gap-2.5 tablet:gap-3 text-[11px] tablet:text-body-xs font-semibold text-on-surface-variant">
           <span className="flex items-center gap-1 text-on-surface font-bold">
-            <Icon name="schedule" size={15} className="text-primary shrink-0" />
+            <Icon name="schedule" size={14} className="text-primary shrink-0" />
             <span>{exam.jam} WIB</span>
           </span>
           <span>·</span>
@@ -393,13 +431,13 @@ function ExamCard({ exam, onLocation }) {
             className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
             title="Lihat Denah Lantai & Lokasi Ruang Ujian"
           >
-            <Icon name={exam.mode === 'Online' ? 'videocam' : 'location_on'} size={15} className="text-primary shrink-0" />
+            <Icon name={exam.mode === 'Online' ? 'videocam' : 'location_on'} size={14} className="text-primary shrink-0" />
             <span className="underline decoration-dotted underline-offset-2">{exam.ruang ?? '-'}</span>
           </button>
         </div>
 
-        <span className="bg-surface-container-lowest dark:bg-surface-container-low text-on-surface px-2 py-0.5 rounded-lg text-body-xs font-bold border border-outline-variant/20 flex items-center gap-1">
-          <Icon name={MODE_ICONS[exam.mode] ?? 'help_outline'} size={12} />
+        <span className="bg-surface-container-lowest dark:bg-surface-container-low text-on-surface px-1.5 py-0.5 rounded text-[10px] tablet:text-body-xs font-bold border border-outline-variant/20 flex items-center gap-1">
+          <Icon name={MODE_ICONS[exam.mode] ?? 'help_outline'} size={11} />
           <span>{exam.mode ?? '-'}</span>
         </span>
       </div>

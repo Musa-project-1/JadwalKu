@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Icon } from '../Icon'
-import { Button } from '../Button'
 import { useApp } from '../../hooks/useApp'
 import { getItem, setItem, STORAGE_KEYS } from '../../lib/storage'
 
@@ -90,23 +89,23 @@ export function CourseNotesModal({
         className="relative w-full max-w-4xl max-h-[92vh] tablet:max-h-[88vh] flex flex-col rounded-3xl border border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low shadow-2xl animate-fade-up overflow-hidden"
       >
         {/* Header - Rich Amber/Orange Gradient Hero Header */}
-        <header className="sticky top-0 z-20 bg-gradient-to-r from-amber-800/95 via-amber-700 to-orange-800 p-4 tablet:p-5 text-white shadow-level-1 shrink-0">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white border border-white/20 shadow-xs">
-                <Icon name="edit_note" size={24} />
+        <header className="sticky top-0 z-20 bg-gradient-to-r from-amber-900 via-amber-800 to-orange-900 p-3 tablet:p-5 text-white shadow-level-1 shrink-0">
+          <div className="flex items-start justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white border border-white/20 shadow-xs">
+                <Icon name="edit_note" size={20} />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                  <h3 id="course-notes-title" className="text-xl tablet:text-2xl font-bold tracking-tight text-white truncate">
-                    {language === 'en' ? 'All Course Notes' : 'Semua Catatan Kuliah'}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h3 id="course-notes-title" className="text-title-sm tablet:text-title-md font-black tracking-tight text-white truncate">
+                    {language === 'en' ? 'Course Notes' : 'Catatan Kuliah'}
                   </h3>
-                  <span className="rounded-full bg-white/20 text-white px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider border border-white/25 shadow-2xs">
-                    {language === 'en' ? `${notesList.length} Active Notes` : `${notesList.length} Catatan Aktif`}
+                  <span className="rounded-full bg-white/20 text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wider border border-white/25 shadow-2xs shrink-0">
+                    {language === 'en' ? `${notesList.length} Active` : `${notesList.length} Aktif`}
                   </span>
                 </div>
-                <p className="text-body-xs text-white/80 font-medium truncate">
-                  {language === 'en' ? 'Compilation of course notes, assignment instructions, and exam reminders' : 'Kompilasi catatan kuliah, instruksi tugas, materi penting, dan pengingat kuis'}
+                <p className="text-[11px] tablet:text-body-xs text-white/80 font-medium truncate mt-0.5">
+                  {language === 'en' ? 'Notes saved for your courses' : 'Kumpulan catatan dan instruksi tugas perkuliahan'}
                 </p>
               </div>
             </div>
@@ -116,71 +115,71 @@ export function CourseNotesModal({
               type="button"
               onClick={onClose}
               aria-label={t ? t('action.close') : 'Tutup modal'}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 active:scale-95 transition-all cursor-pointer"
             >
-              <Icon name="close" size={20} />
+              <Icon name="close" size={18} />
             </button>
           </div>
         </header>
 
         {/* Search Toolbar */}
-        <div className="p-3.5 border-b border-outline-variant/15 bg-surface-container-low/50 dark:bg-surface-container-high/20 shrink-0">
+        <div className="p-2.5 tablet:p-3 border-b border-outline-variant/15 bg-surface-container-low/50 dark:bg-surface-container-high/20 shrink-0">
           <div className="relative w-full max-w-xl mx-auto">
             <Icon
               name="search"
-              size={18}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
             />
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t ? t('notes_modal.search_ph') : 'Cari isi catatan, nama mata kuliah, dosen, atau kode MK...'}
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-surface-container-lowest border border-outline-variant/30 text-body-xs text-on-surface focus:outline-none focus:border-amber-600 dark:bg-surface-container-high shadow-2xs"
+              placeholder={t ? t('notes_modal.search_ph') : 'Cari catatan, matkul, atau dosen...'}
+              className="w-full pl-9 pr-3.5 py-1.5 tablet:py-2 rounded-xl bg-surface-container-lowest border border-outline-variant/30 text-body-xs text-on-surface focus:outline-none focus:border-amber-600 dark:bg-surface-container-high shadow-2xs"
             />
           </div>
         </div>
 
-        {/* Notes List Body - 2-Column Responsive Grid on Tablets/Desktop */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 tablet:p-5 custom-scrollbar">
+        {/* Notes List Body - Responsive Grid */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-2.5 tablet:p-4 custom-scrollbar">
           {filteredNotes.length === 0 ? (
-            <div className="py-16 text-center text-on-surface-variant space-y-3 max-w-md mx-auto">
-              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 mx-auto shadow-2xs">
-                <Icon name="description" size={36} />
+            <div className="py-8 tablet:py-12 text-center text-on-surface-variant space-y-2 max-w-xs mx-auto">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 mx-auto shadow-2xs">
+                <Icon name="description" size={22} />
               </div>
-              <h4 className="text-body-md font-bold text-on-surface">
+              <h4 className="text-body-sm font-extrabold text-on-surface">
                 {searchQuery ? (t ? t('notes_modal.empty_search') : 'Tidak ada catatan yang cocok') : (t ? t('notes_modal.empty_title') : 'Belum ada catatan kuliah')}
               </h4>
-              <p className="text-body-xs text-on-surface-variant leading-relaxed">
+              <p className="text-[11.5px] text-on-surface-variant leading-relaxed">
                 {searchQuery
-                  ? (language === 'en' ? 'Try other keywords or check course code spelling.' : 'Coba gunakan kata kunci lain atau periksa ejaan kode mata kuliah.')
-                  : (t ? t('notes_modal.empty_desc') : 'Buka salah satu jadwal mata kuliah pada grid mingguan dan isi catatan di panel detail untuk menyimpannya secara otomatis di sini.')}
+                  ? (language === 'en' ? 'Try other keywords.' : 'Coba gunakan kata kunci lain.')
+                  : (t ? t('notes_modal.empty_desc') : 'Buka jadwal kuliah mingguan dan tambah catatan di panel detail untuk melihatnya di sini.')}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3.5">
+            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-2.5 tablet:gap-3">
               {filteredNotes.map((item) => (
                 <div
                   key={item.kodeMK}
-                  className="rounded-2xl border border-amber-500/35 bg-gradient-to-br from-amber-500/10 via-surface-container-lowest to-transparent dark:from-amber-500/15 dark:via-surface-container-low p-4 shadow-2xs space-y-3 flex flex-col justify-between"
+                  className="rounded-xl tablet:rounded-2xl border border-amber-500/35 bg-gradient-to-br from-amber-500/10 via-surface-container-lowest to-transparent dark:from-amber-500/15 dark:via-surface-container-low p-2.5 tablet:p-3.5 shadow-2xs space-y-2 flex flex-col justify-between"
                 >
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {/* Course Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                          <span className="font-mono text-[10px] font-extrabold text-amber-900 bg-amber-500/20 dark:text-amber-200 border border-amber-500/30 px-2 py-0.5 rounded-md">
+                        <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                          <span className="font-mono text-[10px] font-black text-amber-900 bg-amber-500/20 dark:text-amber-200 border border-amber-500/30 px-1.5 py-0.5 rounded-md">
                             {item.kodeMK}
                           </span>
                           <span className="text-[10.5px] font-bold text-on-surface-variant">
                             {item.sks} SKS
                           </span>
                         </div>
-                        <h4 className="text-body-sm font-extrabold text-on-surface truncate leading-snug">
+                        <h4 className="text-body-xs tablet:text-body-sm font-extrabold text-on-surface truncate leading-tight">
                           {item.namaMK}
                         </h4>
                         {item.dosen && (
-                          <p className="text-[11px] text-on-surface-variant font-medium mt-0.5 truncate">
+                          <p className="text-[10.5px] text-on-surface-variant font-medium mt-0.5 truncate">
                             {item.dosen}
                           </p>
                         )}
@@ -191,12 +190,12 @@ export function CourseNotesModal({
                         <button
                           type="button"
                           onClick={() => handleCopy(item.kodeMK, item.note)}
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-surface-container text-[11px] font-bold text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer border border-outline-variant/20"
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-surface-container text-[10.5px] font-bold text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer border border-outline-variant/20 shadow-xs"
                           title="Salin Catatan"
                         >
                           <Icon
                             name={copiedId === item.kodeMK ? 'check' : 'content_copy'}
-                            size={13}
+                            size={12}
                             className={copiedId === item.kodeMK ? 'text-emerald-500' : ''}
                           />
                           <span>{copiedId === item.kodeMK ? 'Tersalin' : 'Salin'}</span>
@@ -205,16 +204,16 @@ export function CourseNotesModal({
                         <button
                           type="button"
                           onClick={() => handleDelete(item.kodeMK)}
-                          className="p-1.5 rounded-xl text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors cursor-pointer"
+                          className="p-1 rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors cursor-pointer"
                           title="Hapus Catatan"
                         >
-                          <Icon name="delete" size={15} />
+                          <Icon name="delete" size={14} />
                         </button>
                       </div>
                     </div>
 
                     {/* Note Content Box */}
-                    <div className="rounded-xl bg-surface-container-lowest dark:bg-surface-container-high/60 p-3 border border-outline-variant/25 shadow-2xs">
+                    <div className="rounded-lg bg-surface-container-lowest dark:bg-surface-container-high/60 p-2.5 border border-outline-variant/25 shadow-2xs">
                       <p className="text-body-xs text-on-surface whitespace-pre-wrap leading-relaxed">
                         {item.note}
                       </p>
@@ -230,10 +229,10 @@ export function CourseNotesModal({
                           onClose()
                           onOpenCourseDetail(item.kodeMK)
                         }}
-                        className="text-[11px] font-extrabold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-[10.5px] font-extrabold text-primary hover:underline flex items-center gap-0.5 cursor-pointer"
                       >
                         <span>Buka Detail Jadwal</span>
-                        <Icon name="arrow_forward" size={13} />
+                        <Icon name="arrow_forward" size={11} />
                       </button>
                     </div>
                   )}
@@ -244,13 +243,17 @@ export function CourseNotesModal({
         </div>
 
         {/* Footer */}
-        <footer className="flex items-center justify-between p-4 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0">
-          <span className="text-[11px] text-on-surface-variant font-medium">
-            Catatan disimpan secara lokal pada perangkat Anda
+        <footer className="flex items-center justify-between p-2.5 tablet:p-3 border-t border-outline-variant/15 bg-surface-container-low/40 shrink-0">
+          <span className="text-[10.5px] text-on-surface-variant font-medium truncate">
+            Catatan disimpan secara lokal (offline-first)
           </span>
-          <Button type="button" onClick={onClose} className="font-bold">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-3.5 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-body-xs border border-outline-variant/25 transition-all shadow-xs cursor-pointer shrink-0 ml-2"
+          >
             {t ? t('modal.close') : 'Tutup'}
-          </Button>
+          </button>
         </footer>
       </div>
     </div>

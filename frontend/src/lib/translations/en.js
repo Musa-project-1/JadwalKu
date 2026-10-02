@@ -183,6 +183,7 @@ export const en = {
     'print.layout_format': 'Layout Format',
     'print.action_btn': 'Print / Save PDF',
     'print.header_note': 'Header Note / Name',
+    'print.header_placeholder': 'e.g., Name (Student ID) or Note',
     'print.badge_ink_friendly': 'Ink-Friendly A4',
     'print.cancel': 'Cancel',
     'print.format_wall': 'Desk',

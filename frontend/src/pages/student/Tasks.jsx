@@ -113,72 +113,85 @@ export default function Tasks() {
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
-      {/* 1. Header Halaman – Structured like WeeklySchedule */}
-      <header className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3 shadow-level-1 flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between w-full">
-        <div className="flex items-center gap-4 min-w-0">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-level-1">
-            <Icon name="assignment" size={24} />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl tablet:text-2xl font-bold tracking-tight text-on-surface">
-                {t ? t('tasks.title') : 'Tugas Kuliah'}
-              </h2>
-              <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-label-caps font-bold border border-primary/20">
-                {allActiveCount > 0 ? (language === 'en' ? `${allActiveCount} Active` : `${allActiveCount} Aktif`) : (language === 'en' ? 'Completed' : 'Tuntas')}
-              </span>
+    <div className="flex flex-col gap-3 tablet:gap-4 w-full max-w-full overflow-x-hidden animate-fade-in">
+      {/* 1. Header Halaman */}
+      <header className="rounded-2xl tablet:rounded-3xl border border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container-low p-3 tablet:px-4 tablet:py-3.5 shadow-level-1 flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between w-full">
+        <div className="flex items-center justify-between gap-3 w-full tablet:w-auto">
+          <div className="flex items-center gap-2.5 tablet:gap-3.5 min-w-0">
+            <div className="flex h-9 w-9 tablet:h-11 tablet:w-11 shrink-0 items-center justify-center rounded-xl tablet:rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+              <Icon name="assignment" size={20} className="tablet:w-6 tablet:h-6" />
             </div>
-            <p className="mt-0.5 text-body-xs text-on-surface-variant font-medium truncate">
-              {t ? t('tasks.subtitle') : 'Kelola tugas kuliah, kuis, dan deadline proyek'}
-            </p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-lg tablet:text-2xl font-bold tracking-tight text-on-surface">
+                  {t ? t('tasks.title') : 'Tugas Kuliah'}
+                </h2>
+                <span className="rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10px] tablet:text-label-caps font-bold border border-primary/20">
+                  {allActiveCount > 0 ? (language === 'en' ? `${allActiveCount} Active` : `${allActiveCount} Aktif`) : (language === 'en' ? 'Completed' : 'Tuntas')}
+                </span>
+              </div>
+              <p className="mt-0.5 text-[11px] tablet:text-body-xs text-on-surface-variant font-medium truncate">
+                {t ? t('tasks.subtitle') : 'Kelola tugas kuliah, kuis, dan deadline proyek'}
+              </p>
+            </div>
           </div>
+
+          {/* Primary Add Task Action on Mobile (<600px) */}
+          <button
+            type="button"
+            onClick={openAddForm}
+            className="tablet:hidden flex items-center gap-1 px-3 py-1.5 rounded-xl bg-primary text-on-primary text-body-xs font-bold shadow-xs hover:bg-primary/90 active:scale-95 transition-all cursor-pointer shrink-0"
+          >
+            <Icon name="add" size={15} />
+            <span>{t ? t('tasks.add_task') : 'Tambah'}</span>
+          </button>
         </div>
 
         {/* Controls Desktop & Tablet */}
         <div className="flex items-center gap-2 shrink-0 flex-wrap tablet:flex-nowrap">
-          {/* Scope Filter Switcher */}
-          <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => setScopeFilter('all')}
-              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
-                scopeFilter === 'all'
-                  ? 'bg-surface shadow-level-1 text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              {language === 'en' ? 'All' : 'Semua'} ({tasks.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setScopeFilter('personal')}
-              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
-                scopeFilter === 'personal'
-                  ? 'bg-surface shadow-level-1 text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              {language === 'en' ? 'Personal' : 'Pribadi'} ({tasks.filter((task) => !task.isProdi).length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setScopeFilter('prodi')}
-              className={`rounded-full px-3 py-1 text-label-caps font-bold transition-all cursor-pointer ${
-                scopeFilter === 'prodi'
-                  ? 'bg-surface shadow-level-1 text-primary'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              {language === 'en' ? 'Program' : 'Prodi'} ({tasks.filter((task) => task.isProdi).length})
-            </button>
-          </div>
+          {tasks.length > 0 && (
+            <div className="inline-flex items-center rounded-full border border-outline-variant/30 bg-surface-container-high/50 p-0.5 shadow-level-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => setScopeFilter('all')}
+                className={`rounded-full px-2.5 tablet:px-3 py-1 text-[11px] tablet:text-label-caps font-bold transition-all cursor-pointer ${
+                  scopeFilter === 'all'
+                    ? 'bg-surface shadow-level-1 text-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {language === 'en' ? 'All' : 'Semua'} ({tasks.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setScopeFilter('personal')}
+                className={`rounded-full px-2.5 tablet:px-3 py-1 text-[11px] tablet:text-label-caps font-bold transition-all cursor-pointer ${
+                  scopeFilter === 'personal'
+                    ? 'bg-surface shadow-level-1 text-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {language === 'en' ? 'Personal' : 'Pribadi'} ({tasks.filter((task) => !task.isProdi).length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setScopeFilter('prodi')}
+                className={`rounded-full px-2.5 tablet:px-3 py-1 text-[11px] tablet:text-label-caps font-bold transition-all cursor-pointer ${
+                  scopeFilter === 'prodi'
+                    ? 'bg-surface shadow-level-1 text-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {language === 'en' ? 'Program' : 'Prodi'} ({tasks.filter((task) => task.isProdi).length})
+              </button>
+            </div>
+          )}
 
-          {/* Primary Add Task Action */}
+          {/* Primary Add Task Action on Tablet/Desktop */}
           <button
             type="button"
             onClick={openAddForm}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-2xl bg-primary text-on-primary text-body-xs tablet:text-body-sm font-bold shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+            className="hidden tablet:flex items-center gap-1.5 px-4 py-1.5 rounded-2xl bg-primary text-on-primary text-body-xs tablet:text-body-sm font-bold shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
           >
             <Icon name="add" size={16} />
             <span>{t ? t('tasks.add_task') : 'Tambah Tugas'}</span>
@@ -186,22 +199,24 @@ export default function Tasks() {
         </div>
       </header>
 
-      {/* 2. Secondary Toolbar: Progress Bar, Status Toggle & Course Filters */}
-      <TasksToolbar
-        tasks={tasks}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        courseFilter={courseFilter}
-        setCourseFilter={setCourseFilter}
-        availableCourseCodes={availableCourseCodes}
-        allActiveCount={allActiveCount}
-        allDoneCount={allDoneCount}
-        progress={progress}
-      />
+      {/* 2. Secondary Toolbar: Progress Bar, Status Toggle & Course Filters (Hanya jika ada tugas) */}
+      {tasks.length > 0 && (
+        <TasksToolbar
+          tasks={tasks}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          courseFilter={courseFilter}
+          setCourseFilter={setCourseFilter}
+          availableCourseCodes={availableCourseCodes}
+          allActiveCount={allActiveCount}
+          allDoneCount={allDoneCount}
+          progress={progress}
+        />
+      )}
 
       {/* 3. Urgent High Priority Banner (If any) */}
       {highPriority.length > 0 && statusFilter !== 'done' && (
-        <div className="rounded-2xl border border-error/30 bg-error/10 dark:bg-error/15 p-4 space-y-2 shadow-level-1">
+        <div className="rounded-2xl border border-error/30 bg-error/10 dark:bg-error/15 p-3 tablet:p-4 space-y-2 shadow-level-1">
           <div className="flex items-center gap-2 text-error font-extrabold text-body-xs">
             <Icon name="priority_high" size={17} className="shrink-0 animate-bounce" />
             <span>{t ? t('tasks.urgent_banner') : 'Tugas Mendesak Mendekati Tenggat Waktu'}</span>
@@ -226,26 +241,28 @@ export default function Tasks() {
 
       {/* 4. Task List & Empty State Container */}
       {tasks.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-outline-variant/35 bg-surface-container-lowest dark:bg-surface-container-low p-8 tablet:p-12 text-center shadow-level-1 flex flex-col items-center justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary border border-primary/20 shadow-level-1 mb-3">
-            <Icon name="assignment" size={36} />
+        <div className="rounded-2xl tablet:rounded-3xl border border-dashed border-outline-variant/30 bg-surface-container-lowest/60 dark:bg-surface-container-low/40 p-6 tablet:p-10 text-center shadow-xs flex flex-col items-center justify-center my-1">
+          <div className="flex h-12 w-12 tablet:h-14 tablet:w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs mb-2.5">
+            <Icon name="assignment" size={24} className="tablet:w-7 tablet:h-7" />
           </div>
-          <h3 className="text-title-md font-bold text-on-surface">{t ? t('tasks.empty_title') : 'Belum ada tugas kuliah'}</h3>
-          <p className="mt-1.5 text-body-xs text-on-surface-variant max-w-md mx-auto leading-relaxed">
-            {t ? t('tasks.empty_desc') : 'Catat tugas individu, PR mingguan, laporan praktikum, atau tugas kelompok bersama prodi agar tidak terlewat tenggat waktu.'}
+          <h3 className="text-title-sm tablet:text-title-md font-bold text-on-surface">
+            {t ? t('tasks.empty_title') : 'Belum ada tugas kuliah'}
+          </h3>
+          <p className="mt-1 text-[11.5px] tablet:text-body-xs text-on-surface-variant max-w-sm mx-auto leading-relaxed">
+            {t ? t('tasks.empty_desc') : 'Catat tugas individu, PR mingguan, laporan praktikum, atau proyek prodi agar tidak terlewat deadline.'}
           </p>
           <button
             type="button"
             onClick={openAddForm}
-            className="mt-5 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-on-primary text-body-sm font-bold shadow-level-1 hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+            className="mt-4 flex items-center gap-1.5 px-4 py-2 rounded-xl tablet:rounded-2xl bg-primary text-on-primary text-body-xs tablet:text-body-sm font-bold shadow-xs hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
           >
-            <Icon name="add" size={18} />
+            <Icon name="add" size={16} />
             <span>{t ? t('tasks.add_modal_title') : 'Tambah Tugas Baru'}</span>
           </button>
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-outline-variant/35 bg-surface-container-lowest dark:bg-surface-container-low p-8 text-center shadow-level-1">
-          <Icon name="filter_list_off" size={36} className="mx-auto text-outline-variant mb-2" />
+        <div className="rounded-2xl tablet:rounded-3xl border border-dashed border-outline-variant/35 bg-surface-container-lowest dark:bg-surface-container-low p-6 text-center shadow-level-1">
+          <Icon name="filter_list_off" size={32} className="mx-auto text-outline-variant mb-2" />
           <h4 className="text-body-sm font-bold text-on-surface">{t ? t('tasks.empty_filter_title') : 'Tidak ada tugas yang sesuai filter'}</h4>
           <p className="text-body-xs text-on-surface-variant mt-1">{t ? t('tasks.empty_filter_desc') : 'Coba ubah status atau kategori tugas di atas.'}</p>
         </div>

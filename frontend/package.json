@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:tailscale": "vite --host 0.0.0.0 --port 5173",
     "build": "vite build",
     "lint": "oxlint",
     "test": "vite-node test_runner.mjs",
