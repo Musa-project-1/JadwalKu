@@ -87,6 +87,7 @@ skills-lock.json
 *.md
 !README.md
 docs/
+dev-tailscale.sh
 
 # Local Netlify folder
 .netlify
