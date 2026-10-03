@@ -42,12 +42,12 @@ export const TONE_DOT_CLASSES = {
   neutral: 'bg-surface-variant',
 }
 
-/** Latar tonal per tone (untuk kartu / ikon lingkaran). */
+/** Latar tonal per tone (untuk kartu / ikon lingkaran) – Clean Modern: netral dengan aksen tipis. */
 export const TONE_BG_CLASSES = {
-  offline: 'bg-status-offline/10 dark:bg-status-offline/15',
-  online: 'bg-status-online/10 dark:bg-status-online/15',
-  hybrid: 'bg-status-hybrid/10 dark:bg-status-hybrid/15',
-  combined: 'bg-status-combined/10 dark:bg-status-combined/15',
+  offline: 'bg-surface-container-lowest dark:bg-surface-container-low',
+  online: 'bg-surface-container-lowest dark:bg-surface-container-low',
+  hybrid: 'bg-surface-container-lowest dark:bg-surface-container-low',
+  combined: 'bg-surface-container-lowest dark:bg-surface-container-low',
   neutral: 'bg-surface-container',
 }
 
@@ -78,13 +78,13 @@ export const TONE_CHIP_BG_CLASSES = {
   neutral: 'bg-slate-700 text-slate-50 dark:bg-slate-500 dark:text-slate-950',
 }
 
-/** Tinted shadow per tone untuk elevasi halus pada grid & kartu. */
+/** Tinted shadow per tone untuk elevasi halus pada grid & kartu – Clean Modern: shadow netral seragam. */
 export const TONE_SHADOW_CLASSES = {
-  offline: 'shadow-[0_2px_8px_rgba(16,185,129,0.12)] hover:shadow-[0_4px_14px_rgba(16,185,129,0.22)]',
-  online: 'shadow-[0_2px_8px_rgba(59,130,246,0.12)] hover:shadow-[0_4px_14px_rgba(59,130,246,0.22)]',
-  hybrid: 'shadow-[0_2px_8px_rgba(139,92,246,0.12)] hover:shadow-[0_4px_14px_rgba(139,92,246,0.22)]',
-  combined: 'shadow-[0_2px_8px_rgba(245,158,11,0.12)] hover:shadow-[0_4px_14px_rgba(245,158,11,0.22)]',
-  neutral: 'shadow-[0_2px_8px_rgba(100,116,139,0.12)] hover:shadow-[0_4px_14px_rgba(100,116,139,0.22)]',
+  offline: 'shadow-xs hover:shadow-level-1',
+  online: 'shadow-xs hover:shadow-level-1',
+  hybrid: 'shadow-xs hover:shadow-level-1',
+  combined: 'shadow-xs hover:shadow-level-1',
+  neutral: 'shadow-xs hover:shadow-level-1',
 }
 
 /** Divider halus 1px per tone. */
@@ -105,22 +105,22 @@ export const TONE_BORDER_CLASSES = {
   neutral: 'border-l-[4px] border-outline-variant',
 }
 
-/** Border keliling 2px per tone untuk kartu jadwal baru. */
+/** Border keliling 2px per tone untuk kartu jadwal – Clean Modern: border netral tipis + aksen kiri. */
 export const TONE_CARD_BORDER_CLASSES = {
-  offline: 'border-2 border-emerald-500/40 dark:border-emerald-500/50',
-  online: 'border-2 border-blue-500/40 dark:border-blue-500/50',
-  hybrid: 'border-2 border-violet-500/40 dark:border-violet-500/50',
-  combined: 'border-2 border-amber-500/40 dark:border-amber-500/50',
-  neutral: 'border-2 border-outline-variant/30',
+  offline: 'border border-outline-variant/30 border-l-[3px] border-l-emerald-500',
+  online: 'border border-outline-variant/30 border-l-[3px] border-l-blue-500',
+  hybrid: 'border border-outline-variant/30 border-l-[3px] border-l-violet-500',
+  combined: 'border border-outline-variant/30 border-l-[3px] border-l-amber-500',
+  neutral: 'border border-outline-variant/30',
 }
 
-/** Background solid badge pill jam per tone. */
+/** Background solid badge pill jam per tone – Clean Modern: outline subtle, bukan solid pekat. */
 export const TONE_TIME_PILL_CLASSES = {
-  offline: 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-emerald-950 font-bold',
-  online: 'bg-blue-600 text-white dark:bg-blue-500 dark:text-blue-950 font-bold',
-  hybrid: 'bg-violet-600 text-white dark:bg-violet-500 dark:text-violet-950 font-bold',
-  combined: 'bg-amber-600 text-white dark:bg-amber-500 dark:text-amber-950 font-bold',
-  neutral: 'bg-slate-600 text-white dark:bg-slate-400 dark:text-slate-950 font-bold',
+  offline: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-bold',
+  online: 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/30 font-bold',
+  hybrid: 'bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-500/30 font-bold',
+  combined: 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-bold',
+  neutral: 'bg-surface-container text-on-surface-variant border border-outline-variant/40 font-bold',
 }
 
 /** Warna ikon tipe kelas. */
